@@ -1863,6 +1863,44 @@
 
     .card.hidden { display: none; }
 
+    /* 뒤로가기 바 */
+    .back-bar {
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 32px;
+      height: 40px;
+      background: var(--bg-card);
+      border-bottom: 1px solid var(--border);
+    }
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--blue-mid);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 10px;
+      border-radius: 8px;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+    .back-btn:hover { background: rgba(26,61,232,0.08); }
+    .back-btn svg { width: 14px; height: 14px; stroke: var(--blue-mid); flex-shrink: 0; }
+    .back-bar-sep { font-size: 13px; color: var(--border); }
+    .back-bar-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--txt-mid);
+    }
+    @media (max-width: 768px) {
+      .back-bar { padding: 0 16px; }
+    }
+
     /* Footer */
     footer {
       flex-shrink: 0;
@@ -3255,6 +3293,18 @@
     </div>
   </div>
 
+  <!-- 뒤로가기 바 -->
+  <div class="back-bar" id="back-bar" style="display:none">
+    <button class="back-btn" onclick="goToPage('home')" aria-label="홈으로 돌아가기">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 12H5M12 5l-7 7 7 7"/>
+      </svg>
+      홈
+    </button>
+    <span class="back-bar-sep">›</span>
+    <span class="back-bar-title" id="back-bar-title"></span>
+  </div>
+
   <!-- 소식지 뷰어 -->
   <div class="nl-viewer-overlay" id="nl-viewer" onclick="if(event.target===this)closeViewer()">
     <div class="nl-viewer-content" id="nl-viewer-content">
@@ -4389,6 +4439,14 @@
         const el = document.getElementById(`page-${p}`);
         if (el) el.style.display = p === page ? '' : 'none';
       });
+
+      /* 뒤로가기 바 */
+      const backBar   = document.getElementById('back-bar');
+      const backTitle = document.getElementById('back-bar-title');
+      if (backBar) {
+        backBar.style.display = page !== 'home' ? '' : 'none';
+        if (backTitle) backTitle.textContent = PAGE_NAMES[page] || page;
+      }
 
       if (page === 'knowledge'  && !knLoaded) { loadKnowledgePage();  knLoaded  = true; }
       if (page === 'newsletter' && !nlLoaded) { loadNewsletterPage(); nlLoaded  = true; }
