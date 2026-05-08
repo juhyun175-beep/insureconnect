@@ -1130,6 +1130,165 @@
     }
     .menu-badge.show { display: inline-block; }
 
+    /* 서브메뉴 */
+    .menu-tab-group { display: flex; flex-direction: column; }
+    .menu-tab-parent { display: flex; align-items: center; justify-content: space-between; }
+    .menu-tab-arrow { font-size: 11px; opacity: .5; transition: transform .2s ease; flex-shrink: 0; margin-left: 4px; }
+    .menu-tab-parent[data-expanded="true"] .menu-tab-arrow { transform: rotate(90deg); opacity: .8; }
+    .sub-menu { display: none; flex-direction: column; gap: 2px; padding: 2px 0 2px 14px; margin-top: 2px; }
+    .sub-menu.open { display: flex; }
+    .sub-menu-item {
+      font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 500;
+      color: var(--txt-mid); background: none; border: none;
+      padding: 9px 12px; border-radius: 8px; cursor: pointer; text-align: left;
+      transition: background .15s, color .15s;
+      border-left: 2px solid rgba(26,61,232,0.15);
+    }
+    .sub-menu-item:hover { background: rgba(26,61,232,0.06); color: var(--blue-mid); }
+    .sub-menu-item.active { background: rgba(26,61,232,0.08); color: var(--blue-mid); border-left-color: var(--blue-mid); font-weight: 700; }
+    .menu-tab-kakao { text-decoration: none; display: block; }
+
+    /* 운영자 문의 폼 */
+    .contact-wrap { max-width: 600px; margin: 0 auto; background: #fff; border: 1.5px solid rgba(12,31,184,0.10); border-radius: 18px; padding: 32px 28px 28px; box-shadow: 0 4px 24px rgba(12,31,184,0.07); }
+    .contact-icon { font-size: 36px; margin-bottom: 10px; }
+    .contact-title { font-family: 'Pretendard', sans-serif; font-size: 20px; font-weight: 800; color: var(--txt-hi); margin-bottom: 6px; }
+    .contact-desc { font-family: 'Pretendard', sans-serif; font-size: 14px; color: var(--txt-lo); margin-bottom: 24px; line-height: 1.6; }
+    .contact-form { display: flex; flex-direction: column; gap: 16px; }
+    .contact-field { display: flex; flex-direction: column; gap: 6px; }
+    .contact-label { font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 700; color: var(--txt-mid); }
+    .contact-input, .contact-select, .contact-textarea { font-family: 'Pretendard', sans-serif; font-size: 14px; padding: 11px 14px; border-radius: 10px; border: 1.5px solid rgba(12,31,184,0.14); background: #f8f9ff; color: var(--txt-hi); outline: none; transition: border-color .18s, box-shadow .18s; }
+    .contact-select { cursor: pointer; }
+    .contact-textarea { resize: vertical; min-height: 110px; line-height: 1.6; }
+    .contact-input:focus, .contact-select:focus, .contact-textarea:focus { border-color: var(--blue-mid); box-shadow: 0 0 0 3px rgba(26,61,232,0.10); background: #fff; }
+    .contact-submit { font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 800; padding: 14px 24px; border-radius: 12px; background: linear-gradient(135deg, var(--blue-mid), #4a6ef5); color: #fff; border: none; cursor: pointer; box-shadow: 0 6px 18px rgba(26,61,232,0.25); transition: transform .18s, box-shadow .18s; margin-top: 4px; }
+    .contact-submit:hover { transform: translateY(-2px); box-shadow: 0 10px 26px rgba(26,61,232,0.33); }
+    .contact-submit:disabled { opacity: .55; cursor: default; transform: none; }
+    .contact-success { display: none; text-align: center; padding: 28px 0 8px; }
+    .contact-success-icon { font-size: 48px; margin-bottom: 10px; }
+    .contact-success-msg { font-family: 'Pretendard', sans-serif; font-size: 17px; font-weight: 700; color: var(--blue-mid); margin-bottom: 8px; }
+    .contact-success-sub { font-family: 'Pretendard', sans-serif; font-size: 13px; color: var(--txt-lo); }
+    .contact-reset { margin-top: 16px; font-family: 'Pretendard', sans-serif; font-size: 13px; color: var(--blue-mid); background: none; border: none; cursor: pointer; text-decoration: underline; font-weight: 600; }
+
+    /* ── 커뮤니티 상세 페이지 (공통) ── */
+    .comm-page { display: flex; flex-direction: column; gap: 24px; }
+
+    /* 히어로 배너 */
+    .comm-hero {
+      display: grid; grid-template-columns: auto 1fr; gap: 28px; align-items: center;
+      padding: 32px 32px; border-radius: 22px;
+      border: 1.5px solid rgba(26,61,232,0.12);
+      position: relative; overflow: hidden;
+    }
+    .comm-hero--crew { background: linear-gradient(135deg, #eef3ff 0%, #ddf0ff 60%, #e8f8ff 100%); }
+    .comm-hero--manager { background: linear-gradient(135deg, #fff1f4 0%, #ffe8f8 60%, #f3e8ff 100%); }
+    .comm-hero::after {
+      content: ''; position: absolute; right: -40px; top: -40px;
+      width: 180px; height: 180px; border-radius: 50%;
+      opacity: .06;
+    }
+    .comm-hero--crew::after { background: var(--blue-mid); }
+    .comm-hero--manager::after { background: #c026d3; }
+    .comm-hero-logo {
+      width: 100px; height: 100px; border-radius: 24px; overflow: hidden; flex-shrink: 0;
+      background: #fff; box-shadow: 0 10px 30px rgba(26,61,232,0.16);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .comm-hero-logo img { width: 100%; height: 100%; object-fit: cover; }
+    .comm-hero-logo-fb { font-family: 'Pretendard', sans-serif; font-size: 18px; font-weight: 900; color: var(--blue-mid); }
+    .comm-hero-info { min-width: 0; }
+    .comm-hero-tag {
+      display: inline-block; font-family: 'Pretendard', sans-serif;
+      font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+      padding: 3px 12px; border-radius: 100px; margin-bottom: 10px;
+    }
+    .comm-hero--crew .comm-hero-tag { background: rgba(26,61,232,0.10); color: var(--blue-mid); }
+    .comm-hero--manager .comm-hero-tag { background: rgba(192,38,211,0.10); color: #a21caf; }
+    .comm-hero-name {
+      font-family: 'Pretendard', sans-serif; font-size: 28px; font-weight: 900;
+      color: var(--txt-hi); letter-spacing: -.03em; margin-bottom: 8px;
+    }
+    .comm-hero-tagline {
+      font-family: 'Pretendard', sans-serif; font-size: 15px; font-weight: 600;
+      color: var(--txt-mid); margin-bottom: 16px;
+    }
+    .comm-hero-join {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 12px 24px; border-radius: 12px; font-family: 'Pretendard', sans-serif;
+      font-size: 15px; font-weight: 900; text-decoration: none;
+      background: linear-gradient(135deg, #fee500, #ffcc00); color: #191919;
+      box-shadow: 0 4px 16px rgba(254,229,0,0.40);
+      transition: transform .18s, box-shadow .18s;
+    }
+    .comm-hero-join:hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(254,229,0,0.55); }
+
+    /* 본문 2열 */
+    .comm-body { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    @media (max-width: 720px) { .comm-body { grid-template-columns: 1fr; } .comm-hero { grid-template-columns: 1fr; text-align: center; } .comm-hero-logo { margin: 0 auto; } }
+
+    /* 소개 블록 */
+    .comm-block {
+      background: #fff; border: 1.5px solid rgba(12,31,184,0.08);
+      border-radius: 18px; padding: 24px;
+    }
+    .comm-block-title {
+      font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 800;
+      color: var(--blue-mid); letter-spacing: .06em; text-transform: uppercase;
+      margin-bottom: 14px; display: flex; align-items: center; gap: 7px;
+    }
+    .comm-block-title::before { content: ''; display: block; width: 3px; height: 14px; background: var(--blue-mid); border-radius: 2px; }
+    .comm-block--manager .comm-block-title { color: #a21caf; }
+    .comm-block--manager .comm-block-title::before { background: #a21caf; }
+    .comm-desc-text {
+      font-family: 'Pretendard', sans-serif; font-size: 14px; color: var(--txt-mid);
+      line-height: 1.85; word-break: keep-all;
+    }
+
+    /* 특징 리스트 */
+    .comm-features { display: flex; flex-direction: column; gap: 14px; }
+    .comm-feature-item { display: flex; align-items: flex-start; gap: 12px; }
+    .comm-feature-icon {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 18px;
+      background: rgba(26,61,232,0.07);
+    }
+    .comm-block--manager .comm-feature-icon { background: rgba(192,38,211,0.07); }
+    .comm-feature-text { flex: 1; min-width: 0; }
+    .comm-feature-name {
+      font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 800;
+      color: var(--txt-hi); margin-bottom: 2px;
+    }
+    .comm-feature-desc {
+      font-family: 'Pretendard', sans-serif; font-size: 12px; color: var(--txt-lo); line-height: 1.5;
+    }
+
+    /* 참여 조건 바 */
+    .comm-cond-bar {
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .comm-cond-item {
+      flex: 1; min-width: 120px; display: flex; align-items: center; gap: 10px;
+      background: #f8f9ff; border: 1.5px solid rgba(12,31,184,0.09);
+      border-radius: 12px; padding: 12px 14px;
+    }
+    .comm-cond-item--manager { background: #fdf4ff; border-color: rgba(192,38,211,0.09); }
+    .comm-cond-emoji { font-size: 20px; }
+    .comm-cond-label { font-family: 'Pretendard', sans-serif; font-size: 11px; font-weight: 600; color: var(--txt-lo); margin-bottom: 2px; }
+    .comm-cond-val { font-family: 'Pretendard', sans-serif; font-size: 13px; font-weight: 800; color: var(--txt-hi); }
+
+    /* 전체 CTA 버튼 */
+    .comm-cta-full {
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+      padding: 20px; border-radius: 16px;
+      background: linear-gradient(135deg, #fee500, #ffcc00);
+      font-family: 'Pretendard', sans-serif; font-size: 17px; font-weight: 900;
+      color: #191919; text-decoration: none;
+      box-shadow: 0 6px 24px rgba(254,229,0,0.40);
+      transition: transform .18s, box-shadow .18s;
+    }
+    .comm-cta-full:hover { transform: translateY(-3px); box-shadow: 0 10px 32px rgba(254,229,0,0.55); }
+
+    @media (max-width: 600px) { .contact-wrap { padding: 24px 16px 20px; } .comm-hero { padding: 22px 18px; } .comm-hero-name { font-size: 22px; } }
+
     /* 햄버거 버튼 (모바일) */
     .side-toggle {
       display: none;
@@ -3129,18 +3288,21 @@
     </div>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
-      <button class="menu-tab" data-page="community">👥 커뮤니티</button>
+      <div class="menu-tab-group">
+        <button class="menu-tab menu-tab-parent" id="menu-community-toggle" data-expanded="false">
+          👥 커뮤니티<span class="menu-tab-arrow">›</span>
+        </button>
+        <div class="sub-menu" id="submenu-community">
+          <button class="sub-menu-item" data-page="community-crew">보험설계사 커뮤니티</button>
+          <button class="sub-menu-item" data-page="community-manager">설계매니저 커뮤니티</button>
+        </div>
+      </div>
+      <a class="menu-tab menu-tab-kakao" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','menu')">💬 운영자 문의</a>
       <div class="side-cur-indicator" id="side-cur-indicator" style="display:none">
         <span class="sci-arrow">›</span>
         <span class="sci-label" id="sci-label"></span>
       </div>
     </nav>
-    <div class="side-nav-footer">
-      <a class="side-contact" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">
-        <span class="side-contact-icon">💬</span>
-        <span class="side-contact-label">운영자 문의</span>
-      </a>
-    </div>
   </aside>
 
   <!-- ══════ 실시간 업데이트 티커 ══════ -->
@@ -3289,6 +3451,18 @@
     </div>
 
   </section>
+
+  <!-- ══════ AdSense 배너 ══════ -->
+  <div style="max-width:1360px;margin:0 auto;padding:0 32px 24px;">
+    <ins class="adsbygoogle"
+         style="display:block"
+         data-ad-client="ca-pub-7787620251169899"
+         data-ad-slot="5936826884"
+         data-ad-format="auto"
+         data-full-width-responsive="true"></ins>
+    <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+  </div>
+
   </div>
 
   <!-- ══════ PAGE: 인슈어커넥트 뉴스 ══════ -->
@@ -3481,6 +3655,217 @@
               </svg>
             </div>
           </div>
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: 보험설계사 커뮤니티 ══════ -->
+  <!-- ══════ PAGE: 보험설계사 커뮤니티 (CREW 300) ══════ -->
+  <div class="content" id="page-community-crew" style="display:none">
+    <div class="section">
+      <div class="section-head" style="margin-bottom:20px">
+        <span class="sec-num">01</span>
+        <span class="sec-title">보험설계사 커뮤니티</span>
+        <span class="sec-line"></span>
+      </div>
+      <div class="comm-page">
+
+        <!-- 히어로 -->
+        <div class="comm-hero comm-hero--crew">
+          <div class="comm-hero-logo">
+            <img src="crew300.png" alt="CREW 300" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="comm-hero-logo-fb" style="display:none">C300</div>
+          </div>
+          <div class="comm-hero-info">
+            <span class="comm-hero-tag">보험설계사 전용 커뮤니티</span>
+            <div class="comm-hero-name">CREW 300</div>
+            <div class="comm-hero-tagline">현직 설계사들이 함께 만들어가는 실무 성장 공간</div>
+            <a class="comm-hero-join" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','card')">
+              💬 카카오 오픈채팅 참여하기
+            </a>
+          </div>
+        </div>
+
+        <!-- 본문 2열 -->
+        <div class="comm-body">
+
+          <!-- 커뮤니티 소개 -->
+          <div class="comm-block">
+            <div class="comm-block-title">커뮤니티 소개</div>
+            <p class="comm-desc-text">
+              CREW 300은 현직 보험설계사들이 자발적으로 만들고 직접 운영하는 실무 중심 오픈 커뮤니티입니다.<br><br>
+              영업 현장의 생생한 노하우부터 상품별 심층 분석, 고객 응대 스킬, 클레임 대응 방법까지 — 교과서에서는 배울 수 없는 현장의 진짜 정보들이 매일 쌓입니다.<br><br>
+              신입 설계사부터 10년 이상의 베테랑까지, 소속 보험사에 관계없이 누구나 참여할 수 있습니다. 같은 고민을 가진 동료를 만나고, 함께 성장하는 경험을 해보세요.
+            </p>
+          </div>
+
+          <!-- 주요 특징 -->
+          <div class="comm-block">
+            <div class="comm-block-title">이런 분들께 추천해요</div>
+            <div class="comm-features">
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">📊</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">실무 노하우가 필요한 설계사</div>
+                  <div class="comm-feature-desc">상품 분석, 계약 유지 전략, 고객 재계약 관리 팁 등 현장에서 바로 써먹을 수 있는 정보를 나눕니다.</div>
+                </div>
+              </div>
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">💬</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">고민을 털어놓고 싶은 설계사</div>
+                  <div class="comm-feature-desc">슬럼프, 고객 거절, 계약 해지 등 혼자 감당하기 힘든 순간을 동료들과 함께 이겨냅니다.</div>
+                </div>
+              </div>
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">🤝</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">업계 네트워크를 넓히고 싶은 설계사</div>
+                  <div class="comm-feature-desc">타사 설계사와의 교류로 시야를 넓히고, 업계 전반의 동향을 빠르게 파악하세요.</div>
+                </div>
+              </div>
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">📰</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">업계 정보를 놓치고 싶지 않은 설계사</div>
+                  <div class="comm-feature-desc">금융감독원 공시, 보험사 상품 변경, 규정 개정 소식을 커뮤니티에서 가장 빠르게 접합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 참여 조건 -->
+        <div class="comm-cond-bar">
+          <div class="comm-cond-item">
+            <span class="comm-cond-emoji">💬</span>
+            <div><div class="comm-cond-label">채널 유형</div><div class="comm-cond-val">카카오 오픈채팅</div></div>
+          </div>
+          <div class="comm-cond-item">
+            <span class="comm-cond-emoji">👤</span>
+            <div><div class="comm-cond-label">참여 조건</div><div class="comm-cond-val">현직 보험설계사</div></div>
+          </div>
+          <div class="comm-cond-item">
+            <span class="comm-cond-emoji">🆓</span>
+            <div><div class="comm-cond-label">참여 비용</div><div class="comm-cond-val">완전 무료</div></div>
+          </div>
+          <div class="comm-cond-item">
+            <span class="comm-cond-emoji">🏢</span>
+            <div><div class="comm-cond-label">소속 제한</div><div class="comm-cond-val">전 보험사 가능</div></div>
+          </div>
+        </div>
+
+        <!-- 하단 CTA -->
+        <a class="comm-cta-full" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','card')">
+          💬 CREW 300 카카오 오픈채팅 참여하기
+        </a>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: 설계매니저 커뮤니티 (MANAGER LINK) ══════ -->
+  <div class="content" id="page-community-manager" style="display:none">
+    <div class="section">
+      <div class="section-head" style="margin-bottom:20px">
+        <span class="sec-num">01</span>
+        <span class="sec-title">설계매니저 커뮤니티</span>
+        <span class="sec-line"></span>
+      </div>
+      <div class="comm-page">
+
+        <!-- 히어로 -->
+        <div class="comm-hero comm-hero--manager">
+          <div class="comm-hero-logo">
+            <img src="managerlink.png" alt="MANAGER LINK" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+            <div class="comm-hero-logo-fb" style="display:none">ML</div>
+          </div>
+          <div class="comm-hero-info">
+            <span class="comm-hero-tag">설계매니저 전용 커뮤니티</span>
+            <div class="comm-hero-name">MANAGER LINK</div>
+            <div class="comm-hero-tagline">설계매니저로서의 성장을 함께 설계하는 전문 커뮤니티</div>
+            <a class="comm-hero-join" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','card')">
+              💬 카카오 오픈채팅 참여하기
+            </a>
+          </div>
+        </div>
+
+        <!-- 본문 2열 -->
+        <div class="comm-body">
+
+          <!-- 커뮤니티 소개 -->
+          <div class="comm-block comm-block--manager">
+            <div class="comm-block-title">커뮤니티 소개</div>
+            <p class="comm-desc-text">
+              MANAGER LINK는 보험 설계매니저로서의 역할과 성장을 함께 고민하는 전문 커뮤니티입니다.<br><br>
+              팀 구성과 조직 운영, 신입 설계사 육성 방법론, 매니저로서의 리더십 개발까지 — 현직 매니저들이 직접 쌓아온 노하우가 축적되어 있습니다.<br><br>
+              설계 인력 채용과 관리, 팀 목표 설정, 성과 분석 방법, 조직 문화 구축까지 매니저 역할의 모든 고민을 함께 풀어나갑니다. 혼자 감당하던 책임을, 이제 동료 매니저들과 함께 나눠보세요.
+            </p>
+          </div>
+
+          <!-- 주요 특징 -->
+          <div class="comm-block comm-block--manager">
+            <div class="comm-block-title">이런 분들께 추천해요</div>
+            <div class="comm-features">
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">🏢</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">팀 운영에 어려움을 느끼는 매니저</div>
+                  <div class="comm-feature-desc">인력 구성, 목표 배분, 성과 피드백 방법 등 실전 팀 운영 노하우를 선배 매니저로부터 직접 배웁니다.</div>
+                </div>
+              </div>
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">🌱</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">신입 육성에 고민이 많은 매니저</div>
+                  <div class="comm-feature-desc">온보딩 프로세스 설계, 교육 커리큘럼 구성, 동기 부여 방법 등 인재 육성의 모든 것을 나눕니다.</div>
+                </div>
+              </div>
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">📈</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">매니저로서 성장을 원하는 분</div>
+                  <div class="comm-feature-desc">리더십 역량 개발, 승급 전략, 임원으로 나아가는 커리어 로드맵을 함께 그려나갑니다.</div>
+                </div>
+              </div>
+              <div class="comm-feature-item">
+                <div class="comm-feature-icon">🔗</div>
+                <div class="comm-feature-text">
+                  <div class="comm-feature-name">타사 매니저와 교류하고 싶은 분</div>
+                  <div class="comm-feature-desc">다양한 보험사의 매니저들과 네트워크를 형성하고, 업계 전반의 조직 문화와 운영 방식을 비교합니다.</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 참여 조건 -->
+        <div class="comm-cond-bar">
+          <div class="comm-cond-item comm-cond-item--manager">
+            <span class="comm-cond-emoji">💬</span>
+            <div><div class="comm-cond-label">채널 유형</div><div class="comm-cond-val">카카오 오픈채팅</div></div>
+          </div>
+          <div class="comm-cond-item comm-cond-item--manager">
+            <span class="comm-cond-emoji">👔</span>
+            <div><div class="comm-cond-label">참여 조건</div><div class="comm-cond-val">현직 설계매니저</div></div>
+          </div>
+          <div class="comm-cond-item comm-cond-item--manager">
+            <span class="comm-cond-emoji">🆓</span>
+            <div><div class="comm-cond-label">참여 비용</div><div class="comm-cond-val">완전 무료</div></div>
+          </div>
+          <div class="comm-cond-item comm-cond-item--manager">
+            <span class="comm-cond-emoji">🏢</span>
+            <div><div class="comm-cond-label">소속 제한</div><div class="comm-cond-val">전 보험사 가능</div></div>
+          </div>
+        </div>
+
+        <!-- 하단 CTA -->
+        <a class="comm-cta-full" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','card')">
+          💬 MANAGER LINK 카카오 오픈채팅 참여하기
         </a>
 
       </div>
@@ -3698,7 +4083,13 @@
         <img src="logo-banner.png" class="foot-logo" alt="인슈어커넥트">
       </div>
       <div class="foot-right">
-        <p class="foot-txt">보험으로 연결하다 · 인슈어커넥트<br>© 2026 InsureConnect. All rights reserved.<br><a href="/privacy.html" style="color:inherit;opacity:0.7;font-size:0.8em;text-decoration:underline;">개인정보처리방침</a></p>
+        <p class="foot-txt">
+          보험으로 연결하다 · 인슈어커넥트<br>
+          보험설계사를 위한 무료 업무 허브 서비스<br>
+          운영 문의: <a href="mailto:juhyun175@gmail.com" style="color:inherit;opacity:0.8;text-decoration:underline;">juhyun175@gmail.com</a><br>
+          © 2026 InsureConnect. All rights reserved.<br>
+          <a href="/privacy.html" style="color:inherit;opacity:0.7;font-size:0.85em;text-decoration:underline;">개인정보처리방침</a>
+        </p>
       </div>
     </div>
   </footer>
@@ -4044,26 +4435,35 @@
 
     /* ── 페이지 전환 공통 함수 ── */
     const PAGE_NAMES = {
-      home:      '홈',
-      cardnews:  '인슈어커넥트 뉴스',
-      jeonsan:   '보험사 전산',
-      payment:   '수납 전산',
-      newsletter:'보험사 소식지',
-      claimform: '보험사 청구서류',
-      recruit:   '채용공고',
-      knowledge: '보험지식',
-      tools:     '실무 도구',
-      community: '커뮤니티',
+      home:             '홈',
+      cardnews:         '인슈어커넥트 뉴스',
+      jeonsan:          '보험사 전산',
+      payment:          '수납 전산',
+      newsletter:       '보험사 소식지',
+      claimform:        '보험사 청구서류',
+      recruit:          '채용공고',
+      knowledge:        '보험지식',
+      tools:            '실무 도구',
+      community:        '커뮤니티',
+      'community-crew':    '보험설계사 커뮤니티',
+      'community-manager': '설계매니저 커뮤니티',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
     function showPage(page) {
-      /* 홈 버튼 active 상태 (홈일 때만) */
       document.querySelectorAll('.menu-tab').forEach(t => {
         t.classList.toggle('active', t.dataset.page === page);
       });
+      document.querySelectorAll('.sub-menu-item').forEach(t => {
+        t.classList.toggle('active', t.dataset.page === page);
+      });
+      /* 커뮤니티 하위 페이지 진입 시 서브메뉴 열어두기 */
+      if (page === 'community-crew' || page === 'community-manager') {
+        const tog = document.getElementById('menu-community-toggle');
+        const sub = document.getElementById('submenu-community');
+        if (tog && sub) { tog.dataset.expanded = 'true'; sub.classList.add('open'); }
+      }
 
-      /* 현재 위치 인디케이터 */
       const indicator = document.getElementById('side-cur-indicator');
       const sciLabel  = document.getElementById('sci-label');
       if (indicator && sciLabel) {
@@ -4075,13 +4475,11 @@
         }
       }
 
-      /* 페이지 표시 전환 */
       ALL_PAGES.forEach(p => {
         const el = document.getElementById(`page-${p}`);
         if (el) el.style.display = p === page ? '' : 'none';
       });
 
-      /* 지연 로딩 */
       if (page === 'knowledge'  && !knLoaded) { loadKnowledgePage();  knLoaded  = true; }
       if (page === 'newsletter' && !nlLoaded) { loadNewsletterPage(); nlLoaded  = true; }
       if (page === 'claimform'  && !cfLoaded) { loadClaimFormPage();  cfLoaded  = true; }
@@ -4091,15 +4489,31 @@
       markMenuSeen(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
-      /* 모바일: 사이드 메뉴 닫기 */
       if (window.matchMedia('(max-width: 900px)').matches) {
         document.getElementById('side-nav').classList.remove('open');
         document.getElementById('side-backdrop').classList.remove('open');
       }
     }
 
-    /* 메뉴 탭 클릭 → showPage 위임 */
+    /* 커뮤니티 서브메뉴 토글 */
+    document.getElementById('menu-community-toggle').addEventListener('click', function() {
+      const expanded = this.dataset.expanded === 'true';
+      this.dataset.expanded = expanded ? 'false' : 'true';
+      document.getElementById('submenu-community').classList.toggle('open', !expanded);
+    });
+
+    /* 서브메뉴 아이템 클릭 */
+    document.querySelectorAll('.sub-menu-item').forEach(item => {
+      item.addEventListener('click', function() {
+        trackClick(this.textContent.trim(), 'menu');
+        showPage(this.dataset.page);
+      });
+    });
+
+    /* 메뉴 탭 클릭 (부모탭·카카오링크 제외) */
     document.querySelectorAll('.menu-tab').forEach(tab => {
+      if (tab.classList.contains('menu-tab-parent')) return;
+      if (tab.classList.contains('menu-tab-kakao')) return;
       tab.addEventListener('click', function() {
         trackClick(this.textContent.trim(), 'menu');
         showPage(this.dataset.page);
@@ -4743,6 +5157,8 @@
         console.error('Ticker error:', e);
       }
     }
+
+
 
     function goToPage(page) {
       showPage(page);
