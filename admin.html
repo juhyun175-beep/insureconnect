@@ -1,0 +1,3068 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>InsureConnect 관리자 통계</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Noto+Sans+KR:wght@300;400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* === CYBERPUNK PALETTE === */
+      --neon-cyan:    #00f0ff;
+      --neon-cyan-d:  #00b8cc;
+      --neon-pink:    #ff006e;
+      --neon-magenta: #ff2d92;
+      --neon-purple:  #b026ff;
+      --neon-violet:  #8b00ff;
+      --neon-green:   #00ff88;
+      --neon-yellow:  #fff200;
+      --neon-orange:  #ff9500;
+      --bg-void:      #050010;
+      --bg-deep:      #0a0420;
+      --bg-card:      #0f0a28;
+      --bg-card-hi:   #16113a;
+      --bg-input:     #0a0628;
+      --border:       rgba(0,240,255,0.22);
+      --border-pink:  rgba(255,0,110,0.30);
+      --txt-hi:       #e8e6ff;
+      --txt-mid:      #9b95d4;
+      --txt-lo:       #5e5a8a;
+      --txt-neon:     #00f0ff;
+      --glow-cyan:    0 0 10px rgba(0,240,255,0.55), 0 0 24px rgba(0,240,255,0.25);
+      --glow-pink:    0 0 10px rgba(255,0,110,0.55), 0 0 24px rgba(255,0,110,0.25);
+      --glow-purple:  0 0 10px rgba(176,38,255,0.55), 0 0 24px rgba(176,38,255,0.22);
+      --glow-green:   0 0 10px rgba(0,255,136,0.55), 0 0 22px rgba(0,255,136,0.22);
+      --sh-card:      0 0 0 1px rgba(0,240,255,0.18), 0 8px 32px rgba(0,0,0,0.55);
+
+      /* legacy aliases (for compatibility with inline --accent) */
+      --blue-deep:  var(--neon-purple);
+      --blue-mid:   var(--neon-cyan);
+      --blue-light: var(--neon-cyan);
+      --cyan:       var(--neon-cyan);
+    }
+
+    @keyframes scanline {
+      0%   { transform: translateY(-100%); }
+      100% { transform: translateY(100vh); }
+    }
+    @keyframes glitch {
+      0%, 100% { text-shadow: 0 0 6px var(--neon-cyan), 0 0 12px rgba(0,240,255,0.45); }
+      40%      { text-shadow: -2px 0 var(--neon-pink), 2px 0 var(--neon-cyan); }
+      60%      { text-shadow: 2px 0 var(--neon-pink), -2px 0 var(--neon-cyan); }
+    }
+    @keyframes pulse-neon {
+      0%, 100% { box-shadow: var(--glow-cyan); }
+      50%      { box-shadow: 0 0 16px rgba(0,240,255,0.85), 0 0 36px rgba(0,240,255,0.45); }
+    }
+    @keyframes flicker {
+      0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+      20%, 24%, 55% { opacity: 0.55; }
+    }
+
+    html { background: var(--bg-void); }
+    body {
+      font-family: 'JetBrains Mono', 'Noto Sans KR', monospace;
+      background: var(--bg-void);
+      background-image:
+        linear-gradient(rgba(0,240,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,0,110,0.04) 1px, transparent 1px),
+        radial-gradient(ellipse at 15% 0%, rgba(176,38,255,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 85% 100%, rgba(0,240,255,0.14) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(255,0,110,0.06) 0%, transparent 60%);
+      background-size: 44px 44px, 44px 44px, 100% 100%, 100% 100%, 100% 100%;
+      background-attachment: fixed;
+      color: var(--txt-hi);
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+      letter-spacing: 0.01em;
+    }
+    /* fixed scanline overlay */
+    body::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 2px,
+        rgba(0,240,255,0.022) 2px,
+        rgba(0,240,255,0.022) 3px
+      );
+      z-index: 9999;
+      mix-blend-mode: screen;
+    }
+    /* moving horizontal scanline */
+    body::before {
+      content: '';
+      position: fixed;
+      left: 0; right: 0;
+      height: 100px;
+      background: linear-gradient(180deg, transparent 0%, rgba(0,240,255,0.06) 50%, transparent 100%);
+      pointer-events: none;
+      z-index: 9998;
+      animation: scanline 8s linear infinite;
+    }
+
+    /* Cyberpunk corner-cut helper (used via mask-image fallback) */
+    .cp-frame {
+      position: relative;
+    }
+    .cp-frame::before, .cp-frame::after {
+      content: '';
+      position: absolute;
+      width: 14px; height: 14px;
+      border-color: var(--neon-cyan);
+      border-style: solid;
+      pointer-events: none;
+    }
+    .cp-frame::before {
+      top: -1px; left: -1px;
+      border-width: 2px 0 0 2px;
+    }
+    .cp-frame::after {
+      bottom: -1px; right: -1px;
+      border-width: 0 2px 2px 0;
+      border-color: var(--neon-pink);
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--neon-cyan), var(--neon-purple));
+      border-radius: 0;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(180deg, var(--neon-pink), var(--neon-purple));
+    }
+    ::selection { background: var(--neon-pink); color: #fff; }
+
+    /* ── LOGIN SCREEN ── */
+    #login-screen {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      background:
+        radial-gradient(ellipse at 30% 20%, rgba(176,38,255,0.20) 0%, transparent 55%),
+        radial-gradient(ellipse at 70% 80%, rgba(255,0,110,0.18) 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 50%, rgba(0,240,255,0.10) 0%, transparent 65%),
+        var(--bg-void);
+    }
+    .login-box {
+      background: linear-gradient(180deg, rgba(15,10,40,0.95) 0%, rgba(10,4,32,0.95) 100%);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 0;
+      padding: 44px 38px 40px;
+      width: min(420px, 92vw);
+      box-shadow:
+        0 0 0 1px rgba(0,240,255,0.12),
+        0 0 30px rgba(0,240,255,0.25),
+        0 30px 80px rgba(0,0,0,0.7),
+        inset 0 0 60px rgba(176,38,255,0.06);
+      text-align: center;
+      position: relative;
+      clip-path: polygon(0 18px, 18px 0, calc(100% - 18px) 0, 100% 18px, 100% calc(100% - 18px), calc(100% - 18px) 100%, 18px 100%, 0 calc(100% - 18px));
+    }
+    .login-box::before {
+      content: '> SYSTEM_AUTH.REQUIRED';
+      position: absolute;
+      top: 14px; left: 24px;
+      color: var(--neon-pink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.18em;
+      text-shadow: 0 0 8px rgba(255,0,110,0.7);
+    }
+    .login-box::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, transparent 0, transparent 3px, rgba(255,255,255,0.015) 3px, rgba(255,255,255,0.015) 4px);
+    }
+    .login-logo {
+      display: flex;
+      justify-content: center;
+      margin-top: 8px;
+      margin-bottom: 14px;
+    }
+    .login-logo img {
+      width: 78%;
+      max-width: 280px;
+      height: auto;
+      display: block;
+      filter:
+        invert(1)
+        hue-rotate(180deg)
+        saturate(1.7)
+        contrast(1.05)
+        drop-shadow(0 0 10px rgba(0,240,255,0.7))
+        drop-shadow(0 0 26px rgba(0,240,255,0.35));
+      animation: flicker 6s infinite;
+    }
+    .login-sub {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--neon-pink);
+      letter-spacing: 0.32em;
+      margin-bottom: 36px;
+      text-shadow: 0 0 6px rgba(255,0,110,0.5);
+    }
+    .login-label {
+      display: block;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 500;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      text-align: left;
+      margin-bottom: 10px;
+      text-shadow: 0 0 6px rgba(0,240,255,0.4);
+    }
+    .login-label::before { content: '◉ '; color: var(--neon-pink); }
+    .login-input {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 13px 16px;
+      font-size: 15px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--neon-cyan);
+      background: var(--bg-input);
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      letter-spacing: 0.18em;
+      margin-bottom: 22px;
+      caret-color: var(--neon-pink);
+    }
+    .login-input:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+    .login-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0;
+      padding: 14px;
+      color: #fff;
+      font-family: 'Black Han Sans', sans-serif;
+      font-size: 15px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      box-shadow: 0 0 18px rgba(255,0,110,0.55), 0 0 40px rgba(176,38,255,0.30);
+      transition: all .2s;
+      position: relative;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    }
+    .login-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 26px rgba(255,0,110,0.85), 0 0 60px rgba(176,38,255,0.50);
+    }
+    .login-err {
+      margin-top: 14px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: #ff3860;
+      text-shadow: 0 0 8px rgba(255,56,96,0.6);
+      display: none;
+    }
+    .login-err::before { content: '⚠ ERR_AUTH_FAIL: '; }
+    .login-err.show { display: block; }
+
+    /* ── DASHBOARD ── */
+    #dashboard { display: none; }
+
+    /* 헤더 */
+    .dash-header {
+      background:
+        linear-gradient(90deg, rgba(176,38,255,0.18) 0%, rgba(0,240,255,0.10) 50%, rgba(255,0,110,0.18) 100%),
+        linear-gradient(180deg, #0a0420 0%, #050010 100%);
+      border-bottom: 1px solid var(--neon-cyan);
+      box-shadow: 0 0 24px rgba(0,240,255,0.25), inset 0 -1px 0 rgba(255,0,110,0.4);
+      padding: 0 32px;
+      position: relative;
+    }
+    .dash-header::after {
+      content: '';
+      position: absolute;
+      left: 0; right: 0; bottom: -2px; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--neon-pink), var(--neon-cyan), var(--neon-pink), transparent);
+      filter: blur(0.5px);
+    }
+    .dash-header-inner {
+      max-width: 1280px;
+      margin: 0 auto;
+      height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .dash-brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .dash-brand img {
+      height: 42px;
+      width: auto;
+      display: block;
+      /* invert: 검정 텍스트→흰색, 흰 배경→검정(다크 페이지와 동화)
+         hue-rotate(180deg): 반전된 노랑을 원래 블루 계열로 복원
+         saturate: 시안 색감 강화 / drop-shadow: 네온 글로우 */
+      filter:
+        invert(1)
+        hue-rotate(180deg)
+        saturate(1.6)
+        contrast(1.05)
+        drop-shadow(0 0 8px rgba(0,240,255,0.65))
+        drop-shadow(0 0 22px rgba(0,240,255,0.32));
+      animation: flicker 8s infinite;
+    }
+    .dash-brand span {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.32em;
+      color: var(--neon-pink);
+      vertical-align: middle;
+      padding: 3px 9px;
+      border: 1px solid var(--neon-pink);
+      text-shadow: 0 0 6px rgba(255,0,110,0.5);
+      box-shadow: 0 0 10px rgba(255,0,110,0.25);
+    }
+    .dash-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+    .refresh-btn {
+      background: rgba(0,240,255,0.08);
+      border: 1px solid var(--neon-cyan);
+      border-radius: 0;
+      padding: 8px 18px;
+      color: var(--neon-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: var(--glow-cyan);
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    }
+    .refresh-btn:hover {
+      background: var(--neon-cyan);
+      color: var(--bg-void);
+      box-shadow: 0 0 20px rgba(0,240,255,0.85);
+    }
+    .refresh-btn::before { content: '↻ '; }
+    .back-link {
+      color: var(--neon-pink);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-decoration: none;
+      transition: all .2s;
+      text-shadow: 0 0 6px rgba(255,0,110,0.4);
+    }
+    .back-link:hover {
+      color: var(--neon-yellow);
+      text-shadow: 0 0 10px rgba(255,242,0,0.7);
+    }
+
+    /* Last updated */
+    .last-updated {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.1em;
+      color: var(--txt-mid);
+    }
+    .last-updated::before { content: '◷ '; color: var(--neon-green); }
+
+    /* 대시보드 본문 */
+    .dash-body {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 36px 32px 60px;
+      position: relative;
+    }
+
+    /* 섹션 타이틀 */
+    .dash-section-title {
+      font-family: 'Black Han Sans', sans-serif;
+      font-size: 14px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-shadow: 0 0 8px rgba(0,240,255,0.5);
+    }
+    .dash-section-title::before {
+      content: '▶';
+      font-size: 11px;
+      color: var(--neon-pink);
+      text-shadow: 0 0 8px rgba(255,0,110,0.7);
+    }
+    .dash-section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--neon-cyan), transparent);
+      opacity: 0.5;
+    }
+
+    /* ── 스탯 카드 그리드 ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+      margin-bottom: 36px;
+    }
+    .kpi-card {
+      background:
+        linear-gradient(135deg, rgba(0,240,255,0.04) 0%, rgba(176,38,255,0.06) 100%),
+        var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 22px 20px;
+      box-shadow: var(--sh-card);
+      position: relative;
+      overflow: hidden;
+      transition: all .25s;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .kpi-card:hover {
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 0 1px var(--neon-cyan), var(--glow-cyan), 0 8px 32px rgba(0,0,0,0.55);
+      transform: translateY(-2px);
+    }
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--accent, linear-gradient(90deg, var(--neon-cyan), var(--neon-pink)));
+      box-shadow: 0 0 12px currentColor;
+    }
+    .kpi-card::after {
+      content: '';
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 6px; height: 6px;
+      background: var(--neon-pink);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--neon-pink);
+      animation: flicker 3s infinite;
+    }
+    .kpi-icon {
+      font-size: 22px;
+      margin-bottom: 14px;
+      display: block;
+      filter: drop-shadow(0 0 6px rgba(0,240,255,0.5));
+    }
+    .kpi-n {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 34px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      line-height: 1;
+      margin-bottom: 8px;
+      text-shadow: 0 0 12px rgba(0,240,255,0.55);
+      letter-spacing: 0.02em;
+    }
+    .kpi-l {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--txt-mid);
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+    }
+
+    /* ── 메뉴 클릭 통계 (컴팩트) ── */
+    .menu-stats-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      box-shadow: var(--sh-card);
+      position: relative;
+    }
+    .menu-stats-card::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--neon-cyan), var(--neon-pink));
+      box-shadow: 0 0 10px var(--neon-cyan);
+    }
+    .menu-stats-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 10px;
+      text-shadow: 0 0 6px rgba(0,240,255,0.4);
+    }
+    .menu-stats-hint {
+      font-size: 10px;
+      color: var(--neon-pink);
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+    .menu-stats-body {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 6px;
+    }
+    .menu-stats-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 7px 12px;
+      background: rgba(0,240,255,0.04);
+      border: 1px solid rgba(0,240,255,0.12);
+      border-radius: 0;
+      font-size: 12px;
+      transition: all .2s;
+    }
+    .menu-stats-row:hover {
+      background: rgba(0,240,255,0.08);
+      border-color: var(--neon-cyan);
+      box-shadow: 0 0 10px rgba(0,240,255,0.3);
+    }
+    .menu-stats-row .ms-name {
+      color: var(--txt-hi);
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .menu-stats-row .ms-num {
+      color: var(--neon-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      margin-left: 8px;
+      flex-shrink: 0;
+      text-shadow: 0 0 6px rgba(0,240,255,0.4);
+    }
+    .menu-stats-row .ms-num .ms-total {
+      color: var(--neon-pink);
+      font-weight: 500;
+      text-shadow: 0 0 4px rgba(255,0,110,0.4);
+    }
+
+    /* ── 카드별 클릭 통계 ── */
+    .card-stats-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      box-shadow: var(--sh-card);
+      position: relative;
+    }
+    .card-stats-wrap::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--neon-green), var(--neon-cyan));
+      box-shadow: 0 0 10px var(--neon-green);
+    }
+    .card-stats-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--neon-green);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-shadow: 0 0 6px rgba(0,255,136,0.4);
+    }
+    .card-stats-hint {
+      font-size: 10px;
+      color: var(--neon-pink);
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+    /* 카드별 클릭 — 메뉴 그룹 */
+    .cs-menu-group { margin-bottom: 18px; }
+    .cs-menu-group:last-child { margin-bottom: 0; }
+    .cs-menu-header {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 4px 10px;
+      background: rgba(0,240,255,0.06);
+      border-left: 2px solid var(--neon-cyan);
+      margin-bottom: 10px;
+      text-shadow: 0 0 6px rgba(0,240,255,0.35);
+    }
+    /* 카드 그리드 (3열) */
+    .cs-cards-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    /* 개별 카드 차트 셀 */
+    .cs-card-chart {
+      background: rgba(0,240,255,0.025);
+      border: 1px solid rgba(0,240,255,0.12);
+      padding: 8px;
+      position: relative;
+    }
+    .cs-card-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      letter-spacing: 0.06em;
+      margin-bottom: 4px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .cs-card-total {
+      position: absolute;
+      top: 8px; right: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--neon-pink);
+      text-shadow: 0 0 5px rgba(255,0,110,0.4);
+    }
+    .cs-card-canvas-wrap {
+      position: relative;
+      height: 90px;
+    }
+    .cs-card-canvas-wrap canvas {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 4px rgba(0,240,255,0.3));
+    }
+
+    /* ── 체류 시간 통계 ── */
+    .sess-stats-wrap {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 14px 18px;
+      margin-bottom: 28px;
+      box-shadow: var(--sh-card);
+      position: relative;
+    }
+    .sess-stats-wrap::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 3px;
+      background: linear-gradient(180deg, var(--neon-yellow), var(--neon-orange));
+      box-shadow: 0 0 10px var(--neon-yellow);
+    }
+    .sess-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--neon-yellow);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+      text-shadow: 0 0 6px rgba(255,242,0,0.4);
+    }
+    .sess-head-hint {
+      font-size: 10px;
+      color: var(--neon-pink);
+      font-weight: 500;
+      letter-spacing: 0.1em;
+    }
+    /* KPI 3칸 */
+    .sess-kpi-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .sess-kpi {
+      background: rgba(255,242,0,0.04);
+      border: 1px solid rgba(255,242,0,0.14);
+      padding: 11px 10px;
+      text-align: center;
+      position: relative;
+    }
+    .sess-kpi-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--neon-yellow);
+      text-shadow: 0 0 10px rgba(255,242,0,0.45);
+      line-height: 1;
+    }
+    .sess-kpi-unit {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--neon-orange);
+      margin-left: 2px;
+    }
+    .sess-kpi-label {
+      font-size: 10px;
+      color: var(--txt-lo);
+      letter-spacing: 0.08em;
+      margin-top: 5px;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* 분포 구간 */
+    .sess-dist-label {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--txt-lo);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 7px;
+    }
+    .sess-dist {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 7px;
+      margin-bottom: 12px;
+    }
+    .sess-dist-pill {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      padding: 8px 6px;
+      background: rgba(176,38,255,0.06);
+      border: 1px solid rgba(176,38,255,0.2);
+    }
+    .sess-dist-cnt {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--neon-purple);
+      text-shadow: 0 0 8px rgba(176,38,255,0.5);
+      line-height: 1;
+    }
+    .sess-dist-lbl {
+      font-size: 10px;
+      color: var(--txt-lo);
+      font-family: 'JetBrains Mono', monospace;
+      text-align: center;
+    }
+    /* 최근 세션 타임라인 */
+    .sess-recent-label {
+      font-size: 10px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--txt-lo);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      margin-bottom: 5px;
+    }
+    .sess-recent {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      max-height: 130px;
+      overflow-y: auto;
+    }
+    .sess-rec-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-bottom: 1px solid rgba(0,240,255,0.05);
+    }
+    .sess-rec-row:last-child { border-bottom: none; }
+    .sess-rec-time {
+      color: var(--txt-lo);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+    }
+    .sess-rec-dur {
+      color: var(--neon-yellow);
+      font-family: 'JetBrains Mono', monospace;
+      font-weight: 700;
+      font-size: 11px;
+      text-shadow: 0 0 6px rgba(255,242,0,0.35);
+    }
+    .sess-empty {
+      font-size: 12px;
+      color: var(--txt-lo);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 10px 0;
+      letter-spacing: 0.08em;
+    }
+    .cs-empty {
+      font-size: 12px;
+      color: var(--txt-lo);
+      font-family: 'JetBrains Mono', monospace;
+      padding: 10px 0;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── 차트 영역 ── */
+    .chart-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-bottom: 36px;
+    }
+    .chart-card {
+      background:
+        linear-gradient(135deg, rgba(0,240,255,0.03) 0%, transparent 50%, rgba(255,0,110,0.04) 100%),
+        var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 24px;
+      box-shadow: var(--sh-card);
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    }
+    .chart-card::before {
+      content: '';
+      position: absolute;
+      top: 12px; right: 12px;
+      width: 30px; height: 1px;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 6px var(--neon-cyan);
+    }
+    .chart-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--neon-cyan);
+      margin-bottom: 22px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      text-shadow: 0 0 6px rgba(0,240,255,0.4);
+    }
+    .chart-title::before { content: '▤ '; color: var(--neon-pink); }
+    .line-chart {
+      position: relative;
+      height: 160px;
+    }
+    .line-chart canvas {
+      width: 100%;
+      height: 100%;
+      filter: drop-shadow(0 0 6px rgba(0,240,255,0.4));
+    }
+
+    /* ── 클릭 순위 테이블 ── */
+    .rank-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 24px;
+      box-shadow: var(--sh-card);
+      margin-bottom: 36px;
+      clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 16px, 100% 100%, 16px 100%, 0 calc(100% - 16px));
+    }
+    .rank-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .rank-table th {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--neon-pink);
+      padding: 0 12px 14px;
+      text-align: left;
+      border-bottom: 1px solid var(--neon-pink);
+      text-shadow: 0 0 6px rgba(255,0,110,0.4);
+    }
+    .rank-table td {
+      padding: 13px 12px;
+      font-size: 13px;
+      color: var(--txt-hi);
+      border-bottom: 1px solid rgba(0,240,255,0.08);
+      vertical-align: middle;
+    }
+    .rank-table tr { transition: background .2s; }
+    .rank-table tr:hover td {
+      background: rgba(0,240,255,0.04);
+    }
+    .rank-table tr:last-child td { border-bottom: none; }
+    .rank-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      width: 32px;
+      text-shadow: 0 0 6px rgba(0,240,255,0.5);
+    }
+    .rank-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .rank-inline-bar {
+      flex: 1;
+      height: 4px;
+      border-radius: 0;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+      min-width: 4px;
+      box-shadow: 0 0 8px rgba(0,240,255,0.5);
+    }
+    .rank-clicks {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--neon-cyan);
+      min-width: 36px;
+      text-align: right;
+      text-shadow: 0 0 6px rgba(0,240,255,0.5);
+    }
+    .rank-type-badge {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      padding: 3px 9px;
+      border-radius: 0;
+      font-weight: 500;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      border: 1px solid currentColor;
+    }
+    .badge-life {
+      background: rgba(0,240,255,0.08);
+      color: var(--neon-cyan);
+      text-shadow: 0 0 4px rgba(0,240,255,0.5);
+    }
+    .badge-nonlife {
+      background: rgba(255,0,110,0.08);
+      color: var(--neon-pink);
+      text-shadow: 0 0 4px rgba(255,0,110,0.5);
+    }
+
+    .empty-msg {
+      text-align: center;
+      padding: 40px;
+      color: var(--txt-mid);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      letter-spacing: 0.1em;
+    }
+    .empty-msg::before { content: '> '; color: var(--neon-cyan); }
+
+    /* ── 소식지 관리 ── */
+    .nl-upload-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 24px;
+      box-shadow: var(--sh-card);
+      margin-bottom: 20px;
+      position: relative;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .nl-upload-box::before {
+      content: '◢';
+      position: absolute;
+      top: 0; right: 0;
+      color: var(--neon-pink);
+      font-size: 16px;
+      line-height: 1;
+      text-shadow: 0 0 8px rgba(255,0,110,0.6);
+    }
+    .nl-form {
+      display: flex;
+      gap: 12px;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .nl-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nl-field label {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9px;
+      font-weight: 600;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--neon-cyan);
+      text-shadow: 0 0 4px rgba(0,240,255,0.4);
+    }
+    .nl-field label::before { content: '▸ '; color: var(--neon-pink); }
+    .nl-field select,
+    .nl-field input[type="text"],
+    .nl-field textarea {
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 9px 12px;
+      font-size: 13px;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--txt-hi);
+      outline: none;
+      background: var(--bg-input);
+      transition: all .2s;
+    }
+    .nl-field select:focus,
+    .nl-field input[type="text"]:focus,
+    .nl-field textarea:focus {
+      border-color: var(--neon-cyan);
+      box-shadow: var(--glow-cyan);
+    }
+    .nl-field select option { background: var(--bg-deep); color: var(--txt-hi); }
+    .nl-file-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(176,38,255,0.08);
+      border: 1px dashed var(--neon-purple);
+      border-radius: 0;
+      padding: 9px 16px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--neon-purple);
+      cursor: pointer;
+      transition: all .2s;
+      text-shadow: 0 0 6px rgba(176,38,255,0.4);
+    }
+    .nl-file-label:hover {
+      background: rgba(176,38,255,0.16);
+      border-color: var(--neon-pink);
+      box-shadow: var(--glow-purple);
+      color: var(--neon-pink);
+    }
+    .nl-file-label input { display: none; }
+    .nl-file-name {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--neon-cyan);
+      max-width: 120px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .nl-upload-btn {
+      background: linear-gradient(135deg, var(--neon-cyan) 0%, var(--neon-pink) 100%);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 0;
+      padding: 10px 22px;
+      color: var(--bg-void);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all .2s;
+      box-shadow: 0 0 16px rgba(0,240,255,0.4), 0 0 32px rgba(255,0,110,0.25);
+      clip-path: polygon(6px 0, 100% 0, calc(100% - 6px) 100%, 0 100%);
+    }
+    .nl-upload-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 24px rgba(0,240,255,0.7), 0 0 50px rgba(255,0,110,0.4);
+    }
+    .nl-upload-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .nl-status {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      margin-top: 12px;
+      color: var(--neon-green);
+      text-shadow: 0 0 6px rgba(0,255,136,0.4);
+    }
+
+    .nl-list {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 0;
+      padding: 24px;
+      box-shadow: var(--sh-card);
+      margin-bottom: 36px;
+      clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 14px 100%, 0 calc(100% - 14px));
+    }
+    .nl-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(0,240,255,0.08);
+      transition: all .2s;
+    }
+    .nl-item:hover {
+      padding-left: 8px;
+      border-bottom-color: var(--neon-cyan);
+    }
+    .nl-item:last-child { border-bottom: none; }
+    .nl-thumb {
+      width: 48px; height: 48px;
+      border-radius: 0;
+      object-fit: cover;
+      background: var(--bg-input);
+      border: 1px solid var(--neon-cyan);
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px;
+      color: var(--neon-cyan);
+      box-shadow: 0 0 8px rgba(0,240,255,0.3);
+    }
+    .nl-meta { flex: 1; min-width: 0; }
+    .nl-meta-company {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px; font-weight: 700;
+      color: var(--neon-cyan);
+      letter-spacing: 0.06em;
+      text-shadow: 0 0 4px rgba(0,240,255,0.4);
+    }
+    .nl-meta-title {
+      font-size: 11px;
+      color: var(--txt-mid);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .nl-meta-date {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      color: var(--neon-pink);
+      text-shadow: 0 0 4px rgba(255,0,110,0.4);
+    }
+    .nl-del-btn {
+      background: transparent;
+      border: 1px solid var(--neon-pink);
+      border-radius: 0;
+      padding: 6px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--neon-pink);
+      cursor: pointer;
+      transition: all .2s;
+      text-shadow: 0 0 6px rgba(255,0,110,0.5);
+    }
+    .nl-del-btn:hover {
+      background: var(--neon-pink);
+      color: var(--bg-void);
+      box-shadow: var(--glow-pink);
+      text-shadow: none;
+    }
+
+    /* ── 업로드 탭 ── */
+    .upload-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      position: sticky;
+      top: 0;
+      background: linear-gradient(180deg, var(--bg-void) 70%, transparent 100%);
+      padding: 14px 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--neon-cyan);
+      box-shadow: 0 4px 16px rgba(0,240,255,0.15);
+    }
+    .upload-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 10px 20px;
+      border-radius: 0;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      color: var(--txt-mid);
+      cursor: pointer;
+      transition: all .2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      clip-path: polygon(8px 0, 100% 0, calc(100% - 8px) 100%, 0 100%);
+    }
+    .upload-tab:hover {
+      border-color: var(--neon-cyan);
+      color: var(--neon-cyan);
+      text-shadow: 0 0 6px rgba(0,240,255,0.5);
+      box-shadow: var(--glow-cyan);
+    }
+    .upload-tab.active {
+      background: linear-gradient(135deg, var(--neon-pink) 0%, var(--neon-purple) 100%);
+      color: #fff;
+      border-color: transparent;
+      text-shadow: 0 0 8px rgba(255,255,255,0.4);
+      box-shadow: 0 0 20px rgba(255,0,110,0.55), 0 0 40px rgba(176,38,255,0.30);
+    }
+    .upload-panel { display: none; }
+    .upload-panel.active { display: block; }
+
+    /* Textarea cyber-style override (used inline in body) */
+    textarea {
+      background: var(--bg-input) !important;
+      border: 1px solid var(--border) !important;
+      color: var(--txt-hi) !important;
+      font-family: 'JetBrains Mono', monospace !important;
+      border-radius: 0 !important;
+    }
+    textarea:focus {
+      border-color: var(--neon-cyan) !important;
+      box-shadow: var(--glow-cyan) !important;
+      outline: none;
+    }
+
+    /* 보험지식 admin styles */
+    #kn-content-input {
+      width: 100%; min-height: 180px; resize: vertical;
+      padding: 12px; font-size: 13px; line-height: 1.7;
+      font-family: 'JetBrains Mono', monospace;
+      background: var(--bg-input); color: var(--txt-hi);
+      border: 1px solid var(--border); border-radius: 8px;
+    }
+    .kn-post-thumb {
+      width: 72px; height: 52px; object-fit: cover;
+      border-radius: 6px; border: 1px solid var(--border);
+    }
+
+    /* ── 통계 슬라이더 ── */
+    .stats-slider { margin-bottom: 36px; }
+
+    /* 탭 네비게이션 바 */
+    .stats-slider-nav {
+      display: flex;
+      align-items: stretch;
+      background: var(--bg-deep);
+      border: 1px solid var(--neon-cyan);
+      border-bottom: none;
+      box-shadow: 0 0 16px rgba(0,240,255,0.12);
+    }
+    .ssn-tabs {
+      display: flex;
+      flex: 1;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+    .ssn-tabs::-webkit-scrollbar { display: none; }
+    .ssn-tab {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 13px 18px;
+      border: none;
+      border-right: 1px solid rgba(0,240,255,0.10);
+      background: transparent;
+      color: var(--txt-lo);
+      cursor: pointer;
+      transition: all .2s;
+      white-space: nowrap;
+      position: relative;
+    }
+    .ssn-tab::after {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 2px;
+      background: var(--neon-cyan);
+      box-shadow: 0 0 8px var(--neon-cyan);
+      transform: scaleX(0);
+      transition: transform .22s ease;
+    }
+    .ssn-tab.active {
+      color: var(--neon-cyan);
+      text-shadow: 0 0 8px rgba(0,240,255,0.5);
+      background: rgba(0,240,255,0.06);
+    }
+    .ssn-tab.active::after { transform: scaleX(1); }
+    .ssn-tab:hover:not(.active) { color: var(--txt-hi); background: rgba(0,240,255,0.03); }
+    .ssn-nav-btn {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      padding: 0 14px;
+      border: none;
+      border-left: 1px solid rgba(0,240,255,0.10);
+      background: transparent;
+      color: var(--neon-pink);
+      cursor: pointer;
+      transition: all .2s;
+      flex-shrink: 0;
+    }
+    .ssn-nav-btn:first-child { border-left: none; border-right: 1px solid rgba(0,240,255,0.10); }
+    .ssn-nav-btn:hover { color: var(--neon-cyan); text-shadow: 0 0 8px rgba(0,240,255,0.6); }
+    .ssn-nav-btn:disabled { opacity: 0.18; cursor: not-allowed; }
+
+    /* 슬라이드 뷰포트 */
+    .stats-slides-outer {
+      overflow: hidden;
+      border: 1px solid var(--neon-cyan);
+      border-top: none;
+      background: var(--bg-card);
+      box-shadow: 0 0 0 1px rgba(0,240,255,0.08), 0 12px 40px rgba(0,0,0,0.5);
+      position: relative;
+    }
+    .stats-slides-outer::before {
+      content: '';
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--neon-cyan), var(--neon-pink));
+      opacity: 0.4;
+      z-index: 1;
+    }
+    .stats-slides {
+      display: flex;
+      transition: transform 0.38s cubic-bezier(0.4,0,0.2,1);
+      will-change: transform;
+    }
+    .stats-slide {
+      min-width: 100%;
+      padding: 24px;
+      box-sizing: border-box;
+    }
+
+    /* 슬라이드별 섹션 제목 */
+    .slide-title {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--neon-pink);
+      margin-bottom: 16px;
+      text-shadow: 0 0 6px rgba(255,0,110,0.4);
+    }
+    .slide-title::before { content: '▶ '; }
+
+    /* 날짜 컨텍스트 바 */
+    .date-context-bar {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: rgba(0,240,255,0.7);
+      background: rgba(0,240,255,0.06);
+      border: 1px solid rgba(0,240,255,0.15);
+      border-radius: 6px;
+      padding: 6px 12px;
+      margin-bottom: 14px;
+      letter-spacing: 0.05em;
+    }
+
+    /* 슬라이드 높이 동적 전환 */
+    .stats-slides-outer { transition: height 0.35s ease; }
+    .stats-slides { align-items: flex-start; }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .dash-body { padding: 24px 16px 40px; }
+      .chart-row { grid-template-columns: 1fr; }
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .dash-header { padding: 0 16px; }
+      .dash-brand { font-size: 18px; }
+      .dash-brand span { display: none; }
+      .ssn-tab { padding: 12px 12px; font-size: 9px; }
+      .stats-slide { padding: 16px; }
+      .cs-cards-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ══════ LOGIN ══════ -->
+  <div id="login-screen">
+    <div class="login-box">
+      <div class="login-logo">
+        <img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다">
+      </div>
+      <div class="login-sub">ADMIN DASHBOARD</div>
+      <label class="login-label" for="pw-input">비밀번호</label>
+      <input type="password" id="pw-input" class="login-input" placeholder="••••••••" autocomplete="current-password">
+      <button class="login-btn" onclick="doLogin()">로그인</button>
+      <p class="login-err" id="login-err">비밀번호가 올바르지 않습니다.</p>
+    </div>
+  </div>
+
+  <!-- ══════ DASHBOARD ══════ -->
+  <div id="dashboard">
+
+    <!-- 헤더 -->
+    <div class="dash-header">
+      <div class="dash-header-inner">
+        <div class="dash-brand">
+          <img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다">
+          <span>ADMIN</span>
+        </div>
+        <div class="dash-actions">
+          <span class="last-updated" id="last-updated">—</span>
+          <button class="refresh-btn" onclick="loadDashboard()">새로고침</button>
+          <a href="index.html" class="back-link">← 메인으로</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- 본문 -->
+    <div class="dash-body">
+
+      <!-- ══════ 통계 슬라이더 ══════ -->
+      <div class="stats-slider">
+
+        <!-- 탭 네비게이션 -->
+        <div class="stats-slider-nav">
+          <button class="ssn-nav-btn" id="ss-prev" onclick="ssSlide(-1)" disabled>◀</button>
+          <div class="ssn-tabs" id="ss-tabs">
+            <button class="ssn-tab active" onclick="ssGo(0)">📈 방문 개요</button>
+            <button class="ssn-tab" onclick="ssGo(1)">📊 클릭 통계</button>
+            <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
+          </div>
+          <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
+        </div>
+
+        <!-- 슬라이드 뷰포트 -->
+        <div class="stats-slides-outer">
+          <div class="stats-slides" id="ss-slides">
+
+            <!-- ── Slide 0: 방문 개요 ── -->
+            <div class="stats-slide">
+              <p class="slide-title">방문자 & 클릭 요약</p>
+              <div class="date-context-bar" id="date-context-bar">로딩 중…</div>
+              <div class="kpi-grid">
+                <div class="kpi-card">
+                  <span class="kpi-icon">👆</span>
+                  <div class="kpi-n" id="kpi-today-visits">—</div>
+                  <div class="kpi-l">오늘 방문자</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#b026ff,#00f0ff)">
+                  <span class="kpi-icon">📅</span>
+                  <div class="kpi-n" id="kpi-week-visits">—</div>
+                  <div class="kpi-l">이번 주 방문자</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#00ff88,#00f0ff)">
+                  <span class="kpi-icon">📊</span>
+                  <div class="kpi-n" id="kpi-total-visits">—</div>
+                  <div class="kpi-l">누적 방문자</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#fff200,#ff006e)">
+                  <span class="kpi-icon">🖱️</span>
+                  <div class="kpi-n" id="kpi-today-clicks">—</div>
+                  <div class="kpi-l">오늘 클릭수</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ff006e,#ff9500)">
+                  <span class="kpi-icon">🔗</span>
+                  <div class="kpi-n" id="kpi-total-clicks">—</div>
+                  <div class="kpi-l">누적 클릭수</div>
+                </div>
+              </div>
+              <div class="chart-row" style="margin-bottom:0">
+                <div class="chart-card">
+                  <div class="chart-title">일별 방문자 수</div>
+                  <div class="line-chart" id="chart-visits"><canvas></canvas></div>
+                </div>
+                <div class="chart-card">
+                  <div class="chart-title">일별 클릭 수</div>
+                  <div class="line-chart" id="chart-clicks"><canvas></canvas></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Slide 1: 메뉴 클릭 + 카드별 클릭 ── -->
+            <div class="stats-slide">
+              <p class="slide-title">클릭 통계</p>
+
+              <!-- 메뉴별 클릭 요약 -->
+              <div class="menu-stats-card" style="margin-bottom:20px">
+                <div class="menu-stats-head">
+                  <span>📊 메뉴 클릭</span>
+                  <span class="menu-stats-hint">오늘 / 누적</span>
+                </div>
+                <div class="menu-stats-body" id="menu-stats-body">
+                  <p class="empty-msg" style="font-size:12px">로딩 중…</p>
+                </div>
+              </div>
+
+              <!-- 카드별 7일 추이 구분선 -->
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 카드별 클릭 7일 추이</span>
+                <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
+              </div>
+
+              <div id="card-stats-body">
+                <p class="cs-empty">> 로딩 중…</p>
+              </div>
+            </div>
+
+            <!-- ── Slide 2: 체류 시간 ── -->
+            <div class="stats-slide">
+              <p class="slide-title">페이지 체류 시간</p>
+              <div id="sess-stats-body">
+                <p class="sess-empty">> 로딩 중…</p>
+              </div>
+            </div>
+
+          </div><!-- /.stats-slides -->
+        </div><!-- /.stats-slides-outer -->
+
+      </div><!-- /.stats-slider -->
+
+      <!-- 업로드 탭 -->
+      <p class="dash-section-title">콘텐츠 업로드 & 관리</p>
+      <div class="upload-tabs">
+        <button class="upload-tab active" data-panel="up-news">📰 보험사 소식지</button>
+        <button class="upload-tab" data-panel="up-claim">📋 보험사 청구서류</button>
+        <button class="upload-tab" data-panel="up-card">🗞 인슈어커넥트 뉴스</button>
+        <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
+        <button class="upload-tab" data-panel="up-knowledge">📚 보험지식</button>
+      </div>
+
+      <!-- 소식지 관리 패널 -->
+      <div class="upload-panel active" id="up-news">
+
+      <div class="nl-upload-box">
+        <div class="nl-form" id="nl-form">
+          <div class="nl-field">
+            <label>보험사</label>
+            <select id="nl-company">
+              <option value="">선택</option>
+              <option>삼성생명</option><option>한화생명</option><option>교보생명</option>
+              <option>미래에셋생명</option><option>흥국생명</option><option>신한라이프</option>
+              <option>KB라이프</option><option>DB생명</option><option>동양생명</option>
+              <option>농협생명</option><option>푸본현대생명</option><option>IM라이프</option>
+              <option>ABL생명</option><option>AIA생명</option><option>라이나생명</option>
+              <option>메트라이프생명</option><option>하나생명</option><option>처브라이프</option>
+              <option>KDB생명</option><option>카디프생명</option><option>IBK연금보험</option>
+              <option>삼성화재</option><option>현대해상</option><option>DB손해보험</option>
+              <option>KB손해보험</option><option>메리츠화재</option><option>한화손해보험</option>
+              <option>롯데손해보험</option><option>흥국화재</option><option>농협손해보험</option>
+              <option>하나손해보험</option><option>AIG손해보험</option><option>라이나손보</option>
+            </select>
+          </div>
+          <div class="nl-field">
+            <label>제목 (선택)</label>
+            <input type="text" id="nl-title" placeholder="예: 4월 소식지">
+          </div>
+          <div class="nl-field">
+            <label>파일</label>
+            <label class="nl-file-label">
+              📎 파일 선택
+              <input type="file" id="nl-file" accept="image/*,.pdf">
+              <span class="nl-file-name" id="nl-file-name">없음</span>
+            </label>
+          </div>
+          <button class="nl-upload-btn" id="nl-upload-btn" onclick="uploadNewsletter()">업로드</button>
+        </div>
+        <p class="nl-status" id="nl-status"></p>
+      </div>
+
+      <div class="nl-list" id="nl-list">
+        <p class="empty-msg">소식지 로딩 중…</p>
+      </div>
+
+      </div><!-- /#up-news -->
+
+      <!-- 청구서류 관리 패널 -->
+      <div class="upload-panel" id="up-claim">
+
+      <div class="nl-upload-box">
+        <div class="nl-form" id="cf-form">
+          <div class="nl-field">
+            <label>보험사</label>
+            <select id="cf-company">
+              <option value="">선택</option>
+              <option>삼성생명</option><option>한화생명</option><option>교보생명</option>
+              <option>미래에셋생명</option><option>흥국생명</option><option>신한라이프</option>
+              <option>KB라이프</option><option>DB생명</option><option>동양생명</option>
+              <option>농협생명</option><option>푸본현대생명</option><option>IM라이프</option>
+              <option>ABL생명</option><option>AIA생명</option><option>라이나생명</option>
+              <option>메트라이프생명</option><option>하나생명</option><option>처브라이프</option>
+              <option>KDB생명</option><option>카디프생명</option><option>IBK연금보험</option>
+              <option>삼성화재</option><option>현대해상</option><option>DB손해보험</option>
+              <option>KB손해보험</option><option>메리츠화재</option><option>한화손해보험</option>
+              <option>롯데손해보험</option><option>흥국화재</option><option>농협손해보험</option>
+              <option>하나손해보험</option><option>AIG손해보험</option><option>라이나손보</option>
+            </select>
+          </div>
+          <div class="nl-field">
+            <label>제목 (선택)</label>
+            <input type="text" id="cf-title" placeholder="예: 실손보험 청구서">
+          </div>
+          <div class="nl-field">
+            <label>파일</label>
+            <label class="nl-file-label">
+              📎 파일 선택
+              <input type="file" id="cf-file" accept="image/*,.pdf">
+              <span class="nl-file-name" id="cf-file-name">없음</span>
+            </label>
+          </div>
+          <button class="nl-upload-btn" id="cf-upload-btn" onclick="uploadClaimForm()">업로드</button>
+        </div>
+        <p class="nl-status" id="cf-status"></p>
+      </div>
+
+      <div class="nl-list" id="cf-list">
+        <p class="empty-msg">청구서류 로딩 중…</p>
+      </div>
+
+      </div><!-- /#up-claim -->
+
+      <!-- 카드뉴스 관리 패널 -->
+      <div class="upload-panel" id="up-card">
+
+      <div class="nl-upload-box">
+        <div class="nl-form" id="cn-form">
+          <div class="nl-field" style="flex:1; min-width: 180px;">
+            <label>제목</label>
+            <input type="text" id="cn-title" placeholder="예: 2026년 4월 인슈어커넥트 뉴스">
+          </div>
+          <div class="nl-field">
+            <label>파일 (여러 장 선택 가능)</label>
+            <label class="nl-file-label">
+              📎 카드 여러장 선택
+              <input type="file" id="cn-files" accept="image/*,.pdf" multiple>
+              <span class="nl-file-name" id="cn-file-name">없음</span>
+            </label>
+          </div>
+          <button class="nl-upload-btn" id="cn-upload-btn" onclick="uploadCardNews()">업로드</button>
+        </div>
+        <p class="nl-status" id="cn-status" style="color:var(--txt-mid)">💡 선택 순서대로 번호가 매겨져 좌→우로 보여집니다.</p>
+      </div>
+
+      <div class="nl-list" id="cn-list">
+        <p class="empty-msg">뉴스 로딩 중…</p>
+      </div>
+
+      </div><!-- /#up-card -->
+
+      <!-- 채용공고 관리 패널 -->
+      <div class="upload-panel" id="up-recruit">
+
+      <div class="nl-upload-box">
+        <div class="nl-form" id="rc-form">
+          <div class="nl-field" style="flex:1; min-width:180px;">
+            <label>회사명 (선택)</label>
+            <input type="text" id="rc-company" placeholder="예: 인슈어커넥트">
+          </div>
+          <div class="nl-field" style="flex:2; min-width:220px;">
+            <label>공고 제목</label>
+            <input type="text" id="rc-title" placeholder="예: 2026 하반기 보험설계사 채용">
+          </div>
+          <div class="nl-field">
+            <label>파일 (선택 · PDF / 이미지)</label>
+            <label class="nl-file-label">
+              📎 파일 선택
+              <input type="file" id="rc-file" accept="image/*,.pdf">
+              <span class="nl-file-name" id="rc-file-name">없음</span>
+            </label>
+          </div>
+          <div class="nl-field" style="flex:1 1 100%; min-width:100%;">
+            <label>채용공고 내용 (텍스트)</label>
+            <textarea id="rc-description" placeholder="담당업무, 자격요건, 근무조건, 지원방법 등 채용공고 상세 내용을 입력하세요." rows="6" style="width:100%;padding:10px 12px;font-size:13px;line-height:1.6;resize:vertical;"></textarea>
+          </div>
+          <button class="nl-upload-btn" id="rc-upload-btn" onclick="uploadRecruit()">업로드</button>
+        </div>
+        <p class="nl-status" id="rc-status"></p>
+      </div>
+
+      <div class="nl-list" id="rc-list">
+        <p class="empty-msg">채용공고 로딩 중…</p>
+      </div>
+
+      </div><!-- /#up-recruit -->
+
+      <!-- 보험지식 관리 패널 -->
+      <div class="upload-panel" id="up-knowledge">
+        <div class="nl-upload-box">
+          <h4 style="margin:0 0 14px;font-size:14px;color:var(--neon-cyan);font-weight:700;letter-spacing:0.08em;">📚 보험지식 포스트 작성</h4>
+          <div class="nl-form" id="kn-form" style="flex-direction:column;gap:14px;">
+            <div class="nl-field" style="width:100%;">
+              <label>제목</label>
+              <input type="text" id="kn-title" placeholder="예: 실손보험 청구 절차 완벽 정리" maxlength="100">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>본문 내용</label>
+              <textarea id="kn-content-input" placeholder="포스트 내용을 입력하세요. 줄바꿈이 그대로 표시됩니다.&#10;글 중간에 이미지를 넣으려면 커서를 원하는 위치에 놓고 아래 [🖼 이미지 삽입] 버튼을 클릭하세요."></textarea>
+              <!-- 본문 중간 이미지 삽입 -->
+              <div style="display:flex;align-items:center;gap:10px;margin-top:8px;">
+                <button type="button" onclick="document.getElementById('kn-inline-file').click()"
+                  style="display:inline-flex;align-items:center;gap:6px;padding:7px 16px;border-radius:8px;border:1.5px solid var(--neon-cyan);background:transparent;color:var(--neon-cyan);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:0.06em;transition:background .2s;"
+                  onmouseover="this.style.background='rgba(0,240,255,0.1)'" onmouseout="this.style.background='transparent'">
+                  🖼 이미지 삽입
+                </button>
+                <input type="file" id="kn-inline-file" accept="image/*" style="display:none">
+                <span id="kn-inline-status" style="font-size:12px;color:var(--txt-mid);"></span>
+              </div>
+              <p style="margin:6px 0 0;font-size:11px;color:var(--txt-lo);line-height:1.5;">
+                · 커서 위치에 이미지가 삽입됩니다 · 여러 장 반복 삽입 가능
+              </p>
+            </div>
+            <div class="nl-field">
+              <label>커버 이미지 (선택)</label>
+              <label class="nl-file-label">
+                📎 이미지 선택
+                <input type="file" id="kn-image" accept="image/*">
+                <span class="nl-file-name" id="kn-image-name">없음</span>
+              </label>
+            </div>
+            <button class="nl-upload-btn" id="kn-upload-btn" onclick="uploadKnowledgePost()">포스트 등록</button>
+          </div>
+          <p class="nl-status" id="kn-status"></p>
+        </div>
+        <div class="nl-list" id="kn-list">
+          <p class="empty-msg">포스트 로딩 중…</p>
+        </div>
+      </div><!-- /#up-knowledge -->
+
+    </div>
+  </div>
+
+  <script>
+    /* ── 설정 ── */
+    const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
+    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
+
+    /* ── 관리자 비밀번호는 소스코드에 저장되지 않음 ──
+       DB(RLS 정책)에서만 검증됨. 입력한 비밀번호는 sessionStorage에 임시 저장됨.
+       비밀번호 변경은 Supabase SQL 에서 'verify_admin_secret()' 함수와
+       관련 RLS 정책의 비교 문자열을 수정해야 합니다. */
+    let ADMIN_SECRET = sessionStorage.getItem('ic_admin_secret') || '';
+
+    /* ── HTML 이스케이프 ── */
+    function esc(s) {
+      return String(s == null ? '' : s)
+        .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+    function jsStr(s) { return esc(s).replace(/\\/g,'\\\\'); }
+
+    function adminHeaders(extra) {
+      return Object.assign({
+        'apikey': SB_ANON,
+        'Authorization': `Bearer ${SB_ANON}`,
+        'x-admin-secret': ADMIN_SECRET
+      }, extra || {});
+    }
+
+    /* ── 로그인 ── */
+    async function doLogin() {
+      const val = document.getElementById('pw-input').value;
+      const errEl = document.getElementById('login-err');
+      errEl.classList.remove('show');
+      if (!val) { errEl.classList.add('show'); return; }
+      try {
+        // DB 측 RPC 로 검증 (x-admin-secret 헤더를 읽고 boolean 반환)
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/verify_admin_secret`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SB_ANON,
+            'Authorization': `Bearer ${SB_ANON}`,
+            'x-admin-secret': val
+          },
+          body: '{}'
+        });
+        const ok = res.ok && (await res.json()) === true;
+        if (!ok) { errEl.classList.add('show'); return; }
+        ADMIN_SECRET = val;
+        sessionStorage.setItem('ic_admin_secret', val);
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('dashboard').style.display    = 'block';
+        loadDashboard();
+        startAutoRefresh();
+      } catch (e) {
+        errEl.classList.add('show');
+      }
+    }
+    // 자동 재개: sessionStorage에 시크릿이 남아있으면 즉시 로그인 시도
+    if (ADMIN_SECRET) {
+      (async () => {
+        try {
+          const res = await fetch(`${SB_URL}/rest/v1/rpc/verify_admin_secret`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': 'application/json' }),
+            body: '{}'
+          });
+          if (res.ok && (await res.json()) === true) {
+            document.getElementById('login-screen').style.display = 'none';
+            document.getElementById('dashboard').style.display    = 'block';
+            loadDashboard();
+            startAutoRefresh();
+          } else {
+            sessionStorage.removeItem('ic_admin_secret');
+            ADMIN_SECRET = '';
+          }
+        } catch {}
+      })();
+    }
+    document.getElementById('pw-input').addEventListener('keydown', e => {
+      if (e.key === 'Enter') doLogin();
+    });
+
+    /* ── 업로드 탭 전환 ── */
+    document.querySelectorAll('.upload-tab').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.upload-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const target = this.dataset.panel;
+        document.querySelectorAll('.upload-panel').forEach(p => {
+          p.classList.toggle('active', p.id === target);
+        });
+      });
+    });
+
+    /* ── 날짜 포맷 ── */
+    function fmtDate(isoDate) {
+      const d = new Date(isoDate);
+      return `${d.getMonth()+1}/${d.getDate()}`;
+    }
+
+    /* ── 바 차트 렌더링 (카드별 클릭 통계용) ── */
+    function renderBarChart(containerId, items) {
+      const wrap = document.getElementById(containerId);
+      if (!wrap) return;
+      const canvas = wrap.querySelector('canvas');
+      if (!items || items.length === 0) {
+        wrap.innerHTML = '<p style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.18em;color:#9b95d4;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">> NO DATA</p>';
+        return;
+      }
+
+      const dpr  = window.devicePixelRatio || 1;
+      const rect = wrap.getBoundingClientRect();
+      const W = rect.width  || 300;
+      const H = rect.height || 180;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width  = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const pad = { top: 28, right: 14, bottom: 54, left: 10 };
+      const cW  = W - pad.left - pad.right;
+      const cH  = H - pad.top  - pad.bottom;
+
+      const maxVal  = Math.max(...items.map(d => d.total), 1);
+      const n       = items.length;
+      const barGap  = cW / n;
+      const barW    = Math.max(barGap * 0.58, 6);
+
+      /* 그리드 라인 */
+      ctx.strokeStyle = 'rgba(0,240,255,0.10)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + (cH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(W - pad.right, y);
+        ctx.stroke();
+      }
+
+      items.forEach((item, i) => {
+        const bH = Math.max((item.total / maxVal) * cH, 2);
+        const x  = pad.left + i * barGap + (barGap - barW) / 2;
+        const y  = pad.top + cH - bH;
+
+        /* 누적 바 (cyan→pink 그라디언트) */
+        const barGrad = ctx.createLinearGradient(0, y, 0, pad.top + cH);
+        barGrad.addColorStop(0, 'rgba(0,240,255,0.88)');
+        barGrad.addColorStop(1, 'rgba(255,0,110,0.28)');
+        ctx.shadowColor = 'rgba(0,240,255,0.55)';
+        ctx.shadowBlur  = 10;
+        ctx.fillStyle   = barGrad;
+        ctx.fillRect(x, y, barW, bH);
+        ctx.shadowBlur  = 0;
+
+        /* 오늘 하이라이트 오버레이 (노란색) */
+        const todayCnt = item.today_cnt || 0;
+        if (todayCnt > 0) {
+          const tH = Math.max((todayCnt / maxVal) * cH, 2);
+          ctx.fillStyle = 'rgba(255,242,0,0.52)';
+          ctx.fillRect(x, pad.top + cH - tH, barW, tH);
+        }
+
+        /* 누적 값 (바 위) */
+        ctx.shadowColor = 'rgba(0,240,255,0.8)';
+        ctx.shadowBlur  = 6;
+        ctx.fillStyle   = '#00f0ff';
+        ctx.font        = '700 10px "JetBrains Mono", monospace';
+        ctx.textAlign   = 'center';
+        ctx.fillText(item.total, x + barW / 2, y - 7);
+        ctx.shadowBlur  = 0;
+
+        /* 카드명 레이블 (-45° 회전) */
+        const lbl = item.card.length > 7 ? item.card.slice(0, 7) : item.card;
+        ctx.save();
+        ctx.translate(x + barW / 2, pad.top + cH + 10);
+        ctx.rotate(-Math.PI / 4);
+        ctx.fillStyle = '#9b95d4';
+        ctx.font      = '9px "JetBrains Mono", monospace';
+        ctx.textAlign = 'right';
+        ctx.fillText(lbl, 0, 0);
+        ctx.restore();
+      });
+    }
+
+    /* ── 곡선 차트 렌더링 ── */
+    function renderLineChart(containerId, data, key) {
+      const wrap = document.getElementById(containerId);
+      const canvas = wrap.querySelector('canvas');
+      if (!data || data.length === 0) {
+        wrap.innerHTML = '<p style="font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.18em;color:#9b95d4;position:absolute;top:50%;left:50%;transform:translate(-50%,-50%)">> NO DATA</p>';
+        return;
+      }
+
+      const dpr = window.devicePixelRatio || 1;
+      const rect = wrap.getBoundingClientRect();
+      const W = rect.width;
+      const H = rect.height;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + 'px';
+      canvas.style.height = H + 'px';
+
+      const ctx = canvas.getContext('2d');
+      ctx.scale(dpr, dpr);
+
+      const pad = { top: 24, right: 16, bottom: 28, left: 10 };
+      const cW = W - pad.left - pad.right;
+      const cH = H - pad.top - pad.bottom;
+
+      const vals = data.map(d => d[key]);
+      const maxVal = Math.max(...vals, 1);
+
+      const pts = data.map((d, i) => ({
+        x: pad.left + (i / Math.max(data.length - 1, 1)) * cW,
+        y: pad.top + cH - (vals[i] / maxVal) * cH,
+        val: vals[i],
+        label: fmtDate(d.date)
+      }));
+
+      /* 그리드 라인 */
+      ctx.strokeStyle = 'rgba(0,240,255,0.10)';
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= 4; i++) {
+        const y = pad.top + (cH / 4) * i;
+        ctx.beginPath();
+        ctx.moveTo(pad.left, y);
+        ctx.lineTo(W - pad.right, y);
+        ctx.stroke();
+      }
+
+      /* 부드러운 곡선 (catmull-rom → bezier) */
+      function smoothLine(points) {
+        ctx.beginPath();
+        ctx.moveTo(points[0].x, points[0].y);
+        if (points.length === 2) {
+          ctx.lineTo(points[1].x, points[1].y);
+          return;
+        }
+        for (let i = 0; i < points.length - 1; i++) {
+          const p0 = points[i === 0 ? 0 : i - 1];
+          const p1 = points[i];
+          const p2 = points[i + 1];
+          const p3 = points[i + 2 >= points.length ? points.length - 1 : i + 2];
+          const cp1x = p1.x + (p2.x - p0.x) / 6;
+          const cp1y = p1.y + (p2.y - p0.y) / 6;
+          const cp2x = p2.x - (p3.x - p1.x) / 6;
+          const cp2y = p2.y - (p3.y - p1.y) / 6;
+          ctx.bezierCurveTo(cp1x, cp1y, cp2x, cp2y, p2.x, p2.y);
+        }
+      }
+
+      /* 그라디언트 영역 채우기 */
+      const grad = ctx.createLinearGradient(0, pad.top, 0, pad.top + cH);
+      grad.addColorStop(0, 'rgba(0,240,255,0.28)');
+      grad.addColorStop(1, 'rgba(255,0,110,0.02)');
+
+      ctx.save();
+      smoothLine(pts);
+      ctx.lineTo(pts[pts.length - 1].x, pad.top + cH);
+      ctx.lineTo(pts[0].x, pad.top + cH);
+      ctx.closePath();
+      ctx.fillStyle = grad;
+      ctx.fill();
+      ctx.restore();
+
+      /* 곡선 라인 (네온 글로우) */
+      const lineGrad = ctx.createLinearGradient(pad.left, 0, W - pad.right, 0);
+      lineGrad.addColorStop(0, '#00f0ff');
+      lineGrad.addColorStop(1, '#ff006e');
+
+      ctx.shadowColor = 'rgba(0,240,255,0.85)';
+      ctx.shadowBlur = 12;
+      smoothLine(pts);
+      ctx.strokeStyle = lineGrad;
+      ctx.lineWidth = 2.5;
+      ctx.lineJoin = 'round';
+      ctx.lineCap = 'round';
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      /* 포인트 & 값 */
+      pts.forEach(p => {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 4, 0, Math.PI * 2);
+        ctx.fillStyle = '#0a0420';
+        ctx.fill();
+        ctx.shadowColor = 'rgba(0,240,255,0.9)';
+        ctx.shadowBlur = 8;
+        ctx.strokeStyle = '#00f0ff';
+        ctx.lineWidth = 2;
+        ctx.stroke();
+        ctx.shadowBlur = 0;
+
+        ctx.fillStyle = '#00f0ff';
+        ctx.font = '700 10px "JetBrains Mono", monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText(p.val, p.x, p.y - 10);
+
+        ctx.fillStyle = '#9b95d4';
+        ctx.font = '10px "JetBrains Mono", monospace';
+        ctx.fillText(p.label, p.x, pad.top + cH + 16);
+      });
+    }
+
+    /* ── 클릭 순위 테이블 렌더링 ── */
+    function renderRankTable(links) {
+      const el = document.getElementById('rank-body');
+      if (!links || links.length === 0) {
+        el.innerHTML = '<p class="empty-msg">아직 클릭 데이터가 없습니다.</p>';
+        return;
+      }
+      const maxClicks = links[0].clicks;
+      const rows = links.map((l, i) => `
+        <tr>
+          <td class="rank-num">${i + 1}</td>
+          <td><strong>${l.company_name}</strong></td>
+          <td>
+            <span class="rank-type-badge ${l.company_type === 'life' ? 'badge-life' : 'badge-nonlife'}">
+              ${l.company_type === 'life' ? '생명보험' : '손해보험'}
+            </span>
+          </td>
+          <td>
+            <div class="rank-bar-wrap">
+              <div class="rank-inline-bar" style="width:${Math.round((l.clicks/maxClicks)*100)}%"></div>
+              <span class="rank-clicks">${l.clicks}</span>
+            </div>
+          </td>
+        </tr>`).join('');
+      el.innerHTML = `
+        <table class="rank-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>보험사</th>
+              <th>구분</th>
+              <th>클릭수</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+
+    /* ── 메뉴 클릭 통계 렌더 ── */
+    const MENU_ORDER = ['👥 커뮤니티'];
+    function renderMenuStats(rows) {
+      const body = document.getElementById('menu-stats-body');
+      if (!body) return;
+      const map = {};
+      (rows || []).forEach(r => { map[r.name] = r; });
+      body.innerHTML = MENU_ORDER.map(name => {
+        const r = map[name] || { today_clicks: 0, total_clicks: 0 };
+        return `<div class="menu-stats-row">
+          <span class="ms-name">${name}</span>
+          <span class="ms-num">${(r.today_clicks||0).toLocaleString()} <span class="ms-total">/ ${(r.total_clicks||0).toLocaleString()}</span></span>
+        </div>`;
+      }).join('');
+    }
+
+    /* ── 체류 시간 통계 렌더 ── */
+    async function loadSessionStats() {
+      const el = document.getElementById('sess-stats-body');
+      if (!el) return;
+      try {
+        const res  = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_session_stats`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          body: '{}'
+        });
+        const d = await res.json();
+
+        function fmtDur(sec) {
+          if (!sec || sec <= 0) return '—';
+          if (sec < 60) return `${sec}초`;
+          const m = Math.floor(sec / 60), s = sec % 60;
+          return s > 0 ? `${m}분 ${s}초` : `${m}분`;
+        }
+        function fmtTime(iso) {
+          const d = new Date(iso);
+          return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+        }
+
+        const todayCnt  = d.today_count  || 0;
+        const todayAvg  = d.today_avg    || 0;
+        const totalAvg  = d.total_avg    || 0;
+        const dist      = d.distribution || [];
+        const recent    = d.recent       || [];
+
+        /* 분포 레인지 순서 보장 */
+        const distOrder = ['30초 미만','30초~2분','2분~5분','5분+'];
+        const distMap   = {};
+        dist.forEach(x => { distMap[x.label] = x.count; });
+
+        const distHTML = distOrder.map(lbl => `
+          <div class="sess-dist-pill">
+            <span class="sess-dist-cnt">${(distMap[lbl] || 0).toLocaleString()}</span>
+            <span class="sess-dist-lbl">${lbl}</span>
+          </div>`).join('');
+
+        const recentHTML = recent.length === 0
+          ? '<p class="sess-empty">> 오늘 기록 없음</p>'
+          : recent.map(r => `
+            <div class="sess-rec-row">
+              <span class="sess-rec-time">${fmtTime(r.started_at)}</span>
+              <span class="sess-rec-dur">${fmtDur(r.duration_seconds)}</span>
+            </div>`).join('');
+
+        el.innerHTML = `
+          <div class="sess-kpi-row">
+            <div class="sess-kpi">
+              <div class="sess-kpi-num">${todayCnt.toLocaleString()}</div>
+              <div class="sess-kpi-label">오늘 방문 세션</div>
+            </div>
+            <div class="sess-kpi">
+              <div class="sess-kpi-num">${fmtDur(todayAvg)}</div>
+              <div class="sess-kpi-label">오늘 평균 체류</div>
+            </div>
+            <div class="sess-kpi">
+              <div class="sess-kpi-num">${fmtDur(totalAvg)}</div>
+              <div class="sess-kpi-label">전체 평균 체류</div>
+            </div>
+          </div>
+          <div class="sess-dist-label">> 오늘 체류 시간 분포</div>
+          <div class="sess-dist">${distHTML}</div>
+          <div class="sess-recent-label">> 최근 세션</div>
+          <div class="sess-recent">${recentHTML}</div>`;
+      } catch (err) {
+        el.innerHTML = `<p class="sess-empty">> 로드 오류: ${esc(String(err))}</p>`;
+      }
+    }
+
+    /* ── 카드별 클릭 통계 렌더 ── */
+    const MENU_LABEL = {
+      '홈':    '🏠 홈 대시보드',
+      '실무도구': '🔧 실무도구',
+      '보험포털': '🌐 보험 포털',
+    };
+    async function loadCardStats() {
+      const el = document.getElementById('card-stats-body');
+      if (!el) return;
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_card_clicks_7d`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          body: '{}'
+        });
+        const rows = await res.json();
+
+        if (!Array.isArray(rows) || rows.length === 0) {
+          el.innerHTML = '<p class="cs-empty">> 아직 집계된 데이터가 없습니다.</p>';
+          ssUpdateHeight();
+          return;
+        }
+
+        /* 메뉴별 그룹화 */
+        const menuOrder = ['홈','실무도구','보험포털'];
+        const groups = {};
+        rows.forEach(r => {
+          if (!groups[r.menu]) groups[r.menu] = [];
+          groups[r.menu].push(r);
+        });
+        const allMenus = [...new Set([...menuOrder, ...Object.keys(groups)])].filter(m => groups[m]);
+
+        /* HTML 생성 — 메뉴 그룹 > 카드 그리드 */
+        let html = '';
+        allMenus.forEach(menu => {
+          const items = groups[menu].sort((a, b) => (b.total||0) - (a.total||0));
+          const label = MENU_LABEL[menu] || menu;
+          const cardItems = items.map(({ card, total }) => {
+            const chartId = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
+            return `<div class="cs-card-chart">
+              <div class="cs-card-name">${esc(card)}</div>
+              <div class="cs-card-total">${(total||0).toLocaleString()}</div>
+              <div class="cs-card-canvas-wrap" id="${chartId}"><canvas></canvas></div>
+            </div>`;
+          }).join('');
+          html += `<div class="cs-menu-group">
+            <div class="cs-menu-header">${label}</div>
+            <div class="cs-cards-grid">${cardItems}</div>
+          </div>`;
+        });
+        el.innerHTML = html;
+
+        /* 캐시 저장 (슬라이드 전환 재렌더용) */
+        _cachedCardCharts = rows.map(({ menu, card, data }) => ({ menu, card, data }));
+
+        /* 차트 렌더 */
+        requestAnimationFrame(() => {
+          rows.forEach(({ menu, card, data }) => {
+            const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
+            renderLineChart(id, data, 'clicks');
+          });
+          ssUpdateHeight();
+        });
+
+      } catch (err) {
+        el.innerHTML = `<p class="cs-empty">> 로드 오류: ${esc(String(err))}</p>`;
+        ssUpdateHeight();
+      }
+    }
+
+    /* ── 통계 슬라이더 ── */
+    let _ssIdx = 0;
+    const SS_COUNT = 3;
+
+    function ssUpdateHeight() {
+      const outer   = document.querySelector('.stats-slides-outer');
+      const slideEls = document.querySelectorAll('#ss-slides > .stats-slide');
+      if (!outer || !slideEls[_ssIdx]) return;
+      outer.style.height = slideEls[_ssIdx].scrollHeight + 'px';
+    }
+
+    function ssGo(idx) {
+      _ssIdx = Math.max(0, Math.min(SS_COUNT - 1, idx));
+      const slides = document.getElementById('ss-slides');
+      if (slides) slides.style.transform = `translateX(-${_ssIdx * 100}%)`;
+
+      /* 탭 활성 상태 */
+      document.querySelectorAll('.ssn-tab').forEach((t, i) => {
+        t.classList.toggle('active', i === _ssIdx);
+      });
+
+      /* 이전/다음 버튼 활성화 */
+      const prev = document.getElementById('ss-prev');
+      const next = document.getElementById('ss-next');
+      if (prev) prev.disabled = _ssIdx === 0;
+      if (next) next.disabled = _ssIdx === SS_COUNT - 1;
+
+      /* 슬라이드 전환 후: 차트 재렌더 + 높이 동기화 */
+      requestAnimationFrame(() => {
+        if (_ssIdx === 0 && _cachedMainStats) {
+          renderLineChart('chart-visits', _cachedMainStats.daily_visits_7d, 'visits');
+          renderLineChart('chart-clicks', _cachedMainStats.daily_clicks_7d, 'clicks');
+        }
+        if (_ssIdx === 1 && _cachedCardCharts) {
+          _cachedCardCharts.forEach(({ menu, card, data }) => {
+            const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/\s/g,'')}`;
+            renderLineChart(id, data, 'clicks');
+          });
+        }
+        ssUpdateHeight();
+      });
+    }
+
+    function ssSlide(dir) { ssGo(_ssIdx + dir); }
+
+    let _cachedMainStats  = null;
+    let _cachedCardCharts = null;
+
+    /* ── 실시간 자동 갱신 (10초 간격, 탭이 보일 때만) ── */
+    let _autoTimer = null;
+    let _lastKstDate = null;
+    function _getKstDateStr() {
+      return new Date().toLocaleDateString('ko-KR', { timeZone: 'Asia/Seoul',
+        year: 'numeric', month: '2-digit', day: '2-digit' });
+    }
+    function startAutoRefresh() {
+      if (_autoTimer) return;
+      _lastKstDate = _getKstDateStr();
+      _autoTimer = setInterval(() => {
+        if (document.visibilityState === 'visible') {
+          const cur = _getKstDateStr();
+          if (cur !== _lastKstDate) {
+            /* 자정 KST 넘어감 → 강제 리셋 갱신 */
+            _lastKstDate = cur;
+            _cachedMainStats  = null;
+            _cachedCardCharts = null;
+          }
+          loadDashboard();
+        }
+      }, 10000);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          const cur = _getKstDateStr();
+          if (cur !== _lastKstDate) {
+            _lastKstDate = cur;
+            _cachedMainStats  = null;
+            _cachedCardCharts = null;
+          }
+          loadDashboard();
+        }
+      });
+    }
+
+    /* ── 대시보드 데이터 로드 ── */
+    async function loadDashboard() {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_stats`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SB_ANON,
+            'Authorization': `Bearer ${SB_ANON}`
+          },
+          body: '{}'
+        });
+        const d = await res.json();
+        _cachedMainStats = d;   /* 슬라이드 전환 시 재렌더용 캐시 */
+
+        /* KPI 숫자 업데이트 */
+        const setKpi = (id, val) => {
+          const el = document.getElementById(id);
+          if (el) el.textContent = (val ?? 0).toLocaleString();
+        };
+        setKpi('kpi-today-visits',  d.today_visits);
+        setKpi('kpi-week-visits',   d.week_visits);
+        setKpi('kpi-total-visits',  d.total_visits);
+        setKpi('kpi-today-clicks',  d.today_clicks);
+        setKpi('kpi-total-clicks',  d.total_clicks);
+
+        /* 날짜 컨텍스트 바 업데이트 */
+        (function() {
+          const bar = document.getElementById('date-context-bar');
+          if (!bar) return;
+          const nowKst = new Date(new Date().toLocaleString('en-US', { timeZone: 'Asia/Seoul' }));
+          const todayStr = `${nowKst.getFullYear()}-${String(nowKst.getMonth()+1).padStart(2,'0')}-${String(nowKst.getDate()).padStart(2,'0')}`;
+          const fmtDate = (s) => {
+            if (!s) return '?';
+            const [y, m, dd] = s.split('-');
+            const DAYS = ['일','월','화','수','목','금','토'];
+            const d = new Date(Number(y), Number(m)-1, Number(dd));
+            return `${m}/${dd}(${DAYS[d.getDay()]})`;
+          };
+          const ws = d.week_start_date ? fmtDate(d.week_start_date) : '?';
+          const we = d.week_end_date   ? fmtDate(d.week_end_date)   : '?';
+          bar.textContent = `오늘: ${todayStr}  |  이번 주: ${ws} ~ ${we}`;
+        })();
+
+        /* 메뉴 클릭 통계 */
+        renderMenuStats(d.menu_clicks);
+
+        /* 체류 시간 통계 */
+        loadSessionStats();
+
+        /* 카드별 클릭 7일 추이 */
+        loadCardStats();
+
+        /* 차트 (현재 슬라이드 0에 표시) */
+        renderLineChart('chart-visits', d.daily_visits_7d, 'visits');
+        renderLineChart('chart-clicks', d.daily_clicks_7d, 'clicks');
+
+        /* 슬라이드 초기 높이 설정 */
+        requestAnimationFrame(ssUpdateHeight);
+
+        /* 마지막 업데이트 시각 */
+        const now = new Date();
+        document.getElementById('last-updated').textContent =
+          `업데이트: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
+
+      } catch (err) {
+        console.error('Stats load error:', err);
+      }
+
+      /* 소식지 & 청구서류 & 카드뉴스 목록도 로드 */
+      loadNewsletters();
+      loadClaimForms();
+      loadCardNews();
+      loadRecruitList();
+      loadKnowledgeList();
+    }
+
+    /* ── 파일 선택 표시 ── */
+    document.getElementById('nl-file').addEventListener('change', function() {
+      document.getElementById('nl-file-name').textContent = this.files[0] ? this.files[0].name : '없음';
+    });
+
+    /* ── 소식지 업로드 ── */
+    async function uploadNewsletter() {
+      const company = document.getElementById('nl-company').value;
+      const title   = document.getElementById('nl-title').value.trim();
+      const fileEl  = document.getElementById('nl-file');
+      const status  = document.getElementById('nl-status');
+      const btn     = document.getElementById('nl-upload-btn');
+
+      if (!company) { status.textContent = '⚠ 보험사를 선택해주세요.'; return; }
+      if (!fileEl.files[0]) { status.textContent = '⚠ 파일을 선택해주세요.'; return; }
+
+      const file = fileEl.files[0];
+      const isPdf = file.type === 'application/pdf';
+      const ext = isPdf ? 'pdf' : file.name.split('.').pop();
+      /* 파일명은 영문+숫자만 사용 (한글 파일명 → Supabase Storage 오류 방지) */
+      const safeCompany = encodeURIComponent(company).replace(/%/g, '');
+      const fileName = `${Date.now()}_${safeCompany}.${ext}`;
+
+      btn.disabled = true;
+      status.textContent = '업로드 중…';
+
+      try {
+        /* 1. Storage에 파일 업로드 */
+        const uploadRes = await fetch(`${SB_URL}/storage/v1/object/newsletters/${fileName}`, {
+          method: 'POST',
+          headers: adminHeaders({
+            'Content-Type': file.type,
+            'x-upsert': 'true'
+          }),
+          body: file
+        });
+        if (!uploadRes.ok) {
+          const errBody = await uploadRes.text();
+          throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
+        }
+
+        /* 2. 공개 URL */
+        const fileUrl = `${SB_URL}/storage/v1/object/public/newsletters/${fileName}`;
+
+        /* 3. DB에 레코드 삽입 */
+        await fetch(`${SB_URL}/rest/v1/ic_newsletters`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            company_name: company,
+            title: title || `${company} 소식지`,
+            file_url: fileUrl,
+            file_type: isPdf ? 'pdf' : 'image'
+          })
+        });
+
+        status.textContent = '✅ 업로드 완료!';
+        fileEl.value = '';
+        document.getElementById('nl-file-name').textContent = '없음';
+        document.getElementById('nl-title').value = '';
+        loadNewsletters();
+
+      } catch (e) {
+        status.textContent = '❌ 업로드 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ── 소식지 목록 로드 ── */
+    async function loadNewsletters() {
+      const el = document.getElementById('nl-list');
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_newsletters?order=created_at.desc&limit=50`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const items = await res.json();
+
+        if (!items || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 소식지가 없습니다.</p>';
+          return;
+        }
+
+        el.innerHTML = items.map(it => {
+          const d = new Date(it.created_at);
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const icon = it.file_type === 'pdf' ? '📄' : '🖼️';
+          return `
+            <div class="nl-item">
+              <div class="nl-thumb">${icon}</div>
+              <div class="nl-meta">
+                <div class="nl-meta-company">${esc(it.company_name)}</div>
+                <div class="nl-meta-title">${esc(it.title)}</div>
+                <div class="nl-meta-date">${dateStr}</div>
+              </div>
+              <a href="${esc(it.file_url)}" target="_blank" style="font-size:12px;color:var(--blue-mid);text-decoration:none">보기</a>
+              <button class="nl-del-btn" onclick="deleteNewsletter(${it.id},'${jsStr(it.file_url)}')">삭제</button>
+            </div>`;
+        }).join('');
+
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">소식지 로드 실패</p>';
+      }
+    }
+
+    /* ══════ 청구서류 ══════ */
+    document.getElementById('cf-file').addEventListener('change', function() {
+      document.getElementById('cf-file-name').textContent = this.files[0] ? this.files[0].name : '없음';
+    });
+
+    async function uploadClaimForm() {
+      const company = document.getElementById('cf-company').value;
+      const title   = document.getElementById('cf-title').value.trim();
+      const fileEl  = document.getElementById('cf-file');
+      const status  = document.getElementById('cf-status');
+      const btn     = document.getElementById('cf-upload-btn');
+
+      if (!company) { status.textContent = '⚠ 보험사를 선택해주세요.'; return; }
+      if (!fileEl.files[0]) { status.textContent = '⚠ 파일을 선택해주세요.'; return; }
+
+      const file = fileEl.files[0];
+      const isPdf = file.type === 'application/pdf';
+      const ext = isPdf ? 'pdf' : file.name.split('.').pop();
+      const safeCompany = encodeURIComponent(company).replace(/%/g, '');
+      const fileName = `${Date.now()}_${safeCompany}.${ext}`;
+
+      btn.disabled = true;
+      status.textContent = '업로드 중…';
+
+      try {
+        const uploadRes = await fetch(`${SB_URL}/storage/v1/object/claim-forms/${fileName}`, {
+          method: 'POST',
+          headers: adminHeaders({
+            'Content-Type': file.type,
+            'x-upsert': 'true'
+          }),
+          body: file
+        });
+        if (!uploadRes.ok) {
+          const errBody = await uploadRes.text();
+          throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
+        }
+
+        const fileUrl = `${SB_URL}/storage/v1/object/public/claim-forms/${fileName}`;
+
+        await fetch(`${SB_URL}/rest/v1/ic_claim_forms`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            company_name: company,
+            title: title || `${company} 청구서류`,
+            file_url: fileUrl,
+            file_type: isPdf ? 'pdf' : 'image'
+          })
+        });
+
+        status.textContent = '✅ 업로드 완료!';
+        fileEl.value = '';
+        document.getElementById('cf-file-name').textContent = '없음';
+        document.getElementById('cf-title').value = '';
+        loadClaimForms();
+
+      } catch (e) {
+        status.textContent = '❌ 업로드 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadClaimForms() {
+      const el = document.getElementById('cf-list');
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_claim_forms?order=created_at.desc&limit=100`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const items = await res.json();
+
+        if (!items || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 청구서류가 없습니다.</p>';
+          return;
+        }
+
+        el.innerHTML = items.map(it => {
+          const d = new Date(it.created_at);
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const icon = it.file_type === 'pdf' ? '📄' : '🖼️';
+          return `
+            <div class="nl-item">
+              <div class="nl-thumb">${icon}</div>
+              <div class="nl-meta">
+                <div class="nl-meta-company">${esc(it.company_name)}</div>
+                <div class="nl-meta-title">${esc(it.title)}</div>
+                <div class="nl-meta-date">${dateStr}</div>
+              </div>
+              <a href="${esc(it.file_url)}" target="_blank" style="font-size:12px;color:var(--blue-mid);text-decoration:none">보기</a>
+              <button class="nl-del-btn" onclick="deleteClaimForm(${it.id},'${jsStr(it.file_url)}')">삭제</button>
+            </div>`;
+        }).join('');
+
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">청구서류 로드 실패</p>';
+      }
+    }
+
+    async function deleteClaimForm(id, fileUrl) {
+      if (!confirm('이 청구서류를 삭제하시겠습니까?')) return;
+      try {
+        const path = fileUrl.split('/claim-forms/')[1];
+        if (path) {
+          await fetch(`${SB_URL}/storage/v1/object/claim-forms/${path}`, {
+            method: 'DELETE',
+            headers: adminHeaders()
+          });
+        }
+        await fetch(`${SB_URL}/rest/v1/ic_claim_forms?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: adminHeaders()
+        });
+        loadClaimForms();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
+
+    /* ══════ 채용공고 ══════ */
+    document.getElementById('rc-file').addEventListener('change', function() {
+      document.getElementById('rc-file-name').textContent = this.files[0] ? this.files[0].name : '없음';
+    });
+
+    async function uploadRecruit() {
+      const company = document.getElementById('rc-company').value.trim();
+      const title   = document.getElementById('rc-title').value.trim();
+      const desc    = document.getElementById('rc-description').value.trim();
+      const fileEl  = document.getElementById('rc-file');
+      const status  = document.getElementById('rc-status');
+      const btn     = document.getElementById('rc-upload-btn');
+
+      if (!title) { status.textContent = '⚠ 공고 제목을 입력해주세요.'; return; }
+      if (!desc && !fileEl.files[0]) { status.textContent = '⚠ 채용공고 내용 또는 파일 중 하나는 반드시 입력해주세요.'; return; }
+
+      btn.disabled = true;
+      status.textContent = '업로드 중…';
+
+      try {
+        let fileUrl = null;
+        let fileTypeVal = null;
+        if (fileEl.files[0]) {
+          const file = fileEl.files[0];
+          const isPdf = file.type === 'application/pdf';
+          const ext = isPdf ? 'pdf' : (file.name.split('.').pop() || 'jpg');
+          const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/recruitments/${fileName}`, {
+            method: 'POST',
+            headers: adminHeaders({
+              'Content-Type': file.type,
+              'x-upsert': 'true'
+            }),
+            body: file
+          });
+          if (!uploadRes.ok) {
+            const errBody = await uploadRes.text();
+            throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
+          }
+          fileUrl = `${SB_URL}/storage/v1/object/public/recruitments/${fileName}`;
+          fileTypeVal = isPdf ? 'pdf' : 'image';
+        }
+
+        await fetch(`${SB_URL}/rest/v1/ic_recruitments`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            title: title,
+            company_name: company || null,
+            description: desc || null,
+            file_url: fileUrl,
+            file_type: fileTypeVal
+          })
+        });
+
+        status.textContent = '✅ 업로드 완료!';
+        fileEl.value = '';
+        document.getElementById('rc-file-name').textContent = '없음';
+        document.getElementById('rc-title').value = '';
+        document.getElementById('rc-company').value = '';
+        document.getElementById('rc-description').value = '';
+        loadRecruitList();
+
+      } catch (e) {
+        status.textContent = '❌ 업로드 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadRecruitList() {
+      const el = document.getElementById('rc-list');
+      if (!el) return;
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?order=created_at.desc&limit=100`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const items = await res.json();
+
+        if (!items || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 채용공고가 없습니다.</p>';
+          return;
+        }
+
+        el.innerHTML = items.map(it => {
+          const d = new Date(it.created_at);
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const icon = it.file_type === 'pdf' ? '📄' : '🖼️';
+          const company = it.company_name ? esc(it.company_name) : '—';
+          return `
+            <div class="nl-item">
+              <div class="nl-thumb">${icon}</div>
+              <div class="nl-meta">
+                <div class="nl-meta-company">${company}</div>
+                <div class="nl-meta-title">${esc(it.title)}</div>
+                <div class="nl-meta-date">${dateStr}</div>
+              </div>
+              <a href="${esc(it.file_url)}" target="_blank" style="font-size:12px;color:var(--blue-mid);text-decoration:none">보기</a>
+              <button class="nl-del-btn" onclick="deleteRecruit(${it.id},'${jsStr(it.file_url)}')">삭제</button>
+            </div>`;
+        }).join('');
+
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">채용공고 로드 실패</p>';
+      }
+    }
+
+    async function deleteRecruit(id, fileUrl) {
+      if (!confirm('이 채용공고를 삭제하시겠습니까?')) return;
+      try {
+        const path = fileUrl.split('/recruitments/')[1];
+        if (path) {
+          await fetch(`${SB_URL}/storage/v1/object/recruitments/${path}`, {
+            method: 'DELETE',
+            headers: adminHeaders()
+          });
+        }
+        await fetch(`${SB_URL}/rest/v1/ic_recruitments?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: adminHeaders()
+        });
+        loadRecruitList();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
+
+    /* ══════ 보험지식 ══════ */
+    document.getElementById('kn-image').addEventListener('change', function() {
+      document.getElementById('kn-image-name').textContent = this.files[0] ? this.files[0].name : '없음';
+    });
+
+    /* ── 본문 중간 이미지 삽입 ── */
+    function insertAtCursor(textarea, text) {
+      const start = textarea.selectionStart;
+      const end   = textarea.selectionEnd;
+      const before = textarea.value.substring(0, start);
+      const after  = textarea.value.substring(end);
+      /* 앞뒤에 줄바꿈 자동 보장 */
+      const prefix = (before.length > 0 && !before.endsWith('\n')) ? '\n' : '';
+      const suffix = (after.length > 0 && !after.startsWith('\n')) ? '\n' : '';
+      textarea.value = before + prefix + text + suffix + after;
+      const cursor = before.length + prefix.length + text.length + suffix.length;
+      textarea.selectionStart = textarea.selectionEnd = cursor;
+      textarea.focus();
+    }
+
+    document.getElementById('kn-inline-file').addEventListener('change', async function() {
+      const file = this.files[0];
+      if (!file) return;
+      const statusEl  = document.getElementById('kn-inline-status');
+      const textarea  = document.getElementById('kn-content-input');
+      statusEl.textContent = '업로드 중…';
+      statusEl.style.color = 'var(--txt-mid)';
+      try {
+        const ext  = file.name.split('.').pop() || 'jpg';
+        const path = `inline_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+        const upRes = await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
+          body: file
+        });
+        if (!upRes.ok) throw new Error('업로드 실패: ' + (await upRes.text()));
+        const url = `${SB_URL}/storage/v1/object/public/knowledge/${path}`;
+        insertAtCursor(textarea, `[img:${url}]`);
+        statusEl.textContent = '✅ 삽입 완료';
+        statusEl.style.color = 'var(--neon-green)';
+      } catch (e) {
+        statusEl.textContent = '❌ ' + e.message;
+        statusEl.style.color = 'var(--neon-pink)';
+      } finally {
+        this.value = ''; /* 같은 파일 재선택 허용 */
+      }
+    });
+
+    async function uploadKnowledgePost() {
+      const title   = document.getElementById('kn-title').value.trim();
+      const content = document.getElementById('kn-content-input').value.trim();
+      const fileEl  = document.getElementById('kn-image');
+      const status  = document.getElementById('kn-status');
+      const btn     = document.getElementById('kn-upload-btn');
+      if (!title)   { status.textContent = '⚠ 제목을 입력해주세요.'; return; }
+      if (!content) { status.textContent = '⚠ 내용을 입력해주세요.'; return; }
+      btn.disabled = true;
+      status.textContent = '등록 중…';
+      try {
+        let imageUrl = null;
+        if (fileEl.files && fileEl.files[0]) {
+          const file = fileEl.files[0];
+          const ext  = file.name.split('.').pop() || 'jpg';
+          const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+          const upRes = await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
+            body: file
+          });
+          if (!upRes.ok) throw new Error('이미지 업로드 실패: ' + (await upRes.text()));
+          imageUrl = `${SB_URL}/storage/v1/object/public/knowledge/${path}`;
+        }
+        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+          body: JSON.stringify({ title, content, image_url: imageUrl })
+        });
+        if (!res.ok) throw new Error(`(${res.status}) ${await res.text()}`);
+        status.textContent = '✅ 포스트 등록 완료!';
+        document.getElementById('kn-title').value = '';
+        document.getElementById('kn-content-input').value = '';
+        fileEl.value = '';
+        document.getElementById('kn-image-name').textContent = '없음';
+        loadKnowledgeList();
+      } catch (e) {
+        status.textContent = '❌ 등록 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadKnowledgeList() {
+      const el = document.getElementById('kn-list');
+      if (!el) return;
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?order=created_at.desc&limit=100`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const items = await res.json();
+        if (!items || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 포스트가 없습니다.</p>'; return;
+        }
+        el.innerHTML = items.map(it => {
+          const d = new Date(it.created_at);
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const thumb = it.image_url
+            ? `<img src="${esc(it.image_url)}" class="kn-post-thumb" alt="">`
+            : `<div class="nl-thumb">📚</div>`;
+          const excerpt = esc(it.content || '').slice(0, 60) + (it.content.length > 60 ? '…' : '');
+          return `
+            <div class="nl-item" style="align-items:flex-start;">
+              ${thumb}
+              <div class="nl-meta" style="min-width:0;flex:1;">
+                <div class="nl-meta-company" style="white-space:normal;">${esc(it.title)}</div>
+                <div style="font-size:12px;color:var(--txt-mid);margin-top:3px;line-height:1.5;">${excerpt}</div>
+                <div class="nl-meta-date">${dateStr}</div>
+              </div>
+              <button class="nl-del-btn" onclick="deleteKnowledgePost(${it.id}, ${it.image_url ? `'${jsStr(it.image_url)}'` : 'null'})">삭제</button>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">포스트 로드 실패</p>';
+      }
+    }
+
+    async function deleteKnowledgePost(id, imageUrl) {
+      if (!confirm('이 포스트를 삭제하시겠습니까? 댓글도 모두 삭제됩니다.')) return;
+      try {
+        if (imageUrl) {
+          const path = imageUrl.split('/knowledge/')[1];
+          if (path) await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+            method: 'DELETE', headers: adminHeaders()
+          });
+        }
+        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${id}`, {
+          method: 'DELETE', headers: adminHeaders()
+        });
+        if (!res.ok) throw new Error(`(${res.status})`);
+        loadKnowledgeList();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
+
+    /* ══════ 카드뉴스 ══════ */
+    document.getElementById('cn-files').addEventListener('change', function() {
+      const n = this.files ? this.files.length : 0;
+      document.getElementById('cn-file-name').textContent = n ? `${n}장 선택됨` : '없음';
+    });
+
+    function uuidv4() {
+      if (crypto.randomUUID) return crypto.randomUUID();
+      return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0, v = c === 'x' ? r : (r & 0x3 | 0x8);
+        return v.toString(16);
+      });
+    }
+
+    async function uploadCardNews() {
+      const title = document.getElementById('cn-title').value.trim();
+      const fileEl = document.getElementById('cn-files');
+      const status = document.getElementById('cn-status');
+      const btn = document.getElementById('cn-upload-btn');
+
+      if (!title) { status.textContent = '⚠ 제목을 입력해주세요.'; return; }
+      if (!fileEl.files || fileEl.files.length === 0) { status.textContent = '⚠ 파일을 선택해주세요.'; return; }
+
+      const setId = uuidv4();
+      // 파일명 자연정렬 (1, 2, ..., 9, 10) — 브라우저 FileList 순서가 OS마다 달라지므로 보정
+      const files = Array.from(fileEl.files).sort((a, b) =>
+        a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
+      );
+      btn.disabled = true;
+
+      try {
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          status.textContent = `업로드 중… (${i+1}/${files.length})`;
+
+          const isPdf = file.type === 'application/pdf';
+          const ext = isPdf ? 'pdf' : (file.name.split('.').pop() || 'jpg');
+          const fileName = `${setId}/${String(i+1).padStart(3,'0')}_${Date.now()}.${ext}`;
+
+          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/card-news/${fileName}`, {
+            method: 'POST',
+            headers: adminHeaders({
+              'Content-Type': file.type,
+              'x-upsert': 'true'
+            }),
+            body: file
+          });
+          if (!uploadRes.ok) {
+            const errBody = await uploadRes.text();
+            throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
+          }
+          const fileUrl = `${SB_URL}/storage/v1/object/public/card-news/${fileName}`;
+
+          await fetch(`${SB_URL}/rest/v1/ic_card_news`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              set_id: setId,
+              title: title,
+              file_url: fileUrl,
+              file_type: isPdf ? 'pdf' : 'image',
+              sort_order: i
+            })
+          });
+        }
+
+        status.textContent = `✅ ${files.length}장 업로드 완료!`;
+        fileEl.value = '';
+        document.getElementById('cn-file-name').textContent = '없음';
+        document.getElementById('cn-title').value = '';
+        loadCardNews();
+      } catch (e) {
+        status.textContent = '❌ 업로드 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadCardNews() {
+      const el = document.getElementById('cn-list');
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_card_news?order=created_at.desc&limit=300`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const items = await res.json();
+        if (!items || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 카드뉴스가 없습니다.</p>';
+          return;
+        }
+        // set_id로 그룹핑 (최신순)
+        const sets = {};
+        const setOrder = [];
+        items.forEach(it => {
+          if (!sets[it.set_id]) { sets[it.set_id] = { title: it.title, created_at: it.created_at, items: [] }; setOrder.push(it.set_id); }
+          sets[it.set_id].items.push(it);
+        });
+        el.innerHTML = setOrder.map(sid => {
+          const s = sets[sid];
+          s.items.sort((a,b) => a.sort_order - b.sort_order);
+          const d = new Date(s.created_at);
+          const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+          const thumb = s.items[0].file_type === 'image'
+            ? `<img src="${s.items[0].file_url}" class="nl-thumb" style="object-fit:cover">`
+            : `<div class="nl-thumb">📄</div>`;
+          return `
+            <div class="nl-item">
+              ${thumb}
+              <div class="nl-meta">
+                <div class="nl-meta-company">${s.title}</div>
+                <div class="nl-meta-title">${s.items.length}장</div>
+                <div class="nl-meta-date">${dateStr}</div>
+              </div>
+              <button class="nl-del-btn" onclick="deleteCardNewsSet('${sid}')">세트 삭제</button>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">카드뉴스 로드 실패</p>';
+      }
+    }
+
+    async function deleteCardNewsSet(setId) {
+      if (!confirm('이 카드뉴스 세트를 모두 삭제하시겠습니까?')) return;
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_card_news?set_id=eq.${setId}&select=file_url`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const rows = await res.json();
+        // Storage 파일 삭제
+        for (const r of rows) {
+          const path = r.file_url.split('/card-news/')[1];
+          if (path) {
+            await fetch(`${SB_URL}/storage/v1/object/card-news/${path}`, {
+              method: 'DELETE',
+              headers: adminHeaders()
+            });
+          }
+        }
+        await fetch(`${SB_URL}/rest/v1/ic_card_news?set_id=eq.${setId}`, {
+          method: 'DELETE',
+          headers: adminHeaders()
+        });
+        loadCardNews();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
+
+    /* ── 소식지 삭제 ── */
+    async function deleteNewsletter(id, fileUrl) {
+      if (!confirm('이 소식지를 삭제하시겠습니까?')) return;
+      try {
+        /* Storage에서 파일 삭제 */
+        const path = fileUrl.split('/newsletters/')[1];
+        if (path) {
+          await fetch(`${SB_URL}/storage/v1/object/newsletters/${path}`, {
+            method: 'DELETE',
+            headers: adminHeaders()
+          });
+        }
+        /* DB 레코드 삭제 */
+        await fetch(`${SB_URL}/rest/v1/ic_newsletters?id=eq.${id}`, {
+          method: 'DELETE',
+          headers: adminHeaders()
+        });
+        loadNewsletters();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
+  </script>
+</body>
+</html>
