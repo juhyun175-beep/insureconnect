@@ -1933,43 +1933,89 @@
     footer {
       max-width: 1360px;
       margin: 0 auto;
-      padding: 0 32px 48px;
+      padding: 0 32px 52px;
     }
     .foot-inner {
       border-top: 1.5px solid var(--border);
-      padding-top: 28px;
+      padding-top: 32px;
       display: flex;
-      align-items: center;
+      flex-direction: column;
+      gap: 20px;
+    }
+    .foot-top {
+      display: flex;
+      align-items: flex-start;
       justify-content: space-between;
+      gap: 24px;
       flex-wrap: wrap;
-      gap: 14px;
     }
     .foot-brand {
       display: flex;
-      align-items: center;
-      gap: 10px;
+      flex-direction: column;
+      gap: 8px;
     }
     .foot-logo {
       width: 100%;
-      max-width: 200px;
+      max-width: 180px;
       height: auto;
       object-fit: contain;
-      opacity: 0.82;
+      opacity: 0.8;
       filter: drop-shadow(0 1px 4px rgba(37,99,235,0.13));
       transition: opacity 0.2s;
       display: block;
     }
     .foot-logo:hover { opacity: 1; }
-    .foot-right {
+    .foot-tagline {
+      font-size: 12px;
+      color: var(--txt-lo);
+      letter-spacing: 0.02em;
+    }
+    .foot-meta {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 6px;
+    }
+    .foot-contact {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 6px;
+      font-size: 12.5px;
+      color: var(--txt-mid);
     }
-    .foot-txt {
-      font-size: 12px; color: var(--txt-lo);
-      line-height: 1.8;
-      text-align: right;
+    .foot-contact-icon { font-size: 13px; opacity: 0.7; }
+    .foot-contact a {
+      color: var(--blue-mid);
+      text-decoration: none;
+      font-weight: 500;
+      transition: opacity 0.15s;
     }
+    .foot-contact a:hover { opacity: 0.75; text-decoration: underline; }
+    .foot-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(12,31,184,0.06);
+    }
+    .foot-copy {
+      font-size: 11.5px;
+      color: var(--txt-lo);
+    }
+    .foot-links {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .foot-links a {
+      font-size: 11.5px;
+      color: var(--txt-lo);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .foot-links a:hover { color: var(--blue-mid); }
 
     /* Responsive */
     @media (max-width: 768px) {
@@ -1980,9 +2026,12 @@
       .grid { grid-template-columns: repeat(auto-fill, minmax(155px, 1fr)); gap: 10px; }
       .card { padding: 16px 14px; }
 
-      footer { padding: 0 16px 40px; }
-      .foot-inner { justify-content: center; text-align: center; }
-      .foot-txt { text-align: center; }
+      footer { padding: 0 16px 44px; }
+      .foot-top { flex-direction: column; align-items: center; }
+      .foot-brand { align-items: center; }
+      .foot-meta { align-items: center; }
+      .foot-bottom { flex-direction: column; align-items: center; gap: 6px; text-align: center; }
+      .foot-links { justify-content: center; }
 
       /* 히어로 모바일: 컴팩트 레이아웃 */
       .hero { padding: 14px 14px 12px; }
@@ -4079,17 +4128,24 @@
   <!-- ══════ FOOTER ══════ -->
   <footer>
     <div class="foot-inner">
-      <div class="foot-brand">
-        <img src="logo-banner.png" class="foot-logo" alt="인슈어커넥트">
+      <div class="foot-top">
+        <div class="foot-brand">
+          <img src="logo-banner.png" class="foot-logo" alt="인슈어커넥트">
+          <span class="foot-tagline">보험설계사를 위한 무료 업무 허브</span>
+        </div>
+        <div class="foot-meta">
+          <div class="foot-contact">
+            <span class="foot-contact-icon">✉</span>
+            <span>운영 문의</span>
+            <a href="mailto:insureconnect@naver.com">insureconnect@naver.com</a>
+          </div>
+        </div>
       </div>
-      <div class="foot-right">
-        <p class="foot-txt">
-          보험으로 연결하다 · 인슈어커넥트<br>
-          보험설계사를 위한 무료 업무 허브 서비스<br>
-          운영 문의: <a href="mailto:juhyun175@gmail.com" style="color:inherit;opacity:0.8;text-decoration:underline;">juhyun175@gmail.com</a><br>
-          © 2026 InsureConnect. All rights reserved.<br>
-          <a href="/privacy.html" style="color:inherit;opacity:0.7;font-size:0.85em;text-decoration:underline;">개인정보처리방침</a>
-        </p>
+      <div class="foot-bottom">
+        <span class="foot-copy">© 2026 InsureConnect. All rights reserved.</span>
+        <div class="foot-links">
+          <a href="/privacy.html">개인정보처리방침</a>
+        </div>
       </div>
     </div>
   </footer>
