@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.4.1 - 2026-05-08
+- App Shell 레이아웃으로 전환: 스크롤 없이 한 화면에 푸터까지 표시
+  - body를 flex column + height:100vh + overflow:hidden 으로 변경
+  - live-ticker: position sticky 제거 → flex-shrink:0 (상단 고정)
+  - .content: flex:1 + min-height:0 + overflow-y:auto (내부 스크롤)
+  - footer: flex-shrink:0 (하단 항상 고정)
+
 ## 0.4.0 - 2026-05-08
 - 푸터 단순화: 로고 + 한 줄 정보(카피라이트 · 개인정보처리방침 · 이메일)로 정리
 
