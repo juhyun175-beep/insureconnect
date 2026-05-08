@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.4.4 - 2026-05-09
+- AdSense 승인 보완
+  - 광고 유닛 (`<ins class="adsbygoogle">`) 홈 페이지에 재추가 (v0.4.2에서 누락)
+  - privacy.html 이메일 → insureconnect@naver.com 로 통일
+  - index.html canonical 태그 추가 (중복 색인 방지)
+
 ## 0.4.3 - 2026-05-09
 - 뒤로가기 바 추가
   - 홈 외 모든 페이지 상단에 live-ticker 바로 아래 표시
