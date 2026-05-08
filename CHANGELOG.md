@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.4.2 - 2026-05-08
+- 완전 노스크롤 레이아웃 구현
+  - 홈 대시보드: dash-hero 한 줄 슬림화, 카드 설명글·스탯 제거, 카드 콤팩트화 → 한 화면 완전 수용
+  - dash-about 소개 스트립 숨김
+  - 모든 .content 영역 스크롤바 완전 제거 (scrollbar-width:none / ::-webkit-scrollbar:none)
+  - 콘텐츠가 많은 페이지는 마우스휠로 접근 가능하되 스크롤바 UI 없음
+  - AdSense 블록 메인 레이아웃에서 제거
+
 ## 0.4.1 - 2026-05-08
 - App Shell 레이아웃으로 전환: 스크롤 없이 한 화면에 푸터까지 표시
   - body를 flex column + height:100vh + overflow:hidden 으로 변경
