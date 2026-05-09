@@ -5403,7 +5403,7 @@
       setInterval(_flush, 60000);
     })();
 
-    /* ── 홈↔커뮤니티 스와이프 네비게이션 ── */
+    /* ── 홈↔커뮤니티 스와이프/드래그 네비게이션 ── */
     (function() {
       let sx = 0, sy = 0, tracking = false;
       const THRESHOLD = 60;
@@ -5416,6 +5416,14 @@
         return null;
       }
 
+      function tryNavigate(dx, dy) {
+        if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+        const page = visiblePage();
+        if (dx < 0 && page === 'home')      goToPage('community');
+        if (dx > 0 && page === 'community') goToPage('home');
+      }
+
+      /* 터치 */
       document.addEventListener('touchstart', e => {
         sx = e.touches[0].clientX;
         sy = e.touches[0].clientY;
@@ -5425,13 +5433,26 @@
       document.addEventListener('touchend', e => {
         if (!tracking) return;
         tracking = false;
-        const dx = e.changedTouches[0].clientX - sx;
-        const dy = e.changedTouches[0].clientY - sy;
-        if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-        const page = visiblePage();
-        if (dx < 0 && page === 'home')      goToPage('community');
-        if (dx > 0 && page === 'community') goToPage('home');
+        tryNavigate(e.changedTouches[0].clientX - sx, e.changedTouches[0].clientY - sy);
       }, { passive: true });
+
+      /* 마우스 드래그 (PC) */
+      document.addEventListener('mousedown', e => {
+        if (e.button !== 0) return;
+        sx = e.clientX; sy = e.clientY; tracking = true;
+      });
+
+      document.addEventListener('mouseup', e => {
+        if (!tracking) return;
+        tracking = false;
+        tryNavigate(e.clientX - sx, e.clientY - sy);
+      });
+
+      /* 드래그 중 텍스트 선택 방지 */
+      document.addEventListener('mousemove', e => {
+        if (!tracking) return;
+        if (Math.abs(e.clientX - sx) > 10) e.preventDefault();
+      });
     })();
 
     /* ── 초기 실행 ── */
