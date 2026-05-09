@@ -565,41 +565,41 @@
     }
     #page-nav-btn {
       position: fixed;
-      right: 12px;
+      right: 0;
       top: 50%;
       transform: translateY(-50%);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 5px;
-      padding: 12px 8px;
-      background: rgba(255,255,255,0.92);
-      border: 1.5px solid rgba(26,61,232,0.18);
-      border-radius: 20px;
-      box-shadow: 0 2px 14px rgba(26,61,232,0.12);
+      justify-content: center;
+      gap: 6px;
+      padding: 18px 10px 18px 14px;
+      background: var(--blue-mid);
+      border: none;
+      border-radius: 16px 0 0 16px;
+      box-shadow: -4px 0 24px rgba(26,61,232,0.35);
       cursor: pointer;
       z-index: 300;
-      backdrop-filter: blur(8px);
-      transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.15s, padding 0.15s;
     }
     #page-nav-btn:hover {
-      background: rgba(26,61,232,0.07);
-      box-shadow: 0 4px 20px rgba(26,61,232,0.18);
-      transform: translateY(-50%) scale(1.06);
+      background: var(--blue-deep);
+      box-shadow: -6px 0 32px rgba(26,61,232,0.5);
+      transform: translateY(-50%) translateX(-4px);
     }
     #page-nav-btn .pnb-icon {
-      width: 16px;
-      height: 16px;
-      stroke: var(--blue-mid);
+      width: 20px;
+      height: 20px;
+      stroke: #ffffff;
       fill: none;
-      stroke-width: 2.5;
+      stroke-width: 2.8;
       stroke-linecap: round;
       stroke-linejoin: round;
     }
     #page-nav-btn .pnb-label {
       font-size: 9px;
       font-weight: 700;
-      color: var(--blue-mid);
+      color: rgba(255,255,255,0.85);
       writing-mode: vertical-rl;
       letter-spacing: 1.5px;
     }
@@ -3296,15 +3296,6 @@
     </div>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
-      <div class="menu-tab-group">
-        <button class="menu-tab menu-tab-parent" id="menu-community-toggle" data-expanded="false">
-          👥 커뮤니티<span class="menu-tab-arrow">›</span>
-        </button>
-        <div class="sub-menu" id="submenu-community">
-          <button class="sub-menu-item" data-page="community-crew">보험설계사</button>
-          <button class="sub-menu-item" data-page="community-manager">설계매니저</button>
-        </div>
-      </div>
       <a class="menu-tab menu-tab-kakao" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','menu')">💬 운영자 문의</a>
       <div class="side-cur-indicator" id="side-cur-indicator" style="display:none">
         <span class="sci-arrow">›</span>
@@ -4444,13 +4435,6 @@
       document.querySelectorAll('.sub-menu-item').forEach(t => {
         t.classList.toggle('active', t.dataset.page === page);
       });
-      /* 커뮤니티 하위 페이지 진입 시 서브메뉴 열어두기 */
-      if (page === 'community-crew' || page === 'community-manager') {
-        const tog = document.getElementById('menu-community-toggle');
-        const sub = document.getElementById('submenu-community');
-        if (tog && sub) { tog.dataset.expanded = 'true'; sub.classList.add('open'); }
-      }
-
       const indicator = document.getElementById('side-cur-indicator');
       const sciLabel  = document.getElementById('sci-label');
       if (indicator && sciLabel) {
@@ -4490,21 +4474,6 @@
         document.getElementById('side-backdrop').classList.remove('open');
       }
     }
-
-    /* 커뮤니티 서브메뉴 토글 */
-    document.getElementById('menu-community-toggle').addEventListener('click', function() {
-      const expanded = this.dataset.expanded === 'true';
-      this.dataset.expanded = expanded ? 'false' : 'true';
-      document.getElementById('submenu-community').classList.toggle('open', !expanded);
-    });
-
-    /* 서브메뉴 아이템 클릭 */
-    document.querySelectorAll('.sub-menu-item').forEach(item => {
-      item.addEventListener('click', function() {
-        trackClick(this.textContent.trim(), 'menu');
-        showPage(this.dataset.page);
-      });
-    });
 
     /* 메뉴 탭 클릭 (부모탭·카카오링크 제외) */
     document.querySelectorAll('.menu-tab').forEach(tab => {
@@ -6727,6 +6696,7 @@
     <svg class="pnb-icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
     <span class="pnb-label">커뮤니티</span>
   </button>
+
   <script>updatePageNavBtn('home');</script>
 </body>
 </html>
