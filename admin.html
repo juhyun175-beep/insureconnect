@@ -2751,6 +2751,46 @@
       }
     }
 
+    /* ══════ 표 직렬화 유틸리티 ══════ */
+    function escapeCell(str) {
+      return (str || '').replace(/\\/g, '\\\\').replace(/,/g, '\\,');
+    }
+    function unescapeCell(str) {
+      return (str || '').replace(/\\,/g, ',').replace(/\\\\/g, '\\');
+    }
+    function serializeTable(state) {
+      const R = state.rows.length;
+      const C = state.rows[0]?.cells.length || 0;
+      const lines = [`[table]`, `rows=${R},cols=${C}`];
+
+      // 행 데이터
+      state.rows.forEach(row => {
+        const cells = row.cells.map(c => escapeCell(c.text)).join(',');
+        lines.push(`${row.type},${cells}`);
+      });
+
+      // style 지시어
+      state.rows.forEach((row, r) => {
+        row.cells.forEach((cell, c) => {
+          const parts = [];
+          if (cell.bg)    parts.push(`bg:${cell.bg}`);
+          if (cell.align) parts.push(`align:${cell.align}`);
+          if (parts.length) lines.push(`style:${r}-${c}=${parts.join(';')}`);
+        });
+      });
+
+      // merge 지시어
+      Object.entries(state.merges || {}).forEach(([key, val]) => {
+        const parts = [];
+        if (val.colspan  > 1) parts.push(`colspan:${val.colspan}`);
+        if (val.rowspan  > 1) parts.push(`rowspan:${val.rowspan}`);
+        if (parts.length) lines.push(`merge:${key}=${parts.join(';')}`);
+      });
+
+      lines.push(`[/table]`);
+      return lines.join('\n');
+    }
+
     /* ══════ 보험지식 ══════ */
     document.getElementById('kn-image').addEventListener('change', function() {
       document.getElementById('kn-image-name').textContent = this.files[0] ? this.files[0].name : '없음';
