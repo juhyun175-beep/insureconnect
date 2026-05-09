@@ -624,6 +624,60 @@
       line-height: 1.3;
     }
     .dash-card-desc { display: none; }
+
+    /* ── 홈 카드 미리보기 ── */
+    .dash-card-preview {
+      flex: 1;
+      min-height: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin: 4px 0 6px;
+      overflow: hidden;
+    }
+    .dcp-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      width: 100%;
+      padding: 4px 6px;
+      border-radius: 6px;
+      background: none;
+      border: none;
+      cursor: pointer;
+      text-align: left;
+      transition: background 0.15s;
+      flex-shrink: 1;
+      min-height: 0;
+    }
+    .dcp-item:hover { background: rgba(26,61,232,0.07); }
+    .dcp-item-label {
+      flex: 1;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--txt-mid);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      line-height: 1.35;
+    }
+    .dcp-item-time {
+      font-size: 10px;
+      color: var(--txt-lo);
+      flex-shrink: 0;
+    }
+    .dcp-skeleton {
+      height: 20px;
+      border-radius: 5px;
+      background: linear-gradient(90deg, #edf0fa 25%, #f4f6ff 50%, #edf0fa 75%);
+      background-size: 200% 100%;
+      animation: dcp-shimmer 1.4s ease-in-out infinite;
+      flex-shrink: 1;
+    }
+    @keyframes dcp-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
     .dash-card-footer {
       display: flex;
       align-items: center;
@@ -3379,6 +3433,7 @@
         <div class="dash-card-icon">🗞</div>
         <div class="dash-card-title">인슈어커넥트 뉴스</div>
         <div class="dash-card-desc">보험업계 최신 소식을 카드뉴스 형태로 빠르게 확인. 상품 개정·업무 변경 사항을 놓치지 마세요.</div>
+        <div class="dash-card-preview" id="dcp-cardnews"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">News</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3389,6 +3444,7 @@
         <div class="dash-card-icon">🖥</div>
         <div class="dash-card-title">보험사 전산</div>
         <div class="dash-card-desc">주요 생·손보사 전산 시스템에 원클릭 접속. 매번 주소 검색 없이 즉시 업무 시작.</div>
+        <div class="dash-card-preview" id="dcp-jeonsan"></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Portal</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3399,6 +3455,7 @@
         <div class="dash-card-icon">💳</div>
         <div class="dash-card-title">보험사 수납 전산</div>
         <div class="dash-card-desc">보험사별 수납·결제 전산 시스템을 한 곳에서. 고객 수납 처리를 신속하게 진행하세요.</div>
+        <div class="dash-card-preview" id="dcp-payment"></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Payment</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3409,6 +3466,7 @@
         <div class="dash-card-icon">📰</div>
         <div class="dash-card-title">보험사 소식지</div>
         <div class="dash-card-desc">각 보험사가 발행하는 최신 소식지를 모아서 확인. 업무 지침·상품 안내를 한눈에.</div>
+        <div class="dash-card-preview" id="dcp-newsletter"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Newsletter</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3419,6 +3477,7 @@
         <div class="dash-card-icon">📋</div>
         <div class="dash-card-title">보험사 청구서류</div>
         <div class="dash-card-desc">보험금 청구 서류 양식을 보험사별로 바로 제공. 고객 응대 시 즉시 찾아 안내하세요.</div>
+        <div class="dash-card-preview" id="dcp-claimform"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Claim</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3429,6 +3488,7 @@
         <div class="dash-card-icon">💼</div>
         <div class="dash-card-title">채용공고</div>
         <div class="dash-card-desc">생·손보사 및 GA 채용 정보를 실시간으로 수집. 커리어 기회를 놓치지 마세요.</div>
+        <div class="dash-card-preview" id="dcp-recruit"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Recruit</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3439,6 +3499,7 @@
         <div class="dash-card-icon">📚</div>
         <div class="dash-card-title">보험지식</div>
         <div class="dash-card-desc">보험 용어·상품 지식·실무 팁 정리. 신입부터 베테랑까지 바로 활용할 수 있는 콘텐츠.</div>
+        <div class="dash-card-preview" id="dcp-knowledge"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Knowledge</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3449,6 +3510,7 @@
         <div class="dash-card-icon">🔧</div>
         <div class="dash-card-title">실무 도구</div>
         <div class="dash-card-desc">보험개발원·금감원·건강보험공단 등 자주 쓰는 기관 사이트를 모아 빠르게 접근.</div>
+        <div class="dash-card-preview" id="dcp-tools"></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Tools</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -5098,19 +5160,121 @@
       { key: 'cardnews',   label: '카드뉴스', page: 'cardnews',   table: 'ic_card_news',
         select: 'title,created_at,set_id', dedupField: 'set_id' },
       { key: 'newsletter', label: '소식지',   page: 'newsletter', table: 'ic_newsletters',
-        select: 'title,company_name,created_at', dedupField: null },
+        select: 'title,company_name,created_at,file_url,file_type', dedupField: null },
       { key: 'claimform',  label: '청구서류', page: 'claimform',  table: 'ic_claim_forms',
-        select: 'title,company_name,created_at', dedupField: null },
+        select: 'title,company_name,created_at,file_url,file_type', dedupField: null },
       { key: 'recruit',    label: '채용공고', page: 'recruit',    table: 'ic_recruitments',
-        select: 'title,company_name,created_at', dedupField: null },
+        select: 'title,company_name,created_at,id,file_url,file_type,description', dedupField: null },
       { key: 'knowledge',  label: '보험지식', page: 'knowledge',  table: 'ic_knowledge_posts',
-        select: 'title,created_at', dedupField: null },
+        select: 'title,created_at,id', dedupField: null },
     ];
+
+    /* ── 홈 카드 미리보기 렌더링 ── */
+    function renderDashPreviews(rawByKey) {
+      const timeStr = ts => {
+        if (!ts) return '';
+        const diff = Math.floor((Date.now() - new Date(ts)) / 1000);
+        if (diff < 60)    return '방금';
+        if (diff < 3600)  return `${Math.floor(diff/60)}분 전`;
+        if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
+        const d = new Date(ts);
+        return `${d.getMonth()+1}/${d.getDate()}`;
+      };
+
+      const renderItems = (elId, items, labelFn, onclickFn) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        if (!items || !items.length) { el.innerHTML = ''; return; }
+        el.innerHTML = items.slice(0, 3).map((it, i) =>
+          `<button class="dcp-item" type="button" data-i="${i}">` +
+          `<span class="dcp-item-label">${escHtml(labelFn(it))}</span>` +
+          (timeStr(it.created_at) ? `<span class="dcp-item-time">${timeStr(it.created_at)}</span>` : '') +
+          `</button>`
+        ).join('');
+        el.querySelectorAll('.dcp-item').forEach(btn => {
+          btn.addEventListener('click', e => {
+            e.stopPropagation();
+            onclickFn(items[+btn.dataset.i]);
+          });
+        });
+      };
+
+      /* 데이터 로드 대기 폴링 헬퍼 (max ~3s) */
+      const waitFor = (checkFn, action, interval = 200, tries = 15) => {
+        if (checkFn()) { action(); return; }
+        if (tries > 0) setTimeout(() => waitFor(checkFn, action, interval, tries - 1), interval);
+      };
+
+      /* 동적 카드 */
+      renderItems('dcp-cardnews', rawByKey.cardnews,
+        it => it.title || '카드뉴스',
+        it => {
+          goToPage('cardnews');
+          if (it.set_id == null) return;
+          waitFor(
+            () => (cardNewsState.sets || []).length > 0,
+            () => { const idx = cardNewsState.sets.findIndex(s => s.set_id === it.set_id); if (idx >= 0) openCardNewsModal(idx); }
+          );
+        }
+      );
+      renderItems('dcp-newsletter', rawByKey.newsletter,
+        it => (it.company_name ? it.company_name + ' · ' : '') + (it.title || ''),
+        it => { goToPage('newsletter'); if (it.file_url) setTimeout(() => openViewer(it.file_url, it.file_type), 100); }
+      );
+      renderItems('dcp-claimform', rawByKey.claimform,
+        it => (it.company_name ? it.company_name + ' · ' : '') + (it.title || ''),
+        it => { goToPage('claimform'); if (it.file_url) setTimeout(() => openViewer(it.file_url, it.file_type), 100); }
+      );
+      renderItems('dcp-recruit', rawByKey.recruit,
+        it => (it.company_name ? it.company_name + ' · ' : '') + (it.title || ''),
+        it => {
+          goToPage('recruit');
+          if (it.id == null) return;
+          waitFor(
+            () => recruitState.items.length > 0,
+            () => { const idx = recruitState.items.findIndex(r => r.id === it.id); if (idx >= 0) openRecruitViewer(idx); }
+          );
+        }
+      );
+      renderItems('dcp-knowledge', rawByKey.knowledge,
+        it => it.title || '',
+        it => { goToPage('knowledge'); if (it.id != null) setTimeout(() => openKnPost(it.id, false), 200); }
+      );
+
+      /* 정적 카드 */
+      const STATIC_ITEMS = {
+        'dcp-jeonsan': [
+          { label: `생명보험사 ${LIFE.length}개사`, page: 'jeonsan' },
+          { label: `손해보험사 ${NONLIFE.length}개사`, page: 'jeonsan' },
+          { label: '원클릭 전산 접속', page: 'jeonsan' },
+        ],
+        'dcp-payment': [
+          { label: '생·손보사 수납 전산 링크', page: 'payment' },
+          { label: '고객 수납 즉시 처리', page: 'payment' },
+          { label: '보험사별 결제 시스템', page: 'payment' },
+        ],
+        'dcp-tools': [
+          { label: '수술명 검색 (1~5종)', page: 'tools' },
+          { label: '실비 계산기 (1~4세대)', page: 'tools' },
+          { label: 'KCD 질병코드 조회', page: 'tools' },
+        ],
+      };
+      Object.entries(STATIC_ITEMS).forEach(([elId, items]) => {
+        const el = document.getElementById(elId);
+        if (!el) return;
+        el.innerHTML = items.map(it =>
+          `<button class="dcp-item" type="button" onclick="event.stopPropagation();goToPage('${it.page}')">` +
+          `<span class="dcp-item-label">${escHtml(it.label)}</span>` +
+          `</button>`
+        ).join('');
+      });
+    }
 
     async function loadLiveTicker() {
       const track = document.getElementById('live-ticker-track');
       if (!track) return;
       try {
+        const rawByKey = {};
         const results = await Promise.all(TICKER_SOURCES.map(async src => {
           try {
             const r = await fetch(
@@ -5118,7 +5282,7 @@
               { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
             );
             let items = await r.json();
-            if (!Array.isArray(items)) return [];
+            if (!Array.isArray(items)) { rawByKey[src.key] = []; return []; }
             if (src.dedupField) {
               const seen = new Set();
               items = items.filter(it => {
@@ -5127,13 +5291,15 @@
                 seen.add(v); return true;
               });
             }
+            rawByKey[src.key] = items.slice(0, 3);
             return items.slice(0, 5).map(it => ({
               key: src.key, label: src.label, page: src.page,
               title: (it.company_name ? it.company_name + ' · ' : '') + (it.title || ''),
               created_at: it.created_at,
             }));
-          } catch { return []; }
+          } catch { rawByKey[src.key] = []; return []; }
         }));
+        renderDashPreviews(rawByKey);
 
         const all = results.flat()
           .filter(it => it.title)
