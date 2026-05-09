@@ -666,6 +666,14 @@
       color: var(--txt-lo);
       flex-shrink: 0;
     }
+    .dcp-item-new {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #1a3de8;
+      flex-shrink: 0;
+      margin-right: 1px;
+    }
     .dcp-skeleton {
       height: 20px;
       border-radius: 5px;
@@ -3433,7 +3441,7 @@
         <div class="dash-card-icon">🗞</div>
         <div class="dash-card-title">인슈어커넥트 뉴스</div>
         <div class="dash-card-desc">보험업계 최신 소식을 카드뉴스 형태로 빠르게 확인. 상품 개정·업무 변경 사항을 놓치지 마세요.</div>
-        <div class="dash-card-preview" id="dcp-cardnews"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
+        <div class="dash-card-preview" id="dcp-cardnews"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">News</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3466,7 +3474,7 @@
         <div class="dash-card-icon">📰</div>
         <div class="dash-card-title">보험사 소식지</div>
         <div class="dash-card-desc">각 보험사가 발행하는 최신 소식지를 모아서 확인. 업무 지침·상품 안내를 한눈에.</div>
-        <div class="dash-card-preview" id="dcp-newsletter"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
+        <div class="dash-card-preview" id="dcp-newsletter"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Newsletter</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3477,7 +3485,7 @@
         <div class="dash-card-icon">📋</div>
         <div class="dash-card-title">보험사 청구서류</div>
         <div class="dash-card-desc">보험금 청구 서류 양식을 보험사별로 바로 제공. 고객 응대 시 즉시 찾아 안내하세요.</div>
-        <div class="dash-card-preview" id="dcp-claimform"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
+        <div class="dash-card-preview" id="dcp-claimform"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Claim</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3488,7 +3496,7 @@
         <div class="dash-card-icon">💼</div>
         <div class="dash-card-title">채용공고</div>
         <div class="dash-card-desc">생·손보사 및 GA 채용 정보를 실시간으로 수집. 커리어 기회를 놓치지 마세요.</div>
-        <div class="dash-card-preview" id="dcp-recruit"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
+        <div class="dash-card-preview" id="dcp-recruit"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Recruit</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -3499,7 +3507,7 @@
         <div class="dash-card-icon">📚</div>
         <div class="dash-card-title">보험지식</div>
         <div class="dash-card-desc">보험 용어·상품 지식·실무 팁 정리. 신입부터 베테랑까지 바로 활용할 수 있는 콘텐츠.</div>
-        <div class="dash-card-preview" id="dcp-knowledge"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
+        <div class="dash-card-preview" id="dcp-knowledge"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Knowledge</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -5181,12 +5189,15 @@
         return `${d.getMonth()+1}/${d.getDate()}`;
       };
 
+      const isNew = ts => ts && (Date.now() - new Date(ts)) < 7 * 24 * 3600 * 1000;
+
       const renderItems = (elId, items, labelFn, onclickFn) => {
         const el = document.getElementById(elId);
         if (!el) return;
         if (!items || !items.length) { el.innerHTML = ''; return; }
-        el.innerHTML = items.slice(0, 3).map((it, i) =>
+        el.innerHTML = items.map((it, i) =>
           `<button class="dcp-item" type="button" data-i="${i}">` +
+          (isNew(it.created_at) ? `<span class="dcp-item-new"></span>` : '') +
           `<span class="dcp-item-label">${escHtml(labelFn(it))}</span>` +
           (timeStr(it.created_at) ? `<span class="dcp-item-time">${timeStr(it.created_at)}</span>` : '') +
           `</button>`
@@ -5247,16 +5258,22 @@
           { label: `생명보험사 ${LIFE.length}개사`, page: 'jeonsan' },
           { label: `손해보험사 ${NONLIFE.length}개사`, page: 'jeonsan' },
           { label: '원클릭 전산 접속', page: 'jeonsan' },
+          { label: '생·손보 통합 검색', page: 'jeonsan' },
+          { label: '보험사별 계약관리', page: 'jeonsan' },
+          { label: '고객 조회 즉시 접속', page: 'jeonsan' },
         ],
         'dcp-payment': [
-          { label: '생·손보사 수납 전산 링크', page: 'payment' },
-          { label: '고객 수납 즉시 처리', page: 'payment' },
-          { label: '보험사별 결제 시스템', page: 'payment' },
+          { label: '한화생명', page: 'payment' },
+          { label: '미래에셋생명', page: 'payment' },
+          { label: '흥국생명', page: 'payment' },
         ],
         'dcp-tools': [
           { label: '수술명 검색 (1~5종)', page: 'tools' },
           { label: '실비 계산기 (1~4세대)', page: 'tools' },
           { label: 'KCD 질병코드 조회', page: 'tools' },
+          { label: '카드납 가이드', page: 'tools' },
+          { label: '실손보험 인수기준', page: 'tools' },
+          { label: '할인·할증요인 조회', page: 'tools' },
         ],
       };
       Object.entries(STATIC_ITEMS).forEach(([elId, items]) => {
@@ -5291,7 +5308,7 @@
                 seen.add(v); return true;
               });
             }
-            rawByKey[src.key] = items.slice(0, 3);
+            rawByKey[src.key] = items.slice(0, 6);
             return items.slice(0, 5).map(it => ({
               key: src.key, label: src.label, page: src.page,
               title: (it.company_name ? it.company_name + ' · ' : '') + (it.title || ''),
