@@ -1339,7 +1339,16 @@
       z-index: 600;
       cursor: pointer;
       align-items: center; justify-content: center;
-      font-size: 18px;
+      padding: 0;
+      line-height: 1;
+    }
+    .side-toggle svg {
+      display: block;
+      width: 20px; height: 20px;
+      stroke: var(--blue-mid);
+      fill: none;
+      stroke-width: 2;
+      stroke-linecap: round;
     }
     .side-backdrop {
       display: none;
@@ -3398,7 +3407,9 @@
 <body>
 
   <!-- 햄버거 토글 (모바일) -->
-  <button class="side-toggle" id="side-toggle" type="button" aria-label="메뉴 열기">☰</button>
+  <button class="side-toggle" id="side-toggle" type="button" aria-label="메뉴 열기">
+    <svg viewBox="0 0 20 20"><line x1="3" y1="5" x2="17" y2="5"/><line x1="3" y1="10" x2="17" y2="10"/><line x1="3" y1="15" x2="17" y2="15"/></svg>
+  </button>
   <div class="side-backdrop" id="side-backdrop"></div>
 
   <!-- 사이드 메뉴 -->
