@@ -5403,6 +5403,37 @@
       setInterval(_flush, 60000);
     })();
 
+    /* ── 홈↔커뮤니티 스와이프 네비게이션 ── */
+    (function() {
+      let sx = 0, sy = 0, tracking = false;
+      const THRESHOLD = 60;
+
+      function visiblePage() {
+        for (const id of ['home', 'community']) {
+          const el = document.getElementById('page-' + id);
+          if (el && el.style.display !== 'none') return id;
+        }
+        return null;
+      }
+
+      document.addEventListener('touchstart', e => {
+        sx = e.touches[0].clientX;
+        sy = e.touches[0].clientY;
+        tracking = true;
+      }, { passive: true });
+
+      document.addEventListener('touchend', e => {
+        if (!tracking) return;
+        tracking = false;
+        const dx = e.changedTouches[0].clientX - sx;
+        const dy = e.changedTouches[0].clientY - sy;
+        if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.2) return;
+        const page = visiblePage();
+        if (dx < 0 && page === 'home')      goToPage('community');
+        if (dx > 0 && page === 'community') goToPage('home');
+      }, { passive: true });
+    })();
+
     /* ── 초기 실행 ── */
     trackVisit();
     loadCardNews();
