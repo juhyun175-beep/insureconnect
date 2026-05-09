@@ -3291,8 +3291,9 @@
     async function editKnowledgePost(id, originalImageUrl) {
       try {
         const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${id}`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+          headers: adminHeaders()
         });
+        if (!res.ok) throw new Error(`불러오기 실패 (${res.status})`);
         const items = await res.json();
         if (!items || !items[0]) { alert('포스트를 불러올 수 없습니다.'); return; }
         const post = items[0];
@@ -3364,8 +3365,8 @@
         });
         if (!res.ok) throw new Error(`(${res.status}) ${await res.text()}`);
         status.textContent = '✅ 수정 완료!';
-        cancelKnowledgeEdit();
         loadKnowledgeList();
+        setTimeout(cancelKnowledgeEdit, 1500);
       } catch(e) {
         status.textContent = '❌ 수정 실패: ' + e.message;
       } finally {
