@@ -405,129 +405,6 @@
     }
 
 
-    /* ══════════════════════════════
-       실시간 업데이트 티커
-    ══════════════════════════════ */
-    .live-ticker {
-      flex-shrink: 0;
-      z-index: 500;
-      background: #fff;
-      border-bottom: 1.5px solid rgba(26,61,232,0.12);
-      display: flex;
-      align-items: stretch;
-      height: 44px;
-      overflow: hidden;
-      box-shadow: 0 2px 14px rgba(12,31,184,0.08);
-    }
-    .live-ticker-label {
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      background: var(--blue-mid);
-      color: #fff;
-      font-size: 11px;
-      font-weight: 800;
-      letter-spacing: 0.1em;
-      white-space: nowrap;
-      padding: 0 18px 0 18px;
-      clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%);
-      padding-right: 26px;
-    }
-    .live-ticker-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #ff4444;
-      box-shadow: 0 0 0 0 rgba(255,68,68,0.6);
-      animation: t-pulse 1.4s ease-in-out infinite;
-      flex-shrink: 0;
-    }
-    @keyframes t-pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(255,68,68,0.6); }
-      70%  { box-shadow: 0 0 0 8px rgba(255,68,68,0); }
-      100% { box-shadow: 0 0 0 0 rgba(255,68,68,0); }
-    }
-    .live-ticker-track-wrap {
-      flex: 1;
-      overflow: hidden;
-      position: relative;
-      mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
-      -webkit-mask-image: linear-gradient(to right, transparent 0%, black 2%, black 98%, transparent 100%);
-    }
-    .live-ticker-track {
-      display: flex;
-      align-items: center;
-      white-space: nowrap;
-      height: 44px;
-      will-change: transform;
-      animation: t-scroll 40s linear infinite;
-    }
-    .live-ticker-track:hover { animation-play-state: paused; }
-    @keyframes t-scroll {
-      0%   { transform: translateX(0); }
-      100% { transform: translateX(-50%); }
-    }
-    .live-ticker-item {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      padding: 0 20px 0 0;
-      cursor: pointer;
-      border: none;
-      background: none;
-      color: var(--txt-hi);
-      font-size: 13px;
-      transition: color 0.15s;
-      flex-shrink: 0;
-    }
-    .live-ticker-item:hover { color: var(--blue-mid); }
-    .live-ticker-sep {
-      color: rgba(26,61,232,0.2);
-      font-size: 18px;
-      padding: 0 20px 0 0;
-      flex-shrink: 0;
-      line-height: 1;
-      user-select: none;
-    }
-    .live-ticker-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 100px;
-      background: rgba(26,61,232,0.08);
-      color: var(--blue-mid);
-      flex-shrink: 0;
-      letter-spacing: 0.02em;
-    }
-    .live-ticker-badge.badge-cardnews   { background: rgba(26,61,232,0.10); color: #1a3de8; }
-    .live-ticker-badge.badge-newsletter { background: rgba(5,150,105,0.1); color: #059669; }
-    .live-ticker-badge.badge-claimform  { background: rgba(124,58,237,0.1); color: #7c3aed; }
-    .live-ticker-badge.badge-recruit    { background: rgba(234,88,12,0.1);  color: #ea580c; }
-    .live-ticker-badge.badge-knowledge  { background: rgba(14,165,233,0.1); color: #0ea5e9; }
-    .live-ticker-title {
-      max-width: 220px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .live-ticker-when {
-      font-size: 10px;
-      color: var(--txt-lo);
-      font-family: 'Pretendard', sans-serif;
-      flex-shrink: 0;
-    }
-    @media (max-width: 900px) {
-      /* 햄버거 버튼(42px + 좌우 여백) 자리 확보 */
-      .live-ticker { padding-left: 62px; height: 44px; }
-      .live-ticker-label { font-size: 10px; padding: 0 14px 0 14px; padding-right: 22px; gap: 5px; }
-      .live-ticker-title { max-width: 140px; }
-      .live-ticker-track { height: 44px; }
-    }
-    @media (max-width: 480px) {
-      .live-ticker { height: 40px; }
-      .live-ticker-track { height: 40px; }
-      .live-ticker-title { max-width: 110px; }
-    }
 
     /* ══════════════════════════════
        CONTENT
@@ -3436,19 +3313,6 @@
     </nav>
   </aside>
 
-  <!-- ══════ 실시간 업데이트 티커 ══════ -->
-  <div class="live-ticker" id="live-ticker">
-    <div class="live-ticker-label">
-      <span class="live-ticker-dot"></span>
-      <span>LIVE</span>
-    </div>
-    <div class="live-ticker-track-wrap">
-      <div class="live-ticker-track" id="live-ticker-track">
-        <span style="font-size:12px;color:#8fa5cc;padding:0 24px;">최신 업데이트를 불러오는 중…</span>
-      </div>
-    </div>
-  </div>
-
   <!-- 뒤로가기 바 -->
   <div class="back-bar" id="back-bar" style="display:none">
     <button class="back-btn" onclick="goToPage('home')" aria-label="홈으로 돌아가기">
@@ -5331,18 +5195,16 @@
     }
 
     async function loadLiveTicker() {
-      const track = document.getElementById('live-ticker-track');
-      if (!track) return;
       try {
         const rawByKey = {};
-        const results = await Promise.all(TICKER_SOURCES.map(async src => {
+        await Promise.all(TICKER_SOURCES.map(async src => {
           try {
             const r = await fetch(
               `${SB_URL}/rest/v1/${src.table}?order=created_at.desc&limit=${src.limit || 15}&select=${src.select}`,
               { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
             );
             let items = await r.json();
-            if (!Array.isArray(items)) { rawByKey[src.key] = []; return []; }
+            if (!Array.isArray(items)) { rawByKey[src.key] = []; return; }
             if (src.dedupField) {
               const seen = new Set();
               items = items.filter(it => {
@@ -5352,59 +5214,17 @@
               });
             }
             rawByKey[src.key] = items.slice(0, 6);
-            return items.slice(0, 5).map(it => ({
-              key: src.key, label: src.label, page: src.page,
-              title: (it.company_name ? it.company_name + ' · ' : '') + (it.title || ''),
-              created_at: it.created_at,
-            }));
-          } catch { rawByKey[src.key] = []; return []; }
+          } catch { rawByKey[src.key] = []; }
         }));
         renderDashPreviews(rawByKey);
-
-        const all = results.flat()
-          .filter(it => it.title)
-          .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
-
-        if (all.length === 0) {
-          track.innerHTML = '<span style="font-size:12px;color:#8fa5cc;padding:0 24px;">등록된 최신 콘텐츠가 없습니다.</span>';
-          return;
-        }
-
-        const timeStr = it => {
-          const diff = Math.floor((Date.now() - new Date(it.created_at)) / 1000);
-          if (diff < 60)    return '방금';
-          if (diff < 3600)  return `${Math.floor(diff/60)}분 전`;
-          if (diff < 86400) return `${Math.floor(diff/3600)}시간 전`;
-          const d = new Date(it.created_at);
-          return `${d.getMonth()+1}/${d.getDate()}`;
-        };
-
-        const renderItem = it => `<button class="live-ticker-item" type="button" onclick="goToPage('${it.page}')"><span class="live-ticker-badge badge-${it.key}">${escHtml(it.label)}</span><span class="live-ticker-title">${escHtml(it.title)}</span><span class="live-ticker-when">${timeStr(it)}</span></button><span class="live-ticker-sep">·</span>`;
-
-        const inner = all.map(renderItem).join('');
-        track.innerHTML = inner + inner; // 복제해서 끊김 없는 루프
-
-        requestAnimationFrame(() => {
-          const halfW = track.scrollWidth / 2;
-          const speed = 80; // px/s
-          const dur = Math.max(18, halfW / speed);
-          track.style.animationDuration = dur + 's';
-        });
       } catch (e) {
-        console.error('Ticker error:', e);
+        console.error('Dash preview error:', e);
       }
     }
-
-
 
     function goToPage(page) {
       showPage(page);
     }
-
-    setInterval(() => { if (document.visibilityState === 'visible') loadLiveTicker(); }, 30000);
-    document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible') loadLiveTicker();
-    });
 
     /* ══════════════════════════════
        체류 시간 추적
