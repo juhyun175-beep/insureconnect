@@ -2753,10 +2753,11 @@
 
     /* ══════ 표 직렬화 유틸리티 ══════ */
     function escapeCell(str) {
-      return (str || '').replace(/\\/g, '\\\\').replace(/,/g, '\\,');
+      return (str || '').replace(/\\/g, '\\\\').replace(/,/g, '\\,').replace(/\[/g, '\\[').replace(/\]/g, '\\]');
     }
     function unescapeCell(str) {
-      return (str || '').replace(/\\,/g, ',').replace(/\\\\/g, '\\');
+      // \\, and \\[ must be restored before \\ to avoid double-unescaping
+      return (str || '').replace(/\\,/g, ',').replace(/\\\[/g, '[').replace(/\\\]/g, ']').replace(/\\\\/g, '\\');
     }
     function serializeTable(state) {
       const R = state.rows.length;
