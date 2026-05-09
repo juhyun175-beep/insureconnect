@@ -1808,6 +1808,7 @@
         <div class="nl-upload-box">
           <h4 style="margin:0 0 14px;font-size:14px;color:var(--neon-cyan);font-weight:700;letter-spacing:0.08em;">📚 보험지식 포스트 작성</h4>
           <div class="nl-form" id="kn-form" style="flex-direction:column;gap:14px;">
+            <div id="kn-edit-banner">✏️ 수정 모드 — <span id="kn-edit-title-label"></span></div>
             <div class="nl-field" style="width:100%;">
               <label>제목</label>
               <input type="text" id="kn-title" placeholder="예: 실손보험 청구 절차 완벽 정리" maxlength="100">
@@ -1843,6 +1844,7 @@
               </label>
             </div>
             <button class="nl-upload-btn" id="kn-upload-btn" onclick="uploadKnowledgePost()">포스트 등록</button>
+            <button type="button" id="kn-cancel-edit-btn" style="display:none;margin-top:8px;padding:10px 20px;border-radius:8px;border:1.5px solid var(--neon-pink);background:transparent;color:var(--neon-pink);font-size:13px;font-weight:700;cursor:pointer;letter-spacing:0.06em;" onclick="cancelKnowledgeEdit()">✕ 수정 취소</button>
           </div>
           <p class="nl-status" id="kn-status"></p>
         </div>
@@ -3252,6 +3254,7 @@
                 <div style="font-size:12px;color:var(--txt-mid);margin-top:3px;line-height:1.5;">${excerpt}</div>
                 <div class="nl-meta-date">${dateStr}</div>
               </div>
+              <button class="nl-edit-btn" onclick="editKnowledgePost(${it.id}, ${it.image_url ? `'${jsStr(it.image_url)}'` : 'null'})">수정</button>
               <button class="nl-del-btn" onclick="deleteKnowledgePost(${it.id}, ${it.image_url ? `'${jsStr(it.image_url)}'` : 'null'})">삭제</button>
             </div>`;
         }).join('');
@@ -3276,6 +3279,94 @@
         loadKnowledgeList();
       } catch (e) {
         alert('삭제 실패: ' + e.message);
+      }
+    }
+
+    let knEditingId = null;
+    let knEditingOrigImageUrl = null;
+
+    async function editKnowledgePost(id, originalImageUrl) {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${id}`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        });
+        const items = await res.json();
+        if (!items || !items[0]) { alert('포스트를 불러올 수 없습니다.'); return; }
+        const post = items[0];
+
+        // 폼에 데이터 로드
+        document.getElementById('kn-title').value = post.title || '';
+        document.getElementById('kn-content-input').value = post.content || '';
+        document.getElementById('kn-image-name').textContent = post.image_url ? '기존 이미지 유지' : '없음';
+
+        // 수정 모드 UI
+        knEditingId = id;
+        knEditingOrigImageUrl = post.image_url || null;
+        document.getElementById('kn-edit-banner').style.display = 'block';
+        document.getElementById('kn-edit-title-label').textContent = post.title;
+        document.getElementById('kn-upload-btn').textContent = '수정 완료';
+        document.getElementById('kn-upload-btn').onclick = updateKnowledgePost;
+        document.getElementById('kn-cancel-edit-btn').style.display = 'block';
+
+        // 폼 상단으로 스크롤
+        document.getElementById('kn-form').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('kn-status').textContent = '';
+      } catch(e) {
+        alert('불러오기 실패: ' + e.message);
+      }
+    }
+
+    function cancelKnowledgeEdit() {
+      knEditingId = null;
+      knEditingOrigImageUrl = null;
+      document.getElementById('kn-title').value = '';
+      document.getElementById('kn-content-input').value = '';
+      document.getElementById('kn-image').value = '';
+      document.getElementById('kn-image-name').textContent = '없음';
+      document.getElementById('kn-edit-banner').style.display = 'none';
+      document.getElementById('kn-upload-btn').textContent = '포스트 등록';
+      document.getElementById('kn-upload-btn').onclick = uploadKnowledgePost;
+      document.getElementById('kn-cancel-edit-btn').style.display = 'none';
+      document.getElementById('kn-status').textContent = '';
+    }
+
+    async function updateKnowledgePost() {
+      const title   = document.getElementById('kn-title').value.trim();
+      const content = document.getElementById('kn-content-input').value.trim();
+      const fileEl  = document.getElementById('kn-image');
+      const status  = document.getElementById('kn-status');
+      const btn     = document.getElementById('kn-upload-btn');
+      if (!title)   { status.textContent = '⚠ 제목을 입력해주세요.'; return; }
+      if (!content) { status.textContent = '⚠ 내용을 입력해주세요.'; return; }
+      btn.disabled = true;
+      status.textContent = '수정 중…';
+      try {
+        let imageUrl = knEditingOrigImageUrl;
+        if (fileEl.files && fileEl.files[0]) {
+          const file = fileEl.files[0];
+          const ext  = file.name.split('.').pop() || 'jpg';
+          const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+          const upRes = await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
+            body: file
+          });
+          if (!upRes.ok) throw new Error('이미지 업로드 실패: ' + (await upRes.text()));
+          imageUrl = `${SB_URL}/storage/v1/object/public/knowledge/${path}`;
+        }
+        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${knEditingId}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+          body: JSON.stringify({ title, content, image_url: imageUrl })
+        });
+        if (!res.ok) throw new Error(`(${res.status}) ${await res.text()}`);
+        status.textContent = '✅ 수정 완료!';
+        cancelKnowledgeEdit();
+        loadKnowledgeList();
+      } catch(e) {
+        status.textContent = '❌ 수정 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
       }
     }
 
