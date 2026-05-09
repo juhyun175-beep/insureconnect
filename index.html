@@ -2602,6 +2602,24 @@
       padding-bottom: 28px; margin-bottom: 28px;
     }
     .kn-modal-content p { margin: 0 0 2px; }
+    /* ── 보험지식 인라인 표 ── */
+    .kn-table-wrap { overflow-x: auto; margin: 16px 0; -webkit-overflow-scrolling: touch; }
+    .kn-table { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 1.5; }
+    .kn-table th,
+    .kn-table td {
+      border: 1px solid rgba(100,116,139,0.3);
+      padding: 8px 12px; text-align: left; color: #334155;
+      vertical-align: top; word-break: break-word;
+    }
+    .kn-table th {
+      background: #f1f5f9; font-weight: 700; color: #1e40af;
+    }
+    .kn-table tr:nth-child(even) td { background: #f8fafc; }
+    @media (prefers-color-scheme: dark) {
+      .kn-table th, .kn-table td { border-color: rgba(0,240,255,0.2); color: #e2e8f0; }
+      .kn-table th { background: rgba(0,240,255,0.07); color: #7dd3fc; }
+      .kn-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
+    }
     .kn-modal-content .kn-inline-img {
       max-width: 100%; border-radius: 12px;
       margin: 16px 0; display: block;
@@ -5472,21 +5490,128 @@
       }
     }
 
+    /* [table]...[/table] 블록을 HTML 표로 렌더링 */
+    function renderTableBlock(lines) {
+      // lines: [table] ~ [/table] 사이 내용 (두 마커 제외)
+      const mergeMap = {};
+      const styleMap = {};
+      const dataLines = [];
+
+      for (const line of lines) {
+        if (line.startsWith('rows=')) continue;
+        if (line.startsWith('style:')) {
+          const m = line.match(/^style:(\d+)-(\d+)=(.+)$/);
+          if (m) {
+            const key = `${m[1]}-${m[2]}`;
+            const parts = m[3].split(';');
+            const obj = {};
+            parts.forEach(p => {
+              const [k,v] = p.split(':');
+              if (k === 'bg') obj.bg = v;
+              if (k === 'align') obj.align = v;
+            });
+            styleMap[key] = obj;
+          }
+          continue;
+        }
+        if (line.startsWith('merge:')) {
+          const m = line.match(/^merge:(\d+)-(\d+)=(.+)$/);
+          if (m) {
+            const key = `${m[1]}-${m[2]}`;
+            const obj = {};
+            m[3].split(';').forEach(p => {
+              const [k,v] = p.split(':');
+              if (k === 'colspan') obj.colspan = parseInt(v);
+              if (k === 'rowspan') obj.rowspan = parseInt(v);
+            });
+            mergeMap[key] = obj;
+          }
+          continue;
+        }
+        if (line.match(/^[HD],/)) dataLines.push(line);
+      }
+
+      if (!dataLines.length) return '<p>[표 데이터 없음]</p>';
+
+      // shadow-grid: skip 셀 결정
+      const skipSet = new Set();
+      Object.entries(mergeMap).forEach(([key, val]) => {
+        const [r, c] = key.split('-').map(Number);
+        const cs = val.colspan || 1, rs = val.rowspan || 1;
+        for (let dr = 0; dr < rs; dr++) {
+          for (let dc = 0; dc < cs; dc++) {
+            if (dr === 0 && dc === 0) continue;
+            skipSet.add(`${r+dr}-${c+dc}`);
+          }
+        }
+      });
+
+      const rows = dataLines.map((line, r) => {
+        const type = line[0]; // 'H' or 'D'
+        // 콤마 이스케이프 처리: \, → 임시 치환 후 split → 복원
+        const raw = line.slice(2); // "H," 또는 "D," 제거
+        const cells = raw.replace(/\\,/g, '\x00').split(',')
+          .map(s => s.replace(/\x00/g, ',').replace(/\\\\/g, '\\'));
+        // ↑ \, → NUL → , 복원 후, \\ → \ 도 복원 (escapeCell 역순 unescape)
+
+        const tds = cells.map((cellText, c) => {
+          if (skipSet.has(`${r}-${c}`)) return '';
+          const tag = type === 'H' ? 'th' : 'td';
+          const merge = mergeMap[`${r}-${c}`] || {};
+          const csAttr = merge.colspan > 1 ? ` colspan="${merge.colspan}"` : '';
+          const rsAttr = merge.rowspan > 1 ? ` rowspan="${merge.rowspan}"` : '';
+          const st = styleMap[`${r}-${c}`] || {};
+          const styleStr = [
+            st.bg    ? `background:${knEsc(st.bg)}`   : '',
+            st.align ? `text-align:${knEsc(st.align)}` : ''
+          ].filter(Boolean).join(';');
+          const styleAttr = styleStr ? ` style="${styleStr}"` : '';
+          return `<${tag}${csAttr}${rsAttr}${styleAttr}>${knEsc(cellText)}</${tag}>`;
+        }).join('');
+        return `<tr>${tds}</tr>`;
+      }).join('');
+
+      return `<div class="kn-table-wrap"><table class="kn-table">${rows}</table></div>`;
+    }
+
     /* [img:URL] 태그를 실제 이미지로, 나머지는 텍스트로 렌더링 */
     function parseKnContent(text) {
-      return (text || '').split('\n').map(line => {
+      const result = [];
+      const lines = (text || '').split('\n');
+      let i = 0;
+      while (i < lines.length) {
+        const line = lines[i];
+        if (line.trim() === '[table]') {
+          // [/table] 찾기
+          const blockLines = [];
+          i++;
+          while (i < lines.length && lines[i].trim() !== '[/table]') {
+            blockLines.push(lines[i]);
+            i++;
+          }
+          result.push(renderTableBlock(blockLines));
+          i++; // [/table] 스킵
+          continue;
+        }
         const m = line.match(/^\[img:(https?:\/\/[^\]]+)\]$/);
         if (m) {
-          return `<img src="${knEsc(m[1])}" class="kn-inline-img" alt="" loading="lazy">`;
+          result.push(`<img src="${knEsc(m[1])}" class="kn-inline-img" alt="" loading="lazy">`);
+        } else if (line.trim() === '') {
+          result.push('<br>');
+        } else {
+          result.push(`<p>${knEsc(line)}</p>`);
         }
-        if (line.trim() === '') return '<br>';
-        return `<p>${knEsc(line)}</p>`;
-      }).join('');
+        i++;
+      }
+      return result.join('');
     }
 
     /* 카드 미리보기용 — [img:...] 태그 제거 후 순수 텍스트만 */
     function stripKnTags(text) {
-      return (text || '').replace(/\[img:[^\]]+\]/g, '').replace(/\n+/g, ' ').trim();
+      return (text || '')
+        .replace(/\[img:[^\]]+\]/g, '')
+        .replace(/\[table\][\s\S]*?\[\/table\]/g, '[표]')
+        .replace(/\n+/g, ' ').trim();
     }
 
     async function openKnPost(postId, pushHistory = true) {
