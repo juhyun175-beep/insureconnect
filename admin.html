@@ -3084,7 +3084,8 @@
       ktmState.rows.splice(r, 1);
       // 해당 행의 merge 제거
       Object.keys(ktmState.merges).forEach(k => {
-        if (k.startsWith(`${r}-`)) delete ktmState.merges[k];
+        const [kr] = k.split('-').map(Number);
+        if (kr === r) delete ktmState.merges[k];
       });
       ktmSelected = null;
       document.getElementById('ktm-rows').value = ktmState.rows.length;
@@ -3097,7 +3098,8 @@
       const c = ktmSelected?.c ?? C - 1;
       ktmState.rows.forEach(row => row.cells.splice(c, 1));
       Object.keys(ktmState.merges).forEach(k => {
-        if (k.endsWith(`-${c}`)) delete ktmState.merges[k];
+        const [, kc] = k.split('-').map(Number);
+        if (kc === c) delete ktmState.merges[k];
       });
       ktmSelected = null;
       document.getElementById('ktm-cols').value = ktmState.rows[0]?.cells.length || 1;
@@ -3110,6 +3112,7 @@
       const {r, c} = ktmSelected;
       const C = ktmState.rows[0].cells.length;
       if (c + 1 >= C) { alert('오른쪽에 병합할 셀이 없습니다.'); return; }
+      delete ktmState.merges[`${r}-${c+1}`];
       const existing = ktmState.merges[`${r}-${c}`] || {};
       ktmState.merges[`${r}-${c}`] = { colspan: (existing.colspan||1)+1, rowspan: existing.rowspan||1 };
       renderGrid();
