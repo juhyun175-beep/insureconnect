@@ -1990,6 +1990,37 @@
 
     }
     /* ══════════════════════════════
+       커뮤니티 허브 탭
+    ══════════════════════════════ */
+    .comm-hub-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .comm-hub-tab {
+      flex: 1;
+      padding: 12px 0;
+      border: 2px solid var(--border);
+      border-radius: 12px;
+      background: #fff;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--txt-mid);
+      cursor: pointer;
+      transition: all 0.18s;
+    }
+    .comm-hub-tab:hover {
+      border-color: var(--blue-mid);
+      color: var(--blue-mid);
+    }
+    .comm-hub-tab.active {
+      background: var(--blue-mid);
+      border-color: var(--blue-mid);
+      color: #fff;
+      box-shadow: 0 4px 14px rgba(26,61,232,0.25);
+    }
+
+    /* ══════════════════════════════
        커뮤니티 페이지 (메뉴)
     ══════════════════════════════ */
     .community-intro {
@@ -3596,6 +3627,114 @@
     </div>
   </div>
 
+  <!-- ══════ PAGE: 커뮤니티 허브 (화살표 버튼 진입) ══════ -->
+  <div class="content" id="page-community-hub" style="display:none">
+    <div class="section">
+      <div class="section-head" style="margin-bottom:20px">
+        <span class="sec-num">01</span>
+        <span class="sec-title">커뮤니티</span>
+        <span class="sec-line"></span>
+      </div>
+
+      <!-- 탭 -->
+      <div class="comm-hub-tabs">
+        <button class="comm-hub-tab active" data-tab="crew">👥 보험설계사</button>
+        <button class="comm-hub-tab" data-tab="manager">🏢 설계매니저</button>
+      </div>
+
+      <!-- 탭 패널: 보험설계사 -->
+      <div class="comm-hub-panel" id="comm-hub-crew">
+        <div class="comm-page">
+          <div class="comm-hero comm-hero--crew">
+            <div class="comm-hero-logo">
+              <img src="crew300.png" alt="CREW 300" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div class="comm-hero-logo-fb" style="display:none">C300</div>
+            </div>
+            <div class="comm-hero-info">
+              <span class="comm-hero-tag">보험설계사 전용 커뮤니티</span>
+              <div class="comm-hero-name">CREW 300</div>
+              <div class="comm-hero-tagline">현직 설계사들이 함께 만들어가는 실무 성장 공간</div>
+              <a class="comm-hero-join" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','card')">
+                💬 카카오 오픈채팅 참여하기
+              </a>
+            </div>
+          </div>
+          <div class="comm-body">
+            <div class="comm-block">
+              <div class="comm-block-title">커뮤니티 소개</div>
+              <p class="comm-desc-text">
+                CREW 300은 현직 보험설계사들이 자발적으로 만들고 직접 운영하는 실무 중심 오픈 커뮤니티입니다.<br><br>
+                영업 현장의 생생한 노하우부터 상품별 심층 분석, 고객 응대 스킬, 클레임 대응 방법까지 — 교과서에서는 배울 수 없는 현장의 진짜 정보들이 매일 쌓입니다.<br><br>
+                신입 설계사부터 10년 이상의 베테랑까지, 소속 보험사에 관계없이 누구나 참여할 수 있습니다.
+              </p>
+            </div>
+            <div class="comm-block">
+              <div class="comm-block-title">이런 분들께 추천해요</div>
+              <div class="comm-features">
+                <div class="comm-feature-item"><div class="comm-feature-icon">📊</div><div class="comm-feature-text"><div class="comm-feature-name">실무 노하우가 필요한 설계사</div><div class="comm-feature-desc">상품 분석, 계약 유지 전략, 고객 재계약 관리 팁 등 현장 정보를 나눕니다.</div></div></div>
+                <div class="comm-feature-item"><div class="comm-feature-icon">💬</div><div class="comm-feature-text"><div class="comm-feature-name">고민을 털어놓고 싶은 설계사</div><div class="comm-feature-desc">슬럼프, 고객 거절 등 혼자 감당하기 힘든 순간을 동료들과 함께 이겨냅니다.</div></div></div>
+                <div class="comm-feature-item"><div class="comm-feature-icon">🤝</div><div class="comm-feature-text"><div class="comm-feature-name">업계 네트워크를 넓히고 싶은 설계사</div><div class="comm-feature-desc">타사 설계사와의 교류로 시야를 넓히고 업계 전반의 동향을 빠르게 파악하세요.</div></div></div>
+                <div class="comm-feature-item"><div class="comm-feature-icon">📰</div><div class="comm-feature-text"><div class="comm-feature-name">업계 정보를 놓치고 싶지 않은 설계사</div><div class="comm-feature-desc">금융감독원 공시, 보험사 상품 변경, 규정 개정 소식을 가장 빠르게 접합니다.</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="comm-cond-bar">
+            <div class="comm-cond-item"><span class="comm-cond-emoji">💬</span><div><div class="comm-cond-label">채널 유형</div><div class="comm-cond-val">카카오 오픈채팅</div></div></div>
+            <div class="comm-cond-item"><span class="comm-cond-emoji">👤</span><div><div class="comm-cond-label">참여 조건</div><div class="comm-cond-val">현직 보험설계사</div></div></div>
+            <div class="comm-cond-item"><span class="comm-cond-emoji">🆓</span><div><div class="comm-cond-label">참여 비용</div><div class="comm-cond-val">완전 무료</div></div></div>
+            <div class="comm-cond-item"><span class="comm-cond-emoji">🏢</span><div><div class="comm-cond-label">소속 제한</div><div class="comm-cond-val">전 보험사 가능</div></div></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 탭 패널: 설계매니저 -->
+      <div class="comm-hub-panel" id="comm-hub-manager" style="display:none">
+        <div class="comm-page">
+          <div class="comm-hero comm-hero--manager">
+            <div class="comm-hero-logo">
+              <img src="managerlink.png" alt="MANAGER LINK" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">
+              <div class="comm-hero-logo-fb" style="display:none">ML</div>
+            </div>
+            <div class="comm-hero-info">
+              <span class="comm-hero-tag">설계매니저 전용 커뮤니티</span>
+              <div class="comm-hero-name">MANAGER LINK</div>
+              <div class="comm-hero-tagline">설계매니저로서의 성장을 함께 설계하는 전문 커뮤니티</div>
+              <a class="comm-hero-join" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','card')">
+                💬 카카오 오픈채팅 참여하기
+              </a>
+            </div>
+          </div>
+          <div class="comm-body">
+            <div class="comm-block comm-block--manager">
+              <div class="comm-block-title">커뮤니티 소개</div>
+              <p class="comm-desc-text">
+                MANAGER LINK는 보험 설계매니저로서의 역할과 성장을 함께 고민하는 전문 커뮤니티입니다.<br><br>
+                팀 구성과 조직 운영, 신입 설계사 육성 방법론, 매니저로서의 리더십 개발까지 — 현직 매니저들이 직접 쌓아온 노하우가 축적되어 있습니다.<br><br>
+                설계 인력 채용과 관리, 팀 목표 설정, 성과 분석, 조직 문화 구축까지 매니저 역할의 모든 고민을 함께 풀어나갑니다.
+              </p>
+            </div>
+            <div class="comm-block comm-block--manager">
+              <div class="comm-block-title">이런 분들께 추천해요</div>
+              <div class="comm-features">
+                <div class="comm-feature-item"><div class="comm-feature-icon">🏢</div><div class="comm-feature-text"><div class="comm-feature-name">팀 운영에 어려움을 느끼는 매니저</div><div class="comm-feature-desc">인력 구성, 목표 배분, 성과 피드백 등 실전 팀 운영 노하우를 선배 매니저로부터 배웁니다.</div></div></div>
+                <div class="comm-feature-item"><div class="comm-feature-icon">🌱</div><div class="comm-feature-text"><div class="comm-feature-name">신입 육성에 고민이 많은 매니저</div><div class="comm-feature-desc">온보딩, 교육 커리큘럼, 동기 부여 등 인재 육성의 모든 것을 나눕니다.</div></div></div>
+                <div class="comm-feature-item"><div class="comm-feature-icon">📈</div><div class="comm-feature-text"><div class="comm-feature-name">매니저로서 성장을 원하는 분</div><div class="comm-feature-desc">리더십 역량 개발, 승급 전략, 커리어 로드맵을 함께 그려나갑니다.</div></div></div>
+                <div class="comm-feature-item"><div class="comm-feature-icon">🔗</div><div class="comm-feature-text"><div class="comm-feature-name">타사 매니저와 교류하고 싶은 분</div><div class="comm-feature-desc">다양한 보험사의 매니저들과 네트워크를 형성하고 운영 방식을 비교합니다.</div></div></div>
+              </div>
+            </div>
+          </div>
+          <div class="comm-cond-bar">
+            <div class="comm-cond-item comm-cond-item--manager"><span class="comm-cond-emoji">💬</span><div><div class="comm-cond-label">채널 유형</div><div class="comm-cond-val">카카오 오픈채팅</div></div></div>
+            <div class="comm-cond-item comm-cond-item--manager"><span class="comm-cond-emoji">👔</span><div><div class="comm-cond-label">참여 조건</div><div class="comm-cond-val">현직 설계매니저</div></div></div>
+            <div class="comm-cond-item comm-cond-item--manager"><span class="comm-cond-emoji">🆓</span><div><div class="comm-cond-label">참여 비용</div><div class="comm-cond-val">완전 무료</div></div></div>
+            <div class="comm-cond-item comm-cond-item--manager"><span class="comm-cond-emoji">🏢</span><div><div class="comm-cond-label">소속 제한</div><div class="comm-cond-val">전 보험사 가능</div></div></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ══════ PAGE: 커뮤니티 ══════ -->
   <div class="content" id="page-community" style="display:none">
     <div class="section">
@@ -4423,6 +4562,7 @@
       knowledge:        '보험지식',
       tools:            '실무 도구',
       community:        '커뮤니티',
+      'community-hub':     '커뮤니티',
       'community-crew':    '보험설계사 커뮤니티',
       'community-manager': '설계매니저 커뮤니티',
     };
@@ -4474,6 +4614,17 @@
         document.getElementById('side-backdrop').classList.remove('open');
       }
     }
+
+    /* 커뮤니티 허브 탭 전환 */
+    document.querySelectorAll('.comm-hub-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.comm-hub-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        const which = this.dataset.tab;
+        document.getElementById('comm-hub-crew').style.display    = which === 'crew'    ? '' : 'none';
+        document.getElementById('comm-hub-manager').style.display = which === 'manager' ? '' : 'none';
+      });
+    });
 
     /* 메뉴 탭 클릭 (부모탭·카카오링크 제외) */
     document.querySelectorAll('.menu-tab').forEach(tab => {
@@ -5248,13 +5399,13 @@
     function updatePageNavBtn(page) {
       const btn = document.getElementById('page-nav-btn');
       if (!btn) return;
-      const isCommunity = ['community', 'community-crew', 'community-manager'].includes(page);
+      const isCommunity = ['community', 'community-hub', 'community-crew', 'community-manager'].includes(page);
       if (page === 'home') {
         btn.style.display = '';
-        btn.onclick = () => goToPage('community');
+        btn.onclick = () => goToPage('community-hub');
         btn.setAttribute('aria-label', '커뮤니티로 이동');
         btn.querySelector('.pnb-label').textContent = '커뮤니티';
-        btn.querySelector('.pnb-icon use, .pnb-icon path').setAttribute('d', 'M9 18l6-6-6-6');
+        btn.querySelector('.pnb-icon path').setAttribute('d', 'M9 18l6-6-6-6');
       } else if (isCommunity) {
         btn.style.display = '';
         btn.onclick = () => goToPage('home');
