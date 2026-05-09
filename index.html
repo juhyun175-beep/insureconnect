@@ -5470,7 +5470,7 @@
     trackVisit();
     loadCardNews();
     loadLiveTicker();
-    setTimeout(() => updatePageNavBtn('home'), 0);
+    /* updatePageNavBtn 초기화는 버튼 HTML 파싱 후 인라인 스크립트에서 호출 */
 
     /* ══════════════════════════════
        보험지식 페이지
@@ -6896,5 +6896,6 @@
     <svg class="pnb-icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
     <span class="pnb-label">커뮤니티</span>
   </button>
+  <script>updatePageNavBtn('home');</script>
 </body>
 </html>
