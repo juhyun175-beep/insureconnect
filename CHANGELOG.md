@@ -4,7 +4,8 @@
 - 홈↔커뮤니티 스와이프/드래그 네비게이션 추가
   - 모바일: 터치 스와이프 (touchstart/touchend)
   - PC: 마우스 드래그 (mousedown/mouseup)
-  - 홈에서 왼쪽 → 커뮤니티, 커뮤니티에서 오른쪽 → 홈
+  - 홈에서 왼쪽 → community-crew (CREW 300) 직접 이동
+  - 커뮤니티 관련 페이지(community/crew/manager) 어디서든 오른쪽 → 홈
   - 수평 60px 이상 + 수평/수직 비율 1.2배 이상일 때만 발동
 
 ## 0.4.9 - 2026-05-09

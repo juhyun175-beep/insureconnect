@@ -5408,10 +5408,14 @@
       let sx = 0, sy = 0, tracking = false;
       const THRESHOLD = 60;
 
+      const COMMUNITY_PAGES = new Set(['community', 'community-crew', 'community-manager']);
+
       function visiblePage() {
-        for (const id of ['home', 'community']) {
+        const homeEl = document.getElementById('page-home');
+        if (homeEl && homeEl.style.display !== 'none') return 'home';
+        for (const id of COMMUNITY_PAGES) {
           const el = document.getElementById('page-' + id);
-          if (el && el.style.display !== 'none') return id;
+          if (el && el.style.display !== 'none') return 'community-any';
         }
         return null;
       }
@@ -5419,8 +5423,8 @@
       function tryNavigate(dx, dy) {
         if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.2) return;
         const page = visiblePage();
-        if (dx < 0 && page === 'home')      goToPage('community');
-        if (dx > 0 && page === 'community') goToPage('home');
+        if (dx < 0 && page === 'home')          goToPage('community-crew');
+        if (dx > 0 && page === 'community-any') goToPage('home');
       }
 
       /* 터치 */
