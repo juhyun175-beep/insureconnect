@@ -5451,7 +5451,7 @@
       const isCommunity = ['community', 'community-crew', 'community-manager'].includes(page);
       if (page === 'home') {
         btn.style.display = '';
-        btn.onclick = () => goToPage('community-crew');
+        btn.onclick = () => goToPage('community');
         btn.setAttribute('aria-label', '커뮤니티로 이동');
         btn.querySelector('.pnb-label').textContent = '커뮤니티';
         btn.querySelector('.pnb-icon use, .pnb-icon path').setAttribute('d', 'M9 18l6-6-6-6');
