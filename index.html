@@ -2604,7 +2604,7 @@
     .kn-modal-content p { margin: 0 0 2px; }
     /* ── 보험지식 인라인 표 ── */
     .kn-table-wrap { overflow-x: auto; margin: 16px 0; -webkit-overflow-scrolling: touch; }
-    .kn-table { border-collapse: collapse; width: 100%; font-size: 13px; line-height: 1.5; }
+    .kn-table { border-collapse: collapse; width: 100%; min-width: 400px; font-size: 13px; line-height: 1.5; }
     .kn-table th,
     .kn-table td {
       border: 1px solid rgba(100,116,139,0.3);
@@ -5561,9 +5561,11 @@
           const csAttr = merge.colspan > 1 ? ` colspan="${merge.colspan}"` : '';
           const rsAttr = merge.rowspan > 1 ? ` rowspan="${merge.rowspan}"` : '';
           const st = styleMap[`${r}-${c}`] || {};
+          const safeBg = st.bg && /^#[0-9a-fA-F]{3,8}$|^rgba?\([\d,.\s]+\)$/.test(st.bg) ? st.bg : '';
+          const safeAlign = ['left','center','right','justify'].includes(st.align) ? st.align : '';
           const styleStr = [
-            st.bg    ? `background:${knEsc(st.bg)}`   : '',
-            st.align ? `text-align:${knEsc(st.align)}` : ''
+            safeBg    ? `background:${safeBg}`    : '',
+            safeAlign ? `text-align:${safeAlign}` : ''
           ].filter(Boolean).join(';');
           const styleAttr = styleStr ? ` style="${styleStr}"` : '';
           return `<${tag}${csAttr}${rsAttr}${styleAttr}>${knEsc(cellText)}</${tag}>`;
@@ -5589,8 +5591,12 @@
             blockLines.push(lines[i]);
             i++;
           }
-          result.push(renderTableBlock(blockLines));
-          i++; // [/table] 스킵
+          if (i < lines.length) {
+            result.push(renderTableBlock(blockLines));
+            i++; // [/table] 스킵
+          } else {
+            result.push('<p style="color:#e53e3e">[표: 닫힘 태그 누락]</p>');
+          }
           continue;
         }
         const m = line.match(/^\[img:(https?:\/\/[^\]]+)\]$/);
