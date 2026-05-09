@@ -3452,7 +3452,6 @@
         <div class="dash-card-icon">🖥</div>
         <div class="dash-card-title">보험사 전산</div>
         <div class="dash-card-desc">주요 생·손보사 전산 시스템에 원클릭 접속. 매번 주소 검색 없이 즉시 업무 시작.</div>
-        <div class="dash-card-preview" id="dcp-jeonsan"></div>
         <div class="dash-card-footer">
           <span class="dash-card-tag">Portal</span>
           <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
@@ -5166,7 +5165,7 @@
     /* ── 실시간 업데이트 티커 ── */
     const TICKER_SOURCES = [
       { key: 'cardnews',   label: '카드뉴스', page: 'cardnews',   table: 'ic_card_news',
-        select: 'title,created_at,set_id', dedupField: 'set_id' },
+        select: 'title,created_at,set_id', dedupField: 'set_id', limit: 60 },
       { key: 'newsletter', label: '소식지',   page: 'newsletter', table: 'ic_newsletters',
         select: 'title,company_name,created_at,file_url,file_type', dedupField: null },
       { key: 'claimform',  label: '청구서류', page: 'claimform',  table: 'ic_claim_forms',
@@ -5254,14 +5253,6 @@
 
       /* 정적 카드 */
       const STATIC_ITEMS = {
-        'dcp-jeonsan': [
-          { label: `생명보험사 ${LIFE.length}개사`, page: 'jeonsan' },
-          { label: `손해보험사 ${NONLIFE.length}개사`, page: 'jeonsan' },
-          { label: '원클릭 전산 접속', page: 'jeonsan' },
-          { label: '생·손보 통합 검색', page: 'jeonsan' },
-          { label: '보험사별 계약관리', page: 'jeonsan' },
-          { label: '고객 조회 즉시 접속', page: 'jeonsan' },
-        ],
         'dcp-payment': [
           { label: '한화생명', page: 'payment' },
           { label: '미래에셋생명', page: 'payment' },
@@ -5295,7 +5286,7 @@
         const results = await Promise.all(TICKER_SOURCES.map(async src => {
           try {
             const r = await fetch(
-              `${SB_URL}/rest/v1/${src.table}?order=created_at.desc&limit=15&select=${src.select}`,
+              `${SB_URL}/rest/v1/${src.table}?order=created_at.desc&limit=${src.limit || 15}&select=${src.select}`,
               { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
             );
             let items = await r.json();
