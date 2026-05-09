@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.6 - 2026-05-09
+- 사이드 메뉴 서브메뉴 텍스트 정리
+  - '보험설계사 커뮤니티' → '보험설계사' / '설계매니저 커뮤니티' → '설계매니저'
+- 홈·커뮤니티 대시보드 노스크롤 레이아웃 재조정
+  - flexbox fill로 카드가 남은 공간을 채우도록 수정 (소화면 스크롤 방지)
+  - 홈: AdSense 블록 숨김, dash-grid grid-auto-rows: 1fr
+  - 커뮤니티: community-grid flex:1, community-card height:auto
+- 커뮤니티 상세 페이지 하단 '카카오 오픈채팅 참여하기' 중복 버튼 제거
+  - CREW 300 / MANAGER LINK 각 페이지 하단 comm-cta-full 버튼 삭제
+
 ## 0.4.4 - 2026-05-09
 - AdSense 승인 보완
   - 광고 유닛 (`<ins class="adsbygoogle">`) 홈 페이지에 재추가 (v0.4.2에서 누락)

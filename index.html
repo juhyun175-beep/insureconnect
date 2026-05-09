@@ -3249,6 +3249,48 @@
       flex-shrink: 0;
     }
 
+    /* ── 홈 대시보드: 한 화면 고정 (노스크롤) ── */
+    #page-home {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    #page-home .about-section {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+    }
+    #page-home .dash-hero { flex-shrink: 0; }
+    #page-home .dash-grid {
+      flex: 1;
+      min-height: 0;
+      grid-auto-rows: 1fr;
+    }
+    #page-home ins.adsbygoogle { display: none !important; }
+
+    /* ── 커뮤니티 대시보드: 한 화면 고정 (노스크롤) ── */
+    #page-community {
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    #page-community .section {
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      margin-bottom: 0;
+    }
+    #page-community .section-head { flex-shrink: 0; }
+    #page-community .community-intro { flex-shrink: 0; }
+    #page-community .community-grid {
+      flex: 1;
+      min-height: 0;
+      grid-auto-rows: 1fr;
+    }
+    #page-community .community-card { height: auto; }
+
   </style>
 </head>
 <body>
@@ -3269,8 +3311,8 @@
           👥 커뮤니티<span class="menu-tab-arrow">›</span>
         </button>
         <div class="sub-menu" id="submenu-community">
-          <button class="sub-menu-item" data-page="community-crew">보험설계사 커뮤니티</button>
-          <button class="sub-menu-item" data-page="community-manager">설계매니저 커뮤니티</button>
+          <button class="sub-menu-item" data-page="community-crew">보험설계사</button>
+          <button class="sub-menu-item" data-page="community-manager">설계매니저</button>
         </div>
       </div>
       <a class="menu-tab menu-tab-kakao" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','menu')">💬 운영자 문의</a>
@@ -3733,11 +3775,6 @@
           </div>
         </div>
 
-        <!-- 하단 CTA -->
-        <a class="comm-cta-full" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','card')">
-          💬 CREW 300 카카오 오픈채팅 참여하기
-        </a>
-
       </div>
     </div>
   </div>
@@ -3837,11 +3874,6 @@
             <div><div class="comm-cond-label">소속 제한</div><div class="comm-cond-val">전 보험사 가능</div></div>
           </div>
         </div>
-
-        <!-- 하단 CTA -->
-        <a class="comm-cta-full" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','card')">
-          💬 MANAGER LINK 카카오 오픈채팅 참여하기
-        </a>
 
       </div>
     </div>
