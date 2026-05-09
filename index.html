@@ -686,6 +686,46 @@
       0%   { background-position: 200% 0; }
       100% { background-position: -200% 0; }
     }
+    #page-nav-btn {
+      position: fixed;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 5px;
+      padding: 12px 8px;
+      background: rgba(255,255,255,0.92);
+      border: 1.5px solid rgba(26,61,232,0.18);
+      border-radius: 20px;
+      box-shadow: 0 2px 14px rgba(26,61,232,0.12);
+      cursor: pointer;
+      z-index: 300;
+      backdrop-filter: blur(8px);
+      transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+    }
+    #page-nav-btn:hover {
+      background: rgba(26,61,232,0.07);
+      box-shadow: 0 4px 20px rgba(26,61,232,0.18);
+      transform: translateY(-50%) scale(1.06);
+    }
+    #page-nav-btn .pnb-icon {
+      width: 16px;
+      height: 16px;
+      stroke: var(--accent);
+      fill: none;
+      stroke-width: 2.5;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    #page-nav-btn .pnb-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: var(--accent);
+      writing-mode: vertical-rl;
+      letter-spacing: 1.5px;
+    }
     .dash-card-footer {
       display: flex;
       align-items: center;
@@ -4567,6 +4607,7 @@
       if (page === 'cardnews'   && !cnLoaded) { loadCardNews();       cnLoaded  = true; }
 
       markMenuSeen(page);
+      updatePageNavBtn(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
 
       if (window.matchMedia('(max-width: 900px)').matches) {
@@ -5403,66 +5444,33 @@
       setInterval(_flush, 60000);
     })();
 
-    /* ── 홈↔커뮤니티 스와이프/드래그 네비게이션 ── */
-    (function() {
-      let sx = 0, sy = 0, tracking = false;
-      const THRESHOLD = 60;
-
-      const COMMUNITY_PAGES = new Set(['community', 'community-crew', 'community-manager']);
-
-      function visiblePage() {
-        const homeEl = document.getElementById('page-home');
-        if (homeEl && homeEl.style.display !== 'none') return 'home';
-        for (const id of COMMUNITY_PAGES) {
-          const el = document.getElementById('page-' + id);
-          if (el && el.style.display !== 'none') return 'community-any';
-        }
-        return null;
+    /* ── 홈↔커뮤니티 페이지 이동 버튼 ── */
+    function updatePageNavBtn(page) {
+      const btn = document.getElementById('page-nav-btn');
+      if (!btn) return;
+      const isCommunity = ['community', 'community-crew', 'community-manager'].includes(page);
+      if (page === 'home') {
+        btn.style.display = '';
+        btn.onclick = () => goToPage('community-crew');
+        btn.setAttribute('aria-label', '커뮤니티로 이동');
+        btn.querySelector('.pnb-label').textContent = '커뮤니티';
+        btn.querySelector('.pnb-icon use, .pnb-icon path').setAttribute('d', 'M9 18l6-6-6-6');
+      } else if (isCommunity) {
+        btn.style.display = '';
+        btn.onclick = () => goToPage('home');
+        btn.setAttribute('aria-label', '홈으로 이동');
+        btn.querySelector('.pnb-label').textContent = '홈';
+        btn.querySelector('.pnb-icon path').setAttribute('d', 'M15 18l-6-6 6-6');
+      } else {
+        btn.style.display = 'none';
       }
-
-      function tryNavigate(dx, dy) {
-        if (Math.abs(dx) < THRESHOLD || Math.abs(dx) < Math.abs(dy) * 1.2) return;
-        const page = visiblePage();
-        if (dx < 0 && page === 'home')          goToPage('community-crew');
-        if (dx > 0 && page === 'community-any') goToPage('home');
-      }
-
-      /* 터치 */
-      document.addEventListener('touchstart', e => {
-        sx = e.touches[0].clientX;
-        sy = e.touches[0].clientY;
-        tracking = true;
-      }, { passive: true });
-
-      document.addEventListener('touchend', e => {
-        if (!tracking) return;
-        tracking = false;
-        tryNavigate(e.changedTouches[0].clientX - sx, e.changedTouches[0].clientY - sy);
-      }, { passive: true });
-
-      /* 마우스 드래그 (PC) */
-      document.addEventListener('mousedown', e => {
-        if (e.button !== 0) return;
-        sx = e.clientX; sy = e.clientY; tracking = true;
-      });
-
-      document.addEventListener('mouseup', e => {
-        if (!tracking) return;
-        tracking = false;
-        tryNavigate(e.clientX - sx, e.clientY - sy);
-      });
-
-      /* 드래그 중 텍스트 선택 방지 */
-      document.addEventListener('mousemove', e => {
-        if (!tracking) return;
-        if (Math.abs(e.clientX - sx) > 10) e.preventDefault();
-      });
-    })();
+    }
 
     /* ── 초기 실행 ── */
     trackVisit();
     loadCardNews();
     loadLiveTicker();
+    setTimeout(() => updatePageNavBtn('home'), 0);
 
     /* ══════════════════════════════
        보험지식 페이지
@@ -6883,5 +6891,10 @@
     });
   })();
   </script>
+
+  <button id="page-nav-btn" type="button" aria-label="커뮤니티로 이동" style="display:none">
+    <svg class="pnb-icon" viewBox="0 0 24 24"><path d="M9 18l6-6-6-6"/></svg>
+    <span class="pnb-label">커뮤니티</span>
+  </button>
 </body>
 </html>
