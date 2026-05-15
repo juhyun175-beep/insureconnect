@@ -2248,6 +2248,47 @@
       background: #eef0f6;
       filter: grayscale(0.3);
     }
+    /* ── 링크복사 버튼 ── */
+    .tool-card-copy {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      color: var(--txt-mid);
+      border-radius: 6px;
+      flex-shrink: 0;
+      opacity: 0;
+      transition: opacity 0.2s, color 0.2s, background 0.2s;
+      padding: 0;
+    }
+    .tool-card:hover .tool-card-copy {
+      opacity: 1;
+    }
+    @media (hover: none), (pointer: coarse) {
+      .tool-card-copy { opacity: 1; }
+    }
+    .tool-card-copy:hover {
+      color: var(--blue-light);
+      background: rgba(26,61,232,0.07);
+    }
+    .tool-card-copy.copied {
+      color: #059669;
+      opacity: 1;
+    }
+    /* ── 딥링크 하이라이트 ── */
+    @keyframes toolHighlight {
+      0%   { outline: 3px solid transparent; }
+      30%  { outline: 3px solid rgba(26,61,232,0.5); }
+      100% { outline: 3px solid transparent; }
+    }
+    .tool-card-highlight {
+      animation: toolHighlight 2s ease-out forwards;
+      outline-offset: 2px;
+    }
     .coming-soon-badge {
       display: inline-flex;
       align-items: center;
@@ -4052,92 +4093,103 @@
         <span class="sec-badge">11개</span>
       </div>
       <div class="tools-grid">
-        <a class="tool-card" href="https://prem.kidi.or.kr:1443/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','할인 할증요인 조회')">
+        <a class="tool-card" data-tool-id="kidi-discount" href="https://prem.kidi.or.kr:1443/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','할인 할증요인 조회')">
           <div class="tool-card-icon">🚗</div>
           <div class="tool-card-body">
             <div class="tool-card-name">할인 할증요인 조회</div>
             <div class="tool-card-sub">자동차보험 할인·할증요인 조회시스템</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'kidi-discount')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://iics.kidi.or.kr/insuUserReal/viewInsuUserReal.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','보험개발원 등록포털')">
+        <a class="tool-card" data-tool-id="kidi-portal" href="https://iics.kidi.or.kr/insuUserReal/viewInsuUserReal.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','보험개발원 등록포털')">
           <div class="tool-card-icon">📋</div>
           <div class="tool-card-body">
             <div class="tool-card-name">보험개발원 등록포털</div>
             <div class="tool-card-sub">보험개발원 보험계약 조회 등록포털</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'kidi-portal')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://accident.knia.or.kr/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','과실비율 정보포털')">
+        <a class="tool-card" data-tool-id="fault-ratio" href="https://accident.knia.or.kr/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','과실비율 정보포털')">
           <div class="tool-card-icon">⚖️</div>
           <div class="tool-card-body">
             <div class="tool-card-name">과실비율 정보포털</div>
             <div class="tool-card-sub">교통사고 과실비율 기준 안내</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'fault-ratio')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.bss-a.co.kr/common_popup/card.html" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','카드할부 안내')">
+        <a class="tool-card" data-tool-id="card-installment" href="https://www.bss-a.co.kr/common_popup/card.html" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','카드할부 안내')">
           <div class="tool-card-icon">🗓️</div>
           <div class="tool-card-body">
             <div class="tool-card-name">카드할부 안내</div>
             <div class="tool-card-sub">보험사별 카드할부 안내</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'card-installment')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=15000000098&HighCtgCD=A02004002&Mcode=10205" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','건축물 대장 조회')">
+        <a class="tool-card" data-tool-id="building-ledger" href="https://www.gov.kr/mw/AA020InfoCappView.do?CappBizCD=15000000098&HighCtgCD=A02004002&Mcode=10205" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','건축물 대장 조회')">
           <div class="tool-card-icon">🏢</div>
           <div class="tool-card-body">
             <div class="tool-card-name">건축물 대장 조회</div>
             <div class="tool-card-sub">정부24 건축물대장 열람·발급</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'building-ledger')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.elevator.go.kr/opn/MainPage.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','승강기 정보 열람')">
+        <a class="tool-card" data-tool-id="elevator" href="https://www.elevator.go.kr/opn/MainPage.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','승강기 정보 열람')">
           <div class="tool-card-icon">🛗</div>
           <div class="tool-card-body">
             <div class="tool-card-name">승강기 정보 열람</div>
             <div class="tool-card-sub">승강기 안전관리 정보 열람</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'elevator')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthDisclosure.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','실손보험 인수기준 확인')">
+        <a class="tool-card" data-tool-id="silson-underwrite" href="https://kpub.knia.or.kr/productDisc/lostHealth/lostHealthDisclosure.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','실손보험 인수기준 확인')">
           <div class="tool-card-icon">🏥</div>
           <div class="tool-card-body">
             <div class="tool-card-name">실손보험 인수기준 확인</div>
             <div class="tool-card-sub">보험사별 실손보험 인수기준 공시</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'silson-underwrite')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <div class="tool-card" onclick="trackCardClick('실무도구','실비 계산기'); openShilbi();" style="cursor:pointer;">
+        <div class="tool-card" data-tool-id="shilbi" onclick="trackCardClick('실무도구','실비 계산기'); openShilbi();" style="cursor:pointer;">
           <div class="tool-card-icon">🧮</div>
           <div class="tool-card-body">
             <div class="tool-card-name">실비 계산기</div>
             <div class="tool-card-sub">1~4세대 · 유병자 보상금액 계산</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'shilbi')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </div>
-        <div class="tool-card" onclick="trackCardClick('실무도구','수술명 검색'); openSurg();" style="cursor:pointer;">
+        <div class="tool-card" data-tool-id="surgery" onclick="trackCardClick('실무도구','수술명 검색'); openSurg();" style="cursor:pointer;">
           <div class="tool-card-icon">🔬</div>
           <div class="tool-card-body">
             <div class="tool-card-name">수술명 검색</div>
             <div class="tool-card-sub">수술분류표 1~5종 즉시 조회</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'surgery')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </div>
-        <a class="tool-card" href="http://www.koicd.kr/mobile/main.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','KCD 질병코드 조회')">
+        <a class="tool-card" data-tool-id="kcd" href="http://www.koicd.kr/mobile/main.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','KCD 질병코드 조회')">
           <div class="tool-card-icon">🩺</div>
           <div class="tool-card-body">
             <div class="tool-card-name">KCD 질병코드 조회</div>
             <div class="tool-card-sub">질병명 → KCD 분류기호 즉시 검색</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'kcd')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
-        <div class="tool-card" onclick="trackCardClick('실무도구','카드납 가이드'); openCardGuide();" style="cursor:pointer;">
+        <div class="tool-card" data-tool-id="cardpay" onclick="trackCardClick('실무도구','카드납 가이드'); openCardGuide();" style="cursor:pointer;">
           <div class="tool-card-icon">💳</div>
           <div class="tool-card-body">
             <div class="tool-card-name">카드납 가이드</div>
             <div class="tool-card-sub">생보·손보 카드수납 가능 현황 조회</div>
           </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'cardpay')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </div>
       </div>
@@ -7028,6 +7080,58 @@
       renderSurg();
     });
   })();
+
+    /* ══════════════════════════════
+       실무도구 링크복사 + 해시 라우팅
+    ══════════════════════════════ */
+    const TOOL_MODAL_MAP = {
+      shilbi:  () => window.openShilbi && window.openShilbi(),
+      surgery: () => window.openSurg   && window.openSurg(),
+      cardpay: () => window.openCardGuide && window.openCardGuide(),
+    };
+
+    function copyToolLink(event, toolId) {
+      event.preventDefault();
+      event.stopPropagation();
+      const url = location.origin + '/#tools/' + toolId;
+      const btn = event.currentTarget;
+      navigator.clipboard.writeText(url).then(() => {
+        btn.classList.add('copied');
+        btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          btn.innerHTML = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+        }, 1500);
+      }).catch(() => {
+        console.warn('[copyToolLink] clipboard write failed');
+      });
+    }
+
+    function highlightToolCard(toolId) {
+      const el = document.querySelector('[data-tool-id="' + toolId + '"]');
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      el.classList.add('tool-card-highlight');
+      setTimeout(() => el.classList.remove('tool-card-highlight'), 2000);
+    }
+
+    function initHashRouting() {
+      const hash = location.hash;
+      if (!hash.startsWith('#tools')) return;
+      const parts  = hash.slice(1).split('/');
+      const page   = parts[0];
+      const toolId = parts[1];
+      if (page !== 'tools') return;
+      goToPage('tools');
+      if (!toolId) return;
+      if (TOOL_MODAL_MAP[toolId]) {
+        setTimeout(TOOL_MODAL_MAP[toolId], 100);
+      } else {
+        setTimeout(() => highlightToolCard(toolId), 100);
+      }
+    }
+
+    initHashRouting();
   </script>
 
   <button id="page-nav-btn" type="button" aria-label="커뮤니티로 이동" style="display:none">
