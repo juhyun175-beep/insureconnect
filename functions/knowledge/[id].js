@@ -6,18 +6,160 @@ function esc(s) {
   return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
+function splitTableCells(raw) {
+  const cells = [];
+  let cur = '';
+  let escaped = false;
+  for (const ch of String(raw || '')) {
+    if (escaped) {
+      if (ch === 'n') cur += '\n';
+      else if (ch === ',' || ch === '[' || ch === ']' || ch === '\\') cur += ch;
+      else cur += ch;
+      escaped = false;
+    } else if (ch === '\\') {
+      escaped = true;
+    } else if (ch === ',') {
+      cells.push(cur);
+      cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  if (escaped) cur += '\\';
+  cells.push(cur);
+  return cells;
+}
+
+function normalizeTableLines(lines) {
+  const normalized = [];
+  const isControl = line => line.startsWith('rows=') || line.startsWith('style:') || line.startsWith('merge:');
+  const isRow = line => /^[HD],/.test(line);
+  for (const line of lines) {
+    if (isControl(line) || isRow(line)) {
+      normalized.push(line);
+      continue;
+    }
+    for (let i = normalized.length - 1; i >= 0; i--) {
+      if (isRow(normalized[i])) {
+        normalized[i] += '\n' + line;
+        break;
+      }
+    }
+  }
+  return normalized;
+}
+
+function renderTableBlock(lines) {
+  const mergeMap = {};
+  const styleMap = {};
+  const dataLines = [];
+
+  for (const line of normalizeTableLines(lines)) {
+    if (line.startsWith('rows=')) continue;
+    if (line.startsWith('style:')) {
+      const m = line.match(/^style:(\d+)-(\d+)=(.+)$/);
+      if (m) {
+        const key = `${m[1]}-${m[2]}`;
+        const obj = {};
+        m[3].split(';').forEach(p => {
+          const [k, v] = p.split(':');
+          if (k === 'bg') obj.bg = v;
+          if (k === 'align') obj.align = v;
+        });
+        styleMap[key] = obj;
+      }
+      continue;
+    }
+    if (line.startsWith('merge:')) {
+      const m = line.match(/^merge:(\d+)-(\d+)=(.+)$/);
+      if (m) {
+        const key = `${m[1]}-${m[2]}`;
+        const obj = {};
+        m[3].split(';').forEach(p => {
+          const [k, v] = p.split(':');
+          if (k === 'colspan') obj.colspan = parseInt(v);
+          if (k === 'rowspan') obj.rowspan = parseInt(v);
+        });
+        mergeMap[key] = obj;
+      }
+      continue;
+    }
+    if (/^[HD],/.test(line)) dataLines.push(line);
+  }
+
+  if (!dataLines.length) return '<p>[표 데이터 없음]</p>';
+
+  const skipSet = new Set();
+  Object.entries(mergeMap).forEach(([key, val]) => {
+    const [r, c] = key.split('-').map(Number);
+    const cs = val.colspan || 1;
+    const rs = val.rowspan || 1;
+    for (let dr = 0; dr < rs; dr++) {
+      for (let dc = 0; dc < cs; dc++) {
+        if (dr === 0 && dc === 0) continue;
+        skipSet.add(`${r + dr}-${c + dc}`);
+      }
+    }
+  });
+
+  const rows = dataLines.map((line, r) => {
+    const type = line[0];
+    const cells = splitTableCells(line.slice(2));
+    const tds = cells.map((cellText, c) => {
+      if (skipSet.has(`${r}-${c}`)) return '';
+      const tag = type === 'H' ? 'th' : 'td';
+      const merge = mergeMap[`${r}-${c}`] || {};
+      const csAttr = merge.colspan > 1 ? ` colspan="${merge.colspan}"` : '';
+      const rsAttr = merge.rowspan > 1 ? ` rowspan="${merge.rowspan}"` : '';
+      const st = styleMap[`${r}-${c}`] || {};
+      const safeBg = st.bg && /^#[0-9a-fA-F]{3,8}$|^rgba?\([\d,.\s]+\)$/.test(st.bg) ? st.bg : '';
+      const safeAlign = ['left','center','right','justify'].includes(st.align) ? st.align : '';
+      const styleStr = [
+        safeBg ? `background:${safeBg}` : '',
+        safeAlign ? `text-align:${safeAlign}` : ''
+      ].filter(Boolean).join(';');
+      const styleAttr = styleStr ? ` style="${styleStr}"` : '';
+      return `<${tag}${csAttr}${rsAttr}${styleAttr}>${esc(cellText).replace(/\n/g, '<br>')}</${tag}>`;
+    }).join('');
+    return `<tr>${tds}</tr>`;
+  }).join('');
+
+  return `<div class="kn-table-wrap"><table class="kn-table">${rows}</table></div>`;
+}
+
 function fmtDate(iso) {
   const d = new Date(iso);
   return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function parseContent(text) {
-  return (text || '').split('\n').map(line => {
+  const result = [];
+  const lines = (text || '').split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    const line = lines[i];
+    if (line.trim() === '[table]') {
+      const blockLines = [];
+      i++;
+      while (i < lines.length && lines[i].trim() !== '[/table]') {
+        blockLines.push(lines[i]);
+        i++;
+      }
+      if (i < lines.length) {
+        result.push(renderTableBlock(blockLines));
+        i++;
+      } else {
+        result.push('<p style="color:#e53e3e">[표 닫힘 태그 누락]</p>');
+      }
+      continue;
+    }
     const m = line.match(/^\[img:(https?:\/\/[^\]]+)\]$/);
-    if (m) return `<img src="${esc(m[1])}" style="max-width:100%;border-radius:10px;margin:12px 0;display:block;" alt="" loading="lazy">`;
-    if (line.trim() === '') return '<br>';
-    return `<p>${esc(line)}</p>`;
-  }).join('');
+    if (m) result.push(`<img src="${esc(m[1])}" style="max-width:100%;border-radius:10px;margin:12px 0;display:block;" alt="" loading="lazy">`);
+    else if (line.trim() === '') result.push('<br>');
+    else result.push(`<p>${esc(line)}</p>`);
+    i++;
+  }
+  return result.join('');
 }
 
 function renderPage(post, canonicalUrl) {
@@ -76,6 +218,11 @@ function renderPage(post, canonicalUrl) {
     .post-body{font-size:15px;color:var(--mid);line-height:1.9;}
     .post-body p{margin-bottom:10px;}
     .post-body br{line-height:2.4;}
+    .kn-table-wrap{overflow-x:auto;margin:16px 0;-webkit-overflow-scrolling:touch;}
+    .kn-table{border-collapse:collapse;width:100%;min-width:400px;font-size:13px;line-height:1.5;background:#fff;}
+    .kn-table th,.kn-table td{border:1px solid rgba(12,31,184,0.14);padding:10px 12px;vertical-align:top;text-align:left;color:var(--mid);}
+    .kn-table th{background:rgba(26,61,232,0.06);font-weight:800;color:var(--blue);}
+    .kn-table tr:nth-child(even) td{background:#f8fafc;}
 
     /* 앱 열기 배너 */
     .app-banner{margin-top:48px;background:linear-gradient(135deg,rgba(12,31,184,0.05),rgba(0,200,238,0.05));border:1.5px solid var(--border);border-radius:16px;padding:24px 28px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;}

@@ -1834,10 +1834,24 @@
     }
     @media (max-width: 768px) {
       .cn-stage { padding: 14px; }
-      .cn-prev { left: 12px; }
-      .cn-next { right: 12px; }
-      .cn-nav { width: 36px; height: 36px; font-size: 15px; }
+      .cn-nav {
+        top: auto;
+        bottom: 14px;
+        width: 34px;
+        height: 34px;
+        font-size: 14px;
+        opacity: .78;
+        transform: none;
+        background: rgba(255,255,255,0.82);
+        backdrop-filter: blur(8px);
+        box-shadow: 0 4px 14px rgba(12,31,184,0.12);
+      }
+      .cn-nav:hover { transform: scale(1.04); }
+      .cn-nav:disabled { transform: none; opacity: .28; }
+      .cn-prev { left: calc(50% - 44px); }
+      .cn-next { left: calc(50% + 10px); right: auto; }
       .cn-viewport { aspect-ratio: 3/4; max-height: 70vh; }
+      .cn-footer { padding-bottom: 48px; }
     }
 
     /* Ripple */
@@ -5457,6 +5471,49 @@
       return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
     }
 
+    function splitKnTableCells(raw) {
+      const cells = [];
+      let cur = '';
+      let escaped = false;
+      for (const ch of String(raw || '')) {
+        if (escaped) {
+          if (ch === 'n') cur += '\n';
+          else if (ch === ',' || ch === '[' || ch === ']' || ch === '\\') cur += ch;
+          else cur += ch;
+          escaped = false;
+        } else if (ch === '\\') {
+          escaped = true;
+        } else if (ch === ',') {
+          cells.push(cur);
+          cur = '';
+        } else {
+          cur += ch;
+        }
+      }
+      if (escaped) cur += '\\';
+      cells.push(cur);
+      return cells;
+    }
+
+    function normalizeKnTableLines(lines) {
+      const normalized = [];
+      const isControl = line => line.startsWith('rows=') || line.startsWith('style:') || line.startsWith('merge:');
+      const isRow = line => /^[HD],/.test(line);
+      for (const line of lines) {
+        if (isControl(line) || isRow(line)) {
+          normalized.push(line);
+          continue;
+        }
+        for (let i = normalized.length - 1; i >= 0; i--) {
+          if (isRow(normalized[i])) {
+            normalized[i] += '\n' + line;
+            break;
+          }
+        }
+      }
+      return normalized;
+    }
+
     async function loadKnowledgePage() {
       const body = document.getElementById('kn-page-body');
       try {
@@ -5497,7 +5554,7 @@
       const styleMap = {};
       const dataLines = [];
 
-      for (const line of lines) {
+      for (const line of normalizeKnTableLines(lines)) {
         if (line.startsWith('rows=')) continue;
         if (line.startsWith('style:')) {
           const m = line.match(/^style:(\d+)-(\d+)=(.+)$/);
@@ -5550,8 +5607,7 @@
         const type = line[0]; // 'H' or 'D'
         // 콤마 이스케이프 처리: \, → 임시 치환 후 split → 복원
         const raw = line.slice(2); // "H," 또는 "D," 제거
-        const cells = raw.replace(/\\,/g, '\x00').split(',')
-          .map(s => s.replace(/\x00/g, ',').replace(/\\\\/g, '\\'));
+        const cells = splitKnTableCells(raw);
         // ↑ \, → NUL → , 복원 후, \\ → \ 도 복원 (escapeCell 역순 unescape)
 
         const tds = cells.map((cellText, c) => {
@@ -5568,7 +5624,7 @@
             safeAlign ? `text-align:${safeAlign}` : ''
           ].filter(Boolean).join(';');
           const styleAttr = styleStr ? ` style="${styleStr}"` : '';
-          return `<${tag}${csAttr}${rsAttr}${styleAttr}>${knEsc(cellText)}</${tag}>`;
+          return `<${tag}${csAttr}${rsAttr}${styleAttr}>${knEsc(cellText).replace(/\n/g, '<br>')}</${tag}>`;
         }).join('');
         return `<tr>${tds}</tr>`;
       }).join('');
