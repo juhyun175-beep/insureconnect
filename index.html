@@ -2267,12 +2267,13 @@
     }
     /* ── 딥링크 하이라이트 ── */
     @keyframes toolHighlight {
-      0%   { box-shadow: var(--sh-sm); border-color: rgba(26,61,232,0.12); }
-      30%  { box-shadow: 0 0 0 3px rgba(26,61,232,0.3); border-color: rgba(26,61,232,0.6); }
-      100% { box-shadow: var(--sh-sm); border-color: rgba(26,61,232,0.12); }
+      0%   { outline: 3px solid transparent; }
+      30%  { outline: 3px solid rgba(26,61,232,0.5); }
+      100% { outline: 3px solid transparent; }
     }
     .tool-card-highlight {
       animation: toolHighlight 2s ease-out forwards;
+      outline-offset: 2px;
     }
     .coming-soon-badge {
       display: inline-flex;
