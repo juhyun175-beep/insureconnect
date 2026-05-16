@@ -6703,52 +6703,40 @@
 
       const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
 
-      // 1. 카드뉴스 (각 fetch 독립 try)
+      // 1. 카드뉴스: loadCardNews()가 이미 전체 데이터를 불러오므로 cardNewsState.sets 재활용
+      //    최대 5초(25×200ms) 대기 후 사용
       let cnCards = [];
-      try {
-        const cnRes = await fetch(
-          `${SB_URL}/rest/v1/ic_card_news?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=30`,
-          { headers: hdr }
-        );
-        if (cnRes.ok) {
-          const cnItems = await cnRes.json();
-          const setOrder = [];
-          const setMap = {};
-          for (const item of cnItems) {
-            if (!setMap[item.set_id]) {
-              setMap[item.set_id] = [];
-              setOrder.push(item.set_id);
-            }
-            setMap[item.set_id].push(item);
-          }
-          cnCards = setOrder.map(sid => {
-            const sorted = setMap[sid].slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-            const cover = sorted[0];
-            return {
-              type: 'news',
-              set_id: cover.set_id,
-              title: cover.title || '인슈어커넥트 뉴스',
-              created_at: cover.created_at,
-              file_url: cover.file_url,
-              file_type: cover.file_type,
-              slide_count: sorted.length
-            };
-          });
-        } else {
-          console.warn('[loadHomeFeed] card news fetch failed:', cnRes.status);
-        }
-      } catch(e) { console.error('[loadHomeFeed] card news error:', e); }
+      await new Promise(resolve => {
+        const check = (tries) => {
+          if (cardNewsState.sets.length > 0) { resolve(); return; }
+          if (tries <= 0) { resolve(); return; }
+          setTimeout(() => check(tries - 1), 200);
+        };
+        check(25);
+      });
+      cnCards = cardNewsState.sets.map(set => {
+        const cover = set.items[0];
+        return {
+          type: 'news',
+          set_id: set.set_id,
+          title: set.title || '인슈어커넥트 뉴스',
+          created_at: set.created_at,
+          file_url: cover ? cover.file_url : null,
+          file_type: cover ? cover.file_type : null,
+          slide_count: set.items.length
+        };
+      });
 
-      // 2. 보험지식 (독립 try - 카드뉴스 실패해도 시도)
+      // 2. 보험지식
       let knCards = [];
       try {
         const knRes = await fetch(
-          `${SB_URL}/rest/v1/ic_knowledge_posts?select=id,title,image_url,created_at&order=created_at.desc&limit=30`,
+          `${SB_URL}/rest/v1/ic_knowledge_posts?select=id,title,image_url,created_at&order=created_at.desc&limit=100`,
           { headers: hdr }
         );
         if (knRes.ok) {
           const knPosts = await knRes.json();
-          knCards = knPosts.map(p => ({
+          knCards = (Array.isArray(knPosts) ? knPosts : []).map(p => ({
             type: 'knowledge',
             id: p.id,
             title: p.title || '보험지식',
@@ -6771,35 +6759,36 @@
           return;
         }
 
+        const esc = s => String(s||'').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         el.innerHTML = all.map(item => {
           const rawDate = item.created_at ? item.created_at.slice(0, 10) : '';
           const [y, m, d] = rawDate.split('-');
           const dateStr = rawDate ? `${y}.${m}.${d}` : '';
 
           if (item.type === 'news') {
-            const esc = (item.title || '').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const t = esc(item.title || '');
             const isImg = item.file_type && item.file_type.startsWith('image');
             const thumb = (isImg && item.file_url)
-              ? `<div class="hf-thumb"><img src="${item.file_url}" alt="${esc}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>🗞</span></div>'"></div>`
+              ? `<div class="hf-thumb"><img src="${item.file_url}" alt="${t}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>🗞</span></div>'"></div>`
               : `<div class="hf-thumb-none"><span>🗞</span></div>`;
-            return `<div class="hf-card" onclick="homeFeedOpenNews('${item.set_id}')" tabindex="0" role="button" aria-label="${esc}">
+            return `<div class="hf-card" onclick="homeFeedOpenNews('${item.set_id}')" tabindex="0" role="button" aria-label="${t}">
               ${thumb}
               <div class="hf-body">
                 <span class="hf-badge hf-badge-news">📰 뉴스</span>
-                <div class="hf-title">${esc}</div>
+                <div class="hf-title">${t}</div>
                 <div class="hf-date">${dateStr}</div>
               </div>
             </div>`;
           } else {
-            const esc = (item.title || '').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const t = esc(item.title || '');
             const thumb = item.image_url
-              ? `<div class="hf-thumb"><img src="${item.image_url}" alt="${esc}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>📚</span></div>'"></div>`
+              ? `<div class="hf-thumb"><img src="${item.image_url}" alt="${t}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>📚</span></div>'"></div>`
               : `<div class="hf-thumb-none"><span>📚</span></div>`;
-            return `<div class="hf-card" onclick="homeFeedOpenKnowledge(${item.id})" tabindex="0" role="button" aria-label="${esc}">
+            return `<div class="hf-card" onclick="homeFeedOpenKnowledge(${item.id})" tabindex="0" role="button" aria-label="${t}">
               ${thumb}
               <div class="hf-body">
                 <span class="hf-badge hf-badge-knowledge">📚 보험지식</span>
-                <div class="hf-title">${esc}</div>
+                <div class="hf-title">${t}</div>
                 <div class="hf-date">${dateStr}</div>
               </div>
             </div>`;

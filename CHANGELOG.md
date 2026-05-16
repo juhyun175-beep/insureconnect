@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.7.0] - 2026-05-17
+- 홈피드 카드뉴스: 별도 fetch(limit=30) 제거 → cardNewsState.sets 재활용으로 전체 세트 표시
+- 표지 이미지: items[0] (첫 슬라이드) 기준으로 항상 정확한 커버 표시
+- 보험지식 limit 100으로 확대, Array.isArray 방어 코드
+- loadSideStats() 크로스 스크립트 블록 ReferenceError 수정 → SB_ANON_KN 정상 정의
+
 ## [0.6.9] - 2026-05-17
 - 우측 필버튼 이모지 제거, 텍스트만 표시, 크기 32×96px로 최적화
 - homeFeedOpenNews findIndex 버그 수정: s[0].set_id → s.set_id (모달 안 열리던 문제)
