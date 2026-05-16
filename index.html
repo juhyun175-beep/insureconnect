@@ -629,10 +629,8 @@
       display: flex;
       flex-direction: column;
       gap: 4px;
-      padding: 14px 12px;
-      flex: 1;
-      overflow-y: auto;
-      min-height: 0;
+      padding: 14px 12px 8px;
+      flex-shrink: 0;
       scrollbar-width: thin;
       scrollbar-color: rgba(12,31,184,0.15) transparent;
     }
@@ -2968,9 +2966,65 @@
     .side-latest {
       padding: 8px 12px 10px;
       border-top: 1px solid rgba(12,31,184,0.07);
-      flex-shrink: 0;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
     .side-latest-list { display: flex; flex-direction: column; gap: 2px; }
+    /* 사이드바 카드뉴스 썸네일 카드 */
+    .side-cn-card {
+      width: 100%;
+      border: 1.5px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      background: var(--bg-card);
+      cursor: pointer;
+      text-align: left;
+      padding: 0;
+      transition: transform 0.18s, box-shadow 0.18s;
+      box-shadow: var(--sh-sm);
+    }
+    .side-cn-card:hover { transform: translateY(-2px); box-shadow: var(--sh-md); }
+    .side-cn-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16/9;
+      overflow: hidden;
+      background: rgba(26,61,232,0.06);
+      display: flex; align-items: center; justify-content: center;
+    }
+    .side-cn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .side-cn-fallback { font-size: 32px; }
+    .side-cn-badge {
+      position: absolute;
+      bottom: 6px; right: 6px;
+      background: rgba(0,0,0,0.55);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 7px;
+      border-radius: 10px;
+    }
+    .side-cn-body { padding: 8px 10px 10px; }
+    .side-cn-label {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--blue-light);
+      margin-bottom: 3px;
+    }
+    .side-cn-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--txt-hi);
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .side-cn-date { font-size: 10px; color: var(--txt-lo); margin-top: 4px; }
     .side-latest-item {
       display: flex;
       align-items: center;
@@ -3119,18 +3173,6 @@
     </div>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
-      <button class="menu-tab" data-page="cardnews">🗞 카드뉴스</button>
-      <button class="menu-tab" data-page="jeonsan">🖥 보험사 전산</button>
-      <button class="menu-tab" data-page="payment">💳 수납 전산</button>
-      <button class="menu-tab" data-page="newsletter">📄 소식지</button>
-      <button class="menu-tab" data-page="claimform">📋 청구서류</button>
-      <button class="menu-tab" data-page="recruit">💼 채용공고</button>
-      <button class="menu-tab" data-page="knowledge">📚 보험지식</button>
-      <button class="menu-tab" data-page="tools">🛠 실무도구</button>
-      <div class="side-cur-indicator" id="side-cur-indicator" style="display:none">
-        <span class="sci-arrow">›</span>
-        <span class="sci-label" id="sci-label"></span>
-      </div>
     </nav>
     <!-- 사이드바 최신글 -->
     <div class="side-latest">
@@ -4921,6 +4963,7 @@
     trackVisit();
     loadCardNews();
     loadLiveTicker();
+    loadSideStats();
 
     /* ══════════════════════════════
        보험지식 페이지
@@ -6568,48 +6611,86 @@
     });
 
     /* ══════════════════════════════
-       사이드바 최신글
+       사이드바 최신 카드뉴스
     ══════════════════════════════ */
     async function loadSideLatest() {
       const el = document.getElementById('side-latest-list');
       if (!el) return;
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_card_news?order=created_at.desc,sort_order.asc&select=set_id,title,created_at`,
+          `${SB_URL}/rest/v1/ic_card_news?order=created_at.desc,sort_order.asc&limit=30`,
           { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
         );
         if (!res.ok) throw new Error(res.status);
-        const rows = await res.json();
-
-        // set_id 기준 중복 제거 → 최신 5건
-        const seen = new Set();
-        const sets = [];
-        for (const r of rows) {
-          if (!seen.has(r.set_id)) {
-            seen.add(r.set_id);
-            sets.push(r);
-            if (sets.length >= 5) break;
-          }
-        }
-
-        if (sets.length === 0) {
-          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:4px 6px">최신글이 없습니다</p>';
+        const items = await res.json();
+        if (!items || items.length === 0) {
+          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:8px 4px">최신글이 없습니다</p>';
           return;
         }
 
-        el.innerHTML = sets.map(s => {
-          const d = new Date(s.created_at);
-          const dateStr = `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-          const title = (s.title || '카드뉴스').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-          return `<button class="side-latest-item" onclick="goToPage('cardnews')" title="${title}" type="button">
-            <span class="sli-dot"></span>
-            <span class="sli-text">${title}</span>
-            <span class="sli-date">${dateStr}</span>
+        // 첫 번째 세트만 추출
+        const firstSetId = items[0].set_id;
+        const setItems = items.filter(i => i.set_id === firstSetId);
+        const s = { set_id: firstSetId, title: items[0].title, created_at: items[0].created_at, items: setItems };
+
+        const d = new Date(s.created_at);
+        const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+        const cover = s.items[0];
+        const title = (s.title || '인슈어커넥트 뉴스').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const thumbHtml = (cover && cover.file_type === 'image' && cover.file_url)
+          ? `<img src="${cover.file_url}" alt="${title}" loading="lazy">`
+          : `<span class="side-cn-fallback">📰</span>`;
+
+        el.innerHTML = `
+          <button class="side-cn-card" type="button" onclick="openSideLatestCard()" title="${title}">
+            <div class="side-cn-thumb">
+              ${thumbHtml}
+              <span class="side-cn-badge">${s.items.length}장</span>
+            </div>
+            <div class="side-cn-body">
+              <div class="side-cn-label">최신 뉴스</div>
+              <div class="side-cn-title">${title}</div>
+              <div class="side-cn-date">${dateStr}</div>
+            </div>
           </button>`;
-        }).join('');
+
+        // 나중에 모달 오픈을 위해 저장
+        window._sideLatestSet = s;
       } catch(e) {
         el.innerHTML = '';
       }
+    }
+
+    function openSideLatestCard() {
+      // 카드뉴스 페이지로 이동 후 첫 번째 뉴스 모달 오픈
+      goToPage('cardnews');
+      const tryOpen = (attempts) => {
+        if (cardNewsState.sets.length > 0) {
+          openCardNewsModal(0);
+        } else if (attempts > 0) {
+          setTimeout(() => tryOpen(attempts - 1), 150);
+        }
+      };
+      setTimeout(() => tryOpen(10), 100);
+    }
+
+    /* ══════════════════════════════
+       사이드바 방문자 통계 (실시간)
+    ══════════════════════════════ */
+    async function loadSideStats() {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_stats`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          body: JSON.stringify({})
+        });
+        if (!res.ok) return;
+        const d = await res.json();
+        const todayEl = document.getElementById('side-stat-today');
+        const totalEl = document.getElementById('side-stat-total');
+        if (todayEl) todayEl.textContent = (d.today_visits ?? 0).toLocaleString();
+        if (totalEl) totalEl.textContent = (d.total_visits ?? 0).toLocaleString();
+      } catch(e) {}
     }
     loadSideLatest();
 
