@@ -646,7 +646,7 @@
       z-index: 200;
       display: flex;
       flex-direction: column;
-      overflow-y: auto;
+      overflow: hidden;
       transition: transform .28s ease;
     }
     .side-nav-header {
@@ -668,6 +668,10 @@
       gap: 4px;
       padding: 14px 12px;
       flex: 1;
+      overflow-y: auto;
+      min-height: 0;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(12,31,184,0.15) transparent;
     }
     .side-nav-footer {
       padding: 12px 14px 16px;
