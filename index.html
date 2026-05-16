@@ -2945,25 +2945,188 @@
       flex-shrink: 0;
     }
 
-    /* ── 홈 대시보드: 한 화면 고정 (노스크롤) ── */
-    #page-home {
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    #page-home .about-section {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-    }
-    #page-home .dash-hero { flex-shrink: 0; }
-    #page-home .dash-grid {
-      flex: 1;
-      min-height: 0;
-      grid-auto-rows: 1fr;
-    }
+    /* ── 홈 피드 ── */
+    #page-home { overflow-y: auto; }
     #page-home ins.adsbygoogle { display: none !important; }
+
+    /* ══════════════════════════════
+       홈 콘텐츠 피드
+    ══════════════════════════════ */
+    .home-feed-wrap {
+      padding: 4px 0 20px;
+    }
+    .home-feed-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--blue-mid);
+      margin-bottom: 16px;
+    }
+    .home-feed-label {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .home-feed {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 14px;
+    }
+    .hf-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: box-shadow 0.16s, transform 0.16s, border-color 0.16s;
+      display: flex;
+      flex-direction: column;
+    }
+    .hf-card:hover {
+      box-shadow: 0 6px 24px rgba(12,31,184,0.14);
+      transform: translateY(-2px);
+      border-color: rgba(26,61,232,0.28);
+    }
+    .hf-thumb {
+      width: 100%;
+      aspect-ratio: 4/3;
+      overflow: hidden;
+      flex-shrink: 0;
+      background: var(--bg-sub);
+    }
+    .hf-thumb img {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .hf-thumb-none {
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, rgba(26,61,232,0.1) 0%, rgba(26,61,232,0.05) 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.2rem;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .hf-thumb-none {
+      background: linear-gradient(135deg, rgba(26,61,232,0.2) 0%, rgba(26,61,232,0.08) 100%);
+    }
+    .hf-body {
+      padding: 10px 12px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      flex: 1;
+    }
+    .hf-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 0.66rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+      padding: 2px 7px;
+      border-radius: 20px;
+      width: fit-content;
+    }
+    .hf-badge-news { background: rgba(26,61,232,0.09); color: var(--blue-mid); }
+    .hf-badge-knowledge { background: rgba(5,150,105,0.1); color: #059669; }
+    [data-theme="dark"] .hf-badge-news { background: rgba(26,61,232,0.22); }
+    [data-theme="dark"] .hf-badge-knowledge { background: rgba(5,150,105,0.22); color: #34d399; }
+    .hf-title {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--txt-hi);
+      line-height: 1.45;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .hf-date {
+      font-size: 0.7rem;
+      color: var(--txt-lo);
+      margin-top: auto;
+      padding-top: 3px;
+    }
+    .hf-skeleton {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    .hf-skeleton-thumb {
+      width: 100%; aspect-ratio: 4/3;
+      background: linear-gradient(90deg, var(--bg-sub) 25%, var(--border) 50%, var(--bg-sub) 75%);
+      background-size: 200% 100%;
+      animation: hf-shimmer 1.4s ease-in-out infinite;
+    }
+    .hf-skeleton-body { padding: 10px 12px 14px; display: flex; flex-direction: column; gap: 8px; }
+    .hf-skeleton-line { height: 11px; border-radius: 6px; background: var(--bg-sub); animation: hf-shimmer 1.4s ease-in-out infinite; }
+    .hf-skeleton-line.long { width: 80%; }
+    .hf-skeleton-line.short { width: 45%; }
+    @keyframes hf-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ══════════════════════════════
+       우측 고정 네비게이션 버튼 그룹
+    ══════════════════════════════ */
+    .right-nav-group {
+      position: fixed;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 5px;
+      pointer-events: none;
+    }
+    .right-nav-btn {
+      pointer-events: auto;
+      background: var(--blue-mid);
+      color: #fff;
+      border: none;
+      border-radius: 10px 0 0 10px;
+      cursor: pointer;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      line-height: 1.1;
+      /* 모든 버튼 동일 크기 — 4글자 한글 + 이모지 수용 */
+      box-sizing: border-box;
+      width: 38px;
+      height: 112px;
+      padding: 10px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+      box-shadow: -3px 0 12px rgba(26,61,232,0.18);
+    }
+    .right-nav-btn:hover {
+      background: var(--blue-deep);
+      box-shadow: -5px 0 20px rgba(26,61,232,0.32);
+      transform: translateX(-2px);
+    }
+    .rnb-icon {
+      writing-mode: horizontal-tb;
+      font-size: 15px;
+      line-height: 1;
+    }
+    @media (max-width: 480px) {
+      .right-nav-group { display: none; }
+    }
 
     /* ══════════════════════════════
        사이드바 최신글
@@ -2981,7 +3144,53 @@
       flex-direction: column;
       flex: 1;
       min-height: 0;
+      overflow-y: auto;
+      gap: 3px;
+    }
+    /* 통합 최신 업로드 row */
+    .side-latest-row {
+      display: grid;
+      grid-template-columns: 18px 1fr auto;
+      gap: 7px;
+      align-items: center;
+      padding: 6px 6px;
+      border-radius: 7px;
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+      transition: background 0.12s;
+    }
+    .side-latest-row:hover { background: rgba(26,61,232,0.07); }
+    .slr-icon { font-size: 14px; line-height: 1; text-align: center; }
+    .slr-text {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+      min-width: 0;
       overflow: hidden;
+    }
+    .slr-tag {
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      color: var(--blue-mid);
+      line-height: 1.1;
+    }
+    .slr-title {
+      font-size: 11px;
+      color: var(--txt-hi);
+      line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .slr-time {
+      font-size: 9.5px;
+      color: var(--txt-lo);
+      flex-shrink: 0;
+      white-space: nowrap;
     }
     /* 사이드바 카드뉴스 썸네일 카드 */
     .side-cn-card {
@@ -3079,34 +3288,8 @@
     @keyframes sk-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
     /* ══════════════════════════════
-       우측 실무도구 플로팅 버튼 & 패널
+       우측 실무도구 패널
     ══════════════════════════════ */
-    .tools-float-btn {
-      position: fixed;
-      right: 0; bottom: 100px;
-      z-index: 1100;
-      background: var(--blue-mid);
-      color: #fff;
-      border: none;
-      border-radius: 10px 0 0 10px;
-      padding: 14px 8px;
-      cursor: pointer;
-      writing-mode: vertical-rl;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 0.08em;
-      box-shadow: -3px 0 16px rgba(26,61,232,0.22);
-      transition: background 0.15s, box-shadow 0.15s;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 5px;
-      line-height: 1;
-    }
-    .tools-float-btn:hover {
-      background: var(--blue-deep);
-      box-shadow: -5px 0 22px rgba(26,61,232,0.32);
-    }
     .tfb-emoji { writing-mode: horizontal-tb; font-size: 16px; }
     .tools-panel-backdrop {
       display: none;
@@ -3278,141 +3461,18 @@
 
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <div class="content" id="page-home">
-  <section class="about-section" id="about-section" aria-label="서비스 소개">
-
-    <!-- 히어로 헤더 -->
-    <div class="dash-hero">
-      <div class="dash-hero-left">
-        <div class="dash-hero-eyebrow"><span></span>보험설계사 전용 플랫폼</div>
-        <h1>업무에 필요한 모든 것, <em>인슈어커넥트</em>에서</h1>
+    <div class="home-feed-wrap">
+      <div class="home-feed-header">
+        <span class="home-feed-label">최신 콘텐츠</span>
       </div>
-    </div>
-
-    <!-- 기능 카드 그리드 -->
-    <div class="dash-grid">
-
-      <div class="dash-card" style="--card-accent:#1a3de8;--card-icon-bg:rgba(26,61,232,0.08)" onclick="trackCardClick('홈','인슈어커넥트 뉴스'); goToPage('cardnews');" role="button" tabindex="0" aria-label="인슈어커넥트 뉴스로 이동">
-        <div class="dash-card-icon">🗞</div>
-        <div class="dash-card-title">인슈어커넥트 뉴스</div>
-        <div class="dash-card-desc">보험업계 최신 소식을 카드뉴스 형태로 빠르게 확인. 상품 개정·업무 변경 사항을 놓치지 마세요.</div>
-        <div class="dash-card-preview" id="dcp-cardnews"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">News</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
+      <div class="home-feed" id="home-feed">
+        <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
+        <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
+        <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
+        <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
+        <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
+        <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
       </div>
-
-      <div class="dash-card" style="--card-accent:#0c1fb8;--card-icon-bg:rgba(12,31,184,0.08)" onclick="trackCardClick('홈','보험사 전산'); goToPage('jeonsan');" role="button" tabindex="0" aria-label="보험사 전산으로 이동">
-        <div class="dash-card-icon">🖥</div>
-        <div class="dash-card-title">보험사 전산</div>
-        <div class="dash-card-desc">주요 생·손보사 전산 시스템에 원클릭 접속. 매번 주소 검색 없이 즉시 업무 시작.</div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Portal</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-      <div class="dash-card" style="--card-accent:#0891b2;--card-icon-bg:rgba(8,145,178,0.08)" onclick="trackCardClick('홈','수납 전산'); goToPage('payment');" role="button" tabindex="0" aria-label="보험사 수납 전산으로 이동">
-        <div class="dash-card-icon">💳</div>
-        <div class="dash-card-title">보험사 수납 전산</div>
-        <div class="dash-card-desc">보험사별 수납·결제 전산 시스템을 한 곳에서. 고객 수납 처리를 신속하게 진행하세요.</div>
-        <div class="dash-card-preview" id="dcp-payment"></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Payment</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-      <div class="dash-card" style="--card-accent:#4a70f5;--card-icon-bg:rgba(74,112,245,0.08)" onclick="trackCardClick('홈','보험사 소식지'); goToPage('newsletter');" role="button" tabindex="0" aria-label="보험사 소식지로 이동">
-        <div class="dash-card-icon">📰</div>
-        <div class="dash-card-title">보험사 소식지</div>
-        <div class="dash-card-desc">각 보험사가 발행하는 최신 소식지를 모아서 확인. 업무 지침·상품 안내를 한눈에.</div>
-        <div class="dash-card-preview" id="dcp-newsletter"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Newsletter</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-      <div class="dash-card" style="--card-accent:#0d9488;--card-icon-bg:rgba(13,148,136,0.08)" onclick="trackCardClick('홈','보험사 청구서류'); goToPage('claimform');" role="button" tabindex="0" aria-label="보험사 청구서류로 이동">
-        <div class="dash-card-icon">📋</div>
-        <div class="dash-card-title">보험사 청구서류</div>
-        <div class="dash-card-desc">보험금 청구 서류 양식을 보험사별로 바로 제공. 고객 응대 시 즉시 찾아 안내하세요.</div>
-        <div class="dash-card-preview" id="dcp-claimform"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Claim</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-      <div class="dash-card" style="--card-accent:#7c3aed;--card-icon-bg:rgba(124,58,237,0.08)" onclick="trackCardClick('홈','채용공고'); goToPage('recruit');" role="button" tabindex="0" aria-label="채용공고로 이동">
-        <div class="dash-card-icon">💼</div>
-        <div class="dash-card-title">채용공고</div>
-        <div class="dash-card-desc">생·손보사 및 GA 채용 정보를 실시간으로 수집. 커리어 기회를 놓치지 마세요.</div>
-        <div class="dash-card-preview" id="dcp-recruit"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Recruit</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-      <div class="dash-card" style="--card-accent:#059669;--card-icon-bg:rgba(5,150,105,0.08)" onclick="trackCardClick('홈','보험지식'); goToPage('knowledge');" role="button" tabindex="0" aria-label="보험지식으로 이동">
-        <div class="dash-card-icon">📚</div>
-        <div class="dash-card-title">보험지식</div>
-        <div class="dash-card-desc">보험 용어·상품 지식·실무 팁 정리. 신입부터 베테랑까지 바로 활용할 수 있는 콘텐츠.</div>
-        <div class="dash-card-preview" id="dcp-knowledge"><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div><div class="dcp-skeleton"></div></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Knowledge</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-      <div class="dash-card" style="--card-accent:#dc6b2a;--card-icon-bg:rgba(220,107,42,0.08)" onclick="trackCardClick('홈','실무 도구'); goToPage('tools');" role="button" tabindex="0" aria-label="실무 도구로 이동">
-        <div class="dash-card-icon">🔧</div>
-        <div class="dash-card-title">실무 도구</div>
-        <div class="dash-card-desc">보험개발원·금감원·건강보험공단 등 자주 쓰는 기관 사이트를 모아 빠르게 접근.</div>
-        <div class="dash-card-preview" id="dcp-tools"></div>
-        <div class="dash-card-footer">
-          <span class="dash-card-tag">Tools</span>
-          <span class="dash-card-arrow"><svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg></span>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- 소개 스트립 -->
-    <div class="dash-about">
-      <div>
-        <div class="dash-about-head">인슈어커넥트를 만든 이유</div>
-        <p class="dash-about-body">보험설계사는 매일 수십 개의 보험사 사이트를 오가며 업무를 처리해야 합니다. 전산 링크는 자주 바뀌고, 소식지는 보험사마다 따로 확인해야 하며, 청구서류는 찾는 데만 시간이 걸립니다. 인슈어커넥트는 이런 비효율을 없애기 위해 만들어졌습니다.</p>
-      </div>
-      <div>
-        <div class="dash-about-head">누구나 무료로, 로그인 없이</div>
-        <p class="dash-about-body">보험설계사가 고객 상담과 영업에만 집중할 수 있도록, 업무에 필요한 모든 리소스를 한 화면에 정리했습니다. 별도 로그인 없이 무료로 사용할 수 있으며, 모바일과 PC 모두 최적화되어 있습니다. 커뮤니티 피드백을 반영하며 지속적으로 업데이트됩니다.</p>
-      </div>
-    </div>
-
-  </section>
-
-  <!-- AdSense 광고 유닛 -->
-  <ins class="adsbygoogle"
-       style="display:block"
-       data-ad-client="ca-pub-7787620251169899"
-       data-ad-slot="2029699902"
-       data-ad-format="auto"
-       data-full-width-responsive="true"></ins>
-  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
-
-  </div>
-
-  <!-- ══════ PAGE: 인슈어커넥트 뉴스 ══════ -->
-  <div class="content" id="page-cardnews" style="display:none">
-    <div class="cn-dash-head">
-      <span class="cn-title-txt">인슈어커넥트 뉴스</span>
-      <span class="cn-sub" id="cn-dash-count"></span>
-    </div>
-    <div class="cn-tile-grid" id="cn-tile-grid">
-      <p class="nl-empty" style="grid-column:1/-1">뉴스를 불러오는 중…</p>
     </div>
   </div>
 
@@ -3540,21 +3600,6 @@
       </div>
       <div id="rc-page-body">
         <p class="nl-empty">채용공고를 불러오는 중…</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- ══════ PAGE: 보험지식 ══════ -->
-  <div class="content" id="page-knowledge" style="display:none">
-    <div class="section">
-      <div class="section-head" style="margin-bottom:18px">
-        <span class="sec-num">01</span>
-        <span class="sec-title">보험지식</span>
-        <span class="sec-line"></span>
-        <span class="sec-badge" id="kn-count">—</span>
-      </div>
-      <div id="kn-page-body">
-        <p class="nl-empty">포스트를 불러오는 중…</p>
       </div>
     </div>
   </div>
@@ -4150,13 +4195,11 @@
     /* ── 페이지 전환 공통 함수 ── */
     const PAGE_NAMES = {
       home:             '홈',
-      cardnews:         '인슈어커넥트 뉴스',
       jeonsan:          '보험사 전산',
       payment:          '수납 전산',
       newsletter:       '보험사 소식지',
       claimform:        '보험사 청구서류',
       recruit:          '채용공고',
-      knowledge:        '보험지식',
       tools:            '실무 도구',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
@@ -4192,11 +4235,9 @@
         if (backTitle) backTitle.textContent = PAGE_NAMES[page] || page;
       }
 
-      if (page === 'knowledge'  && !knLoaded) { loadKnowledgePage();  knLoaded  = true; }
       if (page === 'newsletter' && !nlLoaded) { loadNewsletterPage(); nlLoaded  = true; }
       if (page === 'claimform'  && !cfLoaded) { loadClaimFormPage();  cfLoaded  = true; }
       if (page === 'recruit'    && !rcLoaded) { loadRecruitPage();    rcLoaded  = true; }
-      if (page === 'cardnews'   && !cnLoaded) { loadCardNews();       cnLoaded  = true; }
 
       markMenuSeen(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -5335,8 +5376,6 @@
       const qs = new URLSearchParams(location.search);
       const pid = pathMatch ? pathMatch[1] : qs.get('post');
       if (pid && !isNaN(Number(pid))) {
-        const tab = document.querySelector('.menu-tab[data-page="knowledge"]');
-        if (tab) tab.click();
         openKnPost(Number(pid), false); /* pushState 하지 않음 — 이미 URL이 맞음 */
       }
     }
@@ -6624,74 +6663,244 @@
       document.getElementById('tools-panel-backdrop').classList.remove('open');
     }
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') closeToolsPanel();
+      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); }
     });
 
     /* ══════════════════════════════
-       사이드바 최신 카드뉴스
+       바로가기 패널
+    ══════════════════════════════ */
+    function toggleShortcutsPanel() {
+      const panel    = document.getElementById('shortcuts-panel');
+      const backdrop = document.getElementById('shortcuts-panel-backdrop');
+      if (panel.classList.contains('open')) {
+        closeShortcutsPanel();
+      } else {
+        panel.classList.add('open');
+        backdrop.classList.add('open');
+      }
+    }
+    function closeShortcutsPanel() {
+      const panel    = document.getElementById('shortcuts-panel');
+      const backdrop = document.getElementById('shortcuts-panel-backdrop');
+      if (panel) panel.classList.remove('open');
+      if (backdrop) backdrop.classList.remove('open');
+    }
+
+    /* ══════════════════════════════
+       홈 콘텐츠 피드
+    ══════════════════════════════ */
+    async function loadHomeFeed() {
+      const el = document.getElementById('home-feed');
+      if (!el) return;
+
+      // 스켈레톤
+      el.innerHTML = Array(6).fill(0).map(() => `
+        <div class="hf-skeleton">
+          <div class="hf-skeleton-thumb"></div>
+          <div class="hf-skeleton-body">
+            <div class="hf-skeleton-line long"></div>
+            <div class="hf-skeleton-line short"></div>
+          </div>
+        </div>`).join('');
+
+      const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
+
+      // 1. 카드뉴스 (각 fetch 독립 try)
+      let cnCards = [];
+      try {
+        const cnRes = await fetch(
+          `${SB_URL}/rest/v1/ic_card_news?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=30`,
+          { headers: hdr }
+        );
+        if (cnRes.ok) {
+          const cnItems = await cnRes.json();
+          const setOrder = [];
+          const setMap = {};
+          for (const item of cnItems) {
+            if (!setMap[item.set_id]) {
+              setMap[item.set_id] = [];
+              setOrder.push(item.set_id);
+            }
+            setMap[item.set_id].push(item);
+          }
+          cnCards = setOrder.map(sid => {
+            const sorted = setMap[sid].slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+            const cover = sorted[0];
+            return {
+              type: 'news',
+              set_id: cover.set_id,
+              title: cover.title || '인슈어커넥트 뉴스',
+              created_at: cover.created_at,
+              file_url: cover.file_url,
+              file_type: cover.file_type,
+              slide_count: sorted.length
+            };
+          });
+        } else {
+          console.warn('[loadHomeFeed] card news fetch failed:', cnRes.status);
+        }
+      } catch(e) { console.error('[loadHomeFeed] card news error:', e); }
+
+      // 2. 보험지식 (독립 try - 카드뉴스 실패해도 시도)
+      let knCards = [];
+      try {
+        const knRes = await fetch(
+          `${SB_URL}/rest/v1/ic_knowledge_posts?select=id,title,image_url,created_at&order=created_at.desc&limit=30`,
+          { headers: hdr }
+        );
+        if (knRes.ok) {
+          const knPosts = await knRes.json();
+          knCards = knPosts.map(p => ({
+            type: 'knowledge',
+            id: p.id,
+            title: p.title || '보험지식',
+            image_url: p.image_url,
+            created_at: p.created_at
+          }));
+        } else {
+          console.warn('[loadHomeFeed] knowledge fetch failed:', knRes.status);
+        }
+      } catch(e) { console.error('[loadHomeFeed] knowledge error:', e); }
+
+      try {
+        // 3. 합치고 날짜 내림차순 정렬
+        const all = [...cnCards, ...knCards].sort(
+          (a, b) => new Date(b.created_at) - new Date(a.created_at)
+        );
+
+        if (!all.length) {
+          el.innerHTML = '<p class="nl-empty" style="grid-column:1/-1">콘텐츠를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</p>';
+          return;
+        }
+
+        el.innerHTML = all.map(item => {
+          const rawDate = item.created_at ? item.created_at.slice(0, 10) : '';
+          const [y, m, d] = rawDate.split('-');
+          const dateStr = rawDate ? `${y}.${m}.${d}` : '';
+
+          if (item.type === 'news') {
+            const esc = (item.title || '').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const isImg = item.file_type && item.file_type.startsWith('image');
+            const thumb = (isImg && item.file_url)
+              ? `<div class="hf-thumb"><img src="${item.file_url}" alt="${esc}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>🗞</span></div>'"></div>`
+              : `<div class="hf-thumb-none"><span>🗞</span></div>`;
+            return `<div class="hf-card" onclick="homeFeedOpenNews('${item.set_id}')" tabindex="0" role="button" aria-label="${esc}">
+              ${thumb}
+              <div class="hf-body">
+                <span class="hf-badge hf-badge-news">📰 뉴스</span>
+                <div class="hf-title">${esc}</div>
+                <div class="hf-date">${dateStr}</div>
+              </div>
+            </div>`;
+          } else {
+            const esc = (item.title || '').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+            const thumb = item.image_url
+              ? `<div class="hf-thumb"><img src="${item.image_url}" alt="${esc}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>📚</span></div>'"></div>`
+              : `<div class="hf-thumb-none"><span>📚</span></div>`;
+            return `<div class="hf-card" onclick="homeFeedOpenKnowledge(${item.id})" tabindex="0" role="button" aria-label="${esc}">
+              ${thumb}
+              <div class="hf-body">
+                <span class="hf-badge hf-badge-knowledge">📚 보험지식</span>
+                <div class="hf-title">${esc}</div>
+                <div class="hf-date">${dateStr}</div>
+              </div>
+            </div>`;
+          }
+        }).join('');
+
+      } catch(e) {
+        console.error('[loadHomeFeed]', e);
+        el.innerHTML = '<p class="nl-empty" style="grid-column:1/-1">콘텐츠를 불러오지 못했습니다.</p>';
+      }
+    }
+
+    function homeFeedOpenNews(setId) {
+      const tryOpen = (n) => {
+        const idx = cardNewsState.sets.findIndex(s => s[0] && s[0].set_id === setId);
+        if (idx >= 0) { openCardNewsModal(idx); }
+        else if (n > 0) { setTimeout(() => tryOpen(n - 1), 150); }
+      };
+      tryOpen(20);
+    }
+
+    function homeFeedOpenKnowledge(id) {
+      if (typeof openKnPost === 'function') openKnPost(id, false);
+    }
+
+    /* ══════════════════════════════
+       사이드바 최신 카드뉴스 썸네일 카드
     ══════════════════════════════ */
     async function loadSideLatest() {
       const el = document.getElementById('side-latest-list');
       if (!el) return;
+      const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
+
       try {
-        const res = await fetch(
-          `${SB_URL}/rest/v1/ic_card_news?order=created_at.desc,sort_order.asc&limit=30`,
-          { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
+        // 최신 카드뉴스 커버 이미지 가져오기 (set 단위, 최신 1개)
+        const r = await fetch(
+          `${SB_URL}/rest/v1/ic_card_news?select=set_id,title,file_url,file_type,created_at,sort_order&order=created_at.desc,sort_order.asc&limit=50`,
+          { headers: hdr }
         );
-        if (!res.ok) throw new Error(res.status);
-        const items = await res.json();
-        if (!items || items.length === 0) {
-          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:8px 4px">최신글이 없습니다</p>';
+        if (!r.ok) { el.innerHTML = ''; return; }
+        const arr = await r.json();
+
+        // set_id 기준으로 최신 세트의 첫 번째 슬라이드(커버) 추출
+        const seen = new Set();
+        const sets = [];
+        for (const item of arr) {
+          if (!seen.has(item.set_id)) {
+            seen.add(item.set_id);
+            sets.push(item);
+          }
+        }
+
+        if (!sets.length) {
+          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:8px 4px">최신 뉴스가 없습니다</p>';
           return;
         }
 
-        // 첫 번째 세트만 추출 (sort_order 오름차순 → 표지가 [0])
-        const firstSetId = items[0].set_id;
-        const setItems = items
-          .filter(i => i.set_id === firstSetId)
-          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-        const s = { set_id: firstSetId, title: items[0].title, created_at: items[0].created_at, items: setItems };
-
-        const d = new Date(s.created_at);
+        // 최신 세트 1개 → 썸네일 카드로 표시
+        const latest = sets[0];
+        const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const title = esc(latest.title || '인슈어커넥트 뉴스');
+        const isImg = latest.file_type && latest.file_type.startsWith('image');
+        const thumbHtml = (isImg && latest.file_url)
+          ? `<img src="${latest.file_url}" alt="${title}" onerror="this.parentElement.innerHTML='<span class=\\'side-cn-fallback\\'>🗞</span>'">`
+          : `<span class="side-cn-fallback">🗞</span>`;
+        const d = new Date(latest.created_at);
         const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-        const cover = s.items[0];
-        const title = (s.title || '인슈어커넥트 뉴스').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-        const thumbHtml = (cover && cover.file_type === 'image' && cover.file_url)
-          ? `<img src="${cover.file_url}" alt="${title}" loading="lazy">`
-          : `<span class="side-cn-fallback">📰</span>`;
 
-        el.innerHTML = `
-          <button class="side-cn-card" type="button" onclick="openSideLatestCard()" title="${title}">
-            <div class="side-cn-thumb">
-              ${thumbHtml}
-              <span class="side-cn-badge">${s.items.length}장</span>
-            </div>
-            <div class="side-cn-body">
-              <div class="side-cn-label">최신 뉴스</div>
-              <div class="side-cn-title">${title}</div>
-              <div class="side-cn-date">${dateStr}</div>
-            </div>
-          </button>`;
-
-        // 나중에 모달 오픈을 위해 저장
-        window._sideLatestSet = s;
+        window._sideLatestSet = latest;
+        el.innerHTML = `<button class="side-cn-card" type="button" onclick="openSideLatestCard()" title="${title}">
+          <div class="side-cn-thumb">${thumbHtml}<span class="side-cn-badge">최신</span></div>
+          <div class="side-cn-body">
+            <div class="side-cn-label">인슈어커넥트 뉴스</div>
+            <div class="side-cn-title">${title}</div>
+            <div class="side-cn-date">${dateStr}</div>
+          </div>
+        </button>`;
       } catch(e) {
+        console.error('[loadSideLatest]', e);
         el.innerHTML = '';
       }
     }
 
-    function openSideLatestCard() {
-      // 카드뉴스 페이지로 이동 후 첫 번째 뉴스 모달 오픈
-      goToPage('cardnews');
-      const tryOpen = (attempts) => {
-        if (cardNewsState.sets.length > 0) {
-          openCardNewsModal(0);
-        } else if (attempts > 0) {
-          setTimeout(() => tryOpen(attempts - 1), 150);
-        }
-      };
-      setTimeout(() => tryOpen(10), 100);
+    function openSideLatestItem(type, id) {
+      if (type === 'cardnews') {
+        const tryOpen = (n) => {
+          const idx = cardNewsState.sets.findIndex(s => s[0] && s[0].set_id === id);
+          if (idx >= 0) { openCardNewsModal(idx); }
+          else if (n > 0) { setTimeout(() => tryOpen(n - 1), 150); }
+        };
+        tryOpen(20);
+      } else if (type === 'knowledge') {
+        if (typeof openKnPost === 'function') openKnPost(id, false);
+      } else {
+        goToPage(type);
+      }
     }
+    // 하위호환 (기존 호출용)
+    function openSideLatestCard() { openSideLatestItem('cardnews', (window._sideLatestSet && window._sideLatestSet.set_id) || null); }
 
     /* ══════════════════════════════
        사이드바 방문자 통계 (실시간)
@@ -6746,14 +6955,32 @@
       } catch(_) {}
     }
     loadSideLatest();
+    loadHomeFeed();
 
     initHashRouting();
   </script>
 
-  <!-- 우측 실무도구 플로팅 버튼 -->
-  <button class="tools-float-btn" id="tools-float-btn" onclick="toggleToolsPanel()" type="button" aria-label="실무도구 패널 열기">
-    <span class="tfb-emoji">🛠</span>실무도구
-  </button>
+  <!-- ══ 우측 고정 네비게이션 필버튼 그룹 ══ -->
+  <div class="right-nav-group">
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">
+      <span class="rnb-icon">🖥</span>전산
+    </button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','수납전산'); goToPage('payment');" title="보험사 수납 전산" type="button">
+      <span class="rnb-icon">💳</span>수납
+    </button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">
+      <span class="rnb-icon">📰</span>소식지
+    </button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">
+      <span class="rnb-icon">📋</span>청구
+    </button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">
+      <span class="rnb-icon">💼</span>채용
+    </button>
+    <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">
+      <span class="rnb-icon">🛠</span>실무도구
+    </button>
+  </div>
   <!-- 실무도구 패널 배경막 -->
   <div class="tools-panel-backdrop" id="tools-panel-backdrop" onclick="closeToolsPanel()"></div>
   <!-- 실무도구 슬라이드 패널 -->
