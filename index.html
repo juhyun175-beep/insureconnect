@@ -2973,11 +2973,15 @@
       border-top: 1px solid rgba(12,31,184,0.07);
       flex: 1;
       min-height: 0;
-      overflow: hidden;
+      display: flex;
+      flex-direction: column;
     }
     .side-latest-list {
-      display: flex; flex-direction: column;
-      flex: 1; min-height: 0;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+      min-height: 0;
+      overflow: hidden;
     }
     /* 사이드바 카드뉴스 썸네일 카드 */
     .side-cn-card {
@@ -6641,9 +6645,11 @@
           return;
         }
 
-        // 첫 번째 세트만 추출
+        // 첫 번째 세트만 추출 (sort_order 오름차순 → 표지가 [0])
         const firstSetId = items[0].set_id;
-        const setItems = items.filter(i => i.set_id === firstSetId);
+        const setItems = items
+          .filter(i => i.set_id === firstSetId)
+          .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
         const s = { set_id: firstSetId, title: items[0].title, created_at: items[0].created_at, items: setItems };
 
         const d = new Date(s.created_at);
