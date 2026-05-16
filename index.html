@@ -63,143 +63,7 @@
       flex-direction: column;
     }
 
-    /* ══════════════════════════════
-       HERO — 브랜드 로고 중심 화이트 섹션
-    ══════════════════════════════ */
-    .hero {
-      position: relative;
-      background: #ffffff;
-      overflow: hidden;
-      text-align: center;
-      padding: 28px 32px 24px;
-      box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-    }
-
-    /* 점선 패턴 배경 */
-    .hero::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: radial-gradient(circle, rgba(12,31,184,0.07) 1px, transparent 1px);
-      background-size: 28px 28px;
-      pointer-events: none;
-    }
-
-    /* 로고 뒤 소프트 글로우 */
-    .hero-glow {
-      position: absolute;
-      top: 50%; left: 50%;
-      transform: translate(-50%, -50%);
-      width: 500px; height: 200px;
-      background: radial-gradient(ellipse, rgba(26,61,232,0.05) 0%, transparent 70%);
-      pointer-events: none;
-      z-index: 0;
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 14px;
-    }
-
-    /* 뱃지 */
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      font-family: 'Pretendard', sans-serif;
-      font-size: 10px;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--blue-mid);
-      border: 1.5px solid rgba(26,61,232,0.2);
-      background: rgba(26,61,232,0.05);
-      padding: 5px 16px;
-      border-radius: 4px;
-    }
-    .pulse-dot {
-      width: 5px; height: 5px;
-      border-radius: 50%;
-      background: var(--cyan);
-      animation: blink 2.4s ease-in-out infinite;
-    }
     @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
-    /* 로고 + 커뮤니티 가로 행 */
-    .hero-main-row {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-    }
-
-    /* 광고/협업 문의 카드 */
-    .contact-card {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 4px;
-      width: 150px;
-      height: 110px;
-      padding: 14px 16px;
-      border-radius: 14px;
-      text-decoration: none;
-      background: #ffffff;
-      border: 1.5px solid rgba(12,31,184,0.10);
-      box-shadow: 0 2px 16px rgba(12,31,184,0.06);
-      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-      flex-shrink: 0;
-      cursor: pointer;
-    }
-    .contact-card:hover {
-      transform: translateY(-3px);
-      border-color: rgba(26,61,232,0.28);
-      box-shadow: 0 10px 36px rgba(12,31,184,0.14);
-    }
-    .contact-card {
-      align-items: center;
-      text-align: center;
-    }
-    .contact-card-label {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-      color: var(--txt-hi);
-      background: linear-gradient(135deg, var(--blue-deep) 0%, var(--blue-mid) 60%, var(--cyan) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    .contact-card-title {
-      font-family: 'Pretendard', sans-serif;
-      font-weight: 900;
-      font-size: 16px;
-      letter-spacing: 0.01em;
-      color: #1a1a1a;
-      line-height: 1.15;
-    }
-    .contact-card-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: 'Pretendard', sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.06em;
-      color: #3c1e1e;
-      margin-top: 4px;
-    }
-    .contact-card:hover .contact-card-cta svg {
-      transform: translateX(3px);
-    }
-    .contact-card-cta svg {
-      transition: transform 0.2s ease;
-    }
 
     /* 브랜드 로고 이미지 */
     .logo-wrap {
@@ -217,160 +81,6 @@
       mix-blend-mode: multiply;
     }
 
-    /* 구분선 */
-    .hero-divider {
-      width: 1px;
-      height: 88px;
-      background: linear-gradient(to bottom, transparent, rgba(26,61,232,0.18), transparent);
-      flex-shrink: 0;
-    }
-
-    /* 커뮤니티 카드 영역 */
-    .comm-section {
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .comm-label-top {
-      display: none;
-    }
-    .comm-card {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 6px;
-      background: #ffffff;
-      border: 1.5px solid rgba(12,31,184,0.10);
-      border-radius: 14px;
-      padding: 14px 18px;
-      text-decoration: none;
-      color: inherit;
-      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
-      box-shadow: 0 2px 16px rgba(12,31,184,0.06);
-      width: 260px;
-      height: 110px;
-      cursor: pointer;
-    }
-    .comm-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 10px 36px rgba(12,31,184,0.14);
-      border-color: rgba(26,61,232,0.28);
-    }
-    .comm-card-inner {
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      width: 100%;
-    }
-    .comm-card-icon {
-      width: 48px; height: 48px;
-      border-radius: 11px;
-      overflow: hidden;
-      flex-shrink: 0;
-      background: #f5f7ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .comm-card-icon img {
-      width: 100%; height: 100%;
-      object-fit: contain;
-      mix-blend-mode: multiply;
-    }
-    .comm-card-body {
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-      text-align: left;
-      min-width: 0;
-      flex: 1;
-    }
-    .comm-card-name {
-      font-family: 'Pretendard', sans-serif;
-      font-weight: 900;
-      font-size: 16px;
-      letter-spacing: 0.02em;
-      color: var(--txt-hi);
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .comm-card-sub {
-      font-size: 12px;
-      color: var(--txt-mid);
-      letter-spacing: 0.01em;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .comm-card-cta {
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      font-family: 'Pretendard', sans-serif;
-      font-size: 10px;
-      letter-spacing: 0.06em;
-      color: var(--blue-mid);
-      margin-top: 3px;
-      font-weight: 500;
-      white-space: nowrap;
-    }
-    .comm-card-cta svg {
-      transition: transform 0.2s ease;
-    }
-    .comm-card:hover .comm-card-cta svg {
-      transform: translateX(3px);
-    }
-
-    /* CREW 300 카드 액센트 */
-    .comm-card.kakao {
-      border-color: rgba(26,61,232,0.2);
-    }
-    .comm-card.kakao:hover {
-      border-color: rgba(26,61,232,0.5);
-      box-shadow: 0 10px 36px rgba(26,61,232,0.14);
-    }
-    .comm-card.kakao .comm-card-cta {
-      color: var(--blue-mid);
-    }
-    .comm-card.kakao .comm-card-icon {
-      background: #ffffff;
-    }
-
-    /* GM CONNECT 카드 액센트 */
-    .comm-card.gmconnect {
-      border-color: rgba(160,20,40,0.18);
-    }
-    .comm-card.gmconnect:hover {
-      border-color: rgba(160,20,40,0.45);
-      box-shadow: 0 10px 36px rgba(160,20,40,0.12);
-    }
-    .comm-card.gmconnect .comm-card-cta {
-      color: #a01428;
-    }
-    .comm-card.gmconnect .comm-card-icon {
-      background: #ffffff;
-    }
-
-    /* MANAGER LINK 카드 액센트 */
-    .comm-card.managerlink {
-      border-color: rgba(5,150,105,0.2);
-    }
-    .comm-card.managerlink:hover {
-      border-color: rgba(5,150,105,0.5);
-      box-shadow: 0 10px 36px rgba(5,150,105,0.14);
-    }
-    .comm-card.managerlink .comm-card-cta {
-      color: #059669;
-    }
-    .comm-card.managerlink .comm-card-icon {
-      background: #ffffff;
-    }
 
     /* 로고 없을 때 SVG 폴백 */
     .logo-fallback {
@@ -395,15 +105,6 @@
       color: var(--txt-mid);
       letter-spacing: 0.06em;
     }
-
-    /* 하단 그라디언트 액센트 스트립 */
-    .hero-strip {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, var(--blue-deep) 0%, var(--blue-mid) 40%, var(--cyan) 100%);
-    }
-
 
 
     /* ══════════════════════════════
@@ -1241,7 +942,6 @@
       .side-nav { transform: translateX(-100%); }
       .side-nav.open { transform: translateX(0); box-shadow: 6px 0 28px rgba(0,0,0,0.2); }
       .side-toggle { display: flex; }
-      .hero { padding-top: 64px; }
     }
 
     /* 소식지 타입 섹션 (생명/손해) */
@@ -1962,45 +1662,7 @@
       .foot-inner { flex-direction: column; align-items: center; text-align: center; }
       .foot-info { justify-content: center; }
 
-      /* 히어로 모바일: 컴팩트 레이아웃 */
-      .hero { padding: 14px 14px 12px; }
-      .hero-main-row { flex-direction: column; gap: 10px; }
       .logo-wrap { width: 72px; height: 72px; }
-
-      /* 문의 카드 모바일: 컴팩트 가로 밴드 */
-      .contact-card {
-        width: auto;
-        height: auto;
-        padding: 8px 14px;
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
-        border-radius: 10px;
-      }
-      .contact-card-label { font-size: 13px; }
-      .hero-divider { display: none; }
-
-      /* 커뮤니티 카드: 3개 가로 아이콘 형태로 축소 */
-      .comm-section {
-        justify-content: center;
-        gap: 8px;
-        width: 100%;
-        flex-wrap: nowrap;
-      }
-      .comm-card {
-        width: auto;
-        flex: 1 1 0;
-        min-width: 0;
-        max-width: 140px;
-        height: auto;
-        padding: 8px 10px;
-        border-radius: 10px;
-      }
-      .comm-card-inner { gap: 8px; }
-      .comm-card-icon { width: 32px; height: 32px; border-radius: 8px; }
-      .comm-card-name { font-size: 13px; }
-      .comm-card-sub { display: none; }
-      .comm-card-cta { display: none; }
 
     }
     /* ══════════════════════════════
@@ -2348,11 +2010,6 @@
     }
     @media (max-width: 480px) {
       .logo-wrap { width: 60px; height: 60px; }
-      .comm-card { padding: 7px 8px; }
-      .comm-card-inner { gap: 6px; flex-direction: column; text-align: center; }
-      .comm-card-body { text-align: center; }
-      .comm-card-icon { width: 28px; height: 28px; }
-      .comm-card-name { font-size: 11px; letter-spacing: 0; }
     }
 
     /* ── 채용공고 카드 (카드뉴스 스타일 썸네일) & 팝업 ── */
