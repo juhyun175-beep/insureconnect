@@ -676,17 +676,21 @@
       color: var(--blue-mid);
     }
     .side-comm-btn .scb-icon {
-      width: 28px;
-      height: 28px;
-      border-radius: 7px;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      overflow: hidden;
+      flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
+      background: rgba(12,31,184,0.05);
     }
-    .side-comm-btn.kakao .scb-icon { background: #FEE500; }
-    .side-comm-btn.manager .scb-icon { background: rgba(124,58,237,0.10); }
+    .side-comm-btn .scb-icon img {
+      width: 100%; height: 100%;
+      object-fit: contain;
+      display: block;
+    }
     .side-comm-btn .scb-text { flex: 1; line-height: 1.2; }
     .side-comm-btn .scb-name { font-size: 12px; font-weight: 700; display: block; }
     .side-comm-btn .scb-sub { font-size: 10px; color: var(--txt-lo); display: block; }
@@ -2970,9 +2974,15 @@
       min-height: 0;
       overflow: hidden;
     }
-    .side-latest-list { display: flex; flex-direction: column; gap: 2px; }
+    .side-latest-list {
+      display: flex; flex-direction: column;
+      flex: 1; min-height: 0;
+    }
     /* 사이드바 카드뉴스 썸네일 카드 */
     .side-cn-card {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
       width: 100%;
       border: 1.5px solid var(--border);
       border-radius: 10px;
@@ -2981,14 +2991,16 @@
       cursor: pointer;
       text-align: left;
       padding: 0;
-      transition: transform 0.18s, box-shadow 0.18s;
+      min-height: 0;
+      transition: box-shadow 0.18s;
       box-shadow: var(--sh-sm);
     }
-    .side-cn-card:hover { transform: translateY(-2px); box-shadow: var(--sh-md); }
+    .side-cn-card:hover { box-shadow: var(--sh-md); }
     .side-cn-thumb {
       position: relative;
       width: 100%;
-      aspect-ratio: 16/9;
+      flex: 1;
+      min-height: 70px;
       overflow: hidden;
       background: rgba(26,61,232,0.06);
       display: flex; align-items: center; justify-content: center;
@@ -3190,7 +3202,7 @@
          href="https://open.kakao.com/o/gSN4EEoh"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('CREW300 오픈채팅 참여','sidebar')">
-        <span class="scb-icon">💬</span>
+        <span class="scb-icon"><img src="crew300.png" alt="CREW 300"></span>
         <span class="scb-text">
           <span class="scb-name">CREW 300</span>
           <span class="scb-sub">보험설계사 커뮤니티</span>
@@ -3201,7 +3213,7 @@
          href="https://open.kakao.com/o/gka8SGqi"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar')">
-        <span class="scb-icon">🔗</span>
+        <span class="scb-icon"><img src="managerlink.png" alt="MANAGER LINK"></span>
         <span class="scb-text">
           <span class="scb-name">MANAGER LINK</span>
           <span class="scb-sub">설계매니저 커뮤니티</span>
@@ -6678,19 +6690,53 @@
        사이드바 방문자 통계 (실시간)
     ══════════════════════════════ */
     async function loadSideStats() {
+      const todayEl = document.getElementById('side-stat-today');
+      const totalEl = document.getElementById('side-stat-total');
+
+      // 1차: RPC 시도 (관리자 페이지와 동일한 방식)
       try {
         const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_stats`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
-          body: JSON.stringify({})
+          headers: {
+            'Content-Type': 'application/json',
+            'apikey': SB_ANON,
+            'Authorization': `Bearer ${SB_ANON}`
+          },
+          body: '{}'
         });
-        if (!res.ok) return;
-        const d = await res.json();
-        const todayEl = document.getElementById('side-stat-today');
-        const totalEl = document.getElementById('side-stat-total');
-        if (todayEl) todayEl.textContent = (d.today_visits ?? 0).toLocaleString();
-        if (totalEl) totalEl.textContent = (d.total_visits ?? 0).toLocaleString();
-      } catch(e) {}
+        if (res.ok) {
+          const d = await res.json();
+          if (d && (d.today_visits !== undefined)) {
+            if (todayEl) todayEl.textContent = (d.today_visits ?? 0).toLocaleString();
+            if (totalEl) totalEl.textContent = (d.total_visits ?? 0).toLocaleString();
+            return;
+          }
+        }
+      } catch(_) {}
+
+      // 2차 fallback: ic_page_visits 직접 카운트
+      try {
+        const today = kstDateKey();
+        const todayUTC = new Date(today + 'T00:00:00+09:00').toISOString();
+        const h = {
+          'apikey': SB_ANON,
+          'Authorization': `Bearer ${SB_ANON}`,
+          'Prefer': 'count=exact',
+          'Range-Unit': 'items',
+          'Range': '0-0'
+        };
+        const getCount = async (url) => {
+          const r = await fetch(url, { headers: h });
+          const cr = r.headers.get('content-range') || '';
+          return parseInt(cr.split('/')[1] || '0', 10);
+        };
+        const [todayCnt, totalCnt] = await Promise.all([
+          getCount(`${SB_URL}/rest/v1/ic_page_visits?created_at=gte.${encodeURIComponent(todayUTC)}`),
+          getCount(`${SB_URL}/rest/v1/ic_page_visits`)
+        ]);
+        if (todayEl) todayEl.textContent = todayCnt.toLocaleString();
+        if (totalEl) totalEl.textContent = totalCnt.toLocaleString();
+      } catch(_) {}
     }
     loadSideLatest();
 
