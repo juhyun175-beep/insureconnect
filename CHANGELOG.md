@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.6.9] - 2026-05-17
+- 우측 필버튼 이모지 제거, 텍스트만 표시, 크기 32×96px로 최적화
+- homeFeedOpenNews findIndex 버그 수정: s[0].set_id → s.set_id (모달 안 열리던 문제)
+- openKnPost: 배열 아닌 응답 처리 (Array.isArray 방어 코드)
+- renderCardNewsTiles / loadCardNews catch: cn-tile-grid null 가드 추가
+
 ## [0.6.8] - 2026-05-17
 - 인슈어커넥트 뉴스 페이지(#page-cardnews) 삭제 — 홈 피드에서 직접 열기로 전환
 - 보험지식 페이지(#page-knowledge) 삭제 — 홈 피드에서 직접 모달 열기로 전환

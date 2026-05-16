@@ -3097,18 +3097,15 @@
       text-orientation: mixed;
       font-size: 12px;
       font-weight: 700;
-      letter-spacing: 0.04em;
+      letter-spacing: 0.08em;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 6px;
       line-height: 1.1;
-      /* 모든 버튼 동일 크기 — 4글자 한글 + 이모지 수용 */
       box-sizing: border-box;
-      width: 38px;
-      height: 112px;
-      padding: 10px 0;
+      width: 32px;
+      height: 96px;
+      padding: 8px 0;
       white-space: nowrap;
       overflow: hidden;
       transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
@@ -4584,15 +4581,16 @@
         openCardNewsFromURL();
       } catch (e) {
         console.error('CardNews load error:', e);
-        document.getElementById('cn-tile-grid').innerHTML =
-          '<p class="nl-empty" style="grid-column:1/-1">뉴스를 불러올 수 없습니다.</p>';
+        const grid = document.getElementById('cn-tile-grid');
+        if (grid) grid.innerHTML = '<p class="nl-empty" style="grid-column:1/-1">뉴스를 불러올 수 없습니다.</p>';
       }
     }
 
     function renderCardNewsTiles() {
       const grid = document.getElementById('cn-tile-grid');
-      document.getElementById('cn-dash-count').textContent =
-        `${cardNewsState.sets.length}건`;
+      if (!grid) return; // 페이지 삭제됨 — 그리드 없으면 스킵
+      const dashCount = document.getElementById('cn-dash-count');
+      if (dashCount) dashCount.textContent = `${cardNewsState.sets.length}건`;
       if (cardNewsState.sets.length === 0) {
         grid.innerHTML = '<p class="nl-empty" style="grid-column:1/-1">등록된 뉴스가 없습니다.</p>';
         return;
@@ -5265,7 +5263,8 @@
 
       try {
         const res  = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_posts?id=eq.${postId}`, { headers: SB_HDR_KN });
-        const [post] = await res.json();
+        const resJson = await res.json();
+        const post = Array.isArray(resJson) ? resJson[0] : null;
         if (!post) throw new Error('포스트 없음');
         titleEl.textContent  = post.title;
         dateEl.textContent   = knFmtDate(post.created_at);
@@ -6816,7 +6815,7 @@
 
     function homeFeedOpenNews(setId) {
       const tryOpen = (n) => {
-        const idx = cardNewsState.sets.findIndex(s => s[0] && s[0].set_id === setId);
+        const idx = cardNewsState.sets.findIndex(s => s && s.set_id === setId);
         if (idx >= 0) { openCardNewsModal(idx); }
         else if (n > 0) { setTimeout(() => tryOpen(n - 1), 150); }
       };
@@ -6962,24 +6961,12 @@
 
   <!-- ══ 우측 고정 네비게이션 필버튼 그룹 ══ -->
   <div class="right-nav-group">
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">
-      <span class="rnb-icon">🖥</span>전산
-    </button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','수납전산'); goToPage('payment');" title="보험사 수납 전산" type="button">
-      <span class="rnb-icon">💳</span>수납
-    </button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">
-      <span class="rnb-icon">📰</span>소식지
-    </button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">
-      <span class="rnb-icon">📋</span>청구
-    </button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">
-      <span class="rnb-icon">💼</span>채용
-    </button>
-    <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">
-      <span class="rnb-icon">🛠</span>실무도구
-    </button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">전산</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','수납전산'); goToPage('payment');" title="보험사 수납 전산" type="button">수납</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">소식지</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">청구</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">채용</button>
+    <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">실무도구</button>
   </div>
   <!-- 실무도구 패널 배경막 -->
   <div class="tools-panel-backdrop" id="tools-panel-backdrop" onclick="closeToolsPanel()"></div>
