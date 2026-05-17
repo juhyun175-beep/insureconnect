@@ -1961,26 +1961,56 @@
     }
     .foot-inner {
       border-top: 1.5px solid var(--border);
-      padding-top: 16px;
+      padding-top: 20px;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      justify-content: space-between;
       gap: 12px;
-      flex-wrap: wrap;
+      text-align: center;
     }
     .foot-logo {
-      max-width: 160px;
+      max-width: 140px;
       height: auto;
-      opacity: 0.75;
+      opacity: 0.65;
       display: block;
       transition: opacity 0.2s;
+      margin-bottom: 4px;
     }
     .foot-logo:hover { opacity: 1; }
+    /* 정책 링크 네비 */
+    .foot-links {
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 0 4px;
+    }
+    .foot-links a {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--txt-mid);
+      text-decoration: none;
+      padding: 4px 8px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+    .foot-links a:hover {
+      color: var(--blue-mid);
+      background: rgba(26,61,232,0.06);
+    }
+    .foot-note {
+      font-size: 11.5px;
+      color: var(--txt-lo);
+      line-height: 1.6;
+      max-width: 680px;
+      margin: 2px 0;
+    }
     .foot-info {
       display: flex;
       align-items: center;
-      gap: 20px;
+      gap: 12px;
       flex-wrap: wrap;
+      justify-content: center;
     }
     .foot-info span,
     .foot-info a {
@@ -1992,8 +2022,16 @@
     }
     .foot-info a:hover { color: var(--blue-mid); }
     .foot-sep {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--border);
+      user-select: none;
+    }
+    @media (max-width: 480px) {
+      footer { padding: 0 16px 16px; }
+      .foot-links a { font-size: 12px; padding: 4px 6px; }
+      .foot-note { font-size: 11px; }
+      .foot-info { gap: 8px; }
+      .foot-info span, .foot-info a { font-size: 11px; }
     }
 
     /* Responsive */
@@ -3400,79 +3438,7 @@
       border-color: rgba(245,158,11,0.25);
     }
 
-    /* ══════════════════════════════
-       전역 푸터 (모든 페이지 공통 하단)
-    ══════════════════════════════ */
-    .ic-foot {
-      text-align: center;
-      padding: 28px 16px 22px;
-      margin-top: 32px;
-      border-top: 1px solid var(--border);
-      background: rgba(12,31,184,0.02);
-    }
-    [data-theme="dark"] .ic-foot { background: rgba(255,255,255,0.015); }
-
-    .ic-foot-links {
-      display: inline-flex;
-      align-items: center;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 0 6px;
-      margin-bottom: 14px;
-    }
-    .ic-foot-links a {
-      color: var(--txt-mid);
-      text-decoration: none;
-      font-size: 0.85rem;
-      font-weight: 600;
-      padding: 4px 8px;
-      border-radius: 6px;
-      transition: color 0.15s, background 0.15s;
-    }
-    .ic-foot-links a:hover {
-      color: var(--blue-mid);
-      background: rgba(26,61,232,0.06);
-      text-decoration: none;
-    }
-    .ic-foot-divider {
-      color: var(--txt-lo);
-      font-size: 0.7rem;
-      user-select: none;
-      opacity: 0.6;
-    }
-
-    .ic-foot-copy {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--txt-mid);
-      margin-bottom: 6px;
-      letter-spacing: -0.005em;
-    }
-    .ic-foot-note {
-      font-size: 0.72rem;
-      color: var(--txt-lo);
-      max-width: 680px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-    .ic-foot-meta {
-      margin-top: 10px;
-      font-size: 0.7rem;
-      color: var(--txt-lo);
-      opacity: 0.8;
-    }
-    .ic-foot-meta a {
-      color: var(--txt-lo);
-      text-decoration: underline;
-      text-decoration-color: rgba(143,165,204,0.3);
-    }
-    .ic-foot-meta a:hover { color: var(--blue-mid); }
-
-    @media (max-width: 480px) {
-      .ic-foot { padding: 24px 12px 18px; margin-top: 24px; }
-      .ic-foot-links a { font-size: 0.8rem; padding: 4px 6px; }
-      .ic-foot-note { font-size: 0.7rem; }
-    }
+    /* (전역 푸터 스타일은 footer/.foot-* 클래스에서 처리 — 기존 footer 통합) */
 
     /* ══════════════════════════════
        실시간 인기 콘텐츠 모니터
@@ -5002,13 +4968,26 @@
   </div>
 
   <!-- ══════ FOOTER ══════ -->
-  <footer>
+  <footer role="contentinfo">
     <div class="foot-inner">
-      <img src="logo-banner.png" class="foot-logo" alt="인슈어커넥트">
-      <div class="foot-info">
-        <span>© 2026 InsureConnect</span>
-        <span class="foot-sep">|</span>
+      <picture>
+        <source srcset="logo-banner.webp" type="image/webp">
+        <img src="logo-banner.png" class="foot-logo" alt="인슈어커넥트" decoding="async" loading="lazy">
+      </picture>
+      <nav class="foot-links" aria-label="사이트 안내">
+        <a href="/about.html">서비스 소개</a>
+        <span class="foot-sep">·</span>
+        <a href="/terms.html">이용약관</a>
+        <span class="foot-sep">·</span>
         <a href="/privacy.html">개인정보처리방침</a>
+        <span class="foot-sep">·</span>
+        <a href="/disclaimer.html">면책조항</a>
+        <span class="foot-sep">·</span>
+        <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">운영자 문의</a>
+      </nav>
+      <p class="foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다. 광고 수익으로 무료 운영됩니다.</p>
+      <div class="foot-info">
+        <span>© 2026 InsureConnect — 보험으로 연결하다</span>
         <span class="foot-sep">|</span>
         <a href="mailto:insureconnect@naver.com">insureconnect@naver.com</a>
       </div>
@@ -8393,29 +8372,6 @@
         if (totalEl) totalEl.textContent = totalCnt.toLocaleString();
       } catch(_) {}
     }
-    // 모든 페이지(.content[id^="page-"]) 끝에 전역 푸터 자동 삽입
-    (function injectGlobalFooter() {
-      const footerHTML = `<footer class="ic-foot" role="contentinfo">
-        <nav class="ic-foot-links" aria-label="사이트 안내">
-          <a href="/about.html">서비스 소개</a>
-          <span class="ic-foot-divider">•</span>
-          <a href="/terms.html">이용약관</a>
-          <span class="ic-foot-divider">•</span>
-          <a href="/privacy.html">개인정보처리방침</a>
-          <span class="ic-foot-divider">•</span>
-          <a href="/disclaimer.html">면책조항</a>
-          <span class="ic-foot-divider">•</span>
-          <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">운영자 문의</a>
-        </nav>
-        <div class="ic-foot-copy">InsureConnect — 보험으로 연결하다</div>
-        <p class="ic-foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다. 광고 수익으로 무료 운영됩니다.</p>
-        <p class="ic-foot-meta">© 2026 InsureConnect · 문의: <a href="mailto:insureconnect@naver.com">insureconnect@naver.com</a></p>
-      </footer>`;
-      document.querySelectorAll('.content[id^="page-"]').forEach(el => {
-        el.insertAdjacentHTML('beforeend', footerHTML);
-      });
-    })();
-
     // 우선순위별 초기화 — 화면에 보이는 것부터 즉시, 나머지는 idle 타이밍에
     // requestIdleCallback 폴리필 (Safari 등 미지원 브라우저)
     const _ric = window.requestIdleCallback || function(cb) { return setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 50 }), 1); };
