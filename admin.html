@@ -2565,6 +2565,170 @@
       transition: color 0.15s;
     }
     .partner-back-link:hover { color: var(--blue-mid); }
+
+    /* ══════════════════ 유입 경로 (Slide 3) ══════════════════ */
+    .ts-period-bar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+    .ts-period-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .ts-period-btn:hover { color: var(--txt-hi); border-color: var(--blue-light); }
+    .ts-period-btn.active {
+      background: var(--blue-mid);
+      border-color: var(--blue-mid);
+      color: #fff;
+    }
+    .ts-updated {
+      font-size: 11px;
+      color: var(--txt-lo);
+      margin-left: auto;
+    }
+    .traffic-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .traffic-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+    }
+    .traffic-card-wide { grid-column: 1 / -1; }
+    .traffic-card-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+      flex-wrap: wrap;
+    }
+    .traffic-icon { font-size: 16px; line-height: 1; }
+    .traffic-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--txt-hi);
+    }
+    .traffic-hint {
+      font-size: 11px;
+      color: var(--txt-lo);
+      font-weight: 500;
+      margin-left: auto;
+    }
+    .traffic-list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 120px;
+    }
+    .ts-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      transition: background 0.12s;
+    }
+    .ts-item:hover { background: rgba(74,112,245,0.06); }
+    .ts-rank {
+      width: 20px;
+      flex-shrink: 0;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--txt-lo);
+    }
+    .ts-name {
+      flex: 1;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--txt-hi);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .ts-count {
+      font-size: 11.5px;
+      font-weight: 700;
+      color: var(--blue-mid);
+      font-variant-numeric: tabular-nums;
+    }
+    .ts-bar {
+      display: inline-block;
+      height: 4px;
+      background: linear-gradient(90deg, var(--blue-mid), var(--cyan));
+      border-radius: 2px;
+      vertical-align: middle;
+      margin-right: 6px;
+      min-width: 4px;
+    }
+    .ts-empty {
+      font-size: 12px;
+      color: var(--txt-lo);
+      padding: 14px 0;
+      text-align: center;
+      font-style: italic;
+    }
+    /* 테이블 (UTM / 최근 유입) */
+    .traffic-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .traffic-table th {
+      text-align: left;
+      padding: 8px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      border-bottom: 1px solid var(--border);
+      background: rgba(74,112,245,0.04);
+    }
+    .traffic-table th.ta-right { text-align: right; }
+    .traffic-table td {
+      padding: 8px 10px;
+      border-bottom: 1px solid var(--border);
+      color: var(--txt-hi);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 240px;
+    }
+    .traffic-table td.ta-right { text-align: right; }
+    .traffic-table tr:last-child td { border-bottom: none; }
+    .traffic-table tr:hover td { background: rgba(74,112,245,0.04); }
+    .traffic-recent-wrap {
+      max-height: 360px;
+      overflow-y: auto;
+    }
+    .ts-tag {
+      display: inline-block;
+      padding: 2px 7px;
+      font-size: 10px;
+      font-weight: 700;
+      border-radius: 8px;
+      background: rgba(74,112,245,0.10);
+      color: var(--blue-mid);
+    }
+    @media (max-width: 900px) {
+      .traffic-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -2641,6 +2805,7 @@
             <button class="ssn-tab active" onclick="ssGo(0)">📈 방문 개요</button>
             <button class="ssn-tab" onclick="ssGo(1)">📊 클릭 통계</button>
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
+            <button class="ssn-tab" onclick="ssGo(3)">🌐 유입 경로</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -2723,6 +2888,78 @@
               <p class="slide-title">페이지 체류 시간</p>
               <div id="sess-stats-body">
                 <p class="sess-empty">> 로딩 중…</p>
+              </div>
+            </div>
+
+            <!-- ── Slide 3: 유입 경로 ── -->
+            <div class="stats-slide">
+              <p class="slide-title">유입 경로 분석</p>
+              <div class="ts-period-bar">
+                <button class="ts-period-btn active" data-period="today" onclick="tsSetPeriod('today')" type="button">오늘</button>
+                <button class="ts-period-btn" data-period="total" onclick="tsSetPeriod('total')" type="button">누적</button>
+                <span class="ts-updated" id="ts-updated"></span>
+              </div>
+
+              <div class="traffic-grid">
+                <!-- 유입 도메인 -->
+                <div class="traffic-card">
+                  <div class="traffic-card-head">
+                    <span class="traffic-icon">🌐</span>
+                    <span class="traffic-title">유입 도메인 Top 10</span>
+                  </div>
+                  <ol class="traffic-list" id="ts-list-referrer">
+                    <li class="ts-empty">로딩 중…</li>
+                  </ol>
+                </div>
+
+                <!-- 랜딩 경로 -->
+                <div class="traffic-card">
+                  <div class="traffic-card-head">
+                    <span class="traffic-icon">🎯</span>
+                    <span class="traffic-title">랜딩 경로 Top 10</span>
+                  </div>
+                  <ol class="traffic-list" id="ts-list-landing">
+                    <li class="ts-empty">로딩 중…</li>
+                  </ol>
+                </div>
+
+                <!-- 디바이스 -->
+                <div class="traffic-card">
+                  <div class="traffic-card-head">
+                    <span class="traffic-icon">📱</span>
+                    <span class="traffic-title">디바이스</span>
+                  </div>
+                  <ol class="traffic-list" id="ts-list-device">
+                    <li class="ts-empty">로딩 중…</li>
+                  </ol>
+                </div>
+
+                <!-- UTM 캠페인 -->
+                <div class="traffic-card traffic-card-wide">
+                  <div class="traffic-card-head">
+                    <span class="traffic-icon">📌</span>
+                    <span class="traffic-title">UTM 캠페인</span>
+                    <span class="traffic-hint">utm_source / utm_medium / utm_campaign 파라미터로 유입된 트래픽</span>
+                  </div>
+                  <table class="traffic-table" id="ts-table-utm">
+                    <thead><tr><th>source</th><th>medium</th><th>campaign</th><th class="ta-right">visits</th></tr></thead>
+                    <tbody><tr><td colspan="4" class="ts-empty">로딩 중…</td></tr></tbody>
+                  </table>
+                </div>
+
+                <!-- 최근 유입 50건 -->
+                <div class="traffic-card traffic-card-wide">
+                  <div class="traffic-card-head">
+                    <span class="traffic-icon">🕒</span>
+                    <span class="traffic-title">최근 유입 (50건)</span>
+                  </div>
+                  <div class="traffic-recent-wrap">
+                    <table class="traffic-table" id="ts-table-recent">
+                      <thead><tr><th>시각</th><th>유입</th><th>랜딩</th><th>UTM</th><th>디바이스</th></tr></thead>
+                      <tbody><tr><td colspan="5" class="ts-empty">로딩 중…</td></tr></tbody>
+                    </table>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -3468,6 +3705,104 @@
       }
     }
 
+    /* ══════════════════════════════
+       유입 경로 (Slide 3)
+    ══════════════════════════════ */
+    let _tsPeriod = 'today';
+    let _tsCache  = null;
+
+    async function loadTrafficSources() {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_traffic_sources`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          body: '{}'
+        });
+        if (!res.ok) return;
+        _tsCache = await res.json();
+        renderTrafficSources();
+      } catch(_) {}
+    }
+
+    function tsSetPeriod(p) {
+      _tsPeriod = p;
+      document.querySelectorAll('.ts-period-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.period === p);
+      });
+      renderTrafficSources();
+    }
+
+    function renderTrafficSources() {
+      if (!_tsCache) return;
+      const suffix = _tsPeriod === 'today' ? 'today' : 'total';
+
+      const refs    = _tsCache[`referrer_${suffix}`] || [];
+      const lands   = _tsCache[`landing_${suffix}`]  || [];
+      const devs    = _tsCache[`device_${suffix}`]   || [];
+      const utms    = _tsCache[`utm_${suffix}`]      || [];
+      const recent  = _tsCache.recent                || [];
+
+      const safeEsc = s => esc(String(s||''));
+
+      // 막대 길이 계산 헬퍼
+      const makeList = (items, key) => {
+        if (!items.length) return '<li class="ts-empty">데이터가 없습니다</li>';
+        const max = Math.max(...items.map(it => it.visits||0)) || 1;
+        return items.map((it, i) => {
+          const w = Math.max(4, Math.round((it.visits||0) / max * 100));
+          return `<li class="ts-item">
+            <span class="ts-rank">${i+1}</span>
+            <span class="ts-name" title="${safeEsc(it[key])}">${safeEsc(it[key])}</span>
+            <span class="ts-bar" style="width:${w}px"></span>
+            <span class="ts-count">${(it.visits||0).toLocaleString()}</span>
+          </li>`;
+        }).join('');
+      };
+
+      document.getElementById('ts-list-referrer').innerHTML = makeList(refs, 'source');
+      document.getElementById('ts-list-landing').innerHTML  = makeList(lands, 'path');
+      document.getElementById('ts-list-device').innerHTML   = makeList(devs, 'device');
+
+      // UTM 테이블
+      const utmTbody = document.querySelector('#ts-table-utm tbody');
+      if (!utms.length) {
+        utmTbody.innerHTML = '<tr><td colspan="4" class="ts-empty">아직 UTM 캠페인 데이터가 없습니다 (?utm_source=... 파라미터로 유입 시 기록됨)</td></tr>';
+      } else {
+        utmTbody.innerHTML = utms.map(u => `<tr>
+          <td><span class="ts-tag">${safeEsc(u.utm_source)}</span></td>
+          <td>${safeEsc(u.utm_medium)}</td>
+          <td>${safeEsc(u.utm_campaign)}</td>
+          <td class="ta-right"><strong>${(u.visits||0).toLocaleString()}</strong></td>
+        </tr>`).join('');
+      }
+
+      // 최근 유입 50건
+      const recentTbody = document.querySelector('#ts-table-recent tbody');
+      if (!recent.length) {
+        recentTbody.innerHTML = '<tr><td colspan="5" class="ts-empty">데이터가 없습니다</td></tr>';
+      } else {
+        recentTbody.innerHTML = recent.map(r => {
+          const d = new Date(r.visited_at);
+          const time = `${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+          const utm = [r.utm_source, r.utm_medium, r.utm_campaign].filter(Boolean).join(' / ') || '-';
+          return `<tr>
+            <td>${time}</td>
+            <td>${r.referrer_domain ? `<span class="ts-tag">${safeEsc(r.referrer_domain)}</span>` : '<span style="color:var(--txt-lo)">(direct)</span>'}</td>
+            <td title="${safeEsc(r.landing_path)}">${safeEsc(r.landing_path || '/')}</td>
+            <td>${safeEsc(utm)}</td>
+            <td>${safeEsc(r.device_kind || '-')}</td>
+          </tr>`;
+        }).join('');
+      }
+
+      // 업데이트 시각
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const updEl = document.getElementById('ts-updated');
+      if (updEl) updEl.textContent = `· 업데이트 ${hh}:${mm}`;
+    }
+
     /* ── 카드별 클릭 통계 렌더 ── */
     const MENU_LABEL = {
       '홈':    '🏠 홈 대시보드',
@@ -3540,7 +3875,7 @@
 
     /* ── 통계 슬라이더 ── */
     let _ssIdx = 0;
-    const SS_COUNT = 3;
+    const SS_COUNT = 4;
 
     function ssUpdateHeight() {
       const outer   = document.querySelector('.stats-slides-outer');
@@ -3673,6 +4008,9 @@
 
         /* 카드별 클릭 7일 추이 */
         loadCardStats();
+
+        /* 유입 경로 */
+        loadTrafficSources();
 
         /* 차트 (현재 슬라이드 0에 표시) */
         renderLineChart('chart-visits', d.daily_visits_7d, 'visits');

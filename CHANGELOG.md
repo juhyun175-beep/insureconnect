@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.3.0] - 2026-05-17
+- 유입 경로 추적 시스템 추가 (Traffic Sources)
+  - DB 스키마: ic_page_visits에 referrer_domain/referrer_url/landing_path/utm_source/utm_medium/utm_campaign/device_kind 컬럼 추가
+  - 인덱스 추가로 빠른 집계
+  - 랜딩페이지 trackVisit이 유입 정보 자동 수집 (PII 제거: query string 제외)
+  - 주요 도메인 그룹화: google/naver/kakao/youtube/instagram/facebook/twitter/threads 등 자동 분류
+  - 자체 도메인 유입은 (direct)로 처리 (내부 이동 노이즈 제거)
+- 관리자페이지: '🌐 유입 경로' 슬라이드 탭 신설 (Slide 3)
+  - 유입 도메인 Top 10 (막대 그래프 시각화)
+  - 랜딩 경로 Top 10
+  - 디바이스(mobile/desktop/tablet) 분포
+  - UTM 캠페인 테이블 (utm_source/medium/campaign × visits)
+  - 최근 유입 50건 상세 테이블 (시각/유입원/랜딩/UTM/디바이스)
+  - 오늘/누적 토글
+- Supabase RPC: get_ic_traffic_sources (anon-callable, 6개 리스트 + 최근 50건 한 번에 반환)
+
 ## [1.2.0] - 2026-05-17
 - ⚡ 성능 최적화 (페이지 렉 해소)
   - HTTP 캐싱 헤더 강화: 이미지/폰트/CSS/JS 1년 캐시 (immutable)
