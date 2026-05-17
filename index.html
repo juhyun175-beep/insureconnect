@@ -20,8 +20,26 @@
   <meta name="twitter:description" content="보험설계사를 위한 통합 허브.">
   <meta name="twitter:image" content="https://insureconnect-hub.pages.dev/logo-full.png">
   <!-- OG:END -->
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7787620251169899"
-     crossorigin="anonymous"></script>
+  <!-- AdSense를 페이지 로드 후 idle 타이밍에 동적 삽입 → 초기 렌더 차단 안 함 -->
+  <script>
+    (function() {
+      function loadAds() {
+        var s = document.createElement('script');
+        s.async = true;
+        s.crossOrigin = 'anonymous';
+        s.src = 'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7787620251169899';
+        document.head.appendChild(s);
+      }
+      // 페이지가 사실상 로드된 후 idle 타이밍에 삽입
+      if (document.readyState === 'complete') {
+        (window.requestIdleCallback || setTimeout)(loadAds, 2000);
+      } else {
+        window.addEventListener('load', function() {
+          (window.requestIdleCallback || setTimeout)(loadAds, 2000);
+        }, { once: true });
+      }
+    })();
+  </script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
@@ -4020,6 +4038,24 @@
     /* ══════════════════════════════
        ⚡ 성능 최적화
     ══════════════════════════════ */
+    /* 0) content-visibility: auto — 화면 밖 콘텐츠의 렌더링 비용을 브라우저가 알아서 스킵
+       Above-the-fold 가 아닌 영역(모달, 푸터, 패널 등)에 적용 */
+    .nl-viewer-overlay,
+    .cn-modal,
+    .kn-modal-overlay,
+    .tools-panel,
+    .tools-panel-backdrop,
+    #promo-popup-overlay,
+    #sb-modal-overlay {
+      content-visibility: auto;
+      contain-intrinsic-size: 0 600px;
+    }
+    /* 사이드 메뉴 사용자 펼치기 전엔 렌더 비용 줄임 */
+    @media (max-width: 900px) {
+      .side-nav { content-visibility: auto; contain-intrinsic-size: 0 100vh; }
+      .side-nav.open { content-visibility: visible; }
+    }
+
     /* 1) 사용자가 모션 최소화 모드면 모든 애니메이션 무력화 (배터리·CPU 절약) */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -4055,7 +4091,7 @@
   <!-- 사이드 메뉴 -->
   <aside class="side-nav" id="side-nav">
     <div class="side-nav-header">
-      <img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" decoding="async" fetchpriority="high" onerror="this.style.display='none'">
+      <picture><source srcset="logo-banner.webp" type="image/webp"><img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" decoding="async" fetchpriority="high" onerror="this.style.display='none'"></picture>
     </div>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
@@ -4076,7 +4112,7 @@
          href="https://open.kakao.com/o/gSN4EEoh"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('CREW300 오픈채팅 참여','sidebar')">
-        <span class="scb-icon"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></span>
+        <span class="scb-icon"><picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture></span>
         <span class="scb-text">
           <span class="scb-name">CREW 300</span>
           <span class="scb-sub">보험설계사 커뮤니티</span>
@@ -4087,7 +4123,7 @@
          href="https://open.kakao.com/o/gka8SGqi"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar')">
-        <span class="scb-icon"><img src="managerlink.png" alt="MANAGER LINK" loading="lazy" decoding="async"></span>
+        <span class="scb-icon"><picture><source srcset="managerlink.webp" type="image/webp"><img src="managerlink.png" alt="MANAGER LINK" loading="lazy" decoding="async"></picture></span>
         <span class="scb-text">
           <span class="scb-name">MANAGER LINK</span>
           <span class="scb-sub">설계매니저 커뮤니티</span>
@@ -7974,10 +8010,19 @@
         if (totalEl) totalEl.textContent = totalCnt.toLocaleString();
       } catch(_) {}
     }
-    loadSideLatest();
+    // 우선순위별 초기화 — 화면에 보이는 것부터 즉시, 나머지는 idle 타이밍에
+    // requestIdleCallback 폴리필 (Safari 등 미지원 브라우저)
+    const _ric = window.requestIdleCallback || function(cb) { return setTimeout(() => cb({ didTimeout: false, timeRemaining: () => 50 }), 1); };
+
+    // 1) 즉시 로드 (Above the fold - 콘텐츠 표시에 필수)
     loadHomeFeed();
-    loadSideStats();
-    loadLiveMonitor();
+
+    // 2) 짧은 지연 (사이드바 — 펼치면 보임)
+    _ric(() => loadSideLatest(), { timeout: 800 });
+
+    // 3) idle 타이밍에 통계성 데이터 로드 (UI 차단 안 함)
+    _ric(() => loadLiveMonitor(), { timeout: 1500 });
+    _ric(() => loadSideStats(),   { timeout: 2000 });
     // 60초마다 모니터 자동 갱신 (탭 비활성 시 일시정지)
     let _lmIntervalId = null;
     function startLmInterval() {
@@ -8066,16 +8111,22 @@
         ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
         : cardnews.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
-      document.getElementById('lm-list-jeonsan').innerHTML   = jeonsanHtml;
-      document.getElementById('lm-list-knowledge').innerHTML = knowledgeHtml;
-      document.getElementById('lm-list-cardnews').innerHTML  = cardnewsHtml;
+      // 3개 리스트를 한 frame에 배치 적용 (layout thrashing 회피)
+      requestAnimationFrame(() => {
+        const lj = document.getElementById('lm-list-jeonsan');
+        const lk = document.getElementById('lm-list-knowledge');
+        const lc = document.getElementById('lm-list-cardnews');
+        if (lj) lj.innerHTML = jeonsanHtml;
+        if (lk) lk.innerHTML = knowledgeHtml;
+        if (lc) lc.innerHTML = cardnewsHtml;
 
-      // 마지막 업데이트 시각
-      const now = new Date();
-      const hh = String(now.getHours()).padStart(2,'0');
-      const mm = String(now.getMinutes()).padStart(2,'0');
-      const upd = document.getElementById('lm-updated');
-      if (upd) upd.textContent = `· 업데이트 ${hh}:${mm}`;
+        // 마지막 업데이트 시각
+        const now = new Date();
+        const hh = String(now.getHours()).padStart(2,'0');
+        const mm = String(now.getMinutes()).padStart(2,'0');
+        const upd = document.getElementById('lm-updated');
+        if (upd) upd.textContent = `· 업데이트 ${hh}:${mm}`;
+      });
     }
 
     // 클릭 시 해당 항목으로 이동

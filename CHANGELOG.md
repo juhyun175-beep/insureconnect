@@ -1,5 +1,27 @@
 # Changelog
 
+## [1.4.0] - 2026-05-17
+- ⚡ 추가 최적화 라운드 2
+  - 🖼 **이미지 약 99% 다이어트** (합계 3.1MB → 99KB)
+    - sharp으로 적절한 크기로 리사이즈 (사이드바 아이콘 96px, 로고 400px)
+    - WebP 변환: managerlink 1.4MB→1.4KB, crew300 568KB→1.7KB, logo-banner 326KB→13KB
+    - PNG도 압축해서 덮어쓰기 (WebP 미지원 브라우저용 폴백)
+    - `<picture>` 태그로 WebP 우선, PNG 폴백 자동 처리
+  - 🏗 **초기 로드 시퀀스 우선순위화 (requestIdleCallback)**
+    - 즉시 로드: 홈 피드 (Above the fold)
+    - 800ms idle: 사이드바 배너
+    - 1500ms idle: 실시간 모니터
+    - 2000ms idle: 사이드 통계
+    - → 초기 화면 표시(LCP)가 빨라지고 TTI 단축
+  - 📦 **AdSense를 페이지 load 이후 idle에 동적 삽입**
+    - 초기 렌더 차단 완전 제거
+  - 🎨 **content-visibility: auto** — 화면 밖 모달/오버레이 렌더 비용 회피
+    - 카드뉴스 모달, 보험지식 모달, 도구 패널, 사이드바 배너 모달, 자동 팝업 등
+    - 브라우저가 알아서 화면 안 보일 때 paint 스킵
+  - 🔄 **innerHTML 일괄 적용 (rAF 묶음)**
+    - renderLiveMonitor: 3개 리스트를 requestAnimationFrame 안에서 묶어서 한 번에 적용 → reflow 1회
+  - 🧹 .gitignore 추가 (.img-opt, node_modules 등 제외)
+
 ## [1.3.2] - 2026-05-17
 - 통계 책임 분리 (랜딩 vs 어드민)
   - 랜딩페이지 모니터 위젯: 👁 조회수 토글 제거 → 오늘/누적만 표시 (조회수 단일 메트릭으로 단순화)
