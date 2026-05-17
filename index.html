@@ -4163,11 +4163,6 @@
           <span>LIVE</span>
         </span>
         <span class="lm-title">실시간 인기 콘텐츠</span>
-        <div class="lm-tabs" role="tablist" aria-label="지표">
-          <button class="lm-tab active" data-metric="clicks" onclick="lmSetMetric('clicks')" type="button" title="내부 클릭">👁 조회</button>
-          <button class="lm-tab" data-metric="shared" onclick="lmSetMetric('shared')" type="button" title="외부 공유 링크로 들어온 유입">🔗 공유유입</button>
-          <button class="lm-tab" data-metric="copies" onclick="lmSetMetric('copies')" type="button" title="링크 복사 횟수">📋 복사</button>
-        </div>
         <div class="lm-tabs" role="tablist" aria-label="기간">
           <button class="lm-tab active" data-period="today" onclick="lmSetPeriod('today')" type="button">오늘</button>
           <button class="lm-tab" data-period="total" onclick="lmSetPeriod('total')" type="button">누적</button>
@@ -8010,7 +8005,6 @@
        실시간 인기 콘텐츠 모니터
     ══════════════════════════════ */
     let _lmPeriod = 'today';   // 'today' | 'total'
-    let _lmMetric = 'clicks';  // 'clicks' | 'copies' | 'shared'
     let _lmCache  = null;
 
     async function loadLiveMonitor() {
@@ -8033,98 +8027,44 @@
       });
       renderLiveMonitor();
     }
-    function lmSetMetric(m) {
-      _lmMetric = m;
-      document.querySelectorAll('.lm-tab[data-metric]').forEach(t => {
-        t.classList.toggle('active', t.dataset.metric === m);
-      });
-      renderLiveMonitor();
-    }
 
     function renderLiveMonitor() {
       if (!_lmCache) return;
       const suffix = _lmPeriod === 'today' ? 'today' : 'total';
-      const isCopyMode   = _lmMetric === 'copies';
-      const isSharedMode = _lmMetric === 'shared';
 
-      // 모드별 데이터 소스
-      const jeonsan = _lmCache[`jeonsan_${suffix}`] || [];
-      let knowledge, cardnews;
-      if (isCopyMode) {
-        knowledge = _lmCache[`knowledge_top_copy_${suffix}`]   || [];
-        cardnews  = _lmCache[`cardnews_top_copy_${suffix}`]    || [];
-      } else if (isSharedMode) {
-        knowledge = _lmCache[`knowledge_top_shared_${suffix}`] || [];
-        cardnews  = _lmCache[`cardnews_top_shared_${suffix}`]  || [];
-      } else {
-        knowledge = _lmCache[`knowledge_${suffix}`] || [];
-        cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
-      }
+      // 조회수(내부 클릭) 모드만 표시
+      const jeonsan   = _lmCache[`jeonsan_${suffix}`]   || [];
+      const knowledge = _lmCache[`knowledge_${suffix}`] || [];
+      const cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
 
       const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-      // 모드별 메인/보조 메트릭 라벨
-      const metricLabel = isCopyMode ? '복사' : (isSharedMode ? '공유유입' : '클릭');
-      const secondaryIcon = isCopyMode ? '👁' : (isSharedMode ? '👁' : '🔗');
-      const secondaryTitle = isCopyMode ? '내부 클릭수' : (isSharedMode ? '내부 클릭수' : '공유 링크 유입수');
-
-      const renderItem = (it, i, primary, secondary, onClickFn) => {
+      const renderItem = (it, i, primary, onClickFn) => {
         const rank = i + 1;
         const safeName = esc(it.name);
         const clickAttr = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
         const primaryHtml = `<span class="lm-clicks">${(primary||0).toLocaleString()}<span class="lm-clicks-unit">회</span></span>`;
-        const secondaryHtml = (secondary > 0)
-          ? `<span class="lm-secondary" title="${secondaryTitle}">${secondaryIcon} ${(secondary||0).toLocaleString()}</span>`
-          : '';
         return `<li class="lm-item lm-rank-${rank}" ${clickAttr}>
           <span class="lm-rank">${rank}</span>
           <span class="lm-name" title="${safeName}">${safeName}</span>
-          ${primaryHtml}${secondaryHtml}
+          ${primaryHtml}
         </li>`;
       };
 
-      // 전산 컬럼 — 복사/공유유입 모드에서는 N/A (전산엔 복사·공유 기능 없음)
-      let jeonsanHtml;
-      if (isCopyMode || isSharedMode) {
-        jeonsanHtml = `<li class="lm-empty">
-          <span class="lm-na">전산은 ${isCopyMode ? '복사' : '공유유입'} 기능이 없습니다</span>
-        </li>`;
-      } else if (!jeonsan.length) {
-        jeonsanHtml = '<li class="lm-empty">아직 클릭 기록이 없습니다</li>';
-      } else {
-        jeonsanHtml = jeonsan.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, 0, (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
-      }
+      // 전산
+      const jeonsanHtml = !jeonsan.length
+        ? '<li class="lm-empty">아직 클릭 기록이 없습니다</li>'
+        : jeonsan.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
-      // 보험지식 컬럼 — 모드별 primary/secondary 결정
-      let knowledgeHtml;
-      if (!knowledge.length) {
-        knowledgeHtml = `<li class="lm-empty">아직 ${metricLabel} 기록이 없습니다</li>`;
-      } else {
-        knowledgeHtml = knowledge.slice(0,3).map((it,i) => {
-          // clicks 모드: primary=clicks, secondary=shared (공유유입 보조 표시)
-          // copies 모드: primary=copies, secondary=0
-          // shared 모드: primary=shared, secondary=clicks (내부 클릭 보조 표시)
-          let primary, secondary;
-          if (isCopyMode)        { primary = it.copies; secondary = 0; }
-          else if (isSharedMode) { primary = it.shared; secondary = it.clicks || 0; }
-          else                   { primary = it.clicks; secondary = it.shared || 0; }
-          return renderItem(it, i, primary, secondary, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`);
-        }).join('');
-      }
+      // 보험지식
+      const knowledgeHtml = !knowledge.length
+        ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
+        : knowledge.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
-      // 카드뉴스 컬럼 — 동일 로직
-      let cardnewsHtml;
-      if (!cardnews.length) {
-        cardnewsHtml = `<li class="lm-empty">아직 ${metricLabel} 기록이 없습니다</li>`;
-      } else {
-        cardnewsHtml = cardnews.slice(0,3).map((it,i) => {
-          let primary, secondary;
-          if (isCopyMode)        { primary = it.copies; secondary = 0; }
-          else if (isSharedMode) { primary = it.shared; secondary = it.clicks || 0; }
-          else                   { primary = it.clicks; secondary = it.shared || 0; }
-          return renderItem(it, i, primary, secondary, (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`);
-        }).join('');
-      }
+      // 카드뉴스
+      const cardnewsHtml = !cardnews.length
+        ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
+        : cardnews.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
       document.getElementById('lm-list-jeonsan').innerHTML   = jeonsanHtml;
       document.getElementById('lm-list-knowledge').innerHTML = knowledgeHtml;

@@ -2729,6 +2729,148 @@
     @media (max-width: 900px) {
       .traffic-grid { grid-template-columns: 1fr; }
     }
+
+    /* ══════════════════ 인기 콘텐츠 (Slide 4) ══════════════════ */
+    .pc-period-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      cursor: pointer;
+      transition: all 0.15s;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .pc-period-btn:hover { color: var(--txt-hi); border-color: var(--blue-light); }
+    .pc-period-btn.active {
+      background: var(--blue-mid);
+      border-color: var(--blue-mid);
+      color: #fff;
+    }
+    .pc-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin: 0 0 18px;
+      padding: 10px 14px;
+      background: rgba(74,112,245,0.04);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      font-size: 11.5px;
+      color: var(--txt-mid);
+    }
+    .pc-legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .pc-dot {
+      display: inline-block;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+    }
+    .pc-dot-clicks { background: #4a70f5; }
+    .pc-dot-shared { background: #10b981; }
+    .pc-dot-copies { background: #a855f7; }
+
+    .pc-section { margin-bottom: 22px; }
+    .pc-section:last-child { margin-bottom: 0; }
+    .pc-section-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--border);
+    }
+    .pc-section-icon { font-size: 20px; line-height: 1; }
+    .pc-section-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .pc-3col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+    .pc-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+    .pc-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+    }
+    .pc-card-clicks::before { background: #4a70f5; }
+    .pc-card-shared::before { background: #10b981; }
+    .pc-card-copies::before { background: #a855f7; }
+    .pc-card-head {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      margin-bottom: 8px;
+      padding-bottom: 6px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .pc-list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      min-height: 140px;
+    }
+    .pc-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 7px;
+      border-radius: 6px;
+      transition: background 0.12s;
+    }
+    .pc-item:hover { background: rgba(74,112,245,0.05); }
+    .pc-rank {
+      width: 18px;
+      flex-shrink: 0;
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: var(--txt-lo);
+    }
+    .pc-item.pc-rank-1 .pc-rank { color: #f59e0b; }
+    .pc-item.pc-rank-2 .pc-rank { color: #64748b; }
+    .pc-item.pc-rank-3 .pc-rank { color: #c2410c; }
+    .pc-name {
+      flex: 1;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--txt-hi);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .pc-count {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue-mid);
+      font-variant-numeric: tabular-nums;
+      flex-shrink: 0;
+    }
+    .pc-card-shared .pc-count { color: #10b981; }
+    .pc-card-copies .pc-count { color: #a855f7; }
+    @media (max-width: 900px) {
+      .pc-3col { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -2806,6 +2948,7 @@
             <button class="ssn-tab" onclick="ssGo(1)">📊 클릭 통계</button>
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
             <button class="ssn-tab" onclick="ssGo(3)">🌐 유입 경로</button>
+            <button class="ssn-tab" onclick="ssGo(4)">🔥 인기 콘텐츠</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -2958,6 +3101,67 @@
                       <thead><tr><th>시각</th><th>유입</th><th>랜딩</th><th>UTM</th><th>디바이스</th></tr></thead>
                       <tbody><tr><td colspan="5" class="ts-empty">로딩 중…</td></tr></tbody>
                     </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ── Slide 4: 인기 콘텐츠 (조회/공유유입/복사) ── -->
+            <div class="stats-slide">
+              <p class="slide-title">콘텐츠 인기도 분석</p>
+              <div class="ts-period-bar">
+                <button class="pc-period-btn active" data-period="today" onclick="pcSetPeriod('today')" type="button">오늘</button>
+                <button class="pc-period-btn" data-period="total" onclick="pcSetPeriod('total')" type="button">누적</button>
+                <span class="ts-updated" id="pc-updated"></span>
+              </div>
+
+              <!-- 안내 카드 -->
+              <div class="pc-legend">
+                <span class="pc-legend-item"><span class="pc-dot pc-dot-clicks"></span>👁 조회: 앱 내부에서 직접 본 횟수</span>
+                <span class="pc-legend-item"><span class="pc-dot pc-dot-shared"></span>🔗 공유유입: 외부 공유 링크로 접속한 횟수 (바이럴)</span>
+                <span class="pc-legend-item"><span class="pc-dot pc-dot-copies"></span>📋 복사: 링크 복사 횟수 (공유 의도)</span>
+              </div>
+
+              <!-- 보험지식 섹션 -->
+              <div class="pc-section">
+                <div class="pc-section-head">
+                  <span class="pc-section-icon">📚</span>
+                  <span class="pc-section-title">보험지식 포스트</span>
+                </div>
+                <div class="pc-3col">
+                  <div class="pc-card pc-card-clicks">
+                    <div class="pc-card-head"><span>👁 조회 Top 5</span></div>
+                    <ol class="pc-list" id="pc-kn-clicks"><li class="ts-empty">로딩 중…</li></ol>
+                  </div>
+                  <div class="pc-card pc-card-shared">
+                    <div class="pc-card-head"><span>🔗 공유유입 Top 5</span></div>
+                    <ol class="pc-list" id="pc-kn-shared"><li class="ts-empty">로딩 중…</li></ol>
+                  </div>
+                  <div class="pc-card pc-card-copies">
+                    <div class="pc-card-head"><span>📋 복사 Top 5</span></div>
+                    <ol class="pc-list" id="pc-kn-copies"><li class="ts-empty">로딩 중…</li></ol>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 카드뉴스 섹션 -->
+              <div class="pc-section">
+                <div class="pc-section-head">
+                  <span class="pc-section-icon">🗞</span>
+                  <span class="pc-section-title">인슈어커넥트 뉴스 (카드뉴스)</span>
+                </div>
+                <div class="pc-3col">
+                  <div class="pc-card pc-card-clicks">
+                    <div class="pc-card-head"><span>👁 조회 Top 5</span></div>
+                    <ol class="pc-list" id="pc-cn-clicks"><li class="ts-empty">로딩 중…</li></ol>
+                  </div>
+                  <div class="pc-card pc-card-shared">
+                    <div class="pc-card-head"><span>🔗 공유유입 Top 5</span></div>
+                    <ol class="pc-list" id="pc-cn-shared"><li class="ts-empty">로딩 중…</li></ol>
+                  </div>
+                  <div class="pc-card pc-card-copies">
+                    <div class="pc-card-head"><span>📋 복사 Top 5</span></div>
+                    <ol class="pc-list" id="pc-cn-copies"><li class="ts-empty">로딩 중…</li></ol>
                   </div>
                 </div>
               </div>
@@ -3803,6 +4007,64 @@
       if (updEl) updEl.textContent = `· 업데이트 ${hh}:${mm}`;
     }
 
+    /* ══════════════════════════════
+       인기 콘텐츠 — 조회/공유유입/복사 (Slide 4)
+    ══════════════════════════════ */
+    let _pcPeriod = 'today';
+    let _pcCache  = null;
+
+    async function loadPopularContent() {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_top_items`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          body: '{}'
+        });
+        if (!res.ok) return;
+        _pcCache = await res.json();
+        renderPopularContent();
+      } catch(_) {}
+    }
+
+    function pcSetPeriod(p) {
+      _pcPeriod = p;
+      document.querySelectorAll('.pc-period-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.period === p);
+      });
+      renderPopularContent();
+    }
+
+    function renderPopularContent() {
+      if (!_pcCache) return;
+      const suffix = _pcPeriod === 'today' ? 'today' : 'total';
+      const safeEsc = s => esc(String(s||''));
+
+      const renderList = (items, valueKey) => {
+        if (!items.length) return '<li class="ts-empty">데이터 없음</li>';
+        return items.slice(0,5).map((it, i) => `<li class="pc-item pc-rank-${i+1}">
+          <span class="pc-rank">${i+1}</span>
+          <span class="pc-name" title="${safeEsc(it.name)}">${safeEsc(it.name)}</span>
+          <span class="pc-count">${(it[valueKey]||0).toLocaleString()}</span>
+        </li>`).join('');
+      };
+
+      // 보험지식
+      document.getElementById('pc-kn-clicks').innerHTML = renderList(_pcCache[`knowledge_${suffix}`] || [], 'clicks');
+      document.getElementById('pc-kn-shared').innerHTML = renderList(_pcCache[`knowledge_top_shared_${suffix}`] || [], 'shared');
+      document.getElementById('pc-kn-copies').innerHTML = renderList(_pcCache[`knowledge_top_copy_${suffix}`] || [], 'copies');
+
+      // 카드뉴스
+      document.getElementById('pc-cn-clicks').innerHTML = renderList(_pcCache[`cardnews_${suffix}`] || [], 'clicks');
+      document.getElementById('pc-cn-shared').innerHTML = renderList(_pcCache[`cardnews_top_shared_${suffix}`] || [], 'shared');
+      document.getElementById('pc-cn-copies').innerHTML = renderList(_pcCache[`cardnews_top_copy_${suffix}`] || [], 'copies');
+
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const updEl = document.getElementById('pc-updated');
+      if (updEl) updEl.textContent = `· 업데이트 ${hh}:${mm}`;
+    }
+
     /* ── 카드별 클릭 통계 렌더 ── */
     const MENU_LABEL = {
       '홈':    '🏠 홈 대시보드',
@@ -3875,7 +4137,7 @@
 
     /* ── 통계 슬라이더 ── */
     let _ssIdx = 0;
-    const SS_COUNT = 4;
+    const SS_COUNT = 5;
 
     function ssUpdateHeight() {
       const outer   = document.querySelector('.stats-slides-outer');
@@ -4011,6 +4273,9 @@
 
         /* 유입 경로 */
         loadTrafficSources();
+
+        /* 인기 콘텐츠 (조회/공유유입/복사) */
+        loadPopularContent();
 
         /* 차트 (현재 슬라이드 0에 표시) */
         renderLineChart('chart-visits', d.daily_visits_7d, 'visits');
