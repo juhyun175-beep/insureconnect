@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.2.0] - 2026-05-17
+- ⚡ 성능 최적화 (페이지 렉 해소)
+  - HTTP 캐싱 헤더 강화: 이미지/폰트/CSS/JS 1년 캐시 (immutable)
+  - HTML stale-while-revalidate 적용 (1분 fresh, 10분 백그라운드 갱신)
+  - 이미지 lazy loading + decoding="async" 적용 (crew300, managerlink 1.4MB는 사이드바 펼친 후에만 로드)
+  - 로고는 fetchpriority="high"로 빠른 표시
+  - 폰트 비차단 로드 (preload + media print 트릭) — 렌더링 블록 제거
+  - Page Visibility API: 탭 비활성 시 60초 모니터 인터벌 자동 정지 → 다시 활성화되면 재개
+  - prefers-reduced-motion 대응: 모션 최소화 모드면 모든 애니메이션 무력화
+  - 모바일에서 사이드바 배너 카드의 무한 glow/shine 애니메이션 비활성화 (저사양 기기 렉 방지)
+- Supabase 인덱스 추가 (통계 쿼리 가속)
+  - ic_link_clicks: (company_type, date), (company_type, company_name)
+  - ic_card_clicks: (menu, date)
+  - ic_page_visits/sessions, ic_sidebar_banner, ic_card_news 인덱스 추가
+  - ANALYZE 실행으로 통계 갱신
+
 ## [1.1.1] - 2026-05-17
 - 실시간 모니터 위젯: 링크 복사 카운트 추적 추가
   - shareCardNews/copyKnLink 성공 시 trackClick(title, 'cardnews_copy'|'knowledge_copy') 호출

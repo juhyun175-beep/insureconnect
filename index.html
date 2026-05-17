@@ -24,9 +24,11 @@
      crossorigin="anonymous"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
-  <link rel="preconnect" href="https://cdn.jsdelivr.net">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+  <!-- 폰트 비차단 로드: print → all 트릭으로 렌더링 블록 안 함 -->
+  <link rel="preload" as="style" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" media="print" onload="this.media='all'">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" media="print" onload="this.media='all'">
 
   <style>
     *, *::before, *::after {
@@ -4015,6 +4017,31 @@
     .tp-name { flex: 1; }
     .tp-arrow { color: var(--txt-lo); font-size: 14px; flex-shrink: 0; }
 
+    /* ══════════════════════════════
+       ⚡ 성능 최적화
+    ══════════════════════════════ */
+    /* 1) 사용자가 모션 최소화 모드면 모든 애니메이션 무력화 (배터리·CPU 절약) */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+      }
+      /* 무한 펄스 등 완전 차단 */
+      .promo-glow, .lm-live-dot, .glow-shine { animation: none !important; }
+    }
+
+    /* 2) 모바일에서는 무거운 무한 애니메이션 비활성화 (저사양 기기 렉 방지) */
+    @media (max-width: 480px) {
+      .side-cn-card { animation: none !important; }
+      .side-cn-card::before { animation: none !important; }
+    }
+
+    /* 3) GPU 가속 권장 (transform/opacity만 변경하는 애니메이션은 GPU에서 처리) */
+    .lm-live-dot, .side-cn-card, .lm-skel {
+      will-change: auto; /* 명시적으로 will-change는 필요할 때만 */
+    }
   </style>
 </head>
 <body>
@@ -4028,7 +4055,7 @@
   <!-- 사이드 메뉴 -->
   <aside class="side-nav" id="side-nav">
     <div class="side-nav-header">
-      <img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" onerror="this.style.display='none'">
+      <img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" decoding="async" fetchpriority="high" onerror="this.style.display='none'">
     </div>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
@@ -4049,7 +4076,7 @@
          href="https://open.kakao.com/o/gSN4EEoh"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('CREW300 오픈채팅 참여','sidebar')">
-        <span class="scb-icon"><img src="crew300.png" alt="CREW 300"></span>
+        <span class="scb-icon"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></span>
         <span class="scb-text">
           <span class="scb-name">CREW 300</span>
           <span class="scb-sub">보험설계사 커뮤니티</span>
@@ -4060,7 +4087,7 @@
          href="https://open.kakao.com/o/gka8SGqi"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar')">
-        <span class="scb-icon"><img src="managerlink.png" alt="MANAGER LINK"></span>
+        <span class="scb-icon"><img src="managerlink.png" alt="MANAGER LINK" loading="lazy" decoding="async"></span>
         <span class="scb-text">
           <span class="scb-name">MANAGER LINK</span>
           <span class="scb-sub">설계매니저 커뮤니티</span>
@@ -7893,8 +7920,28 @@
     loadHomeFeed();
     loadSideStats();
     loadLiveMonitor();
-    // 60초마다 모니터 자동 갱신
-    setInterval(loadLiveMonitor, 60_000);
+    // 60초마다 모니터 자동 갱신 (탭 비활성 시 일시정지)
+    let _lmIntervalId = null;
+    function startLmInterval() {
+      if (_lmIntervalId) return;
+      _lmIntervalId = setInterval(loadLiveMonitor, 60_000);
+    }
+    function stopLmInterval() {
+      if (!_lmIntervalId) return;
+      clearInterval(_lmIntervalId);
+      _lmIntervalId = null;
+    }
+    startLmInterval();
+    // 탭/창 비활성 시 인터벌 정지 → CPU·네트워크·배터리 절약
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopLmInterval();
+      } else {
+        // 다시 활성화되면 즉시 한 번 갱신 + 인터벌 재개
+        loadLiveMonitor();
+        startLmInterval();
+      }
+    });
 
     /* ══════════════════════════════
        실시간 인기 콘텐츠 모니터
