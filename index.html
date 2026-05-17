@@ -74,6 +74,126 @@
       filter: brightness(0) invert(1);
     }
 
+    /* ── 다크모드 전체 오버라이드 ── */
+    /* 모달 배경 */
+    [data-theme="dark"] .kn-modal-box,
+    [data-theme="dark"] .nl-viewer-box,
+    [data-theme="dark"] .rc-viewer-box { background: #161b22; }
+
+    [data-theme="dark"] .kn-modal-close,
+    [data-theme="dark"] .nl-viewer-close,
+    [data-theme="dark"] .rc-viewer-close { background: #21262d; color: #8b949e; }
+    [data-theme="dark"] .kn-modal-close:hover { background: #dc2626; color: #fff; }
+    [data-theme="dark"] .nl-viewer-close:hover,
+    [data-theme="dark"] .rc-viewer-close:hover { background: #30363d; color: #e6edf3; }
+
+    [data-theme="dark"] .kn-modal-cover { background: #21262d; }
+
+    /* 보험지식 모달 텍스트 */
+    [data-theme="dark"] .kn-modal-title { color: #e6edf3; }
+    [data-theme="dark"] .kn-modal-date  { color: #6e7681; }
+    [data-theme="dark"] .kn-modal-content {
+      color: #c9d1d9;
+      border-bottom-color: rgba(255,255,255,0.08);
+    }
+    /* 보험지식 표 */
+    [data-theme="dark"] .kn-table th,
+    [data-theme="dark"] .kn-table td { border-color: rgba(255,255,255,0.1); color: #c9d1d9; }
+    [data-theme="dark"] .kn-table th { background: rgba(255,255,255,0.05); color: #79c0ff; }
+    [data-theme="dark"] .kn-table tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+
+    /* 댓글 */
+    [data-theme="dark"] .kn-comments-title { color: #e6edf3; }
+    [data-theme="dark"] .kn-comment-item  { border-bottom-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .kn-comment-author { color: #79c0ff; }
+    [data-theme="dark"] .kn-comment-text  { color: #c9d1d9; }
+    [data-theme="dark"] .kn-comment-date  { color: #6e7681; }
+    [data-theme="dark"] .kn-comment-form input,
+    [data-theme="dark"] .kn-comment-form textarea {
+      background: #21262d; color: #e6edf3;
+      border-color: rgba(255,255,255,0.1);
+    }
+    [data-theme="dark"] .kn-comment-form input:focus,
+    [data-theme="dark"] .kn-comment-form textarea:focus { background: #2d333b; border-color: #58a6ff; }
+    [data-theme="dark"] .kn-comment-status { color: #3fb950; }
+
+    /* 채용공고 뷰어 */
+    [data-theme="dark"] .rc-viewer-company { color: #6e7681; }
+    [data-theme="dark"] .rc-viewer-title   { color: #e6edf3; }
+    [data-theme="dark"] .rc-viewer-date    { color: #6e7681; }
+    [data-theme="dark"] .rc-viewer-body    { color: #c9d1d9; }
+
+    /* 문의 폼 */
+    [data-theme="dark"] .contact-wrap {
+      background: #161b22;
+      border-color: rgba(255,255,255,0.08);
+    }
+    [data-theme="dark"] .contact-input,
+    [data-theme="dark"] .contact-select,
+    [data-theme="dark"] .contact-textarea {
+      background: #21262d; color: #e6edf3;
+      border-color: rgba(255,255,255,0.1);
+    }
+    [data-theme="dark"] .contact-input:focus,
+    [data-theme="dark"] .contact-select:focus,
+    [data-theme="dark"] .contact-textarea:focus { background: #2d333b; border-color: #58a6ff; }
+    [data-theme="dark"] .contact-select option { background: #21262d; color: #e6edf3; }
+
+    /* 커뮤니티 히어로 */
+    [data-theme="dark"] .comm-hero--crew    { background: linear-gradient(135deg, #1a1f2e 0%, #161b2e 60%, #141e2e 100%); }
+    [data-theme="dark"] .comm-hero--manager { background: linear-gradient(135deg, #1e1520 0%, #1a1220 60%, #1a1525 100%); }
+    [data-theme="dark"] .comm-hero-logo     { background: #21262d; }
+    [data-theme="dark"] .comm-block         { background: #161b22; border-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .comm-block-title   { color: #e6edf3; }
+    [data-theme="dark"] .comm-block-text    { color: #8b949e; }
+    [data-theme="dark"] .comm-cond-item     { background: #1c2128; border-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .comm-cond-item--manager { background: #1e1525; border-color: rgba(192,38,211,0.12); }
+    [data-theme="dark"] .comm-cond-label    { color: #8b949e; }
+    [data-theme="dark"] .comm-cond-value    { color: #e6edf3; }
+    [data-theme="dark"] .comm-kakao-btn     { color: #191919; }   /* 카카오는 항상 노란배경에 검은 글자 */
+
+    /* 소식지/청구서류 검색창 */
+    [data-theme="dark"] .nlcf-search {
+      background: #21262d; color: #e6edf3;
+      border-color: rgba(255,255,255,0.1);
+    }
+    [data-theme="dark"] .nlcf-search-clear { background: #21262d; }
+    [data-theme="dark"] .nlcf-search-clear:hover { background: #30363d; }
+
+    /* 홈피드 카드 */
+    [data-theme="dark"] .hf-card-title  { color: #e6edf3; }
+    [data-theme="dark"] .hf-card-date   { color: #6e7681; }
+    [data-theme="dark"] .hf-card-label  { color: #8b949e; }
+    [data-theme="dark"] .hf-thumb-none  { background: #21262d; }
+
+    /* 카드뉴스 모달 */
+    [data-theme="dark"] .cn-modal-body  { background: #161b22; }
+    [data-theme="dark"] .cn-modal-title { color: #e6edf3; }
+    [data-theme="dark"] .cn-slide-counter { color: #8b949e; }
+
+    /* 소식지/청구서류 뷰어 */
+    [data-theme="dark"] .nl-viewer-box { background: #161b22; }
+
+    /* ── 카드납 가이드 모달 ── */
+    [data-theme="dark"] .cg-modal        { background: #161b22; }
+    [data-theme="dark"] .cg-close        { background: #21262d; color: #8b949e; }
+    [data-theme="dark"] .cg-close:hover  { background: #30363d; }
+    [data-theme="dark"] .cg-search-input { background: #21262d; color: #e6edf3; border-color: rgba(255,255,255,0.1); }
+    [data-theme="dark"] .cg-search-input:focus { background: #2d333b; border-color: #58a6ff; }
+    [data-theme="dark"] .cg-tab          { background: #21262d; border-color: rgba(255,255,255,0.1); color: #8b949e; }
+    [data-theme="dark"] .cg-tab.active   { background: var(--blue-mid); border-color: var(--blue-mid); color: #fff; }
+    [data-theme="dark"] .cg-co           { border-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .cg-co-head      { background: #1c2128; }
+    [data-theme="dark"] .cg-co-head:hover{ background: #21262d; }
+    [data-theme="dark"] .cg-co-body      { background: #161b22; border-top-color: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .cg-row          { border-bottom-color: rgba(255,255,255,0.06); }
+    [data-theme="dark"] .cg-row-val      { color: #c9d1d9; }
+    [data-theme="dark"] .cg-badge.ok     { background: rgba(21,128,61,0.2);  color: #4ade80; }
+    [data-theme="dark"] .cg-badge.no     { background: rgba(220,38,38,0.2);  color: #f87171; }
+    [data-theme="dark"] .cg-note         { background: rgba(224,92,0,0.15);  color: #fb923c; }
+    [data-theme="dark"] .cg-disclaimer   { background: #1c2128; border-top-color: rgba(255,255,255,0.07); color: #6e7681; }
+    [data-theme="dark"] .cg-disclaimer b { color: #fb923c; }
+
     html { height: 100%; }
     body {
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
@@ -1063,6 +1183,51 @@
       .side-toggle { display: flex; }
     }
 
+    /* ── 모바일 사이드 메뉴 전용 조정 ── */
+    @media (max-width: 480px) {
+      /* 폭: 화면의 80%, 최대 280px */
+      .side-nav {
+        width: min(80vw, 280px);
+        overflow: hidden;   /* 스크롤 없이 화면 안에 전부 */
+      }
+
+      /* 헤더 로고 최소화 */
+      .side-nav-header { padding: 10px 14px 8px; }
+      .side-nav-header img { max-width: 130px; }
+
+      /* 메뉴 탭 압축 */
+      .menu-tabs { padding: 6px 10px 4px; gap: 2px; }
+      .menu-tab  { padding: 7px 10px; font-size: 12px; }
+      .sub-menu-item { padding: 5px 10px 5px 26px; font-size: 11px; }
+
+      /* 파트너사 프로모션 배너 */
+      .side-latest { padding: 5px 10px 6px; flex: none; }
+      .side-latest-list { flex: none; overflow: visible; }
+      .side-comm-label { padding: 2px 4px 3px; font-size: 9px; }
+
+      /* 배너 카드: 내용만큼만 높이 차지 (절대 늘어나지 않게) */
+      .side-cn-card { flex: none; }
+      .side-cn-thumb { flex: none; height: 90px; min-height: 90px; max-height: 90px; }
+      .side-cn-body  { padding: 6px 8px 8px; }
+      .side-cn-label { font-size: 8px; margin-bottom: 1px; }
+      .side-cn-title { font-size: 11px; -webkit-line-clamp: 1; }
+      .side-cn-date  { font-size: 9px; margin-top: 2px; }
+      .side-cn-badge { font-size: 9px; padding: 1px 5px; }
+
+      /* 커뮤니티 참여 */
+      .side-comm-section { padding: 4px 10px; }
+      .side-comm-btn { padding: 6px 8px; font-size: 11px; }
+      .side-comm-btn .scb-icon { width: 26px; height: 26px; font-size: 13px; }
+
+      /* 푸터 압축 */
+      .side-footer { padding: 4px 10px 8px; }
+      .side-footer-link { font-size: 11px; padding: 4px 8px; }
+      .side-stats { font-size: 10px; padding: 3px 8px; }
+      .side-theme-toggle { padding: 3px 8px; gap: 3px; }
+      .side-theme-btn { font-size: 10px; padding: 4px 2px; }
+      .side-footer-copy { display: none; }
+    }
+
     /* 소식지 타입 섹션 (생명/손해) */
     .nl-type-section {
       margin-bottom: 40px;
@@ -1782,7 +1947,36 @@
       .foot-info { justify-content: center; }
 
       .logo-wrap { width: 72px; height: 72px; }
+    }
 
+    /* 480px 이하: 모바일 전용 레이아웃 세부 조정 */
+    @media (max-width: 480px) {
+      /* 상단: 햄버거 버튼(42px)이 콘텐츠 위에 뜨므로 padding-top 확보 (홈화면 전용) */
+      body:not(.has-back-bar) .content { padding-top: 60px; }
+      /* back-bar가 있을 때는 back-bar가 상단 공간을 제공하므로 기본 패딩 사용 */
+      body.has-back-bar .content { padding-top: 16px; }
+
+      /* 홈피드: 카드 2열, 간격 축소 */
+      .home-feed {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 10px;
+      }
+
+      /* 툴 그리드: 1열로 */
+      .tools-grid { grid-template-columns: 1fr; }
+
+      /* 전산/채용 그리드 1열 */
+      .grid { grid-template-columns: 1fr; }
+
+      /* 소식지/청구서류 카드 그리드 좁게 */
+      .nl-items-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+      .nl-card { padding: 12px 8px; }
+
+      /* 대시보드 헤더 작게 */
+      .dash-hero h1 { font-size: 0.9rem; }
+
+      /* 뒤로가기 바 텍스트 잘림 방지 */
+      .back-bar-title { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: calc(100vw - 120px); }
     }
     /* ══════════════════════════════
        실무 도구 카드
@@ -3121,12 +3315,124 @@
       font-size: 15px;
       line-height: 1;
     }
+    /* ── 모바일: pill버튼 → 하단 네비 바 ── */
+    .mobile-bottom-nav {
+      display: none;
+    }
+    .mobile-bottom-nav-toggle {
+      display: none;
+    }
     @media (max-width: 480px) {
       .right-nav-group { display: none; }
+
+      /* footer는 하단 네비가 대신하므로 모바일에서 숨김 → 콘텐츠 영역 확보 */
+      footer { display: none; }
+
+      /* body padding-bottom 제거 (overflow:hidden이라 레이아웃 망가짐) */
+      /* 대신 .content에 padding-bottom을 줘서 네비바 뒤로 콘텐츠 안 가리게 함 */
+      .content {
+        padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
+        transition: padding-bottom 0.28s cubic-bezier(0.4,0,0.2,1);
+      }
+      /* 하단 네비 숨겨진 상태 → padding 줄임 */
+      body.mbn-hidden .content {
+        padding-bottom: calc(28px + env(safe-area-inset-bottom, 0px)) !important;
+      }
+
+      .mobile-bottom-nav {
+        display: flex;
+        position: fixed;
+        bottom: 0; left: 0; right: 0;
+        z-index: 1200;
+        background: var(--bg-card);
+        border-top: 1px solid var(--border);
+        box-shadow: 0 -4px 20px rgba(0,0,0,0.12);
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding: 0 2px;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+        /* 슬라이드 아웃/인 애니메이션 */
+        transform: translateY(0);
+        transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+      }
+      /* 숨겨진 상태: 바 전체 내림 */
+      body.mbn-hidden .mobile-bottom-nav {
+        transform: translateY(100%);
+      }
+      .mobile-bottom-nav::-webkit-scrollbar { display: none; }
+
+      .mobile-bottom-nav-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+        flex: 1;
+        min-width: 52px;
+        padding: 8px 4px 6px;
+        border: none;
+        background: transparent;
+        cursor: pointer;
+        color: var(--txt-mid);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+        transition: color 0.15s, background 0.15s;
+        border-radius: 0;
+        font-family: 'Pretendard', sans-serif;
+      }
+      .mobile-bottom-nav-btn:active { background: rgba(26,61,232,0.08); }
+      .mobile-bottom-nav-btn .mbn-icon {
+        font-size: 18px;
+        line-height: 1;
+      }
+      .mobile-bottom-nav-btn.mbn-accent {
+        color: var(--blue-mid);
+      }
+      [data-theme="dark"] .mobile-bottom-nav {
+        background: #161b22;
+        border-top-color: rgba(255,255,255,0.07);
+      }
+
+      /* ── 하단 네비 토글 탭 ── */
+      .mobile-bottom-nav-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: fixed;
+        bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+        right: 14px;
+        z-index: 1201;
+        width: 32px;
+        height: 20px;
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-bottom: none;
+        border-radius: 8px 8px 0 0;
+        cursor: pointer;
+        box-shadow: 0 -2px 8px rgba(0,0,0,0.10);
+        transition: bottom 0.28s cubic-bezier(0.4,0,0.2,1);
+        padding: 0;
+        font-size: 10px;
+        color: var(--txt-lo);
+        line-height: 1;
+      }
+      /* 바 숨겨진 상태: 탭 위치도 낮춤 */
+      body.mbn-hidden .mobile-bottom-nav-toggle {
+        bottom: calc(0px + env(safe-area-inset-bottom, 0px));
+        border-bottom: 1px solid var(--border);
+        border-radius: 8px 8px 0 0;
+      }
+      [data-theme="dark"] .mobile-bottom-nav-toggle {
+        background: #161b22;
+        border-color: rgba(255,255,255,0.10);
+      }
     }
 
     /* ══════════════════════════════
-       사이드바 최신글
+       사이드바 파트너사 프로모션
     ══════════════════════════════ */
     .side-latest {
       padding: 8px 12px 10px;
@@ -3190,12 +3496,22 @@
       white-space: nowrap;
     }
     /* 사이드바 카드뉴스 썸네일 카드 */
+    @keyframes promo-glow {
+      0%   { box-shadow: 0 0 6px 1px rgba(99,179,237,0.25), 0 0 0px rgba(159,122,234,0); border-color: rgba(99,179,237,0.35); }
+      40%  { box-shadow: 0 0 18px 4px rgba(159,122,234,0.55), 0 0 32px 8px rgba(99,179,237,0.2); border-color: rgba(159,122,234,0.7); }
+      70%  { box-shadow: 0 0 22px 6px rgba(99,179,237,0.5), 0 0 40px 10px rgba(159,122,234,0.25); border-color: rgba(99,179,237,0.75); }
+      100% { box-shadow: 0 0 6px 1px rgba(99,179,237,0.25), 0 0 0px rgba(159,122,234,0); border-color: rgba(99,179,237,0.35); }
+    }
+    @keyframes promo-shine {
+      0%   { transform: translateX(-100%) skewX(-18deg); }
+      100% { transform: translateX(300%) skewX(-18deg); }
+    }
     .side-cn-card {
       flex: 1;
       display: flex;
       flex-direction: column;
       width: 100%;
-      border: 1.5px solid var(--border);
+      border: 1.5px solid rgba(99,179,237,0.35);
       border-radius: 10px;
       overflow: hidden;
       background: var(--bg-card);
@@ -3203,10 +3519,26 @@
       text-align: left;
       padding: 0;
       min-height: 0;
-      transition: box-shadow 0.18s;
-      box-shadow: var(--sh-sm);
+      position: relative;
+      animation: promo-glow 3s ease-in-out infinite;
+      transition: transform 0.18s;
     }
-    .side-cn-card:hover { box-shadow: var(--sh-md); }
+    .side-cn-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.13) 50%, transparent 60%);
+      transform: translateX(-100%) skewX(-18deg);
+      animation: promo-shine 3.5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .side-cn-card:hover {
+      transform: translateY(-2px);
+      animation-play-state: paused;
+      box-shadow: 0 0 28px 8px rgba(99,179,237,0.5), 0 6px 20px rgba(0,0,0,0.3);
+      border-color: rgba(99,179,237,0.9);
+    }
     .side-cn-thumb {
       position: relative;
       width: 100%;
@@ -3228,13 +3560,13 @@
       padding: 2px 7px;
       border-radius: 10px;
     }
-    .side-cn-body { padding: 8px 10px 10px; flex-shrink: 0; }
+    .side-cn-body { padding: 8px 10px 10px; flex-shrink: 0; position: relative; z-index: 2; }
     .side-cn-label {
       font-size: 9px;
       font-weight: 700;
       letter-spacing: 0.1em;
       text-transform: uppercase;
-      color: var(--blue-light);
+      color: #a78bfa;
       margin-bottom: 3px;
     }
     .side-cn-title {
@@ -3371,9 +3703,9 @@
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
     </nav>
-    <!-- 사이드바 최신글 -->
+    <!-- 사이드바 파트너사 프로모션 -->
     <div class="side-latest">
-      <span class="side-comm-label">최신글</span>
+      <span class="side-comm-label">파트너사 프로모션</span>
       <div class="side-latest-list" id="side-latest-list">
         <div class="side-latest-skeleton"></div>
         <div class="side-latest-skeleton"></div>
@@ -3767,6 +4099,27 @@
       </div>
     </div>
 
+  </div>
+
+  <!-- ══════ 사이드바 배너 뷰어 모달 ══════ -->
+  <div id="sb-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSidebannerModal()">
+    <div style="position:relative;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;background:var(--bg-card,#0e1a3a);border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
+      <!-- 헤더 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="sb-modal-title" style="font-size:14px;font-weight:700;color:#fff;"></span>
+          <span id="sb-modal-counter" style="font-size:12px;color:rgba(255,255,255,0.45);"></span>
+        </div>
+        <button onclick="closeSidebannerModal()" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;" aria-label="닫기">✕</button>
+      </div>
+      <!-- 콘텐츠 -->
+      <div id="sb-modal-content" style="flex:1;min-height:0;max-height:70vh;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;"></div>
+      <!-- 내비게이션 -->
+      <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
+        <button id="sb-modal-prev" onclick="sbModalPrev()" style="padding:8px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">◀ 이전</button>
+        <button id="sb-modal-next" onclick="sbModalNext()" style="padding:8px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">다음 ▶</button>
+      </div>
+    </div>
   </div>
 
   <!-- ══════ 보험지식 포스트 모달 ══════ -->
@@ -4228,7 +4581,10 @@
       const backBar   = document.getElementById('back-bar');
       const backTitle = document.getElementById('back-bar-title');
       if (backBar) {
-        backBar.style.display = page !== 'home' ? '' : 'none';
+        const showBar = page !== 'home';
+        backBar.style.display = showBar ? '' : 'none';
+        // 모바일에서 back-bar가 있으면 .content의 top padding 제거 (back-bar가 대신함)
+        document.body.classList.toggle('has-back-bar', showBar);
         if (backTitle) backTitle.textContent = PAGE_NAMES[page] || page;
       }
 
@@ -6660,8 +7016,30 @@
       document.getElementById('tools-panel').classList.remove('open');
       document.getElementById('tools-panel-backdrop').classList.remove('open');
     }
+
+    /* ── 모바일 하단 네비 토글 ── */
+    function toggleBottomNav() {
+      const hidden = document.body.classList.toggle('mbn-hidden');
+      const btn = document.getElementById('mbn-toggle-btn');
+      if (btn) btn.textContent = hidden ? '▲' : '▼';
+      try { localStorage.setItem('mbn_hidden', hidden ? '1' : '0'); } catch(e) {}
+    }
+    (function initBottomNav() {
+      try {
+        if (localStorage.getItem('mbn_hidden') === '1') {
+          document.body.classList.add('mbn-hidden');
+          const btn = document.getElementById('mbn-toggle-btn');
+          if (btn) btn.textContent = '▲';
+        }
+      } catch(e) {}
+    })();
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); }
+      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); closeSidebannerModal(); }
+      const sbOpen = document.getElementById('sb-modal-overlay') && document.getElementById('sb-modal-overlay').style.display !== 'none';
+      if (sbOpen) {
+        if (e.key === 'ArrowLeft')  sbModalPrev();
+        if (e.key === 'ArrowRight') sbModalNext();
+      }
     });
 
     /* ══════════════════════════════
@@ -6823,45 +7201,49 @@
       const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
 
       try {
-        // 최신 카드뉴스 커버 이미지 가져오기 (set 단위, 최신 1개)
+        // 전체 슬라이드 가져오기 (최신 세트 추출용)
         const r = await fetch(
-          `${SB_URL}/rest/v1/ic_card_news?select=set_id,title,file_url,file_type,created_at,sort_order&order=created_at.desc,sort_order.asc&limit=50`,
+          `${SB_URL}/rest/v1/ic_sidebar_banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
           { headers: hdr }
         );
         if (!r.ok) { el.innerHTML = ''; return; }
         const arr = await r.json();
 
-        // set_id 기준으로 최신 세트의 첫 번째 슬라이드(커버) 추출
-        const seen = new Set();
-        const sets = [];
-        for (const item of arr) {
-          if (!seen.has(item.set_id)) {
-            seen.add(item.set_id);
-            sets.push(item);
-          }
-        }
-
-        if (!sets.length) {
-          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:8px 4px">최신 뉴스가 없습니다</p>';
+        if (!arr.length) {
+          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:8px 4px">등록된 자료가 없습니다</p>';
           return;
         }
 
-        // 최신 세트 1개 → 썸네일 카드로 표시
-        const latest = sets[0];
-        const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        const title = esc(latest.title || '인슈어커넥트 뉴스');
-        const isImg = latest.file_type && latest.file_type.startsWith('image');
-        const thumbHtml = (isImg && latest.file_url)
-          ? `<img src="${latest.file_url}" alt="${title}" onerror="this.parentElement.innerHTML='<span class=\\'side-cn-fallback\\'>🗞</span>'">`
-          : `<span class="side-cn-fallback">🗞</span>`;
-        const d = new Date(latest.created_at);
-        const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+        // set_id 기준 그룹핑 → 최신 세트 1개만
+        const setsMap = new Map();
+        for (const item of arr) {
+          if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
+          setsMap.get(item.set_id).push(item);
+        }
+        // 세트 내부는 sort_order(파일 이름순) 기준으로 정렬
+        for (const slides of setsMap.values()) {
+          slides.sort((a, b) => a.sort_order - b.sort_order);
+        }
+        const latestSlides = Array.from(setsMap.values())[0]; // created_at.desc 순이므로 첫 번째가 최신
+        const cover = latestSlides[0];
 
-        window._sideLatestSet = latest;
-        el.innerHTML = `<button class="side-cn-card" type="button" onclick="openSideLatestCard()" title="${title}">
-          <div class="side-cn-thumb">${thumbHtml}<span class="side-cn-badge">최신</span></div>
+        const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        const title = esc(cover.title || '공지 / 자료');
+        const isPdf = cover.file_type === 'pdf';
+        const isImg = !isPdf && cover.file_url;
+        const thumbHtml = isImg
+          ? `<img src="${cover.file_url}" alt="${title}" onerror="this.parentElement.innerHTML='<span class=\\'side-cn-fallback\\'>📄</span>'">`
+          : `<span class="side-cn-fallback">${isPdf ? '📄' : '🖼'}</span>`;
+        const d = new Date(cover.created_at);
+        const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+        const slideCount = latestSlides.length;
+        const countBadge = slideCount > 1 ? `<span style="margin-left:5px;font-size:10px;opacity:0.7;">${slideCount}장</span>` : '';
+
+        window._sideLatestSlides = latestSlides;
+        el.innerHTML = `<button class="side-cn-card" type="button" onclick="openSidebannerModal()" title="${title}">
+          <div class="side-cn-thumb">${thumbHtml}<span class="side-cn-badge">최신${countBadge}</span></div>
           <div class="side-cn-body">
-            <div class="side-cn-label">인슈어커넥트 뉴스</div>
+            <div class="side-cn-label">파트너사 프로모션</div>
             <div class="side-cn-title">${title}</div>
             <div class="side-cn-date">${dateStr}</div>
           </div>
@@ -6869,6 +7251,46 @@
       } catch(e) {
         console.error('[loadSideLatest]', e);
         el.innerHTML = '';
+      }
+    }
+
+    /* ── 사이드바 배너 슬라이드 뷰어 모달 ── */
+    let _sbModalSlides = [], _sbModalIdx = 0;
+
+    function openSidebannerModal() {
+      const slides = window._sideLatestSlides;
+      if (!slides || !slides.length) return;
+      _sbModalSlides = slides;
+      _sbModalIdx = 0;
+      renderSbModal();
+      document.getElementById('sb-modal-overlay').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeSidebannerModal() {
+      document.getElementById('sb-modal-overlay').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    function sbModalPrev() { if (_sbModalIdx > 0) { _sbModalIdx--; renderSbModal(); } }
+    function sbModalNext() { if (_sbModalIdx < _sbModalSlides.length - 1) { _sbModalIdx++; renderSbModal(); } }
+
+    function renderSbModal() {
+      const slide = _sbModalSlides[_sbModalIdx];
+      const total = _sbModalSlides.length;
+      const isPdf = slide.file_type === 'pdf';
+      const title = slide.title || '자료';
+
+      document.getElementById('sb-modal-counter').textContent = `${_sbModalIdx + 1} / ${total}`;
+      document.getElementById('sb-modal-title').textContent = title;
+      document.getElementById('sb-modal-prev').disabled = _sbModalIdx === 0;
+      document.getElementById('sb-modal-next').disabled = _sbModalIdx === total - 1;
+
+      const content = document.getElementById('sb-modal-content');
+      if (isPdf) {
+        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:100%;border:none;border-radius:8px;" title="${title}"></iframe>`;
+      } else {
+        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
       }
     }
 
@@ -6886,8 +7308,7 @@
         goToPage(type);
       }
     }
-    // 하위호환 (기존 호출용)
-    function openSideLatestCard() { openSideLatestItem('cardnews', (window._sideLatestSet && window._sideLatestSet.set_id) || null); }
+    function openSideLatestCard() { openSidebannerModal(); }
 
     /* ══════════════════════════════
        사이드바 방문자 통계 (실시간)
@@ -6957,6 +7378,30 @@
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">채용</button>
     <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">실무도구</button>
   </div>
+
+  <!-- 모바일 하단 네비 바 (≤480px에서만 표시) -->
+  <nav class="mobile-bottom-nav" aria-label="빠른 메뉴">
+    <button class="mobile-bottom-nav-btn" onclick="trackCardClick('하단네비','전산'); goToPage('jeonsan');" type="button">
+      <span class="mbn-icon">🖥</span>전산
+    </button>
+    <button class="mobile-bottom-nav-btn" onclick="trackCardClick('하단네비','수납전산'); goToPage('payment');" type="button">
+      <span class="mbn-icon">💳</span>수납
+    </button>
+    <button class="mobile-bottom-nav-btn" onclick="trackCardClick('하단네비','소식지'); goToPage('newsletter');" type="button">
+      <span class="mbn-icon">📰</span>소식지
+    </button>
+    <button class="mobile-bottom-nav-btn" onclick="trackCardClick('하단네비','청구서류'); goToPage('claimform');" type="button">
+      <span class="mbn-icon">📋</span>청구
+    </button>
+    <button class="mobile-bottom-nav-btn" onclick="trackCardClick('하단네비','채용공고'); goToPage('recruit');" type="button">
+      <span class="mbn-icon">💼</span>채용
+    </button>
+    <button class="mobile-bottom-nav-btn mbn-accent" onclick="toggleToolsPanel();" type="button" aria-label="실무도구">
+      <span class="mbn-icon">🛠</span>실무도구
+    </button>
+  </nav>
+  <!-- 하단 네비 토글 탭 (≤480px에서만 표시) -->
+  <button class="mobile-bottom-nav-toggle" id="mbn-toggle-btn" onclick="toggleBottomNav();" type="button" aria-label="하단 메뉴 보이기/숨기기">▼</button>
   <!-- 실무도구 패널 배경막 -->
   <div class="tools-panel-backdrop" id="tools-panel-backdrop" onclick="closeToolsPanel()"></div>
   <!-- 실무도구 슬라이드 패널 -->
