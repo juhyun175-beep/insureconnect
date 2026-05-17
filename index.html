@@ -4177,6 +4177,35 @@
     </div>
   </div>
 
+  <!-- ══════ 첫 접속 자동 팝업 (배너 광고) ══════ -->
+  <div id="promo-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closePromoPopup(false)">
+    <div style="position:relative;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--bg-card,#0e1a3a);border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
+      <!-- 헤더 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;background:linear-gradient(90deg,rgba(99,179,237,0.12),rgba(159,122,234,0.12));">
+        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
+          <span style="font-size:11px;font-weight:700;color:#9f7aea;background:rgba(159,122,234,0.15);padding:2px 8px;border-radius:10px;flex-shrink:0;">📢 파트너사 프로모션</span>
+          <span id="promo-popup-counter" style="font-size:12px;color:rgba(255,255,255,0.5);flex-shrink:0;"></span>
+        </div>
+        <button onclick="closePromoPopup(false)" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:22px;cursor:pointer;line-height:1;padding:2px 8px;" aria-label="닫기">✕</button>
+      </div>
+      <!-- 콘텐츠 -->
+      <div id="promo-popup-content" style="flex:1;min-height:0;max-height:70vh;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:#000;"></div>
+      <!-- 내비게이션 -->
+      <div id="promo-popup-nav" style="display:none;align-items:center;justify-content:center;gap:12px;padding:10px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
+        <button id="promo-popup-prev" onclick="promoPopupPrev()" style="padding:7px 18px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">◀ 이전</button>
+        <button id="promo-popup-next" onclick="promoPopupNext()" style="padding:7px 18px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">다음 ▶</button>
+      </div>
+      <!-- 푸터: '오늘 하루 보지않기' + 닫기 -->
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;background:rgba(0,0,0,0.25);">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:rgba(255,255,255,0.85);font-size:13px;user-select:none;">
+          <input type="checkbox" id="promo-popup-hide-today" style="width:16px;height:16px;cursor:pointer;accent-color:#9f7aea;">
+          오늘 하루 보지않기
+        </label>
+        <button onclick="closePromoPopup(true)" style="padding:7px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,#9f7aea,#63b3ed);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(99,179,237,0.3);">닫기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════ 보험지식 포스트 모달 ══════ -->
   <div class="kn-modal-overlay" id="kn-modal" onclick="knModalBackdropClick(event)">
     <div class="kn-modal-box" id="kn-modal-box">
@@ -7089,7 +7118,7 @@
       } catch(e) {}
     })();
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); closeSidebannerModal(); }
+      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); closeSidebannerModal(); closePromoPopup(false); }
       const sbOpen = document.getElementById('sb-modal-overlay') && document.getElementById('sb-modal-overlay').style.display !== 'none';
       if (sbOpen) {
         if (e.key === 'ArrowLeft')  sbModalPrev();
@@ -7364,6 +7393,98 @@
       }
     }
     function openSideLatestCard() { openSidebannerModal(); }
+
+    /* ══════════════════════════════
+       첫 접속 자동 팝업 (배너 광고)
+       - 페이지 로드 시 자동 표시
+       - "오늘 하루 보지않기" 체크 시 localStorage에 오늘 날짜 저장
+    ══════════════════════════════ */
+    let _promoSlides = [], _promoIdx = 0;
+
+    function _getTodayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+
+    async function showPromoPopupIfNeeded() {
+      // 오늘 dismiss 했는지 확인
+      try {
+        if (localStorage.getItem('promo_popup_hide_date') === _getTodayStr()) return;
+      } catch(e) {}
+
+      // 슬라이드 데이터 준비 (loadSideLatest이 이미 채워뒀으면 재사용, 아니면 직접 fetch)
+      let slides = window._sideLatestSlides;
+      if (!slides || !slides.length) {
+        try {
+          const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
+          const r = await fetch(
+            `${SB_URL}/rest/v1/ic_sidebar_banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
+            { headers: hdr }
+          );
+          if (!r.ok) return;
+          const arr = await r.json();
+          if (!arr.length) return;
+          const setsMap = new Map();
+          for (const item of arr) {
+            if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
+            setsMap.get(item.set_id).push(item);
+          }
+          for (const v of setsMap.values()) v.sort((a,b) => a.sort_order - b.sort_order);
+          slides = Array.from(setsMap.values())[0];
+          window._sideLatestSlides = slides;
+        } catch(e) { return; }
+      }
+      if (!slides || !slides.length) return;
+
+      _promoSlides = slides;
+      _promoIdx = 0;
+      renderPromoPopup();
+      document.getElementById('promo-popup-overlay').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function renderPromoPopup() {
+      const slide = _promoSlides[_promoIdx];
+      const total = _promoSlides.length;
+      const isPdf = slide.file_type === 'pdf';
+      const title = slide.title || '프로모션';
+
+      document.getElementById('promo-popup-counter').textContent = total > 1 ? `${_promoIdx + 1} / ${total}` : '';
+      const navEl = document.getElementById('promo-popup-nav');
+      if (total > 1) {
+        navEl.style.display = 'flex';
+        document.getElementById('promo-popup-prev').disabled = _promoIdx === 0;
+        document.getElementById('promo-popup-next').disabled = _promoIdx === total - 1;
+        document.getElementById('promo-popup-prev').style.opacity = _promoIdx === 0 ? '0.4' : '1';
+        document.getElementById('promo-popup-next').style.opacity = _promoIdx === total - 1 ? '0.4' : '1';
+      } else {
+        navEl.style.display = 'none';
+      }
+
+      const content = document.getElementById('promo-popup-content');
+      if (isPdf) {
+        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:65vh;border:none;border-radius:8px;background:#fff;" title="${title}"></iframe>`;
+      } else {
+        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
+      }
+    }
+
+    function promoPopupPrev() { if (_promoIdx > 0) { _promoIdx--; renderPromoPopup(); } }
+    function promoPopupNext() { if (_promoIdx < _promoSlides.length - 1) { _promoIdx++; renderPromoPopup(); } }
+
+    function closePromoPopup(viaButton) {
+      const hideToday = document.getElementById('promo-popup-hide-today')?.checked;
+      if (hideToday) {
+        try { localStorage.setItem('promo_popup_hide_date', _getTodayStr()); } catch(e) {}
+      }
+      document.getElementById('promo-popup-overlay').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // 페이지 로드 시 자동 호출 (loadSideLatest 이후 약간 딜레이)
+    window.addEventListener('load', () => {
+      setTimeout(showPromoPopupIfNeeded, 1200);
+    });
 
     /* ══════════════════════════════
        사이드바 방문자 통계 (실시간)
