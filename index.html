@@ -3635,6 +3635,14 @@
     }
     @keyframes sk-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
+    /* ── 사이드바 모바일 flex 재정의 (기본 CSS 뒤에 와야 override 가능) ── */
+    @media (max-width: 480px) {
+      .side-latest       { flex: none !important; min-height: 0 !important; }
+      .side-latest-list  { flex: none !important; }
+      .side-cn-card      { flex: none !important; min-height: 0 !important; }
+      .side-cn-thumb     { flex: none !important; }
+    }
+
     /* ══════════════════════════════
        우측 실무도구 패널
     ══════════════════════════════ */

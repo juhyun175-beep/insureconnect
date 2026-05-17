@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.5] - 2026-05-17
+- 모바일 사이드바 배너 flex 확장 버그 근본 수정
+  - 원인: 모바일 override CSS가 파일 앞쪽, 기본 sidebar CSS가 뒤쪽 → 기본값이 덮어씀
+  - 해결: 사이드바 기본 CSS 바로 뒤에 모바일 flex 재정의 블록 추가
+  - .side-latest / .side-latest-list / .side-cn-card / .side-cn-thumb 모두 flex:none !important
+
 ## [0.8.4] - 2026-05-17
 - 모바일 사이드바 배너 이미지 영역 채움 수정
   - side-cn-thumb display:flex → display:block + img position:absolute inset:0
