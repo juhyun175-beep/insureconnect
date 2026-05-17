@@ -1188,26 +1188,36 @@
       /* 폭: 화면의 80%, 최대 280px */
       .side-nav {
         width: min(80vw, 280px);
-        overflow: hidden;   /* 스크롤 없이 화면 안에 전부 */
+        overflow-y: auto;            /* 작은 폰 대비 스크롤 허용 */
+        overflow-x: hidden;
+        scrollbar-width: none;       /* Firefox: 스크롤바 숨김 */
       }
+      .side-nav::-webkit-scrollbar { display: none; }  /* Chrome/Safari: 스크롤바 숨김 */
 
       /* 헤더 로고 최소화 */
-      .side-nav-header { padding: 10px 14px 8px; }
+      .side-nav-header { padding: 10px 14px 8px; flex-shrink: 0; }
       .side-nav-header img { max-width: 130px; }
 
       /* 메뉴 탭 압축 */
-      .menu-tabs { padding: 6px 10px 4px; gap: 2px; }
+      .menu-tabs { padding: 6px 10px 4px; gap: 2px; flex-shrink: 0; }
       .menu-tab  { padding: 7px 10px; font-size: 12px; }
       .sub-menu-item { padding: 5px 10px 5px 26px; font-size: 11px; }
 
       /* 파트너사 프로모션 배너 */
-      .side-latest { padding: 5px 10px 6px; flex: none; }
+      .side-latest { padding: 5px 10px 6px; flex: none; flex-shrink: 0; }
       .side-latest-list { flex: none; overflow: visible; }
       .side-comm-label { padding: 2px 4px 3px; font-size: 9px; }
 
-      /* 배너 카드: 내용만큼만 높이 차지 (절대 늘어나지 않게) */
+      /* 배너 카드: 내용만큼만 높이 차지 */
       .side-cn-card { flex: none; }
-      .side-cn-thumb { flex: none; height: 90px; min-height: 90px; max-height: 90px; }
+      /* 썸네일: object-fit contain으로 이미지 전체 표시 */
+      .side-cn-thumb {
+        flex: none;
+        height: 90px; min-height: 90px; max-height: 90px;
+        background: #f0f4ff;
+      }
+      [data-theme="dark"] .side-cn-thumb { background: #0d1117; }
+      .side-cn-thumb img { object-fit: contain !important; }
       .side-cn-body  { padding: 6px 8px 8px; }
       .side-cn-label { font-size: 8px; margin-bottom: 1px; }
       .side-cn-title { font-size: 11px; -webkit-line-clamp: 1; }
@@ -1215,12 +1225,12 @@
       .side-cn-badge { font-size: 9px; padding: 1px 5px; }
 
       /* 커뮤니티 참여 */
-      .side-comm-section { padding: 4px 10px; }
+      .side-comm-section { padding: 4px 10px; flex-shrink: 0; }
       .side-comm-btn { padding: 6px 8px; font-size: 11px; }
       .side-comm-btn .scb-icon { width: 26px; height: 26px; font-size: 13px; }
 
       /* 푸터 압축 */
-      .side-footer { padding: 4px 10px 8px; }
+      .side-footer { padding: 4px 10px 8px; flex-shrink: 0; }
       .side-footer-link { font-size: 11px; padding: 4px 8px; }
       .side-stats { font-size: 10px; padding: 3px 8px; }
       .side-theme-toggle { padding: 3px 8px; gap: 3px; }
