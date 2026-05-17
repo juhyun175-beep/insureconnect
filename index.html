@@ -3363,6 +3363,29 @@
       margin-left: 1px;
       font-weight: 500;
     }
+    /* 보조 메트릭 (복사 카운트) */
+    .lm-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      margin-left: 6px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--neon-purple, #8b5cf6);
+      background: rgba(139,92,246,0.10);
+      padding: 1px 6px;
+      border-radius: 8px;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .lm-secondary {
+      background: rgba(167,139,250,0.15);
+      color: #c4b5fd;
+    }
+    .lm-na {
+      font-size: 11px;
+      color: var(--txt-lo);
+      font-style: italic;
+    }
     .lm-empty {
       font-size: 12px;
       color: var(--txt-lo);
@@ -4113,6 +4136,10 @@
           <span>LIVE</span>
         </span>
         <span class="lm-title">실시간 인기 콘텐츠</span>
+        <div class="lm-tabs" role="tablist" aria-label="지표">
+          <button class="lm-tab active" data-metric="clicks" onclick="lmSetMetric('clicks')" type="button">👁 조회</button>
+          <button class="lm-tab" data-metric="copies" onclick="lmSetMetric('copies')" type="button">📋 복사</button>
+        </div>
         <div class="lm-tabs" role="tablist" aria-label="기간">
           <button class="lm-tab active" data-period="today" onclick="lmSetPeriod('today')" type="button">오늘</button>
           <button class="lm-tab" data-period="total" onclick="lmSetPeriod('total')" type="button">누적</button>
@@ -5461,6 +5488,11 @@
         }
         if (!ok) ok = copyTextFallback(url);
 
+        // 복사 추적 (모니터 위젯용) — 성공한 경우만
+        if (ok) {
+          try { trackClick(set.title || '카드뉴스', 'cardnews_copy'); } catch (_) {}
+        }
+
         // 버튼 라벨 일시 변경 (✓ 복사 완료)
         const btn = (evt && evt.currentTarget) || document.querySelector('.cn-share-top');
         if (btn) {
@@ -6105,6 +6137,13 @@
           ta.value = url; ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0;';
           document.body.appendChild(ta); ta.focus(); ta.select();
           ok = document.execCommand('copy'); ta.remove();
+        } catch (_) {}
+      }
+      // 복사 추적 (모니터 위젯용) — 성공한 경우만
+      if (ok) {
+        try {
+          const title = document.getElementById('kn-active-post-title').value;
+          if (title) trackClick(title, 'knowledge_copy');
         } catch (_) {}
       }
       const btn = document.getElementById('kn-copy-btn');
@@ -7861,6 +7900,7 @@
        실시간 인기 콘텐츠 모니터
     ══════════════════════════════ */
     let _lmPeriod = 'today';   // 'today' | 'total'
+    let _lmMetric = 'clicks';  // 'clicks' | 'copies'
     let _lmCache  = null;
 
     async function loadLiveMonitor() {
@@ -7878,8 +7918,15 @@
 
     function lmSetPeriod(p) {
       _lmPeriod = p;
-      document.querySelectorAll('.lm-tab').forEach(t => {
+      document.querySelectorAll('.lm-tab[data-period]').forEach(t => {
         t.classList.toggle('active', t.dataset.period === p);
+      });
+      renderLiveMonitor();
+    }
+    function lmSetMetric(m) {
+      _lmMetric = m;
+      document.querySelectorAll('.lm-tab[data-metric]').forEach(t => {
+        t.classList.toggle('active', t.dataset.metric === m);
       });
       renderLiveMonitor();
     }
@@ -7887,29 +7934,75 @@
     function renderLiveMonitor() {
       if (!_lmCache) return;
       const suffix = _lmPeriod === 'today' ? 'today' : 'total';
-      const jeonsan   = _lmCache[`jeonsan_${suffix}`]   || [];
-      const knowledge = _lmCache[`knowledge_${suffix}`] || [];
-      const cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
+      const isCopyMode = _lmMetric === 'copies';
 
-      const renderList = (items, emptyMsg, onClickFn) => {
-        if (!items.length) {
-          return `<li class="lm-empty">${emptyMsg}</li>`;
-        }
-        return items.slice(0, 3).map((it, i) => {
-          const rank = i + 1;
-          const safeName = String(it.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-          const clickAttr = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
-          return `<li class="lm-item lm-rank-${rank}" ${clickAttr}>
-            <span class="lm-rank">${rank}</span>
-            <span class="lm-name" title="${safeName}">${safeName}</span>
-            <span class="lm-clicks">${(it.clicks||0).toLocaleString()}<span class="lm-clicks-unit">회</span></span>
-          </li>`;
-        }).join('');
+      // 클릭 모드 vs 복사 모드에 따라 데이터 소스 변경
+      const jeonsan   = _lmCache[`jeonsan_${suffix}`] || [];
+      const knowledge = isCopyMode
+        ? (_lmCache[`knowledge_top_copy_${suffix}`] || [])
+        : (_lmCache[`knowledge_${suffix}`] || []);
+      const cardnews  = isCopyMode
+        ? (_lmCache[`cardnews_top_copy_${suffix}`] || [])
+        : (_lmCache[`cardnews_${suffix}`] || []);
+
+      const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+      const renderItem = (it, i, primary, secondary, onClickFn) => {
+        const rank = i + 1;
+        const safeName = esc(it.name);
+        const clickAttr = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
+        // primary 메트릭 (메인 숫자)
+        const primaryHtml = `<span class="lm-clicks">${(primary||0).toLocaleString()}<span class="lm-clicks-unit">회</span></span>`;
+        // secondary 메트릭 (보조 칩)
+        const secondaryHtml = (secondary > 0)
+          ? `<span class="lm-secondary" title="${isCopyMode ? '조회수' : '복사수'}">${isCopyMode ? '👁' : '📋'} ${(secondary||0).toLocaleString()}</span>`
+          : '';
+        return `<li class="lm-item lm-rank-${rank}" ${clickAttr}>
+          <span class="lm-rank">${rank}</span>
+          <span class="lm-name" title="${safeName}">${safeName}</span>
+          ${primaryHtml}${secondaryHtml}
+        </li>`;
       };
 
-      document.getElementById('lm-list-jeonsan').innerHTML   = renderList(jeonsan,   '아직 클릭 기록이 없습니다', (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\'")}')`);
-      document.getElementById('lm-list-knowledge').innerHTML = renderList(knowledge, '아직 클릭 기록이 없습니다', (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\'")}')`);
-      document.getElementById('lm-list-cardnews').innerHTML  = renderList(cardnews,  '아직 클릭 기록이 없습니다', (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\'")}')`);
+      // 전산 컬럼 — 복사 모드에서는 N/A 안내
+      let jeonsanHtml;
+      if (isCopyMode) {
+        jeonsanHtml = `<li class="lm-empty">
+          <span class="lm-na">전산은 복사 기능이 없습니다</span>
+        </li>`;
+      } else if (!jeonsan.length) {
+        jeonsanHtml = '<li class="lm-empty">아직 클릭 기록이 없습니다</li>';
+      } else {
+        jeonsanHtml = jeonsan.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, 0, (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
+      }
+
+      // 보험지식 컬럼 — 클릭 모드면 primary=clicks/secondary=copies, 복사 모드면 primary=copies (secondary 없음)
+      let knowledgeHtml;
+      if (!knowledge.length) {
+        knowledgeHtml = `<li class="lm-empty">아직 ${isCopyMode ? '복사' : '클릭'} 기록이 없습니다</li>`;
+      } else {
+        knowledgeHtml = knowledge.slice(0,3).map((it,i) => {
+          const primary   = isCopyMode ? it.copies : it.clicks;
+          const secondary = isCopyMode ? 0 : (it.copies || 0);
+          return renderItem(it, i, primary, secondary, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`);
+        }).join('');
+      }
+
+      // 카드뉴스 컬럼 — 동일 로직
+      let cardnewsHtml;
+      if (!cardnews.length) {
+        cardnewsHtml = `<li class="lm-empty">아직 ${isCopyMode ? '복사' : '클릭'} 기록이 없습니다</li>`;
+      } else {
+        cardnewsHtml = cardnews.slice(0,3).map((it,i) => {
+          const primary   = isCopyMode ? it.copies : it.clicks;
+          const secondary = isCopyMode ? 0 : (it.copies || 0);
+          return renderItem(it, i, primary, secondary, (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`);
+        }).join('');
+      }
+
+      document.getElementById('lm-list-jeonsan').innerHTML   = jeonsanHtml;
+      document.getElementById('lm-list-knowledge').innerHTML = knowledgeHtml;
+      document.getElementById('lm-list-cardnews').innerHTML  = cardnewsHtml;
 
       // 마지막 업데이트 시각
       const now = new Date();

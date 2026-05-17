@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.1.1] - 2026-05-17
+- 실시간 모니터 위젯: 링크 복사 카운트 추적 추가
+  - shareCardNews/copyKnLink 성공 시 trackClick(title, 'cardnews_copy'|'knowledge_copy') 호출
+  - 위젯에 '👁 조회 / 📋 복사' 메트릭 토글 추가
+  - 조회 모드: 메인 숫자=클릭, 보조 칩=복사수 (>0일 때)
+  - 복사 모드: 메인 숫자=복사수, TOP 복사 항목으로 재정렬
+  - 전산 컬럼은 복사 기능 없으므로 복사 모드에서 안내 메시지 표시
+- Supabase RPC 업그레이드
+  - knowledge/cardnews에 LEFT JOIN으로 copies 카운트 추가
+  - knowledge_top_copy_today/total + cardnews_top_copy_today/total 6개 신규 리스트 반환
+
 ## [1.1.0] - 2026-05-17
 - 랜딩페이지 최상단에 '실시간 인기 콘텐츠' 모니터 위젯 추가
   - 3개 카테고리(인기 전산 / 인기 보험지식 / 인기 카드뉴스) Top 3 표시
