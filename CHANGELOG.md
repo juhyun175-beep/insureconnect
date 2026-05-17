@@ -1,5 +1,16 @@
 # Changelog
 
+## [1.3.1] - 2026-05-17
+- 콘텐츠 조회 추적을 '내부 클릭' vs '외부 공유 링크 유입'으로 분리
+  - 기존: 두 경로가 모두 같은 'knowledge'/'cardnews' 타입으로 합산되어 구분 불가
+  - 변경: 외부 공유 링크 진입은 'knowledge_shared'/'cardnews_shared'로 별도 기록
+  - openKnPost / openCardNewsModal에 source 파라미터 추가 (URL 핸들러에서 'shared' 전달)
+- 모니터 위젯 토글 추가: 👁 조회 / 🔗 공유유입 / 📋 복사 (3개 모드)
+  - 조회 모드: primary=내부 클릭, secondary=🔗 공유유입 보조 표시
+  - 공유유입 모드: primary=공유 유입수, secondary=👁 내부 클릭 보조 표시 (바이럴 점수 = 외부 유입이 높은 콘텐츠)
+  - 복사 모드: 기존과 동일
+- Supabase RPC 업그레이드: knowledge/cardnews에 shared 필드 LEFT JOIN + top_shared 4개 리스트 추가
+
 ## [1.3.0] - 2026-05-17
 - 유입 경로 추적 시스템 추가 (Traffic Sources)
   - DB 스키마: ic_page_visits에 referrer_domain/referrer_url/landing_path/utm_source/utm_medium/utm_campaign/device_kind 컬럼 추가

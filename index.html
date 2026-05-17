@@ -4164,8 +4164,9 @@
         </span>
         <span class="lm-title">실시간 인기 콘텐츠</span>
         <div class="lm-tabs" role="tablist" aria-label="지표">
-          <button class="lm-tab active" data-metric="clicks" onclick="lmSetMetric('clicks')" type="button">👁 조회</button>
-          <button class="lm-tab" data-metric="copies" onclick="lmSetMetric('copies')" type="button">📋 복사</button>
+          <button class="lm-tab active" data-metric="clicks" onclick="lmSetMetric('clicks')" type="button" title="내부 클릭">👁 조회</button>
+          <button class="lm-tab" data-metric="shared" onclick="lmSetMetric('shared')" type="button" title="외부 공유 링크로 들어온 유입">🔗 공유유입</button>
+          <button class="lm-tab" data-metric="copies" onclick="lmSetMetric('copies')" type="button" title="링크 복사 횟수">📋 복사</button>
         </div>
         <div class="lm-tabs" role="tablist" aria-label="기간">
           <button class="lm-tab active" data-period="today" onclick="lmSetPeriod('today')" type="button">오늘</button>
@@ -5473,14 +5474,17 @@
       });
     }
 
-    function openCardNewsModal(idx) {
+    function openCardNewsModal(idx, source) {
       showCardNewsSet(idx);
       document.getElementById('cn-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
-      // 클릭 추적 (모니터 위젯용)
+      // 클릭 추적 (source: 'shared' = 외부 공유 링크 진입, 그 외 = 내부 클릭)
       try {
         const set = cardNewsState.sets[idx];
-        if (set && set.title) trackClick(set.title, 'cardnews');
+        if (set && set.title) {
+          const t = (source === 'shared') ? 'cardnews_shared' : 'cardnews';
+          trackClick(set.title, t);
+        }
       } catch (_) {}
     }
     function closeCardNewsModal() {
@@ -5599,7 +5603,7 @@
       const sid = qs.get('news');
       if (!sid) return;
       const idx = cardNewsState.sets.findIndex(s => s.set_id === sid);
-      if (idx >= 0) openCardNewsModal(idx);
+      if (idx >= 0) openCardNewsModal(idx, 'shared'); // 공유 링크 진입 표시
     }
 
     document.getElementById('cn-prev').addEventListener('click', () => goToSlide(cardNewsState.currentSlide - 1));
@@ -6105,7 +6109,7 @@
         .replace(/\n+/g, ' ').trim();
     }
 
-    async function openKnPost(postId, pushHistory = true) {
+    async function openKnPost(postId, pushHistory = true, source) {
       const overlay   = document.getElementById('kn-modal');
       const titleEl   = document.getElementById('kn-modal-title');
       const dateEl    = document.getElementById('kn-modal-date');
@@ -6138,8 +6142,11 @@
         }
         document.getElementById('kn-active-post-id').value    = post.id;
         document.getElementById('kn-active-post-title').value = post.title;
-        // 클릭 추적 (모니터 위젯용)
-        try { trackClick(post.title, 'knowledge'); } catch (_) {}
+        // 클릭 추적 (source: 'shared' = 외부 공유 링크 진입, 그 외 = 내부 클릭)
+        try {
+          const t = (source === 'shared') ? 'knowledge_shared' : 'knowledge';
+          trackClick(post.title, t);
+        } catch (_) {}
         loadKnComments(postId);
       } catch (e) {
         titleEl.textContent = '포스트를 불러올 수 없습니다.';
@@ -6247,7 +6254,8 @@
       const qs = new URLSearchParams(location.search);
       const pid = pathMatch ? pathMatch[1] : qs.get('post');
       if (pid && !isNaN(Number(pid))) {
-        openKnPost(Number(pid), false); /* pushState 하지 않음 — 이미 URL이 맞음 */
+        // pushState 하지 않음 — 이미 URL이 맞음 / source='shared' = 외부 공유 링크 진입
+        openKnPost(Number(pid), false, 'shared');
       }
     }
 
@@ -8002,7 +8010,7 @@
        실시간 인기 콘텐츠 모니터
     ══════════════════════════════ */
     let _lmPeriod = 'today';   // 'today' | 'total'
-    let _lmMetric = 'clicks';  // 'clicks' | 'copies'
+    let _lmMetric = 'clicks';  // 'clicks' | 'copies' | 'shared'
     let _lmCache  = null;
 
     async function loadLiveMonitor() {
@@ -8036,28 +8044,37 @@
     function renderLiveMonitor() {
       if (!_lmCache) return;
       const suffix = _lmPeriod === 'today' ? 'today' : 'total';
-      const isCopyMode = _lmMetric === 'copies';
+      const isCopyMode   = _lmMetric === 'copies';
+      const isSharedMode = _lmMetric === 'shared';
 
-      // 클릭 모드 vs 복사 모드에 따라 데이터 소스 변경
-      const jeonsan   = _lmCache[`jeonsan_${suffix}`] || [];
-      const knowledge = isCopyMode
-        ? (_lmCache[`knowledge_top_copy_${suffix}`] || [])
-        : (_lmCache[`knowledge_${suffix}`] || []);
-      const cardnews  = isCopyMode
-        ? (_lmCache[`cardnews_top_copy_${suffix}`] || [])
-        : (_lmCache[`cardnews_${suffix}`] || []);
+      // 모드별 데이터 소스
+      const jeonsan = _lmCache[`jeonsan_${suffix}`] || [];
+      let knowledge, cardnews;
+      if (isCopyMode) {
+        knowledge = _lmCache[`knowledge_top_copy_${suffix}`]   || [];
+        cardnews  = _lmCache[`cardnews_top_copy_${suffix}`]    || [];
+      } else if (isSharedMode) {
+        knowledge = _lmCache[`knowledge_top_shared_${suffix}`] || [];
+        cardnews  = _lmCache[`cardnews_top_shared_${suffix}`]  || [];
+      } else {
+        knowledge = _lmCache[`knowledge_${suffix}`] || [];
+        cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
+      }
 
       const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+      // 모드별 메인/보조 메트릭 라벨
+      const metricLabel = isCopyMode ? '복사' : (isSharedMode ? '공유유입' : '클릭');
+      const secondaryIcon = isCopyMode ? '👁' : (isSharedMode ? '👁' : '🔗');
+      const secondaryTitle = isCopyMode ? '내부 클릭수' : (isSharedMode ? '내부 클릭수' : '공유 링크 유입수');
 
       const renderItem = (it, i, primary, secondary, onClickFn) => {
         const rank = i + 1;
         const safeName = esc(it.name);
         const clickAttr = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
-        // primary 메트릭 (메인 숫자)
         const primaryHtml = `<span class="lm-clicks">${(primary||0).toLocaleString()}<span class="lm-clicks-unit">회</span></span>`;
-        // secondary 메트릭 (보조 칩)
         const secondaryHtml = (secondary > 0)
-          ? `<span class="lm-secondary" title="${isCopyMode ? '조회수' : '복사수'}">${isCopyMode ? '👁' : '📋'} ${(secondary||0).toLocaleString()}</span>`
+          ? `<span class="lm-secondary" title="${secondaryTitle}">${secondaryIcon} ${(secondary||0).toLocaleString()}</span>`
           : '';
         return `<li class="lm-item lm-rank-${rank}" ${clickAttr}>
           <span class="lm-rank">${rank}</span>
@@ -8066,11 +8083,11 @@
         </li>`;
       };
 
-      // 전산 컬럼 — 복사 모드에서는 N/A 안내
+      // 전산 컬럼 — 복사/공유유입 모드에서는 N/A (전산엔 복사·공유 기능 없음)
       let jeonsanHtml;
-      if (isCopyMode) {
+      if (isCopyMode || isSharedMode) {
         jeonsanHtml = `<li class="lm-empty">
-          <span class="lm-na">전산은 복사 기능이 없습니다</span>
+          <span class="lm-na">전산은 ${isCopyMode ? '복사' : '공유유입'} 기능이 없습니다</span>
         </li>`;
       } else if (!jeonsan.length) {
         jeonsanHtml = '<li class="lm-empty">아직 클릭 기록이 없습니다</li>';
@@ -8078,14 +8095,19 @@
         jeonsanHtml = jeonsan.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, 0, (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
       }
 
-      // 보험지식 컬럼 — 클릭 모드면 primary=clicks/secondary=copies, 복사 모드면 primary=copies (secondary 없음)
+      // 보험지식 컬럼 — 모드별 primary/secondary 결정
       let knowledgeHtml;
       if (!knowledge.length) {
-        knowledgeHtml = `<li class="lm-empty">아직 ${isCopyMode ? '복사' : '클릭'} 기록이 없습니다</li>`;
+        knowledgeHtml = `<li class="lm-empty">아직 ${metricLabel} 기록이 없습니다</li>`;
       } else {
         knowledgeHtml = knowledge.slice(0,3).map((it,i) => {
-          const primary   = isCopyMode ? it.copies : it.clicks;
-          const secondary = isCopyMode ? 0 : (it.copies || 0);
+          // clicks 모드: primary=clicks, secondary=shared (공유유입 보조 표시)
+          // copies 모드: primary=copies, secondary=0
+          // shared 모드: primary=shared, secondary=clicks (내부 클릭 보조 표시)
+          let primary, secondary;
+          if (isCopyMode)        { primary = it.copies; secondary = 0; }
+          else if (isSharedMode) { primary = it.shared; secondary = it.clicks || 0; }
+          else                   { primary = it.clicks; secondary = it.shared || 0; }
           return renderItem(it, i, primary, secondary, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`);
         }).join('');
       }
@@ -8093,11 +8115,13 @@
       // 카드뉴스 컬럼 — 동일 로직
       let cardnewsHtml;
       if (!cardnews.length) {
-        cardnewsHtml = `<li class="lm-empty">아직 ${isCopyMode ? '복사' : '클릭'} 기록이 없습니다</li>`;
+        cardnewsHtml = `<li class="lm-empty">아직 ${metricLabel} 기록이 없습니다</li>`;
       } else {
         cardnewsHtml = cardnews.slice(0,3).map((it,i) => {
-          const primary   = isCopyMode ? it.copies : it.clicks;
-          const secondary = isCopyMode ? 0 : (it.copies || 0);
+          let primary, secondary;
+          if (isCopyMode)        { primary = it.copies; secondary = 0; }
+          else if (isSharedMode) { primary = it.shared; secondary = it.clicks || 0; }
+          else                   { primary = it.clicks; secondary = it.shared || 0; }
           return renderItem(it, i, primary, secondary, (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`);
         }).join('');
       }
