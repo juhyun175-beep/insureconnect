@@ -1,5 +1,19 @@
 # Changelog
 
+## [1.5.2] - 2026-05-17
+- 홈 대시보드 '주요 기능' 카드를 정보 안내성으로 변경
+  - `<a>` → `<div>` 태그 변경 (클릭 불가)
+  - 페이지 이동 onclick 핸들러 제거
+  - hover transform/border-color 변경 효과 제거 → 안정적인 정보 표시
+  - cursor: default + user-select: none 적용
+  - 섹션 부제 추가: "실제 이용은 우측 PILL 메뉴 또는 좌측 사이드 메뉴를 이용해 주세요"
+  - 실제 페이지 이동은 우측 고정 PILL 버튼과 좌측 사이드바에서 처리
+
+## [1.5.1] - 2026-05-17
+- AdSense 광고 슬롯의 빈 박스 처리
+  - 광고 미로드 시 슬롯 자체 숨김 (display: none)
+  - data-ad-status="filled"일 때만 카드 프레임 표시
+
 ## [1.5.0] - 2026-05-17
 - 📋 AdSense 재신청 준비: 1~4번 작업 완료
   1) 최신 콘텐츠 → 별도 페이지 (page-latest) + 우측 PILL '최신' 버튼 신규

@@ -3279,6 +3279,16 @@
       letter-spacing: -0.01em;
     }
     .ic-features { margin: 0 0 22px; }
+    .ic-section-sub {
+      font-size: 0.85rem;
+      color: var(--txt-mid);
+      margin: -6px 0 14px;
+      line-height: 1.55;
+    }
+    .ic-section-sub strong {
+      color: var(--blue-mid);
+      font-weight: 700;
+    }
     .ic-features-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -3286,6 +3296,7 @@
     }
     @media (max-width: 900px) { .ic-features-grid { grid-template-columns: repeat(3, 1fr); } }
     @media (max-width: 640px) { .ic-features-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* 정보 안내성 카드 — 클릭 불가, hover transform 없음 */
     .ic-feat-card {
       display: flex;
       flex-direction: column;
@@ -3294,15 +3305,9 @@
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 14px;
-      text-decoration: none;
-      transition: all 0.18s;
       box-shadow: var(--sh-sm);
-      cursor: pointer;
-    }
-    .ic-feat-card:hover {
-      transform: translateY(-2px);
-      border-color: var(--blue-light);
-      box-shadow: 0 8px 22px rgba(26,61,232,0.12);
+      cursor: default;
+      user-select: none;
     }
     .ic-feat-icon { font-size: 26px; line-height: 1; margin-bottom: 6px; }
     .ic-feat-name {
@@ -4466,50 +4471,51 @@
       </div>
     </section>
 
-    <!-- ══ 주요 기능 8개 카드 ══ -->
-    <section class="ic-features" aria-label="주요 기능">
-      <h2 class="ic-section-title">🛠 InsureConnect 주요 기능</h2>
+    <!-- ══ 주요 기능 8개 안내 (정보성 — 클릭 불가) ══ -->
+    <section class="ic-features" aria-label="주요 기능 안내">
+      <h2 class="ic-section-title">🛠 InsureConnect 주요 기능 안내</h2>
+      <p class="ic-section-sub">아래는 본 서비스가 제공하는 기능 소개입니다. 실제 이용은 우측 <strong>PILL 메뉴</strong> 또는 좌측 <strong>사이드 메뉴</strong>를 이용해 주세요.</p>
       <div class="ic-features-grid">
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','전산'); goToPage('jeonsan'); return false;" href="#">
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">🖥</span>
           <span class="ic-feat-name">보험사 전산</span>
           <span class="ic-feat-desc">생명·손해 32개사 전산 / 연락처 모음</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','수납전산'); goToPage('payment'); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">💳</span>
           <span class="ic-feat-name">수납 전산</span>
           <span class="ic-feat-desc">카드 수납 가능 보험사 별도 정리</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','소식지'); goToPage('newsletter'); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">📰</span>
           <span class="ic-feat-name">보험사 소식지</span>
           <span class="ic-feat-desc">생명·손해 월간 소식지 바로가기</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','청구서류'); goToPage('claimform'); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">📋</span>
           <span class="ic-feat-name">청구서류</span>
           <span class="ic-feat-desc">보험사별 청구서식 / 양식 안내</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','실무도구'); toggleToolsPanel(); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">🛠</span>
           <span class="ic-feat-name">실무도구</span>
           <span class="ic-feat-desc">실손계산기·KCD코드·할인할증 등 12종</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','보험지식'); goToPage('knowledge'); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">📚</span>
           <span class="ic-feat-name">보험지식</span>
           <span class="ic-feat-desc">자체 제작 보험 상식·청구 노하우</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','뉴스'); goToPage('newsletter'); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">🗞</span>
           <span class="ic-feat-name">인슈어커넥트 뉴스</span>
           <span class="ic-feat-desc">업계 동향을 카드뉴스로 큐레이션</span>
-        </a>
-        <a class="ic-feat-card" onclick="trackCardClick('홈소개','채용공고'); goToPage('recruit'); return false;" href="#">
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">💼</span>
           <span class="ic-feat-name">채용공고</span>
           <span class="ic-feat-desc">전국 GA / 보험사 채용 정보</span>
-        </a>
+        </div>
       </div>
     </section>
 
