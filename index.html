@@ -896,6 +896,46 @@
       padding: 4px 10px 0;
       font-family: 'Pretendard', sans-serif;
     }
+    /* 파트너 전용 페이지 링크 (사이드바 푸터 하단) */
+    .side-partner-link {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-top: 8px;
+      padding: 7px 10px;
+      border: 1px dashed rgba(12,31,184,0.20);
+      border-radius: 10px;
+      background: rgba(12,31,184,0.03);
+      color: var(--txt-mid);
+      font-size: 11px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: all 0.18s;
+    }
+    .side-partner-link:hover {
+      border-color: var(--blue-mid);
+      background: rgba(26,61,232,0.07);
+      color: var(--blue-mid);
+    }
+    .side-partner-link .spl-icon { font-size: 13px; line-height: 1; }
+    .side-partner-link .spl-text { flex: 1; }
+    .side-partner-link .spl-arrow {
+      font-size: 14px;
+      color: var(--txt-lo);
+      transition: transform 0.18s;
+    }
+    .side-partner-link:hover .spl-arrow {
+      color: var(--blue-mid);
+      transform: translateX(2px);
+    }
+    [data-theme="dark"] .side-partner-link {
+      border-color: rgba(255,255,255,0.10);
+      background: rgba(255,255,255,0.03);
+    }
+    [data-theme="dark"] .side-partner-link:hover {
+      border-color: var(--blue-mid);
+      background: rgba(74,112,245,0.10);
+    }
 
     .side-contact {
       display: flex;
@@ -1225,6 +1265,8 @@
       .side-footer-link { font-size: 11px; padding: 4px 8px; }
       .side-stats { font-size: 10px; padding: 3px 8px; }
       .side-theme-toggle { padding: 3px 8px; gap: 3px; }
+      .side-partner-link { margin-top: 5px; padding: 5px 8px; font-size: 10px; }
+      .side-partner-link .spl-icon { font-size: 11px; }
       .side-theme-btn { font-size: 10px; padding: 4px 2px; }
       .side-footer-copy { display: none; }
     }
@@ -3815,6 +3857,14 @@
         <button class="side-theme-btn" data-theme-val="system" onclick="setTheme('system')" type="button">시스템</button>
         <button class="side-theme-btn" data-theme-val="dark" onclick="setTheme('dark')" type="button">다크</button>
       </div>
+      <a class="side-partner-link"
+         href="admin.html"
+         onclick="trackClick('파트너 전용페이지','sidebar-footer')"
+         title="InsureConnect 운영진 및 파트너 전용">
+        <span class="spl-icon">🔐</span>
+        <span class="spl-text">파트너 전용 페이지</span>
+        <span class="spl-arrow">›</span>
+      </a>
       <p class="side-footer-copy">InsureConnect — 보험으로 연결하다</p>
     </div>
   </aside>

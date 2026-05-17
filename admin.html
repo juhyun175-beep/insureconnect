@@ -3,6 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
+  <meta name="googlebot" content="noindex, nofollow">
   <title>InsureConnect 관리자 통계</title>
   <script>
     /* 테마 초기화 (FOUC 방지: head에서 즉시 실행) */
@@ -2489,6 +2491,78 @@
       .ssn-tab { padding: 12px 14px !important; font-size: 12px !important; }
       .stats-slide { padding: 18px !important; }
     }
+
+    /* ══════════════════ 파트너 전용 안내 카드 (로그인 화면) ══════════════════ */
+    .partner-notice {
+      background: linear-gradient(135deg, rgba(74,112,245,0.06), rgba(0,200,238,0.05));
+      border: 1px solid rgba(74,112,245,0.18);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      margin: 0 0 24px;
+      text-align: left;
+    }
+    [data-theme="dark"] .partner-notice {
+      background: linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
+      border-color: rgba(74,112,245,0.25);
+    }
+    .partner-notice-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .partner-notice-icon {
+      font-size: 18px;
+      line-height: 1;
+    }
+    .partner-notice-title {
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 800;
+      color: var(--blue-mid);
+      letter-spacing: -0.005em;
+    }
+    .partner-notice-text {
+      font-family: 'Pretendard', sans-serif;
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--txt-mid);
+      margin-bottom: 12px;
+    }
+    .partner-contact-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 14px;
+      background: #FEE500;
+      border: 1px solid #FEE500;
+      border-radius: var(--radius-md);
+      color: #391B1B;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.18s;
+      box-shadow: 0 2px 8px rgba(254,229,0,0.30);
+    }
+    .partner-contact-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(254,229,0,0.45);
+      background: #FFDE00;
+    }
+    .partner-back-link {
+      display: inline-block;
+      margin-top: 18px;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--txt-lo);
+      text-decoration: none;
+      transition: color 0.15s;
+    }
+    .partner-back-link:hover { color: var(--blue-mid); }
   </style>
 </head>
 <body>
@@ -2500,10 +2574,32 @@
         <img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다">
       </div>
       <div class="login-sub">ADMIN DASHBOARD</div>
+
+      <!-- 파트너 전용 안내 카드 -->
+      <div class="partner-notice">
+        <div class="partner-notice-head">
+          <span class="partner-notice-icon">🔐</span>
+          <span class="partner-notice-title">파트너 전용 페이지</span>
+        </div>
+        <p class="partner-notice-text">
+          이 페이지는 InsureConnect 운영진 및 인증된 파트너만 접근할 수 있습니다.
+          접속 권한이 필요하시면 운영자에게 문의해 주세요.
+        </p>
+        <a class="partner-contact-btn"
+           href="https://open.kakao.com/o/sAZWQ7pi"
+           target="_blank" rel="noopener noreferrer">
+          <span style="font-size:15px;">💬</span>
+          <span>운영자에게 문의하기 (오픈채팅)</span>
+        </a>
+      </div>
+
       <label class="login-label" for="pw-input">비밀번호</label>
       <input type="password" id="pw-input" class="login-input" placeholder="••••••••" autocomplete="current-password">
       <button class="login-btn" onclick="doLogin()">로그인</button>
       <p class="login-err" id="login-err">비밀번호가 올바르지 않습니다.</p>
+
+      <!-- 메인으로 돌아가기 -->
+      <a href="index.html" class="partner-back-link">← InsureConnect 메인으로 돌아가기</a>
     </div>
   </div>
 
