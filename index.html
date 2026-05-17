@@ -3203,8 +3203,224 @@
     }
 
     /* ── 홈 피드 ── */
-    #page-home { overflow-y: auto; }
-    #page-home ins.adsbygoogle { display: none !important; }
+    #page-home, #page-latest { overflow-y: auto; }
+    /* 홈 대시보드에서 AdSense는 표시 (구글 검토에 필요) */
+
+    /* ══════════════════════════════
+       홈 대시보드 - Hero / 기능 / 신뢰 / 푸터
+    ══════════════════════════════ */
+    .ic-hero {
+      text-align: center;
+      padding: 32px 20px 28px;
+      margin: 0 0 22px;
+      background: linear-gradient(135deg, rgba(26,61,232,0.06), rgba(0,200,238,0.05));
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+    [data-theme="dark"] .ic-hero {
+      background: linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
+    }
+    .ic-hero-title {
+      font-size: clamp(1.4rem, 3vw, 1.9rem);
+      font-weight: 800;
+      color: var(--txt-hi);
+      margin-bottom: 10px;
+      letter-spacing: -0.02em;
+      line-height: 1.3;
+    }
+    .ic-hero-sub {
+      font-size: clamp(0.93rem, 1.6vw, 1.05rem);
+      color: var(--txt-mid);
+      line-height: 1.7;
+      margin-bottom: 22px;
+    }
+    @media (max-width: 600px) { .ic-hero-br { display: none; } }
+    .ic-hero-cta {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+    .ic-hero-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 22px;
+      background: var(--bg-card);
+      color: var(--txt-hi);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-size: 0.95rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.18s;
+    }
+    .ic-hero-btn:hover {
+      border-color: var(--blue-mid);
+      color: var(--blue-mid);
+      transform: translateY(-1px);
+    }
+    .ic-hero-btn.primary {
+      background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(26,61,232,0.28);
+    }
+    .ic-hero-btn.primary:hover {
+      color: #fff;
+      box-shadow: 0 6px 20px rgba(26,61,232,0.40);
+    }
+
+    .ic-section-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      color: var(--txt-hi);
+      margin: 0 0 14px;
+      letter-spacing: -0.01em;
+    }
+    .ic-features { margin: 0 0 22px; }
+    .ic-features-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) { .ic-features-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 640px) { .ic-features-grid { grid-template-columns: repeat(2, 1fr); } }
+    .ic-feat-card {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 14px 14px 12px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      transition: all 0.18s;
+      box-shadow: var(--sh-sm);
+      cursor: pointer;
+    }
+    .ic-feat-card:hover {
+      transform: translateY(-2px);
+      border-color: var(--blue-light);
+      box-shadow: 0 8px 22px rgba(26,61,232,0.12);
+    }
+    .ic-feat-icon { font-size: 26px; line-height: 1; margin-bottom: 6px; }
+    .ic-feat-name {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .ic-feat-desc {
+      font-size: 0.78rem;
+      color: var(--txt-mid);
+      line-height: 1.45;
+      margin-top: 2px;
+    }
+
+    /* AdSense 슬롯 */
+    .ic-ad-slot {
+      margin: 0 0 22px;
+      padding: 10px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .ic-ad-slot::before {
+      content: '광고';
+      position: absolute;
+      font-size: 0.7rem;
+      color: var(--txt-lo);
+      transform: translateY(-26px);
+    }
+
+    /* 신뢰 카드 */
+    .ic-trust {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 0 0 22px;
+    }
+    @media (max-width: 900px) { .ic-trust { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .ic-trust { grid-template-columns: 1fr; } }
+    .ic-trust-card {
+      padding: 14px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      box-shadow: var(--sh-sm);
+    }
+    .ic-trust-icon { font-size: 22px; display: block; margin-bottom: 6px; line-height: 1; }
+    .ic-trust-card strong {
+      display: block;
+      font-size: 0.92rem;
+      color: var(--txt-hi);
+      margin-bottom: 4px;
+    }
+    .ic-trust-card p {
+      font-size: 0.8rem;
+      color: var(--txt-mid);
+      line-height: 1.55;
+      margin: 0;
+    }
+    .ic-trust-card a { color: var(--blue-mid); font-weight: 600; text-decoration: none; }
+    .ic-trust-card a:hover { text-decoration: underline; }
+
+    /* 콘텐츠 출처 표기 안내 박스 (소식지/청구서류/카드뉴스 페이지 상단) */
+    .content-source-notice {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 10px 14px;
+      margin-bottom: 14px;
+      background: rgba(245,158,11,0.06);
+      border: 1px solid rgba(245,158,11,0.20);
+      border-radius: 10px;
+      font-size: 0.82rem;
+      color: var(--txt-mid);
+      line-height: 1.55;
+    }
+    .content-source-notice strong { color: var(--txt-hi); font-weight: 700; }
+    .csn-icon { flex-shrink: 0; font-size: 14px; line-height: 1.3; }
+    [data-theme="dark"] .content-source-notice {
+      background: rgba(245,158,11,0.08);
+      border-color: rgba(245,158,11,0.25);
+    }
+
+    /* 푸터 */
+    .ic-foot {
+      text-align: center;
+      padding: 24px 0 8px;
+      font-size: 0.82rem;
+      color: var(--txt-lo);
+      border-top: 1px solid var(--border);
+      margin-top: 8px;
+    }
+    .ic-foot a {
+      color: var(--txt-mid);
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 4px;
+    }
+    .ic-foot a:hover { color: var(--blue-mid); }
+    .ic-foot-copy {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: var(--txt-lo);
+    }
+    .ic-foot-note {
+      margin-top: 6px;
+      font-size: 0.72rem;
+      color: var(--txt-lo);
+      max-width: 640px;
+      margin-left: auto;
+      margin-right: auto;
+      line-height: 1.5;
+    }
 
     /* ══════════════════════════════
        실시간 인기 콘텐츠 모니터
@@ -4236,9 +4452,113 @@
       </div>
     </div>
 
+    <!-- ══ 서비스 소개 Hero ══ -->
+    <section class="ic-hero" aria-label="서비스 소개">
+      <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
+      <p class="ic-hero-sub">각 보험사 전산·청구서류·소식지·실무도구·보험지식을<br class="ic-hero-br">한 곳에서 빠르게 만나보세요.</p>
+      <div class="ic-hero-cta">
+        <a class="ic-hero-btn primary" href="#" onclick="goToPage('latest');return false;">📰 최신 콘텐츠 보기</a>
+        <a class="ic-hero-btn" href="/about.html">서비스 자세히 보기 →</a>
+      </div>
+    </section>
+
+    <!-- ══ 주요 기능 8개 카드 ══ -->
+    <section class="ic-features" aria-label="주요 기능">
+      <h2 class="ic-section-title">🛠 InsureConnect 주요 기능</h2>
+      <div class="ic-features-grid">
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','전산'); goToPage('jeonsan'); return false;" href="#">
+          <span class="ic-feat-icon">🖥</span>
+          <span class="ic-feat-name">보험사 전산</span>
+          <span class="ic-feat-desc">생명·손해 32개사 전산 / 연락처 모음</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','수납전산'); goToPage('payment'); return false;" href="#">
+          <span class="ic-feat-icon">💳</span>
+          <span class="ic-feat-name">수납 전산</span>
+          <span class="ic-feat-desc">카드 수납 가능 보험사 별도 정리</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','소식지'); goToPage('newsletter'); return false;" href="#">
+          <span class="ic-feat-icon">📰</span>
+          <span class="ic-feat-name">보험사 소식지</span>
+          <span class="ic-feat-desc">생명·손해 월간 소식지 바로가기</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','청구서류'); goToPage('claimform'); return false;" href="#">
+          <span class="ic-feat-icon">📋</span>
+          <span class="ic-feat-name">청구서류</span>
+          <span class="ic-feat-desc">보험사별 청구서식 / 양식 안내</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','실무도구'); toggleToolsPanel(); return false;" href="#">
+          <span class="ic-feat-icon">🛠</span>
+          <span class="ic-feat-name">실무도구</span>
+          <span class="ic-feat-desc">실손계산기·KCD코드·할인할증 등 12종</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','보험지식'); goToPage('knowledge'); return false;" href="#">
+          <span class="ic-feat-icon">📚</span>
+          <span class="ic-feat-name">보험지식</span>
+          <span class="ic-feat-desc">자체 제작 보험 상식·청구 노하우</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','뉴스'); goToPage('newsletter'); return false;" href="#">
+          <span class="ic-feat-icon">🗞</span>
+          <span class="ic-feat-name">인슈어커넥트 뉴스</span>
+          <span class="ic-feat-desc">업계 동향을 카드뉴스로 큐레이션</span>
+        </a>
+        <a class="ic-feat-card" onclick="trackCardClick('홈소개','채용공고'); goToPage('recruit'); return false;" href="#">
+          <span class="ic-feat-icon">💼</span>
+          <span class="ic-feat-name">채용공고</span>
+          <span class="ic-feat-desc">전국 GA / 보험사 채용 정보</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
+    <aside class="ic-ad-slot" aria-label="광고">
+      <ins class="adsbygoogle"
+           style="display:block"
+           data-ad-client="ca-pub-7787620251169899"
+           data-ad-slot="auto"
+           data-ad-format="auto"
+           data-full-width-responsive="true"></ins>
+    </aside>
+
+    <!-- ══ 안내 / 신뢰 ══ -->
+    <section class="ic-trust" aria-label="서비스 안내">
+      <div class="ic-trust-card">
+        <span class="ic-trust-icon">🆓</span>
+        <strong>회원가입 없이 무료</strong>
+        <p>이메일·개인정보 입력 없이 누구나 즉시 이용 가능합니다.</p>
+      </div>
+      <div class="ic-trust-card">
+        <span class="ic-trust-icon">🔒</span>
+        <strong>개인정보 안전</strong>
+        <p>익명 통계 로그(접속 일시, 클릭 메뉴)만 1년간 저장 후 파기. <a href="/privacy.html">자세히</a></p>
+      </div>
+      <div class="ic-trust-card">
+        <span class="ic-trust-icon">⚖</span>
+        <strong>중립 정보 제공</strong>
+        <p>특정 보험사 추천 없이 모든 보험사 정보를 동등하게 게재.</p>
+      </div>
+      <div class="ic-trust-card">
+        <span class="ic-trust-icon">💬</span>
+        <strong>피드백 환영</strong>
+        <p>잘못된 정보·추가 요청은 <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">카카오톡</a>으로.</p>
+      </div>
+    </section>
+
+    <!-- ══ 푸터 링크 (정책 페이지들) ══ -->
+    <footer class="ic-foot">
+      <a href="/about.html">서비스 소개</a> ·
+      <a href="/terms.html">이용약관</a> ·
+      <a href="/privacy.html">개인정보처리방침</a> ·
+      <a href="/disclaimer.html">면책조항</a>
+      <p class="ic-foot-copy">InsureConnect — 보험으로 연결하다</p>
+      <p class="ic-foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다.</p>
+    </footer>
+  </div>
+
+  <!-- ══════ PAGE: 최신 콘텐츠 (별도 페이지) ══════ -->
+  <div class="content" id="page-latest" style="display:none">
     <div class="home-feed-wrap">
       <div class="home-feed-header">
-        <span class="home-feed-label">최신 콘텐츠</span>
+        <span class="home-feed-label">📰 최신 콘텐츠</span>
       </div>
       <div class="home-feed" id="home-feed">
         <div class="hf-skeleton"><div class="hf-skeleton-thumb"></div><div class="hf-skeleton-body"><div class="hf-skeleton-line long"></div><div class="hf-skeleton-line short"></div></div></div>
@@ -4335,6 +4655,10 @@
   <!-- ══════ PAGE: 보험사 소식지 ══════ -->
   <div class="content" id="page-newsletter" style="display:none">
     <div class="section">
+      <div class="content-source-notice">
+        <span class="csn-icon">ℹ️</span>
+        <span>본 페이지의 소식지 자료는 <strong>각 보험사가 공식 공개한 자료를 안내</strong>합니다. 저작권은 해당 보험사에 있으며, 본 사이트는 정보 안내 목적으로 링크합니다. 최신 자료는 반드시 해당 보험사 공식 채널에서 확인해 주세요.</span>
+      </div>
       <div class="nlcf-search-wrap">
         <input type="text" class="nlcf-search" id="nl-search" placeholder="🔎 보험사명 또는 제목으로 검색">
         <button class="nlcf-search-clear" id="nl-search-clear" type="button" aria-label="검색 지우기">✕</button>
@@ -4349,6 +4673,10 @@
   <!-- ══════ PAGE: 보험사 청구서류 ══════ -->
   <div class="content" id="page-claimform" style="display:none">
     <div class="section">
+      <div class="content-source-notice">
+        <span class="csn-icon">ℹ️</span>
+        <span>본 페이지의 청구서류는 <strong>각 보험사가 공식 공개한 양식을 안내</strong>합니다. 저작권은 해당 보험사에 있으며, 실제 청구 시에는 해당 보험사 공식 채널에서 최신 서식을 확인해 주세요.</span>
+      </div>
       <div class="nlcf-search-wrap">
         <input type="text" class="nlcf-search" id="cf-search" placeholder="🔎 보험사명 또는 제목으로 검색">
         <button class="nlcf-search-clear" id="cf-search-clear" type="button" aria-label="검색 지우기">✕</button>
@@ -5075,6 +5403,7 @@
     /* ── 페이지 전환 공통 함수 ── */
     const PAGE_NAMES = {
       home:             '홈',
+      latest:           '최신 콘텐츠',
       jeonsan:          '보험사 전산',
       payment:          '수납 전산',
       newsletter:       '보험사 소식지',
@@ -5121,6 +5450,16 @@
       if (page === 'newsletter' && !nlLoaded) { loadNewsletterPage(); nlLoaded  = true; }
       if (page === 'claimform'  && !cfLoaded) { loadClaimFormPage();  cfLoaded  = true; }
       if (page === 'recruit'    && !rcLoaded) { loadRecruitPage();    rcLoaded  = true; }
+
+      // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
+      if (page === 'home' && !window._adsPushed) {
+        window._adsPushed = true;
+        (window.requestIdleCallback || setTimeout)(() => {
+          try {
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          } catch (_) {}
+        }, 500);
+      }
 
       markMenuSeen(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -8163,6 +8502,7 @@
 
   <!-- ══ 우측 고정 네비게이션 필버튼 그룹 ══ -->
   <div class="right-nav-group">
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','최신콘텐츠'); goToPage('latest');" title="최신 콘텐츠" type="button">최신</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">전산</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','수납전산'); goToPage('payment');" title="보험사 수납 전산" type="button">수납</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">소식지</button>
