@@ -1203,28 +1203,10 @@
       .menu-tab  { padding: 7px 10px; font-size: 12px; }
       .sub-menu-item { padding: 5px 10px 5px 26px; font-size: 11px; }
 
-      /* 파트너사 프로모션 배너 */
-      .side-latest { padding: 5px 10px 6px; flex: none; flex-shrink: 0; }
-      .side-latest-list { flex: none; overflow: visible; }
+      /* 파트너사 프로모션 배너 (flex 동작은 뒤쪽 override 블록에서 처리) */
+      .side-latest { padding: 5px 10px 6px; }
       .side-comm-label { padding: 2px 4px 3px; font-size: 9px; }
 
-      /* 배너 카드: 내용만큼만 높이 차지 */
-      .side-cn-card { flex: none; }
-      /* 썸네일: 지정 영역을 이미지가 꽉 채우도록 절대 위치 사용 */
-      .side-cn-thumb {
-        flex: none;
-        height: 90px; min-height: 90px; max-height: 90px;
-        display: block;   /* flex 해제 → height:100% 정상 동작 */
-        position: relative;
-        overflow: hidden;
-      }
-      .side-cn-thumb img {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        object-fit: cover !important;
-      }
       .side-cn-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
       .side-cn-badge { position: absolute; top: 6px; right: 6px; }
       .side-cn-body  { padding: 6px 8px 8px; }
@@ -3635,15 +3617,58 @@
     }
     @keyframes sk-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
 
-    /* ── 사이드바 모바일 flex 재정의 (기본 CSS 뒤에 와야 override 가능) ── */
+    /* ══════════════════════════════
+       사이드바 모바일 flex 재정의 (기본 CSS 뒤에 와야 override 가능)
+       전략: side-latest가 남은 공간 차지 → 카드 → 썸네일 순으로 flex:1 체인
+       → 두 번째 이미지처럼 배너가 자연스럽게 사이드바를 채움
+    ══════════════════════════════ */
     @media (max-width: 480px) {
-      /* 모든 섹션 자연 높이로 → 빈 공간이 중간에 안 생기게 */
-      .side-latest      { flex: none !important; min-height: 0 !important; }
-      .side-latest-list { flex: none !important; min-height: 0 !important; }
-      .side-cn-card     { flex: none !important; min-height: 0 !important; }
-      .side-cn-thumb    { flex: none !important; }
-      /* 푸터 margin-top:auto 제거 → 커뮤니티 바로 아래 붙음 */
-      .side-footer      { margin-top: 0 !important; }
+      /* 1) side-latest: 남은 세로 공간 모두 차지 */
+      .side-latest {
+        flex: 1 1 0 !important;
+        min-height: 140px !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      /* 2) side-latest-list: side-latest 안에서 라벨 빼고 다 차지 */
+      .side-latest-list {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      /* 3) 카드: list 전체 차지 (max-height 제거) */
+      .side-cn-card {
+        flex: 1 1 0 !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      /* 4) 썸네일: 카드에서 body 빼고 다 차지 → 자연스러운 배너 비율 */
+      .side-cn-thumb {
+        flex: 1 1 0 !important;
+        min-height: 80px !important;
+        height: auto !important;
+        max-height: none !important;
+        display: block !important;
+        position: relative !important;
+        overflow: hidden !important;
+      }
+      .side-cn-thumb img {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+        display: block !important;
+      }
+      /* 5) body: 자연 높이 (텍스트만큼) */
+      .side-cn-body { flex: none !important; }
+      /* 6) 푸터: margin-top:auto 제거 → 커뮤니티 바로 아래 붙음 */
+      .side-footer { margin-top: 0 !important; }
     }
 
     /* ══════════════════════════════

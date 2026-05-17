@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.8] - 2026-05-17
+- 모바일 사이드바 배너 완전 재설계 (두 번째 이미지처럼)
+  - 이전 모바일 CSS의 .side-cn-thumb height:90px 고정 제거 (충돌 해소)
+  - flex:1 체인 정착: side-latest → list → card → thumb 모두 flex:1
+  - 결과: 배너가 사이드바 남은 공간을 모두 차지 + 썸네일이 카드 안에서 body 뺀 영역을 다 차지
+  - max-height 제한 모두 제거 → 자연스러운 비율
+  - side-footer margin-top:0 유지 → 커뮤니티 바로 아래
+
 ## [0.8.7] - 2026-05-17
 - 모바일 사이드바 중간 빈 공간 완전 제거
   - 전략 변경: side-latest flex:1→none, 모든 섹션 자연 높이
