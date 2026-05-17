@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.4] - 2026-05-17
+- 모바일 사이드바 배너 이미지 영역 채움 수정
+  - side-cn-thumb display:flex → display:block + img position:absolute inset:0
+  - flex 컨텍스트에서 height:100% 미작동 문제 해결 → 이미지가 90px 영역을 꽉 채움
+  - object-fit: cover 유지 (contain 되돌림)
+
 ## [0.8.3] - 2026-05-17
 - 모바일 사이드바 배너 짤림 수정
   - side-nav overflow:hidden → overflow-y:auto (스크롤바는 시각적으로 숨김)

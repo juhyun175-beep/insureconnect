@@ -1210,14 +1210,23 @@
 
       /* 배너 카드: 내용만큼만 높이 차지 */
       .side-cn-card { flex: none; }
-      /* 썸네일: object-fit contain으로 이미지 전체 표시 */
+      /* 썸네일: 지정 영역을 이미지가 꽉 채우도록 절대 위치 사용 */
       .side-cn-thumb {
         flex: none;
         height: 90px; min-height: 90px; max-height: 90px;
-        background: #f0f4ff;
+        display: block;   /* flex 해제 → height:100% 정상 동작 */
+        position: relative;
+        overflow: hidden;
       }
-      [data-theme="dark"] .side-cn-thumb { background: #0d1117; }
-      .side-cn-thumb img { object-fit: contain !important; }
+      .side-cn-thumb img {
+        position: absolute !important;
+        inset: 0 !important;
+        width: 100% !important;
+        height: 100% !important;
+        object-fit: cover !important;
+      }
+      .side-cn-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+      .side-cn-badge { position: absolute; top: 6px; right: 6px; }
       .side-cn-body  { padding: 6px 8px 8px; }
       .side-cn-label { font-size: 8px; margin-bottom: 1px; }
       .side-cn-title { font-size: 11px; -webkit-line-clamp: 1; }
