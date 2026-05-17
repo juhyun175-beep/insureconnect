@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.0.0] - 2026-05-17
+- 관리자 페이지 전면 디자인 리뉴얼 (랜딩페이지와 동일 스타일)
+  - 사이버펑크 → 소프트 블루 클린 디자인으로 전환
+  - 폰트: JetBrains Mono / Black Han Sans → Pretendard + Noto Sans KR
+  - 색상: 네온 시안/핑크/퍼플 → 랜딩페이지 블루 팔레트 (#1a3de8, #4a70f5, #00c8ee)
+  - 모든 cyberpunk 장식 제거 (scanlines, glitch flicker, neon glow, clip-path 다각형)
+  - 라운드 코너: 0 → 16px (--radius-lg), 10px (--radius-md), 6px (--radius-sm)
+  - 그림자: 네온 글로우 → 소프트 섀도우 (--sh-card, --sh-md)
+- 라이트/다크 모드 토글 추가 (☀️ / 🖥 / 🌙)
+  - localStorage 저장 + OS prefers-color-scheme 자동 감지
+  - FOUC 방지 head 인라인 스크립트
+- UX 개선
+  - 카드/패널 일관된 라운드 + 호버 시 살짝 떠오르는 효과
+  - 업로드 탭: pill 형태, active 시 그라데이션 배경
+  - 통계 슬라이더: 클린한 탭 인디케이터 (밑줄 강조)
+  - KPI/차트/순위 테이블: 한눈에 들어오는 위계
+  - 삭제 버튼은 빨간색으로 통일하여 위험성 명확히 표시
+
 ## [0.9.1] - 2026-05-17
 - 관리자 페이지: 사이드바 배너 섹션 전면 개선
   - 노출 정책 안내 박스 추가 (최신 1개 세트만 활성, 자동 팝업 동작, 오늘 하루 보지않기 정책 명시)
