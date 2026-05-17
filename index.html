@@ -3637,10 +3637,14 @@
 
     /* ── 사이드바 모바일 flex 재정의 (기본 CSS 뒤에 와야 override 가능) ── */
     @media (max-width: 480px) {
-      .side-latest       { flex: none !important; min-height: 0 !important; }
-      .side-latest-list  { flex: none !important; }
-      .side-cn-card      { flex: none !important; min-height: 0 !important; }
-      .side-cn-thumb     { flex: none !important; }
+      /* side-latest는 flex:1 유지 → 남는 공간 채움 (빈 여백 방지) */
+      .side-latest      { flex: 1 !important; min-height: 0 !important; overflow: hidden; }
+      .side-latest-list { flex: 1 !important; min-height: 0 !important; }
+      /* 카드는 남은 공간을 채우되 너무 커지지 않도록 max-height 제한 */
+      .side-cn-card     { flex: 1 !important; min-height: 0 !important; max-height: 185px; }
+      .side-cn-thumb    { flex: 1 !important; min-height: 0 !important; height: auto !important; max-height: 130px; }
+      /* 푸터 margin-top:auto 제거 → 커뮤니티 바로 아래에 붙음 */
+      .side-footer      { margin-top: 0 !important; }
     }
 
     /* ══════════════════════════════

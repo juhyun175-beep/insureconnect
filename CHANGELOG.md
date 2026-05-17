@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.8.6] - 2026-05-17
+- 모바일 사이드바 커뮤니티 아래 빈 여백 제거
+  - 원인: .side-footer { margin-top: auto } → 항상 하단에 고정되어 중간에 빈 공간 생성
+  - .side-footer margin-top:0으로 override
+  - .side-latest flex:1 유지 + 카드 max-height:185px 제한으로 두 번째 이미지처럼 자연스럽게 채움
+
 ## [0.8.5] - 2026-05-17
 - 모바일 사이드바 배너 flex 확장 버그 근본 수정
   - 원인: 모바일 override CSS가 파일 앞쪽, 기본 sidebar CSS가 뒤쪽 → 기본값이 덮어씀
