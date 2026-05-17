@@ -1,5 +1,21 @@
 # Changelog
 
+## [1.1.0] - 2026-05-17
+- 랜딩페이지 최상단에 '실시간 인기 콘텐츠' 모니터 위젯 추가
+  - 3개 카테고리(인기 전산 / 인기 보험지식 / 인기 카드뉴스) Top 3 표시
+  - 오늘 / 누적 토글 (KST 기준)
+  - 60초 자동 갱신 + 마지막 업데이트 시각 표시
+  - 1/2/3위 메달 색상 (골드/실버/브론즈)
+  - 항목 클릭 시 해당 페이지/포스트로 바로 이동
+  - LIVE 빨간 펄스 애니메이션 배지
+  - 모바일에서 1열 스택, 데스크탑에서 3열 그리드
+- 클릭 추적 누락 보완
+  - 카드뉴스 모달 열 때 trackClick(title, 'cardnews')
+  - 보험지식 포스트 열 때 trackClick(title, 'knowledge')
+- Supabase: get_ic_top_items RPC 추가
+  - SECURITY DEFINER + anon/authenticated 권한 부여
+  - jeonsan(life+nonlife+payment) / knowledge / cardnews × today/total 6개 리스트 반환
+
 ## [1.0.1] - 2026-05-17
 - 랜딩페이지 사이드바 하단에 '🔐 파트너 전용 페이지' 링크 추가
   - 사이드 푸터 안에서 점선 테두리 + 작은 폰트로 차분하게 노출 (Discoverable but not flashy)

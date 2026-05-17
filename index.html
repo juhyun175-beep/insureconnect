@@ -3187,6 +3187,216 @@
     #page-home ins.adsbygoogle { display: none !important; }
 
     /* ══════════════════════════════
+       실시간 인기 콘텐츠 모니터
+    ══════════════════════════════ */
+    .live-monitor {
+      background: linear-gradient(135deg, rgba(26,61,232,0.04), rgba(0,200,238,0.04));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 18px 16px;
+      margin: 0 0 18px;
+      box-shadow: var(--sh-sm);
+      position: relative;
+      overflow: hidden;
+    }
+    [data-theme="dark"] .live-monitor {
+      background: linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
+      border-color: rgba(255,255,255,0.08);
+    }
+    .lm-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+      flex-wrap: wrap;
+    }
+    .lm-live-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      padding: 3px 9px;
+      border-radius: 10px;
+      box-shadow: 0 2px 8px rgba(239,68,68,0.30);
+    }
+    .lm-live-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      box-shadow: 0 0 0 0 rgba(255,255,255,0.7);
+      animation: lm-pulse 1.6s ease-in-out infinite;
+    }
+    @keyframes lm-pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.75); }
+      50%      { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+    }
+    .lm-title {
+      font-size: 14px;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .lm-tabs {
+      display: inline-flex;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 2px;
+      margin-left: auto;
+    }
+    .lm-tab {
+      background: transparent;
+      border: none;
+      padding: 4px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      cursor: pointer;
+      border-radius: 6px;
+      transition: all 0.18s;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .lm-tab:hover { color: var(--txt-hi); }
+    .lm-tab.active {
+      background: var(--blue-mid);
+      color: #fff;
+    }
+    .lm-updated {
+      font-size: 10.5px;
+      color: var(--txt-lo);
+      letter-spacing: 0.02em;
+    }
+    .lm-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .lm-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 14px;
+    }
+    .lm-col-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--border);
+    }
+    .lm-col-icon { font-size: 16px; line-height: 1; }
+    .lm-col-name {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      letter-spacing: 0.01em;
+    }
+    .lm-list {
+      list-style: none;
+      padding: 0; margin: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      min-height: 100px;
+    }
+    .lm-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 8px;
+      border-radius: 7px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .lm-item:hover { background: rgba(26,61,232,0.06); }
+    [data-theme="dark"] .lm-item:hover { background: rgba(74,112,245,0.10); }
+    .lm-rank {
+      width: 18px; height: 18px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 800;
+      border-radius: 5px;
+      color: var(--txt-lo);
+      background: rgba(0,0,0,0.04);
+    }
+    [data-theme="dark"] .lm-rank { background: rgba(255,255,255,0.05); }
+    .lm-item.lm-rank-1 .lm-rank {
+      background: linear-gradient(135deg, #fbbf24, #f59e0b);
+      color: #fff;
+      box-shadow: 0 2px 6px rgba(251,191,36,0.40);
+    }
+    .lm-item.lm-rank-2 .lm-rank {
+      background: linear-gradient(135deg, #cbd5e1, #94a3b8);
+      color: #fff;
+    }
+    .lm-item.lm-rank-3 .lm-rank {
+      background: linear-gradient(135deg, #fb923c, #c2410c);
+      color: #fff;
+    }
+    .lm-name {
+      flex: 1;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--txt-hi);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .lm-clicks {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue-mid);
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .lm-clicks-unit {
+      font-size: 9.5px;
+      color: var(--txt-lo);
+      margin-left: 1px;
+      font-weight: 500;
+    }
+    .lm-empty {
+      font-size: 12px;
+      color: var(--txt-lo);
+      padding: 16px 4px;
+      text-align: center;
+    }
+    .lm-skel {
+      height: 28px;
+      background: linear-gradient(90deg, rgba(0,0,0,0.04), rgba(0,0,0,0.08), rgba(0,0,0,0.04));
+      background-size: 200% 100%;
+      animation: lm-shimmer 1.4s infinite;
+      border-radius: 7px;
+    }
+    [data-theme="dark"] .lm-skel {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04), rgba(255,255,255,0.08), rgba(255,255,255,0.04));
+      background-size: 200% 100%;
+    }
+    @keyframes lm-shimmer {
+      0%   { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+    /* 모바일 */
+    @media (max-width: 768px) {
+      .lm-grid { grid-template-columns: 1fr; gap: 10px; }
+      .live-monitor { padding: 12px 14px; }
+      .lm-col { padding: 10px 12px; }
+    }
+    @media (max-width: 480px) {
+      .lm-title { font-size: 13px; }
+      .lm-tabs { margin-left: 0; }
+      .lm-updated { width: 100%; margin-top: -4px; }
+    }
+
+    /* ══════════════════════════════
        홈 콘텐츠 피드
     ══════════════════════════════ */
     .home-feed-wrap {
@@ -3895,6 +4105,51 @@
 
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <div class="content" id="page-home">
+    <!-- 실시간 인기 콘텐츠 모니터 -->
+    <div class="live-monitor" id="live-monitor">
+      <div class="lm-header">
+        <span class="lm-live-badge">
+          <span class="lm-live-dot"></span>
+          <span>LIVE</span>
+        </span>
+        <span class="lm-title">실시간 인기 콘텐츠</span>
+        <div class="lm-tabs" role="tablist" aria-label="기간">
+          <button class="lm-tab active" data-period="today" onclick="lmSetPeriod('today')" type="button">오늘</button>
+          <button class="lm-tab" data-period="total" onclick="lmSetPeriod('total')" type="button">누적</button>
+        </div>
+        <span class="lm-updated" id="lm-updated"></span>
+      </div>
+      <div class="lm-grid">
+        <div class="lm-col">
+          <div class="lm-col-head">
+            <span class="lm-col-icon">🖥</span>
+            <span class="lm-col-name">인기 전산</span>
+          </div>
+          <ol class="lm-list" id="lm-list-jeonsan">
+            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
+          </ol>
+        </div>
+        <div class="lm-col">
+          <div class="lm-col-head">
+            <span class="lm-col-icon">📚</span>
+            <span class="lm-col-name">인기 보험지식</span>
+          </div>
+          <ol class="lm-list" id="lm-list-knowledge">
+            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
+          </ol>
+        </div>
+        <div class="lm-col">
+          <div class="lm-col-head">
+            <span class="lm-col-icon">🗞</span>
+            <span class="lm-col-name">인기 카드뉴스</span>
+          </div>
+          <ol class="lm-list" id="lm-list-cardnews">
+            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
     <div class="home-feed-wrap">
       <div class="home-feed-header">
         <span class="home-feed-label">최신 콘텐츠</span>
@@ -5113,6 +5368,11 @@
       showCardNewsSet(idx);
       document.getElementById('cn-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
+      // 클릭 추적 (모니터 위젯용)
+      try {
+        const set = cardNewsState.sets[idx];
+        if (set && set.title) trackClick(set.title, 'cardnews');
+      } catch (_) {}
     }
     function closeCardNewsModal() {
       document.getElementById('cn-modal').classList.remove('open');
@@ -5764,6 +6024,8 @@
         }
         document.getElementById('kn-active-post-id').value    = post.id;
         document.getElementById('kn-active-post-title').value = post.title;
+        // 클릭 추적 (모니터 위젯용)
+        try { trackClick(post.title, 'knowledge'); } catch (_) {}
         loadKnComments(postId);
       } catch (e) {
         titleEl.textContent = '포스트를 불러올 수 없습니다.';
@@ -7591,6 +7853,100 @@
     loadSideLatest();
     loadHomeFeed();
     loadSideStats();
+    loadLiveMonitor();
+    // 60초마다 모니터 자동 갱신
+    setInterval(loadLiveMonitor, 60_000);
+
+    /* ══════════════════════════════
+       실시간 인기 콘텐츠 모니터
+    ══════════════════════════════ */
+    let _lmPeriod = 'today';   // 'today' | 'total'
+    let _lmCache  = null;
+
+    async function loadLiveMonitor() {
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_top_items`, {
+          method: 'POST',
+          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          body: '{}'
+        });
+        if (!res.ok) return;
+        _lmCache = await res.json();
+        renderLiveMonitor();
+      } catch (_) {}
+    }
+
+    function lmSetPeriod(p) {
+      _lmPeriod = p;
+      document.querySelectorAll('.lm-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.period === p);
+      });
+      renderLiveMonitor();
+    }
+
+    function renderLiveMonitor() {
+      if (!_lmCache) return;
+      const suffix = _lmPeriod === 'today' ? 'today' : 'total';
+      const jeonsan   = _lmCache[`jeonsan_${suffix}`]   || [];
+      const knowledge = _lmCache[`knowledge_${suffix}`] || [];
+      const cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
+
+      const renderList = (items, emptyMsg, onClickFn) => {
+        if (!items.length) {
+          return `<li class="lm-empty">${emptyMsg}</li>`;
+        }
+        return items.slice(0, 3).map((it, i) => {
+          const rank = i + 1;
+          const safeName = String(it.name||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+          const clickAttr = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
+          return `<li class="lm-item lm-rank-${rank}" ${clickAttr}>
+            <span class="lm-rank">${rank}</span>
+            <span class="lm-name" title="${safeName}">${safeName}</span>
+            <span class="lm-clicks">${(it.clicks||0).toLocaleString()}<span class="lm-clicks-unit">회</span></span>
+          </li>`;
+        }).join('');
+      };
+
+      document.getElementById('lm-list-jeonsan').innerHTML   = renderList(jeonsan,   '아직 클릭 기록이 없습니다', (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\'")}')`);
+      document.getElementById('lm-list-knowledge').innerHTML = renderList(knowledge, '아직 클릭 기록이 없습니다', (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\'")}')`);
+      document.getElementById('lm-list-cardnews').innerHTML  = renderList(cardnews,  '아직 클릭 기록이 없습니다', (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\'")}')`);
+
+      // 마지막 업데이트 시각
+      const now = new Date();
+      const hh = String(now.getHours()).padStart(2,'0');
+      const mm = String(now.getMinutes()).padStart(2,'0');
+      const upd = document.getElementById('lm-updated');
+      if (upd) upd.textContent = `· 업데이트 ${hh}:${mm}`;
+    }
+
+    // 클릭 시 해당 항목으로 이동
+    function lmOpenJeonsan(name) {
+      goToPage('jeonsan');
+    }
+    function lmOpenKnowledge(name) {
+      goToPage('knowledge');
+      // 제목으로 포스트 찾아 열기 (가벼운 시도)
+      setTimeout(async () => {
+        try {
+          const r = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_posts?title=eq.${encodeURIComponent(name)}&select=id&limit=1`, { headers: SB_HDR_KN });
+          const arr = await r.json();
+          if (Array.isArray(arr) && arr[0] && typeof openKnPost === 'function') openKnPost(arr[0].id, true);
+        } catch (_) {}
+      }, 200);
+    }
+    function lmOpenCardnews(name) {
+      // cardNewsState가 로드되어 있다면 제목으로 매칭해서 열기
+      const tryOpen = (n) => {
+        if (typeof cardNewsState === 'undefined' || !cardNewsState.sets || !cardNewsState.sets.length) {
+          if (n > 0) setTimeout(() => tryOpen(n-1), 200);
+          return;
+        }
+        const idx = cardNewsState.sets.findIndex(s => s && s.title === name);
+        if (idx >= 0) openCardNewsModal(idx);
+        else goToPage('newsletter'); // fallback
+      };
+      tryOpen(20);
+    }
 
     initHashRouting();
   </script>
