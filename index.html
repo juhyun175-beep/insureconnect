@@ -4332,6 +4332,85 @@
     .lm-live-dot, .side-cn-card, .lm-skel {
       will-change: auto; /* 명시적으로 will-change는 필요할 때만 */
     }
+
+    /* ══════ 보험교재 모달 ══════ */
+    #tb-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(8,15,48,0.55);
+      z-index: 9000;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    #tb-overlay.open { display: flex; }
+    .tb-modal {
+      background: var(--bg-card);
+      border-radius: 18px;
+      width: 100%; max-width: 520px;
+      max-height: 85vh;
+      display: flex; flex-direction: column;
+      box-shadow: 0 24px 64px rgba(8,15,48,0.25);
+      overflow: hidden;
+    }
+    .tb-header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 20px 14px;
+      border-bottom: 1.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tb-header h2 { font-size: 1rem; font-weight: 800; color: var(--txt-hi); }
+    .tb-header button {
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: var(--txt-lo); padding: 4px 6px;
+      border-radius: 6px; line-height: 1;
+    }
+    .tb-header button:hover { background: rgba(12,31,184,0.07); color: var(--txt-mid); }
+    .tb-body { overflow-y: auto; padding: 14px 16px 20px; flex: 1; }
+    .tb-loading { text-align: center; padding: 40px 0; color: var(--txt-lo); font-size: 0.88rem; }
+    .tb-empty  { text-align: center; padding: 40px 0; color: var(--txt-lo); font-size: 0.88rem; }
+    .tb-list   { display: flex; flex-direction: column; gap: 10px; }
+    .tb-item {
+      display: flex; align-items: center; gap: 14px;
+      padding: 14px 16px;
+      background: var(--bg);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .tb-item:hover { border-color: var(--blue-mid); background: rgba(26,61,232,0.04); }
+    .tb-item-icon {
+      width: 40px; height: 40px; border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 20px; flex-shrink: 0;
+      background: rgba(26,61,232,0.08);
+    }
+    .tb-item-body { flex: 1; min-width: 0; }
+    .tb-item-title {
+      font-size: 0.9rem; font-weight: 700; color: var(--txt-hi);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tb-item-desc {
+      font-size: 0.78rem; color: var(--txt-lo); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .tb-item-meta { font-size: 0.75rem; color: var(--txt-lo); margin-top: 3px; }
+    .tb-dl-btn {
+      flex-shrink: 0;
+      display: inline-flex; align-items: center; gap: 5px;
+      background: var(--blue-mid); color: #fff;
+      border: none; border-radius: 8px;
+      padding: 8px 14px; font-size: 0.8rem; font-weight: 700;
+      cursor: pointer; text-decoration: none;
+      transition: opacity 0.15s;
+      font-family: 'Pretendard', sans-serif;
+    }
+    .tb-dl-btn:hover { opacity: 0.85; }
+    @media (max-width: 480px) {
+      .tb-modal { max-height: 92vh; border-radius: 14px; }
+      .tb-item  { flex-wrap: wrap; }
+      .tb-dl-btn { width: 100%; justify-content: center; }
+    }
   </style>
 </head>
 <body>
@@ -4533,7 +4612,7 @@
         <div class="ic-feat-card">
           <span class="ic-feat-icon">🛠</span>
           <span class="ic-feat-name">실무도구</span>
-          <span class="ic-feat-desc">실손계산기·KCD코드·할인할증 등 12종</span>
+          <span class="ic-feat-desc">실손계산기·KCD코드·할인할증 등 16종</span>
         </div>
         <div class="ic-feat-card">
           <span class="ic-feat-icon">📚</span>
@@ -4776,7 +4855,7 @@
         <span class="sec-num">01</span>
         <span class="sec-title">실무도구</span>
         <span class="sec-line"></span>
-        <span class="sec-badge">15개</span>
+        <span class="sec-badge">16개</span>
       </div>
       <div class="tools-grid">
         <a class="tool-card" data-tool-id="kidi-discount" href="https://prem.kidi.or.kr:1443/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','할인 할증요인 조회')">
@@ -4914,6 +4993,14 @@
           <button class="tool-card-copy" onclick="copyToolLink(event,'hidden-insurance')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </a>
+        <div class="tool-card" data-tool-id="textbook" onclick="trackCardClick('실무도구','보험교재'); openTextbookModal();" style="cursor:pointer;">
+          <div class="tool-card-icon">📖</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">보험교재</div>
+            <div class="tool-card-sub">보험 학습 교재 PDF·이미지 다운로드</div>
+          </div>
+          <div class="tool-card-arrow">→</div>
+        </div>
       </div>
     </div>
 
@@ -8020,13 +8107,97 @@
     });
   })();
 
+  <!-- ══════ 보험교재 모달 ══════ -->
+  <div id="tb-overlay">
+    <div class="tb-modal">
+      <div class="tb-header">
+        <h2>📖 보험교재</h2>
+        <button onclick="closeTextbookModal()" aria-label="닫기">✕</button>
+      </div>
+      <div class="tb-body" id="tb-modal-body">
+        <div class="tb-loading">교재 불러오는 중…</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
+    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
+
+    function fmtBytes(b) {
+      if (!b) return '';
+      if (b < 1024) return b + ' B';
+      if (b < 1048576) return (b / 1024).toFixed(0) + ' KB';
+      return (b / 1048576).toFixed(1) + ' MB';
+    }
+
+    async function loadTextbooks() {
+      const body = document.getElementById('tb-modal-body');
+      try {
+        const res = await fetch(
+          `${SB_URL}/rest/v1/ic_textbooks?order=sort_order.asc,created_at.desc&limit=50`,
+          { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
+        );
+        const items = await res.json();
+        if (!items || items.length === 0) {
+          body.innerHTML = '<div class="tb-empty">등록된 교재가 없습니다.</div>';
+          return;
+        }
+        body.innerHTML = '<div class="tb-list">' + items.map(it => {
+          const icon = it.file_type === 'pdf' ? '📄' : '🖼';
+          const meta = [
+            it.file_type ? it.file_type.toUpperCase() : '',
+            fmtBytes(it.file_size),
+            it.download_count ? `다운로드 ${it.download_count}회` : ''
+          ].filter(Boolean).join(' · ');
+          return `<div class="tb-item">
+            <div class="tb-item-icon">${icon}</div>
+            <div class="tb-item-body">
+              <div class="tb-item-title">${it.title}</div>
+              ${it.description ? `<div class="tb-item-desc">${it.description}</div>` : ''}
+              ${meta ? `<div class="tb-item-meta">${meta}</div>` : ''}
+            </div>
+            <a class="tb-dl-btn" href="${it.file_url}" target="_blank" rel="noopener noreferrer"
+               onclick="incrementDownload(${it.id})">⬇ 다운로드</a>
+          </div>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        body.innerHTML = '<div class="tb-empty">불러오기 실패. 잠시 후 다시 시도해주세요.</div>';
+      }
+    }
+
+    window.incrementDownload = function(id) {
+      fetch(`${SB_URL}/rest/v1/rpc/increment_textbook_download`, {
+        method: 'POST',
+        headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}`, 'Content-Type': 'application/json' },
+        body: JSON.stringify({ textbook_id: id })
+      }).catch(() => {});
+    };
+
+    window.openTextbookModal = function() {
+      document.getElementById('tb-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      loadTextbooks();
+    };
+    window.closeTextbookModal = function() {
+      document.getElementById('tb-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    };
+    document.getElementById('tb-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeTextbookModal();
+    });
+  })();
+  </script>
+
     /* ══════════════════════════════
        실무도구 링크복사 + 해시 라우팅
     ══════════════════════════════ */
     const TOOL_MODAL_MAP = {
-      shilbi:  () => window.openShilbi && window.openShilbi(),
-      surgery: () => window.openSurg   && window.openSurg(),
-      cardpay: () => window.openCardGuide && window.openCardGuide(),
+      shilbi:   () => window.openShilbi && window.openShilbi(),
+      surgery:  () => window.openSurg   && window.openSurg(),
+      cardpay:  () => window.openCardGuide && window.openCardGuide(),
+      textbook: () => window.openTextbookModal && window.openTextbookModal(),
     };
 
     function copyToolLink(event, toolId) {
@@ -8755,6 +8926,21 @@
       </a>
       <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','카드납 가이드'); openCardGuide();">
         <span class="tp-icon">💳</span><span class="tp-name">카드납 가이드</span><span class="tp-arrow">›</span>
+      </button>
+      <a class="tp-item" href="https://bridge.kfpa.or.kr/#/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구패널','특수건물 조회')">
+        <span class="tp-icon">🏗️</span><span class="tp-name">특수건물 조회</span><span class="tp-arrow">›</span>
+      </a>
+      <a class="tp-item" href="https://www.hira.or.kr/ra/hosp/getHealthMap.do?pgmid=HIRAA030002010000#a" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구패널','병원·약국 찾기')">
+        <span class="tp-icon">🏥</span><span class="tp-name">병원·약국 찾기</span><span class="tp-arrow">›</span>
+      </a>
+      <a class="tp-item" href="https://www.silson24.or.kr/claim/web/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구패널','실손24')">
+        <span class="tp-icon">💉</span><span class="tp-name">실손24</span><span class="tp-arrow">›</span>
+      </a>
+      <a class="tp-item" href="https://cont.insure.or.kr/cont_web/intro.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구패널','숨은보험금 찾기')">
+        <span class="tp-icon">💰</span><span class="tp-name">숨은보험금 찾기</span><span class="tp-arrow">›</span>
+      </a>
+      <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','보험교재'); openTextbookModal();">
+        <span class="tp-icon">📖</span><span class="tp-name">보험교재</span><span class="tp-arrow">›</span>
       </button>
     </div>
   </div>
