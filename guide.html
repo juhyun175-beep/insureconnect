@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <link rel="canonical" href="https://insureconnect-hub.pages.dev/guide.html" />
+  <meta name="description" content="보험설계사 업무 가이드 — 주요 보험사 전산, 소식지, 청구서류, 채용공고 활용법과 자주 묻는 질문을 안내합니다." />
+  <title>보험설계사 업무 가이드 — InsureConnect</title>
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="보험설계사 업무 가이드 — InsureConnect">
+  <meta property="og:description" content="주요 보험사 전산 링크, 소식지, 청구서류, 채용공고를 한 곳에서. 보험설계사를 위한 인슈어커넥트 상세 가이드.">
+  <meta property="og:url" content="https://insureconnect-hub.pages.dev/guide.html">
+  <meta property="og:image" content="https://insureconnect-hub.pages.dev/logo-full.png">
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7787620251169899" crossorigin="anonymous"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; }
+    :root {
+      --blue-deep: #0c1fb8;
+      --blue-mid: #1a3de8;
+      --blue-light: #4a70f5;
+      --cyan: #00c8ee;
+      --bg: #f0f5ff;
+      --bg-card: #ffffff;
+      --border: rgba(12,31,184,0.10);
+      --txt-hi: #080f30;
+      --txt-mid: #3d5080;
+      --txt-lo: #8fa5cc;
+      --radius: 16px;
+    }
+    body { background: var(--bg); color: var(--txt-hi); line-height: 1.6; }
+    .guide-header {
+      background: #fff;
+      border-bottom: 1.5px solid var(--border);
+      padding: 16px 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: 0 2px 12px rgba(12,31,184,0.07);
+    }
+    .guide-header a { text-decoration: none; color: var(--blue-mid); font-weight: 600; font-size: 0.85rem; }
+    .guide-header img { height: 36px; object-fit: contain; }
+    .guide-wrap { max-width: 800px; margin: 0 auto; padding: 40px 24px 80px; }
+    .guide-hero { margin-bottom: 40px; }
+    .guide-hero h1 { font-size: 1.8rem; font-weight: 900; color: var(--txt-hi); line-height: 1.25; margin-bottom: 12px; letter-spacing: -0.02em; }
+    .guide-hero p { font-size: 1rem; color: var(--txt-mid); line-height: 1.75; }
+    .guide-toc { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 12px; padding: 20px 24px; margin-bottom: 40px; }
+    .guide-toc h2 { font-size: 0.85rem; font-weight: 700; color: var(--txt-lo); letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 12px; }
+    .guide-toc ol { padding-left: 18px; }
+    .guide-toc li { margin-bottom: 6px; }
+    .guide-toc a { color: var(--blue-mid); font-size: 0.9rem; font-weight: 500; }
+    .guide-section { margin-bottom: 48px; }
+    .guide-section h2 { font-size: 1.3rem; font-weight: 800; color: var(--txt-hi); margin-bottom: 16px; padding-bottom: 12px; border-bottom: 2px solid var(--border); }
+    .guide-section h3 { font-size: 1rem; font-weight: 700; color: var(--txt-hi); margin: 20px 0 8px; }
+    .guide-section p { font-size: 0.9rem; color: var(--txt-mid); line-height: 1.8; margin-bottom: 12px; }
+    .guide-section ul { padding-left: 18px; margin-bottom: 12px; }
+    .guide-section li { font-size: 0.88rem; color: var(--txt-mid); line-height: 1.7; margin-bottom: 4px; }
+    .company-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-top: 16px; }
+    .company-card { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 10px; padding: 14px 16px; }
+    .company-card strong { display: block; font-size: 0.9rem; font-weight: 700; color: var(--txt-hi); margin-bottom: 4px; }
+    .company-card p { font-size: 0.82rem; color: var(--txt-mid); line-height: 1.6; margin: 0; }
+    .faq-list { display: flex; flex-direction: column; gap: 16px; }
+    .faq-item { background: var(--bg-card); border: 1.5px solid var(--border); border-radius: 10px; padding: 16px 20px; }
+    .faq-q { font-size: 0.92rem; font-weight: 700; color: var(--txt-hi); margin-bottom: 8px; }
+    .faq-a { font-size: 0.87rem; color: var(--txt-mid); line-height: 1.7; margin: 0; }
+    .guide-footer { background: var(--bg-card); border-top: 1.5px solid var(--border); padding: 24px 32px; text-align: center; font-size: 0.82rem; color: var(--txt-lo); }
+    .guide-footer a { color: var(--txt-mid); margin: 0 8px; }
+    @media (max-width: 600px) {
+      .guide-header { padding: 12px 16px; }
+      .guide-wrap { padding: 24px 16px 60px; }
+      .guide-hero h1 { font-size: 1.4rem; }
+      .company-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header class="guide-header">
+  <a href="/">
+    <img src="/logo-banner.png" alt="InsureConnect" onerror="this.outerHTML='<span style=\'font-weight:900;font-size:1rem;color:#0c1fb8\'>InsureConnect</span>'">
+  </a>
+  <a href="/">← 홈으로 돌아가기</a>
+</header>
+
+<main class="guide-wrap">
+
+  <div class="guide-hero">
+    <h1>보험설계사를 위한<br>업무 가이드</h1>
+    <p>인슈어커넥트는 대한민국 보험설계사의 일상 업무를 더 빠르고 효율적으로 만들기 위해 만들어진 무료 플랫폼입니다. 이 가이드에서는 주요 보험사 전산 활용법, 소식지·청구서류 조회 방법, 채용공고 확인 방법과 자주 묻는 질문에 대한 답변을 안내합니다.</p>
+  </div>
+
+  <nav class="guide-toc" aria-label="목차">
+    <h2>목차</h2>
+    <ol>
+      <li><a href="#guide">보험설계사 업무 흐름 가이드</a></li>
+      <li><a href="#companies">주요 보험사 소개</a></li>
+      <li><a href="#features">인슈어커넥트 기능 상세 안내</a></li>
+      <li><a href="#faq">자주 묻는 질문</a></li>
+    </ol>
+  </nav>
+
+  <section class="guide-section" id="guide" aria-labelledby="guide-title">
+    <h2 id="guide-title">보험설계사 업무 흐름 가이드</h2>
+
+    <p>보험설계사는 매일 다양한 보험사 시스템을 오가며 업무를 처리합니다. 전산 접속, 소식지 확인, 고객 청구 안내, 수납 처리 등 반복적인 업무가 많은데, 이를 효율적으로 처리하는 방법을 단계별로 안내합니다.</p>
+
+    <h3>1단계: 출근 직후 — 전산 접속 및 공지 확인</h3>
+    <p>하루를 시작할 때 가장 먼저 해야 할 일은 소속 보험사 전산 시스템에 접속하여 전날 이후 변경된 공지사항이나 업무 지침을 확인하는 것입니다. 여러 보험사에 동시에 소속된 설계사의 경우 각 보험사 전산을 모두 확인해야 하므로 시간이 오래 걸릴 수 있습니다.</p>
+    <p>인슈어커넥트의 '보험사 전산' 메뉴에서는 주요 생명보험사와 손해보험사의 전산 시스템 링크를 한 곳에서 제공합니다. 북마크를 여러 개 관리하거나 링크를 검색할 필요 없이, 원클릭으로 원하는 보험사 전산에 즉시 접속하세요.</p>
+
+    <h3>2단계: 소식지·업무 지침 확인</h3>
+    <p>각 보험사는 주기적으로 소식지와 업무 지침서를 발행합니다. 상품 개정 안내, 수수료 변경, 판매 캠페인 정보, 신규 특약 안내 등이 담겨 있으며, 이를 놓치면 고객 상담에서 잘못된 정보를 제공하거나 업무 실수로 이어질 수 있습니다.</p>
+    <p>인슈어커넥트의 '보험사 소식지' 메뉴에서는 각 보험사가 최근 발행한 소식지를 날짜 순으로 확인할 수 있습니다. 검색 기능을 통해 특정 키워드나 보험사의 소식지를 빠르게 찾을 수 있습니다.</p>
+
+    <h3>3단계: 고객 상담 중 청구서류 안내</h3>
+    <p>고객이 보험금 청구를 문의할 때 필요한 서류를 즉시 안내할 수 있어야 전문성을 보여줄 수 있습니다. 보험사마다 청구서류 양식이 다르고, 사고 유형에 따라 필요한 서류 목록이 달라지기 때문에 설계사가 미리 알고 있어야 합니다.</p>
+    <p>인슈어커넥트의 '보험사 청구서류' 메뉴에서는 보험사별로 청구서류 양식을 정리하여 제공합니다. 고객 응대 중에도 빠르게 해당 보험사의 청구서류를 찾아 안내하거나 링크를 공유할 수 있습니다.</p>
+
+    <h3>4단계: 수납 처리</h3>
+    <p>고객의 보험료 납입이나 추가 납입 처리가 필요한 경우 보험사 수납 전산 시스템에 접속해야 합니다. 생명보험사와 손해보험사의 수납 전산 시스템은 일반 전산 시스템과 별도로 운영되는 경우가 많아, 링크를 따로 관리해야 하는 불편이 있습니다.</p>
+    <p>인슈어커넥트의 '보험사 수납 전산' 메뉴에서는 수납 처리에 필요한 각 보험사 시스템 링크를 제공합니다. 수납 관련 업무를 빠르게 처리하고 고객 대기 시간을 줄이세요.</p>
+  </section>
+
+  <section class="guide-section" id="companies" aria-labelledby="companies-title">
+    <h2 id="companies-title">주요 보험사 소개</h2>
+
+    <p>인슈어커넥트는 국내 주요 생명보험사와 손해보험사의 전산 및 업무 서비스를 지원합니다. 각 보험사의 주요 특징을 간략히 소개합니다.</p>
+
+    <h3>생명보험사</h3>
+    <div class="company-grid">
+      <div class="company-card">
+        <strong>삼성생명</strong>
+        <p>국내 최대 생명보험사. 다양한 종신보험, 연금보험, 건강보험 라인업을 보유하며, 전산 시스템(삼성생명 FP넷)이 안정적으로 운영됩니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>한화생명</strong>
+        <p>한화그룹 계열 생명보험사. 종신보험과 변액보험 상품이 강점이며, 설계사용 업무 포털(한화생명 영업지원시스템)을 제공합니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>교보생명</strong>
+        <p>교보그룹 계열 생명보험사. 교육·건강 분야 특화 상품과 종신보험이 강점이며, 설계사 전용 전산 시스템을 운영합니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>NH농협생명</strong>
+        <p>농협금융지주 계열 생명보험사. 농촌·서민 고객 기반이 강하며, 저렴한 보험료의 실손·건강보험 상품을 다수 판매합니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>신한라이프</strong>
+        <p>신한금융그룹 계열 생명보험사 (구 오렌지라이프). 디지털 서비스가 강점이며 다양한 건강보험 상품을 보유합니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>DB생명 · 흥국생명 외</strong>
+        <p>그 외 중소 생명보험사들도 인슈어커넥트에서 전산 링크와 소식지를 확인할 수 있습니다. 지원 보험사는 지속적으로 확대됩니다.</p>
+      </div>
+    </div>
+
+    <h3>손해보험사</h3>
+    <div class="company-grid">
+      <div class="company-card">
+        <strong>삼성화재</strong>
+        <p>국내 최대 손해보험사. 자동차보험, 화재보험, 건강보험 등 전 분야에서 안정적인 상품과 서비스를 제공합니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>DB손해보험</strong>
+        <p>동부그룹 계열 손해보험사. 자동차보험과 실손의료보험 분야에서 강점을 가지며, 설계사 지원 시스템이 잘 구축되어 있습니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>현대해상</strong>
+        <p>현대그룹 계열 손해보험사. Hi플러스 시스템을 통해 설계사 업무를 지원하며, 장기보험과 자동차보험이 주력 상품입니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>KB손해보험</strong>
+        <p>KB금융그룹 계열 손해보험사. 개인 및 기업 보험 상품이 다양하며, 디지털 채널을 통한 업무 지원이 강점입니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>메리츠화재</strong>
+        <p>메리츠금융그룹 계열 손해보험사. 실손보험과 어린이보험에서 경쟁력 있는 상품을 보유하며 GA 채널이 발달되어 있습니다.</p>
+      </div>
+      <div class="company-card">
+        <strong>롯데손보 · 한화손보 외</strong>
+        <p>그 외 손해보험사의 전산 및 소식지도 인슈어커넥트에서 확인할 수 있습니다.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="guide-section" id="features" aria-labelledby="features-title">
+    <h2 id="features-title">인슈어커넥트 기능 상세 안내</h2>
+
+    <h3>보험사 전산 링크</h3>
+    <p>국내 주요 생명보험사와 손해보험사의 설계사 전용 전산 시스템 링크를 한 곳에서 제공합니다. 자주 변경되는 전산 주소를 직접 관리하는 번거로움 없이, 인슈어커넥트에서 항상 최신 링크를 확인할 수 있습니다. 보험사 전산에 원클릭으로 접속하여 계약 조회, 보험료 계산, 청약 처리 등의 업무를 즉시 시작하세요.</p>
+
+    <h3>보험사 소식지</h3>
+    <p>각 보험사가 설계사에게 정기적으로 발행하는 소식지를 날짜 순으로 모아서 제공합니다. 보험사별로 따로 접속하여 소식지를 찾을 필요 없이, 인슈어커넥트에서 한 화면으로 모든 보험사의 최신 소식지를 확인하세요. 검색 기능을 활용하면 특정 보험사나 키워드로 소식지를 빠르게 찾을 수 있습니다.</p>
+
+    <h3>보험사 청구서류</h3>
+    <p>보험금 청구에 필요한 각 보험사의 서류 양식을 보험사별로 정리하여 제공합니다. 사망보험금, 입원비, 수술비, 실손 청구 등 다양한 유형의 청구서류를 빠르게 찾아 고객에게 안내하거나 링크로 공유할 수 있습니다. 고객 응대 중 청구서류를 즉시 안내함으로써 전문성과 신뢰를 높이세요.</p>
+
+    <h3>채용공고</h3>
+    <p>생명보험사, 손해보험사, GA(법인대리점) 등의 최신 채용공고를 실시간으로 수집하여 한 화면에서 제공합니다. 이직이나 소속 변경을 고려 중인 설계사라면 인슈어커넥트에서 최신 채용 정보를 놓치지 마세요. 보험사 정규직 및 GA 위촉 모집 공고를 함께 확인할 수 있습니다.</p>
+
+    <h3>인슈어커넥트 뉴스</h3>
+    <p>보험업계의 주요 뉴스와 정보를 카드뉴스 형태로 간결하게 전달합니다. 상품 개정, 규제 변경, 업계 트렌드 등 설계사가 알아야 할 핵심 정보를 쉽게 이해할 수 있도록 정리하여 제공합니다.</p>
+
+    <h3>커뮤니티</h3>
+    <p>현직 보험설계사들이 모인 온라인 커뮤니티 채널과 연결됩니다. 업무 노하우 공유, 동료 설계사와의 네트워킹, 실시간 업무 정보 교환 등을 할 수 있는 공간입니다.</p>
+  </section>
+
+  <ins class="adsbygoogle"
+       style="display:block;margin:32px 0"
+       data-ad-client="ca-pub-7787620251169899"
+       data-ad-slot="2029699902"
+       data-ad-format="auto"
+       data-full-width-responsive="true"></ins>
+  <script>(adsbygoogle = window.adsbygoogle || []).push({});</script>
+
+  <section class="guide-section" id="faq" aria-labelledby="faq-title">
+    <h2 id="faq-title">자주 묻는 질문</h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <p class="faq-q">Q. 인슈어커넥트는 무료인가요?</p>
+        <p class="faq-a">네, 완전히 무료입니다. 별도의 회원가입이나 로그인 없이 바로 이용하실 수 있습니다. 보험설계사의 업무 효율을 높이기 위한 목적으로 운영되며, 앞으로도 무료로 유지됩니다.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Q. 어떤 보험사가 지원되나요?</p>
+        <p class="faq-a">삼성생명, 한화생명, 교보생명, NH농협생명, 신한라이프 등 주요 생명보험사와 삼성화재, DB손해보험, 현대해상, KB손해보험, 메리츠화재 등 주요 손해보험사를 지원합니다. 지원 보험사와 기능은 지속적으로 확대됩니다.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Q. 전산 링크가 바뀌면 어떻게 되나요?</p>
+        <p class="faq-a">보험사 전산 링크 변경이 확인되면 인슈어커넥트 운영팀이 최대한 신속하게 업데이트합니다. 오류 링크를 발견하셨다면 운영자 문의 채널(카카오 오픈채팅)로 알려주시면 빠르게 수정하겠습니다.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Q. 모바일에서도 모든 기능을 이용할 수 있나요?</p>
+        <p class="faq-a">네, 모바일 환경에 최적화되어 있습니다. 스마트폰과 태블릿에서 PC와 동일하게 모든 기능을 이용하실 수 있습니다. 외근 중에도 편리하게 업무 리소스에 접근하세요.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Q. 소식지는 얼마나 자주 업데이트되나요?</p>
+        <p class="faq-a">각 보험사가 소식지를 발행하는 즉시 인슈어커넥트에 반영됩니다. 보험사마다 발행 주기가 다르지만, 일반적으로 주 1~2회 이상 새로운 소식지를 확인할 수 있습니다.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Q. 보험설계사가 아니어도 이용할 수 있나요?</p>
+        <p class="faq-a">인슈어커넥트는 보험설계사를 주요 대상으로 만들어졌지만, 보험 관련 업무를 처리하는 누구나 이용할 수 있습니다. 다만, 보험사 전산 시스템 접속은 해당 보험사의 설계사 자격이 있는 분만 이용 가능합니다.</p>
+      </div>
+      <div class="faq-item">
+        <p class="faq-q">Q. 인슈어커넥트에 광고 또는 협업 문의를 하고 싶습니다.</p>
+        <p class="faq-a">광고 게재, 서비스 협업, 콘텐츠 제공 등의 문의는 운영자 카카오 오픈채팅 또는 이메일(insureconnect@naver.com)로 연락 주세요.</p>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="guide-footer">
+  <div>
+    <a href="/">홈으로</a>
+    <a href="/privacy.html">개인정보처리방침</a>
+    <a href="mailto:insureconnect@naver.com">insureconnect@naver.com</a>
+  </div>
+  <div style="margin-top:8px">© 2026 InsureConnect. All rights reserved.</div>
+</footer>
+
+</body>
+</html>

@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.6.3] - 2026-05-18
+- guide.html 신규 추가 (보험설계사 업무 가이드, 3,000자+ 정적 콘텐츠)
+  - 4개 섹션: 업무 흐름 가이드, 주요 보험사 소개, 기능 상세 안내, FAQ
+  - AdSense 광고 슬롯 포함, about.html과 별개의 상세 가이드 페이지
+- sitemap.js에 guide.html (priority 0.8) + about.html (priority 0.7) 추가
+
 ## [1.6.1] - 2026-05-18
 - 실무도구 4개 신규 추가 (11개 → 15개)
   - 🏗️ 특수건물 조회 — 한국화재보험협회(KFPA) bridge.kfpa.or.kr
