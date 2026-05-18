@@ -3254,16 +3254,92 @@
     /* ══════════════════════════════
        홈 대시보드 - Hero / 기능 / 신뢰 / 푸터
     ══════════════════════════════ */
-    /* 히어로 + 시계 위젯 2열 레이아웃 */
+    /* 히어로 + 즐겨찾기 + 시계 위젯 3열 레이아웃 */
     .ic-hero-row {
       display: grid;
-      grid-template-columns: 1fr 300px;
-      gap: 18px;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 280px;
+      gap: 14px;
       align-items: stretch;
-      margin: 0 0 22px;
+      margin: 0 0 18px;
     }
-    @media (max-width: 860px) {
+    @media (max-width: 1100px) {
+      .ic-hero-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+      .ic-hero-row .ic-clock { grid-column: 1 / -1; }
+    }
+    @media (max-width: 720px) {
       .ic-hero-row { grid-template-columns: 1fr; }
+      .ic-hero-row .ic-clock { grid-column: auto; }
+    }
+
+    /* 히어로 행 내 컴팩트 즐겨찾기 카드 */
+    .ic-hero-row #home-fav-section {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 14px 14px 12px;
+      margin: 0;
+      box-shadow: var(--sh-sm);
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
+    }
+    .ic-hero-row #home-fav-section .fav-section-head { margin-bottom: 10px; }
+    .ic-hero-row #home-fav-empty {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      text-align: center;
+      padding: 8px;
+      background: var(--bg);
+      border-radius: 12px;
+    }
+    .ic-hero-row .fav-onboard-icon { font-size: 28px; }
+    .ic-hero-row .fav-onboard-title { font-size: 12.5px; font-weight: 800; color: var(--txt-hi); }
+    .ic-hero-row .fav-onboard-desc { font-size: 11px; color: var(--txt-mid); line-height: 1.5; }
+    .ic-hero-row .fav-onboard-btn {
+      padding: 6px 12px;
+      font-size: 11.5px;
+      font-weight: 700;
+      background: var(--blue-mid);
+      color: #fff;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      font-family: inherit;
+      margin-top: 4px;
+    }
+    .ic-hero-row #home-fav-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 8px !important;
+      overflow-y: auto;
+      max-height: 200px;
+    }
+    .ic-hero-row #home-fav-grid .tool-card,
+    .ic-hero-row #home-fav-grid .portal-card {
+      padding: 8px 9px !important;
+      min-height: auto !important;
+    }
+    .ic-hero-row #home-fav-grid .tool-card-title,
+    .ic-hero-row #home-fav-grid .portal-card-name {
+      font-size: 11.5px !important;
+    }
+
+    /* 상단 행: 실시간 인기 콘텐츠 + 모임방 대화순위 */
+    .ic-top-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 280px;
+      gap: 14px;
+      margin: 0 0 18px;
+      align-items: stretch;
+    }
+    .ic-top-row > .live-monitor { margin-bottom: 0 !important; }
+    .ic-top-row > .ic-kakao-panel { margin-bottom: 0; }
+    @media (max-width: 1024px) {
+      .ic-top-row { grid-template-columns: 1fr; }
     }
     .ic-hero {
       text-align: center;
@@ -3548,7 +3624,7 @@
     .ic-job-thumb {
       position: relative;
       width: 100%;
-      aspect-ratio: 4/3;
+      aspect-ratio: 4/2.2;
       background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
       overflow: hidden;
       display: flex; align-items: center; justify-content: center;
@@ -3588,32 +3664,32 @@
       letter-spacing: 0.04em;
     }
     .ic-job-body {
-      padding: 12px 14px 14px;
+      padding: 9px 11px 11px;
       display: flex; flex-direction: column;
-      gap: 4px;
+      gap: 2px;
     }
     .ic-job-company {
-      font-size: 10.5px; font-weight: 800;
+      font-size: 9.5px; font-weight: 800;
       color: var(--blue-mid);
       letter-spacing: 0.04em;
       text-transform: uppercase;
       overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
     }
     .ic-job-title {
-      font-size: 13.5px; font-weight: 700;
+      font-size: 12px; font-weight: 700;
       color: var(--txt-hi);
-      line-height: 1.4;
+      line-height: 1.35;
       letter-spacing: -0.01em;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
-      min-height: 2.8em;
+      min-height: 2.7em;
     }
     .ic-job-date {
-      font-size: 10.5px;
+      font-size: 9.5px;
       color: var(--txt-lo);
-      margin-top: 2px;
+      margin-top: 1px;
     }
     .ic-jobs-empty {
       padding: 28px 16px;
@@ -3624,7 +3700,7 @@
       border-radius: 12px;
     }
     .ic-jobs-skel {
-      aspect-ratio: 4/3.4;
+      aspect-ratio: 4/2.6;
       background: linear-gradient(90deg, var(--bg) 0%, var(--bg-card) 50%, var(--bg) 100%);
       background-size: 200% 100%;
       border-radius: 14px;
@@ -3745,10 +3821,6 @@
       color: var(--txt-lo);
       text-align: right;
     }
-    /* jobs 섹션에서 분할 레이아웃일 때 margin 제거 */
-    .ic-home-split > .ic-jobs { margin-bottom: 0; }
-    /* 분할 레이아웃 내 jobs-grid: 2열 고정 */
-    .ic-home-split .ic-jobs-grid { grid-template-columns: repeat(2, 1fr); }
 
     /* AdSense 슬롯 — 광고가 실제로 채워졌을 때만 시각화 (빈 박스 방지) */
     .ic-ad-slot {
@@ -5390,6 +5462,8 @@
 
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <div class="content" id="page-home">
+    <!-- 상단 행: 실시간 인기 콘텐츠 + 모임방 대화순위 -->
+    <div class="ic-top-row">
     <!-- 실시간 인기 콘텐츠 모니터 -->
     <div class="live-monitor" id="live-monitor">
       <div class="lm-header">
@@ -5435,7 +5509,28 @@
       </div>
     </div>
 
-    <!-- ══ 서비스 소개 Hero ══ -->
+    <!-- 우: 모임방 대화 순위 (실시간 인기 콘텐츠 카드 오른쪽) -->
+    <div class="ic-kakao-panel" aria-label="모임방 대화 순위">
+      <div class="ic-kakao-head">
+        <span class="ic-kakao-title">💬 모임방 대화순위</span>
+        <span class="ic-kakao-badge">KAKAO</span>
+      </div>
+      <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
+        <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
+        <span id="home-kakao-period"></span>
+      </div>
+      <div class="ic-kakao-rank-list" id="home-kakao-list">
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+      </div>
+      <div class="ic-kakao-updated" id="home-kakao-updated"></div>
+    </div>
+    </div><!-- /.ic-top-row -->
+
+    <!-- ══ 서비스 소개 Hero + 즐겨찾기 + 시계 ══ -->
     <div class="ic-hero-row">
     <section class="ic-hero" aria-label="서비스 소개">
       <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
@@ -5444,6 +5539,27 @@
         <a class="ic-hero-btn primary" href="#" onclick="goToPage('latest');return false;">📰 최신 콘텐츠 보기</a>
       </div>
     </section>
+
+    <!-- 즐겨찾기 (히어로 오른쪽 / 시계 왼쪽) -->
+    <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
+      <div class="fav-section-head">
+        <span class="fav-pill">⭐ MY FAVORITES</span>
+        <span class="fav-line"></span>
+        <span class="sec-badge" id="home-fav-count" style="display:none;">0개</span>
+      </div>
+      <!-- 빈 상태 안내 카드 -->
+      <div class="fav-onboard" id="home-fav-empty">
+        <div class="fav-onboard-icon">⭐</div>
+        <div class="fav-onboard-body">
+          <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
+          <div class="fav-onboard-desc">실무도구·전산의 <strong>☆</strong> 버튼을 누르면 여기에 자동 표시됩니다.</div>
+        </div>
+        <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구 →</button>
+      </div>
+      <!-- 채워진 상태: 즐겨찾기 카드 그리드 -->
+      <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
+    </section>
+
     <aside class="ic-clock" aria-label="현재 시각">
       <div class="ic-clock-head">
         <span><span class="ic-clock-dot"></span> KST · SEOUL</span>
@@ -5459,68 +5575,23 @@
     </aside>
     </div>
 
-    <!-- ══ 내 즐겨찾기 (홈 대시보드 — 항상 표시, 빈 상태는 안내 카드) ══ -->
-    <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
-      <div class="fav-section-head" style="margin-bottom:12px;">
-        <span class="fav-pill">⭐ MY FAVORITES</span>
-        <span class="fav-line"></span>
-        <span class="sec-badge" id="home-fav-count" style="display:none;">0개</span>
-      </div>
-      <!-- 빈 상태 안내 카드 -->
-      <div class="fav-onboard" id="home-fav-empty">
-        <div class="fav-onboard-icon">⭐</div>
-        <div class="fav-onboard-body">
-          <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
-          <div class="fav-onboard-desc">자주 쓰는 도구의 <strong>별(☆)</strong> 버튼을 누르면 여기 홈 대시보드 최상단에 자동 표시됩니다.</div>
+    <!-- ══ 진행중인 채용공고 (컴팩트) ══ -->
+    <section class="ic-jobs" aria-label="진행중인 채용공고">
+      <div class="ic-jobs-head">
+        <div class="ic-jobs-title">
+          🔥 진행중인 채용공고
+          <span class="ic-jobs-pill">HIRING</span>
         </div>
-        <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구로 이동 →</button>
+        <span class="ic-jobs-spacer"></span>
+        <button class="ic-jobs-all" type="button" onclick="goToPage('recruit')">전체 보기 →</button>
       </div>
-      <!-- 채워진 상태: 즐겨찾기 카드 그리드 -->
-      <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
+      <div class="ic-jobs-grid" id="home-jobs-grid">
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+      </div>
     </section>
-
-    <!-- ══ 채용공고 + 모임방 대화순위 (2-컬럼 분할) ══ -->
-    <div class="ic-home-split">
-
-      <!-- 좌: 채용공고 쇼케이스 -->
-      <section class="ic-jobs" aria-label="진행중인 채용공고">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            🔥 진행중인 채용공고
-            <span class="ic-jobs-pill">HIRING</span>
-          </div>
-          <span class="ic-jobs-spacer"></span>
-          <button class="ic-jobs-all" type="button" onclick="goToPage('recruit')">전체 보기 →</button>
-        </div>
-        <div class="ic-jobs-grid" id="home-jobs-grid">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
-
-      <!-- 우: 모임방 대화 순위 -->
-      <div class="ic-kakao-panel" aria-label="모임방 대화 순위">
-        <div class="ic-kakao-head">
-          <span class="ic-kakao-title">💬 모임방 대화순위</span>
-          <span class="ic-kakao-badge">KAKAO</span>
-        </div>
-        <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
-          <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
-          <span id="home-kakao-period"></span>
-        </div>
-        <div class="ic-kakao-rank-list" id="home-kakao-list">
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-        </div>
-        <div class="ic-kakao-updated" id="home-kakao-updated"></div>
-      </div>
-
-    </div>
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
