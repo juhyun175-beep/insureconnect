@@ -4560,7 +4560,8 @@
       100% { transform: translateX(300%) skewX(-18deg); }
     }
     .side-cn-card {
-      flex: 1;
+      flex: 0 0 auto;       /* 자체 콘텐츠 크기로만 (하단 빈 여백 방지) */
+      align-self: stretch;   /* 가로는 부모 너비 채움 */
       display: flex;
       flex-direction: column;
       width: 100%;
@@ -4571,7 +4572,6 @@
       cursor: pointer;
       text-align: left;
       padding: 0;
-      min-height: 0;
       position: relative;
       animation: promo-glow 3s ease-in-out infinite;
       transition: transform 0.18s;
@@ -4748,10 +4748,10 @@
         display: flex !important;
         flex-direction: column !important;
       }
-      /* 3) 카드: list 전체 차지 (max-height 제거) */
+      /* 3) 카드: 콘텐츠 크기로만 (하단 빈 여백 방지) */
       .side-cn-card {
-        flex: 1 1 0 !important;
-        min-height: 0 !important;
+        flex: 0 0 auto !important;
+        align-self: stretch !important;
         max-height: none !important;
         display: flex !important;
         flex-direction: column !important;
