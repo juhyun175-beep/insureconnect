@@ -5206,6 +5206,98 @@
       color: var(--blue-mid);
       background: rgba(26,61,232,0.04);
     }
+
+    /* ══════════════ 사이드바 컴팩트 시계 위젯 ══════════════ */
+    .side-clock {
+      margin: 6px 10px 8px;
+      padding: 11px 13px 10px;
+      background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-deep) 100%);
+      color: #fff;
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 4px 14px rgba(26,61,232,0.20);
+    }
+    .side-clock::before {
+      content: '';
+      position: absolute;
+      top: -40%; right: -20%;
+      width: 90px; height: 90px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+      pointer-events: none;
+    }
+    .side-clock-head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      opacity: 0.92;
+      margin-bottom: 5px;
+    }
+    .side-clock-head .ic-clock-dot {
+      display: inline-block;
+      width: 6px; height: 6px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 6px rgba(74,222,128,0.7);
+      margin-right: 5px;
+      vertical-align: -1px;
+      animation: clockDotPulse 2s ease-in-out infinite;
+    }
+    @keyframes clockDotPulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    .side-clock-time {
+      position: relative;
+      font-size: 26px;
+      font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: 0.01em;
+      line-height: 1;
+      display: flex;
+      align-items: baseline;
+      gap: 1px;
+    }
+    .side-clock-time .ic-clock-colon {
+      display: inline-block;
+      animation: colonBlink 1s steps(2, end) infinite;
+      margin: 0 1px;
+    }
+    .side-clock-time .ic-clock-seconds {
+      font-size: 13px;
+      font-weight: 600;
+      opacity: 0.7;
+      margin-left: 6px;
+      letter-spacing: 0;
+    }
+    .side-clock-date {
+      position: relative;
+      font-size: 10.5px;
+      margin-top: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      opacity: 0.95;
+    }
+    .side-clock-date .ic-clock-day {
+      background: rgba(255,255,255,0.18);
+      padding: 1px 7px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 9.5px;
+    }
+    /* 모바일 더 컴팩트 */
+    @media (max-width: 480px) {
+      .side-clock { padding: 9px 11px 8px; margin: 5px 10px 6px; }
+      .side-clock-time { font-size: 22px; }
+      .side-clock-time .ic-clock-seconds { font-size: 11px; }
+      .side-clock-head { font-size: 8.5px; }
+      .side-clock-date { font-size: 10px; margin-top: 4px; }
+    }
     .side-search-btn .ssb-icon { font-size: 13px; flex-shrink: 0; }
     .side-search-btn .ssb-label { flex: 1; text-align: left; }
     .side-search-btn .ssb-kbd {
@@ -5486,6 +5578,20 @@
       <span class="ssb-label">빠른 검색</span>
       <span class="ssb-kbd">Ctrl K</span>
     </button>
+    <!-- 사이드바 컴팩트 시계 위젯 -->
+    <aside class="side-clock" aria-label="현재 시각">
+      <div class="side-clock-head">
+        <span><span class="ic-clock-dot"></span>KST · SEOUL</span>
+        <span id="ic-clock-ampm">AM</span>
+      </div>
+      <div class="side-clock-time">
+        <span id="ic-clock-hh">--</span><span class="ic-clock-colon">:</span><span id="ic-clock-mm">--</span><span class="ic-clock-seconds" id="ic-clock-ss">--</span>
+      </div>
+      <div class="side-clock-date">
+        <span class="ic-clock-day" id="ic-clock-day">—요일</span>
+        <span id="ic-clock-date">—월 —일</span>
+      </div>
+    </aside>
     <!-- 사이드바 파트너사 프로모션 -->
     <div class="side-latest">
       <span class="side-comm-label">파트너사 프로모션</span>
@@ -5681,37 +5787,21 @@
     </div>
     </div><!-- /.ic-top-row -->
 
-    <!-- ══ 하단 행: 채용공고 | 시계 ══ -->
-    <div class="ic-bottom-row">
-      <section class="ic-jobs" aria-label="진행중인 채용공고">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            🔥 진행중인 채용공고
-            <span class="ic-jobs-pill">HIRING</span>
-          </div>
+    <!-- ══ 진행중인 채용공고 (시계는 사이드바로 이동) ══ -->
+    <section class="ic-jobs" aria-label="진행중인 채용공고">
+      <div class="ic-jobs-head">
+        <div class="ic-jobs-title">
+          🔥 진행중인 채용공고
+          <span class="ic-jobs-pill">HIRING</span>
         </div>
-        <div class="ic-jobs-grid" id="home-jobs-grid">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
-
-      <aside class="ic-clock" aria-label="현재 시각">
-        <div class="ic-clock-head">
-          <span><span class="ic-clock-dot"></span> KST · SEOUL</span>
-          <span id="ic-clock-ampm">AM</span>
-        </div>
-        <div class="ic-clock-time">
-          <span id="ic-clock-hh">--</span><span class="ic-clock-colon">:</span><span id="ic-clock-mm">--</span><span class="ic-clock-seconds" id="ic-clock-ss">--</span>
-        </div>
-        <div class="ic-clock-date">
-          <span class="ic-clock-day" id="ic-clock-day">—요일</span>
-          <span id="ic-clock-date">—월 —일</span>
-        </div>
-      </aside>
-    </div>
+      </div>
+      <div class="ic-jobs-grid" id="home-jobs-grid">
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+      </div>
+    </section>
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
