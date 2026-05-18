@@ -4603,6 +4603,59 @@
     }
     .side-cn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .side-cn-fallback { font-size: 32px; }
+
+    /* 슬라이드 자동 전환 (페이드) */
+    .side-cn-slide {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      transition: opacity 0.7s ease-in-out;
+      display: block;
+      pointer-events: none;
+    }
+    .side-cn-slide.active { opacity: 1; }
+    .side-cn-slide-fb {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      opacity: 0;
+      transition: opacity 0.7s ease-in-out;
+      background: rgba(26,61,232,0.06);
+    }
+    .side-cn-slide-fb.active { opacity: 1; }
+
+    /* 슬라이드 인디케이터 (점) */
+    .side-cn-dots {
+      position: absolute;
+      bottom: 7px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      gap: 4px;
+      z-index: 3;
+      padding: 3px 7px;
+      background: rgba(0,0,0,0.38);
+      backdrop-filter: blur(4px);
+      border-radius: 10px;
+    }
+    .side-cn-dot {
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.45);
+      transition: background 0.3s, transform 0.3s;
+    }
+    .side-cn-dot.active {
+      background: #fff;
+      transform: scale(1.35);
+      box-shadow: 0 0 4px rgba(255,255,255,0.7);
+    }
     .side-cn-badge {
       position: absolute;
       bottom: 6px; right: 6px;
@@ -9521,30 +9574,79 @@
 
         const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
         const title = esc(cover.title || '공지 / 자료');
-        const isPdf = cover.file_type === 'pdf';
-        const isImg = !isPdf && cover.file_url;
-        const thumbHtml = isImg
-          ? `<img src="${cover.file_url}" alt="${title}" onerror="this.parentElement.innerHTML='<span class=\\'side-cn-fallback\\'>📄</span>'">`
-          : `<span class="side-cn-fallback">${isPdf ? '📄' : '🖼'}</span>`;
         const d = new Date(cover.created_at);
         const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
         const slideCount = latestSlides.length;
         const countBadge = slideCount > 1 ? `<span style="margin-left:5px;font-size:10px;opacity:0.7;">${slideCount}장</span>` : '';
 
+        // 모든 슬라이드를 스택으로 렌더 (자동 페이드 전환용)
+        const slideHtml = latestSlides.map((slide, idx) => {
+          const isPdf = slide.file_type === 'pdf';
+          const isImg = !isPdf && slide.file_url;
+          const cls = idx === 0 ? 'side-cn-slide active' : 'side-cn-slide';
+          const fbCls = idx === 0 ? 'side-cn-slide-fb active' : 'side-cn-slide-fb';
+          if (isImg) {
+            return `<img class="${cls}" src="${slide.file_url}" alt="${esc(slide.title || title)}" loading="lazy" onerror="this.outerHTML='<div class=\\'${fbCls}\\'>📄</div>'">`;
+          }
+          return `<div class="${fbCls}">${isPdf ? '📄' : '🖼'}</div>`;
+        }).join('');
+
+        // 인디케이터 점 (2장 이상일 때만)
+        const dotsHtml = slideCount > 1
+          ? `<div class="side-cn-dots">${latestSlides.map((_, i) =>
+              `<span class="side-cn-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
+          : '';
+
         window._sideLatestSlides = latestSlides;
         el.innerHTML = `<button class="side-cn-card" type="button" onclick="openSidebannerModal()" title="${title}">
-          <div class="side-cn-thumb">${thumbHtml}<span class="side-cn-badge">최신${countBadge}</span></div>
+          <div class="side-cn-thumb">${slideHtml}<span class="side-cn-badge">최신${countBadge}</span>${dotsHtml}</div>
           <div class="side-cn-body">
             <div class="side-cn-label">파트너사 프로모션</div>
             <div class="side-cn-title">${title}</div>
             <div class="side-cn-date">${dateStr}</div>
           </div>
         </button>`;
+
+        // 자동 슬라이드 회전 시작
+        startSideBannerRotation(slideCount);
       } catch(e) {
         console.error('[loadSideLatest]', e);
         el.innerHTML = '';
       }
     }
+
+    /* 사이드바 배너 자동 슬라이드 (4초 간격, 탭 비활성 시 일시정지) */
+    let _sideBannerInterval = null;
+    let _sideBannerIdx = 0;
+    function startSideBannerRotation(slideCount) {
+      stopSideBannerRotation();
+      if (!slideCount || slideCount < 2) return;
+      _sideBannerIdx = 0;
+      _sideBannerInterval = setInterval(() => {
+        const slides = document.querySelectorAll('.side-cn-thumb > .side-cn-slide, .side-cn-thumb > .side-cn-slide-fb');
+        const dots = document.querySelectorAll('.side-cn-dots .side-cn-dot');
+        if (!slides.length) { stopSideBannerRotation(); return; }
+        slides[_sideBannerIdx]?.classList.remove('active');
+        dots[_sideBannerIdx]?.classList.remove('active');
+        _sideBannerIdx = (_sideBannerIdx + 1) % slides.length;
+        slides[_sideBannerIdx]?.classList.add('active');
+        dots[_sideBannerIdx]?.classList.add('active');
+      }, 4000);
+    }
+    function stopSideBannerRotation() {
+      if (_sideBannerInterval) {
+        clearInterval(_sideBannerInterval);
+        _sideBannerInterval = null;
+      }
+    }
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) {
+        stopSideBannerRotation();
+      } else {
+        const count = document.querySelectorAll('.side-cn-thumb > .side-cn-slide, .side-cn-thumb > .side-cn-slide-fb').length;
+        if (count >= 2) startSideBannerRotation(count);
+      }
+    });
 
     /* ── 사이드바 배너 슬라이드 뷰어 모달 ── */
     let _sbModalSlides = [], _sbModalIdx = 0;
