@@ -4595,32 +4595,26 @@
     .side-cn-thumb {
       position: relative;
       width: 100%;
-      flex: 1;
-      min-height: 140px;
+      /* 이미지 실제 비율에 맞춰 JS에서 aspect-ratio 동적 설정 (fallback 16/10) */
+      aspect-ratio: 16 / 10;
       overflow: hidden;
-      /* contain 모드의 letterbox 영역을 자연스럽게 - 부드러운 그라디언트 */
-      background:
-        radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(240,245,255,0.6) 50%, rgba(26,61,232,0.10) 100%),
-        linear-gradient(135deg, rgba(26,61,232,0.05), rgba(0,200,238,0.05));
-      display: flex; align-items: center; justify-content: center;
+      background: rgba(26,61,232,0.06);
+      display: block;
     }
     [data-theme="dark"] .side-cn-thumb {
-      background:
-        radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.18) 100%),
-        linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
+      background: rgba(74,112,245,0.10);
     }
-    /* contain 모드 — 업로드된 원본 전체가 잘리지 않고 표시 */
-    .side-cn-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 4px; }
+    /* 컨테이너 비율을 이미지에 맞춰 설정하므로 cover로 사용해도 잘림 없음 */
+    .side-cn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .side-cn-fallback { font-size: 32px; }
 
-    /* 슬라이드 자동 전환 (페이드) — contain 모드로 잘림 방지 */
+    /* 슬라이드 자동 전환 (페이드) */
     .side-cn-slide {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: contain;
-      padding: 4px;
+      object-fit: cover;
       opacity: 0;
       transition: opacity 0.7s ease-in-out;
       display: block;
@@ -4762,15 +4756,13 @@
         display: flex !important;
         flex-direction: column !important;
       }
-      /* 4) 썸네일: 카드에서 body 빼고 다 차지 → contain으로 원본 전체 표시 */
+      /* 4) 썸네일: aspect-ratio 기반 (JS가 이미지 비율로 동적 설정) */
       .side-cn-thumb {
-        flex: 1 1 0 !important;
-        min-height: 160px !important;
+        flex: none !important;
+        width: 100% !important;
         height: auto !important;
         max-height: none !important;
-        display: flex !important;
-        align-items: center !important;
-        justify-content: center !important;
+        display: block !important;
         position: relative !important;
         overflow: hidden !important;
       }
@@ -4779,14 +4771,10 @@
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        object-fit: contain !important;
-        padding: 4px !important;
+        object-fit: cover !important;
         display: block !important;
       }
-      .side-cn-thumb .side-cn-slide {
-        object-fit: contain !important;
-        padding: 4px !important;
-      }
+      .side-cn-thumb .side-cn-slide { object-fit: cover !important; }
       /* 5) body: 자연 높이 (텍스트만큼) */
       .side-cn-body { flex: none !important; }
       /* 6) 푸터: margin-top:auto 제거 → 커뮤니티 바로 아래 붙음 */
@@ -9624,8 +9612,21 @@
           </div>
         </button>`;
 
+        // 첫 슬라이드의 실제 비율로 썸네일 컨테이너 aspect-ratio 동적 설정 (letterbox 제거)
+        const thumb = el.querySelector('.side-cn-thumb');
+        const firstImg = el.querySelector('.side-cn-thumb img');
+        if (thumb && firstImg) {
+          const applyAspect = (img) => {
+            if (img.naturalWidth && img.naturalHeight) {
+              thumb.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+            }
+          };
+          if (firstImg.complete) applyAspect(firstImg);
+          else firstImg.addEventListener('load', () => applyAspect(firstImg), { once: true });
+        }
+
         // 자동 슬라이드 회전 시작
-        startSideBannerRotation(slideCount);
+        startSideBannerRotation(slideCount, latestSlides);
       } catch(e) {
         console.error('[loadSideLatest]', e);
         el.innerHTML = '';
@@ -9642,12 +9643,18 @@
       _sideBannerInterval = setInterval(() => {
         const slides = document.querySelectorAll('.side-cn-thumb > .side-cn-slide, .side-cn-thumb > .side-cn-slide-fb');
         const dots = document.querySelectorAll('.side-cn-dots .side-cn-dot');
+        const thumb = document.querySelector('.side-cn-thumb');
         if (!slides.length) { stopSideBannerRotation(); return; }
         slides[_sideBannerIdx]?.classList.remove('active');
         dots[_sideBannerIdx]?.classList.remove('active');
         _sideBannerIdx = (_sideBannerIdx + 1) % slides.length;
-        slides[_sideBannerIdx]?.classList.add('active');
+        const next = slides[_sideBannerIdx];
+        next?.classList.add('active');
         dots[_sideBannerIdx]?.classList.add('active');
+        // 슬라이드별 실제 비율로 컨테이너 aspect-ratio 갱신 (letterbox 없이 부드럽게)
+        if (thumb && next && next.tagName === 'IMG' && next.naturalWidth && next.naturalHeight) {
+          thumb.style.aspectRatio = `${next.naturalWidth} / ${next.naturalHeight}`;
+        }
       }, 4000);
     }
     function stopSideBannerRotation() {
