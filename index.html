@@ -3633,208 +3633,122 @@
     @keyframes jobsSkel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
 
     /* ══════════════════════════════
-       홈 대시보드: 4-컬럼 실시간 쇼케이스
+       홈 대시보드: 채용공고 + 모임방 대화순위 분할
     ══════════════════════════════ */
-    .ic-showcase-row {
+    .ic-home-split {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 14px;
+      grid-template-columns: 1fr 260px;
+      gap: 16px;
       margin-bottom: 24px;
       align-items: start;
     }
-    @media (max-width: 1024px) {
-      .ic-showcase-row { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 900px) {
+      .ic-home-split { grid-template-columns: 1fr; }
     }
-    @media (max-width: 560px) {
-      .ic-showcase-row { grid-template-columns: 1fr; }
-    }
-    .ic-showcase-col {
+    /* 모임방 대화 순위 패널 */
+    .ic-kakao-panel {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 16px;
-      padding: 14px 14px 12px;
+      padding: 14px;
       box-shadow: var(--sh-sm);
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      min-height: 0;
+      gap: 10px;
     }
-    .ic-showcase-head {
+    .ic-kakao-head {
       display: flex;
       align-items: center;
-      gap: 6px;
-      margin-bottom: 4px;
+      gap: 8px;
     }
-    .ic-showcase-title {
-      font-size: 0.88rem;
+    .ic-kakao-title {
+      font-size: 0.9rem;
       font-weight: 800;
       color: var(--txt-hi);
-      letter-spacing: -0.01em;
+      flex: 1;
     }
-    .ic-showcase-badge {
+    .ic-kakao-badge {
       font-size: 9px;
       font-weight: 900;
       padding: 2px 7px;
       border-radius: 10px;
-      letter-spacing: 0.04em;
+      background: linear-gradient(135deg, #fee500, #f97316);
+      color: #1a1a1a;
+      letter-spacing: 0.03em;
     }
-    .ic-showcase-badge-hire {
-      background: linear-gradient(135deg, #ef4444, #f97316);
-      color: #fff;
-      animation: hiringPulse 2s ease-in-out infinite;
-    }
-    @keyframes hiringPulse {
-      0%,100% { box-shadow: 0 1px 6px rgba(239,68,68,0.30); }
-      50%      { box-shadow: 0 1px 12px rgba(239,68,68,0.55); }
-    }
-    .ic-showcase-badge-live {
-      background: linear-gradient(135deg, #1a3de8, #00c8ee);
-      color: #fff;
-    }
-    .ic-showcase-spacer { flex: 1; }
-    .ic-showcase-all {
-      font-size: 11px;
-      font-weight: 700;
-      color: var(--blue-mid);
-      background: rgba(26,61,232,0.07);
-      border: none;
-      padding: 3px 9px;
+    .ic-kakao-meta {
+      font-size: 10.5px;
+      color: var(--txt-lo);
+      padding: 4px 10px;
+      background: var(--bg);
       border-radius: 8px;
-      cursor: pointer;
-      font-family: inherit;
-      transition: background 0.15s, transform 0.12s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
-    .ic-showcase-all:hover { background: rgba(26,61,232,0.13); transform: translateX(2px); }
-    /* Hot 아이템 리스트 */
-    .ic-hot-list { display: flex; flex-direction: column; gap: 6px; }
-    .ic-hot-item {
+    .ic-kakao-meta-label { font-weight: 700; color: var(--txt-mid); }
+    .ic-kakao-rank-list { display: flex; flex-direction: column; gap: 5px; }
+    .ic-kakao-rank-item {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 8px 10px;
+      padding: 7px 10px;
       border-radius: 10px;
       background: var(--bg);
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      text-align: left;
-      width: 100%;
-      transition: background 0.15s, transform 0.12s;
     }
-    .ic-hot-item:hover { background: rgba(26,61,232,0.08); transform: translateX(2px); }
-    .ic-hot-rank {
+    .ic-kakao-rank-medal {
       min-width: 22px;
       height: 22px;
+      border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
-      border-radius: 50%;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 900;
       flex-shrink: 0;
     }
-    .ic-hot-rank-1 { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
-    .ic-hot-rank-2 { background: rgba(26,61,232,0.15); color: var(--blue-mid); }
-    .ic-hot-rank-3 { background: rgba(26,61,232,0.07); color: var(--txt-mid); }
-    .ic-hot-name {
+    .ic-kakao-rank-medal.r1 { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #7c3000; }
+    .ic-kakao-rank-medal.r2 { background: linear-gradient(135deg, #6b7280, #9ca3af); color: #fff; }
+    .ic-kakao-rank-medal.r3 { background: linear-gradient(135deg, #b45309, #d97706); color: #fff; }
+    .ic-kakao-rank-medal.rn { background: rgba(26,61,232,0.08); color: var(--txt-lo); font-size: 10px; }
+    .ic-kakao-rank-name {
       flex: 1;
       font-size: 0.8rem;
-      font-weight: 600;
+      font-weight: 700;
       color: var(--txt-hi);
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .ic-hot-cnt {
-      font-size: 10.5px;
+    .ic-kakao-rank-cnt {
+      font-size: 11px;
       font-weight: 700;
       color: var(--txt-lo);
       white-space: nowrap;
     }
-    .ic-hot-empty {
-      text-align: center;
-      color: var(--txt-lo);
-      font-size: 12px;
-      padding: 18px 0;
-    }
-    .ic-hot-skel {
-      height: 38px;
+    .ic-kakao-skel {
+      height: 36px;
       border-radius: 10px;
       background: linear-gradient(90deg, var(--bg) 0%, var(--bg-card) 50%, var(--bg) 100%);
       background-size: 200% 100%;
       animation: jobsSkel 1.4s ease-in-out infinite;
     }
-    /* 컴팩트 채용공고 카드 */
-    .ic-job-compact-list { display: flex; flex-direction: column; gap: 6px; }
-    .ic-job-compact-card {
-      display: flex;
-      gap: 9px;
-      align-items: center;
-      padding: 8px 9px;
-      border-radius: 10px;
-      background: var(--bg);
-      cursor: pointer;
-      border: none;
-      font-family: inherit;
-      text-align: left;
-      width: 100%;
-      transition: background 0.15s, transform 0.12s;
-    }
-    .ic-job-compact-card:hover { background: rgba(26,61,232,0.08); transform: translateX(2px); }
-    .ic-job-compact-thumb {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      object-fit: cover;
-      flex-shrink: 0;
-      border: 1px solid var(--border);
-      background: var(--bg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      overflow: hidden;
-    }
-    .ic-job-compact-thumb img,
-    .ic-job-compact-thumb iframe {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      pointer-events: none;
-      border: none;
-    }
-    .ic-job-compact-info { flex: 1; min-width: 0; }
-    .ic-job-compact-title {
-      font-size: 0.78rem;
-      font-weight: 700;
-      color: var(--txt-hi);
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-    .ic-job-compact-meta {
-      font-size: 10.5px;
+    .ic-kakao-empty {
+      text-align: center;
+      padding: 20px 10px;
       color: var(--txt-lo);
-      margin-top: 1px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
+      font-size: 12.5px;
+      line-height: 1.6;
     }
-    .ic-job-compact-new {
-      font-size: 8.5px;
-      font-weight: 900;
-      background: #ef4444;
-      color: #fff;
-      padding: 1px 5px;
-      border-radius: 5px;
-      flex-shrink: 0;
-    }
-    .ic-hot-updated {
+    .ic-kakao-updated {
       font-size: 10px;
       color: var(--txt-lo);
       text-align: right;
-      margin-top: 2px;
     }
+    /* jobs 섹션에서 분할 레이아웃일 때 margin 제거 */
+    .ic-home-split > .ic-jobs { margin-bottom: 0; }
+    /* 분할 레이아웃 내 jobs-grid: 2열 고정 */
+    .ic-home-split .ic-jobs-grid { grid-template-columns: repeat(2, 1fr); }
 
     /* AdSense 슬롯 — 광고가 실제로 채워졌을 때만 시각화 (빈 박스 방지) */
     .ic-ad-slot {
@@ -5565,68 +5479,45 @@
       <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
     </section>
 
-    <!-- ══ 4-컬럼 실시간 쇼케이스: 채용공고 + 인기 전산 + 인기 보험지식 + 인기 뉴스 ══ -->
-    <div class="ic-showcase-row" aria-label="실시간 인기 콘텐츠">
+    <!-- ══ 채용공고 + 모임방 대화순위 (2-컬럼 분할) ══ -->
+    <div class="ic-home-split">
 
-      <!-- ① 채용공고 -->
-      <div class="ic-showcase-col">
-        <div class="ic-showcase-head">
-          <span class="ic-showcase-title">🔥 채용공고</span>
-          <span class="ic-showcase-badge ic-showcase-badge-hire">HIRING</span>
-          <span class="ic-showcase-spacer"></span>
-          <button class="ic-showcase-all" type="button" onclick="goToPage('recruit')">전체 →</button>
+      <!-- 좌: 채용공고 쇼케이스 -->
+      <section class="ic-jobs" aria-label="진행중인 채용공고">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            🔥 진행중인 채용공고
+            <span class="ic-jobs-pill">HIRING</span>
+          </div>
+          <span class="ic-jobs-spacer"></span>
+          <button class="ic-jobs-all" type="button" onclick="goToPage('recruit')">전체 보기 →</button>
         </div>
-        <div class="ic-job-compact-list" id="home-jobs-compact">
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
+        <div class="ic-jobs-grid" id="home-jobs-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
         </div>
-      </div>
+      </section>
 
-      <!-- ② 인기 전산 -->
-      <div class="ic-showcase-col">
-        <div class="ic-showcase-head">
-          <span class="ic-showcase-title">📊 인기 전산</span>
-          <span class="ic-showcase-badge ic-showcase-badge-live">LIVE</span>
-          <span class="ic-showcase-spacer"></span>
-          <button class="ic-showcase-all" type="button" onclick="goToPage('jeonsan')">전체 →</button>
+      <!-- 우: 모임방 대화 순위 -->
+      <div class="ic-kakao-panel" aria-label="모임방 대화 순위">
+        <div class="ic-kakao-head">
+          <span class="ic-kakao-title">💬 모임방 대화순위</span>
+          <span class="ic-kakao-badge">KAKAO</span>
         </div>
-        <div class="ic-hot-list" id="home-hot-jeonsan">
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
+        <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
+          <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
+          <span id="home-kakao-period"></span>
         </div>
-        <div class="ic-hot-updated" id="home-hot-updated"></div>
-      </div>
-
-      <!-- ③ 인기 보험지식 -->
-      <div class="ic-showcase-col">
-        <div class="ic-showcase-head">
-          <span class="ic-showcase-title">💡 인기 보험지식</span>
-          <span class="ic-showcase-badge ic-showcase-badge-live">LIVE</span>
-          <span class="ic-showcase-spacer"></span>
-          <button class="ic-showcase-all" type="button" onclick="goToPage('knowledge')">전체 →</button>
+        <div class="ic-kakao-rank-list" id="home-kakao-list">
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
         </div>
-        <div class="ic-hot-list" id="home-hot-knowledge">
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
-        </div>
-      </div>
-
-      <!-- ④ 인기 뉴스 -->
-      <div class="ic-showcase-col">
-        <div class="ic-showcase-head">
-          <span class="ic-showcase-title">📰 인기 뉴스</span>
-          <span class="ic-showcase-badge ic-showcase-badge-live">LIVE</span>
-          <span class="ic-showcase-spacer"></span>
-          <button class="ic-showcase-all" type="button" onclick="goToPage('newsletter')">전체 →</button>
-        </div>
-        <div class="ic-hot-list" id="home-hot-cardnews">
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
-          <div class="ic-hot-skel"></div>
-        </div>
+        <div class="ic-kakao-updated" id="home-kakao-updated"></div>
       </div>
 
     </div>
@@ -9842,8 +9733,6 @@
         if (upd) upd.textContent = `· 업데이트 ${hh}:${mm}`;
       });
 
-      // 홈 대시보드 실시간 인기 섹션도 같이 갱신
-      renderHomeHot();
     }
 
     // 클릭 시 해당 항목으로 이동
@@ -10424,85 +10313,101 @@
     }
 
     async function loadHomeJobs() {
-      const list = document.getElementById('home-jobs-compact');
-      if (!list) return;
+      const grid = document.getElementById('home-jobs-grid');
+      if (!grid) return;
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?select=id,title,company_name,file_url,file_type,created_at&order=created_at.desc&limit=3`, { headers: HDR });
+        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?select=id,title,company_name,file_url,file_type,created_at&order=created_at.desc&limit=4`, { headers: HDR });
         if (!res.ok) throw new Error('fetch failed');
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) {
-          list.innerHTML = '<div class="ic-hot-empty">현재 등록된 채용공고가 없습니다.</div>';
+          grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 채용공고가 없습니다.</div>';
           return;
         }
-        list.innerHTML = items.map(it => {
-          let thumbInner;
+        grid.innerHTML = items.map(it => {
+          let thumb;
+          let typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumbInner = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumbInner = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
           } else {
-            thumbInner = `📝`;
+            thumb = `<span class="ic-job-thumb-fallback">📝</span>`;
+            typeBadge = '<span class="ic-job-type-badge">✍ TEXT</span>';
           }
-          const newBadge = isNew(it.created_at) ? '<span class="ic-job-compact-new">NEW</span>' : '';
-          const meta = [it.company_name, fmtDate(it.created_at)].filter(Boolean).join(' · ');
-          return `<button class="ic-job-compact-card" type="button" onclick="window.__openHomeJob(${it.id})">
-            <div class="ic-job-compact-thumb">${thumbInner}</div>
-            <div class="ic-job-compact-info">
-              <div class="ic-job-compact-title">${esc(it.title)}</div>
-              <div class="ic-job-compact-meta">${esc(meta)}</div>
+          const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
+          return `<button class="ic-job-card" type="button" onclick="window.__openHomeJob(${it.id})">
+            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}</div>
+            <div class="ic-job-body">
+              ${it.company_name ? `<div class="ic-job-company">${esc(it.company_name)}</div>` : ''}
+              <div class="ic-job-title">${esc(it.title)}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)}</div>
             </div>
-            ${newBadge}
           </button>`;
         }).join('');
       } catch (e) {
-        list.innerHTML = '<div class="ic-hot-empty">로드 실패. 잠시 후 다시 시도해주세요.</div>';
+        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">채용공고 로드 실패. 잠시 후 다시 시도해주세요.</div>';
       }
     }
 
-    /* 홈 대시보드 실시간 인기 콘텐츠 렌더 (_lmCache 데이터 활용) */
-    function renderHomeHot() {
-      if (!_lmCache) return;
-      const suffix = _lmPeriod === 'today' ? 'today' : 'total';
-      const jeonsan   = _lmCache[`jeonsan_${suffix}`]   || [];
-      const knowledge = _lmCache[`knowledge_${suffix}`] || [];
-      const cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
-
-      const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-
-      const makeHotItems = (arr, onClickFn) => {
-        if (!arr.length) return '<div class="ic-hot-empty">아직 클릭 기록이 없습니다</div>';
-        return arr.slice(0, 3).map((it, i) => {
-          const rank = i + 1;
-          const cnt = (it.clicks || 0).toLocaleString();
-          const safeN = esc2(it.name);
-          const onclk = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
-          return `<button class="ic-hot-item" type="button" ${onclk}>
-            <span class="ic-hot-rank ic-hot-rank-${rank}">${rank}</span>
-            <span class="ic-hot-name" title="${safeN}">${safeN}</span>
-            <span class="ic-hot-cnt">${cnt}회</span>
-          </button>`;
-        }).join('');
-      };
-
-      const jeonsanHtml   = makeHotItems(jeonsan,   (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`);
-      const knowledgeHtml = makeHotItems(knowledge, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`);
-      const cardnewsHtml  = makeHotItems(cardnews,  (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`);
-
-      requestAnimationFrame(() => {
-        const hj = document.getElementById('home-hot-jeonsan');
-        const hk = document.getElementById('home-hot-knowledge');
-        const hc = document.getElementById('home-hot-cardnews');
-        const hu = document.getElementById('home-hot-updated');
-        if (hj) hj.innerHTML = jeonsanHtml;
-        if (hk) hk.innerHTML = knowledgeHtml;
-        if (hc) hc.innerHTML = cardnewsHtml;
-        if (hu) {
-          const now = new Date();
-          const hh = String(now.getHours()).padStart(2,'0');
-          const mm = String(now.getMinutes()).padStart(2,'0');
-          hu.textContent = `업데이트 ${hh}:${mm}`;
+    /* 홈 대시보드 모임방 대화순위 로드 */
+    async function loadKakaoRank() {
+      const listEl  = document.getElementById('home-kakao-list');
+      const metaEl  = document.getElementById('home-kakao-meta');
+      const roomEl  = document.getElementById('home-kakao-room');
+      const periodEl= document.getElementById('home-kakao-period');
+      const updEl   = document.getElementById('home-kakao-updated');
+      if (!listEl) return;
+      try {
+        const res = await fetch(
+          `${SB_URL}/rest/v1/ic_kakao_stats?select=room_name,period_label,rankings,total_messages,updated_at&order=created_at.desc&limit=1`,
+          { headers: HDR }
+        );
+        if (!res.ok) throw new Error('fetch failed');
+        const arr = await res.json();
+        if (!Array.isArray(arr) || arr.length === 0) {
+          listEl.innerHTML = '<div class="ic-kakao-empty">아직 대화 통계가 없습니다.<br>관리자 페이지에서 카카오톡 대화 파일을 업로드해주세요.</div>';
+          return;
         }
-      });
+        const d = arr[0];
+        const rankings = Array.isArray(d.rankings) ? d.rankings : [];
+
+        // 메타 표시
+        if (metaEl && (d.room_name || d.period_label)) {
+          if (roomEl) roomEl.textContent = d.room_name || '';
+          if (periodEl) periodEl.textContent = d.period_label ? `· ${d.period_label}` : '';
+          metaEl.style.display = 'flex';
+        }
+
+        // 업데이트 시각
+        if (updEl && d.updated_at) {
+          const u = new Date(d.updated_at);
+          const hh = String(u.getHours()).padStart(2,'0');
+          const mm = String(u.getMinutes()).padStart(2,'0');
+          updEl.textContent = `업데이트 ${hh}:${mm} · 총 ${(d.total_messages||0).toLocaleString()}건`;
+        }
+
+        if (rankings.length === 0) {
+          listEl.innerHTML = '<div class="ic-kakao-empty">순위 데이터가 없습니다.</div>';
+          return;
+        }
+
+        const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const medals = ['🥇','🥈','🥉'];
+        listEl.innerHTML = rankings.slice(0, 10).map((it, i) => {
+          const rank = i + 1;
+          const medalCls = rank <= 3 ? `r${rank}` : 'rn';
+          const medalContent = rank <= 3 ? medals[i] : rank;
+          return `<div class="ic-kakao-rank-item">
+            <div class="ic-kakao-rank-medal ${medalCls}">${medalContent}</div>
+            <div class="ic-kakao-rank-name" title="${esc2(it.name)}">${esc2(it.name)}</div>
+            <div class="ic-kakao-rank-cnt">${(it.count||0).toLocaleString()}건</div>
+          </div>`;
+        }).join('');
+      } catch (_) {
+        listEl.innerHTML = '<div class="ic-kakao-empty">대화 통계 로드 실패.</div>';
+      }
     }
 
     /* 홈에서 채용공고 카드 클릭 → 채용공고 페이지로 이동 + 해당 항목 자동 오픈 */
@@ -10524,9 +10429,10 @@
     };
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadHomeJobs);
+      document.addEventListener('DOMContentLoaded', () => { loadHomeJobs(); loadKakaoRank(); });
     } else {
       loadHomeJobs();
+      loadKakaoRank();
     }
   })();
   </script>

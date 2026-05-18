@@ -3004,20 +3004,9 @@
             <div class="stats-slide">
               <p class="slide-title">클릭 통계</p>
 
-              <!-- 메뉴별 클릭 요약 -->
-              <div class="menu-stats-card" style="margin-bottom:20px">
-                <div class="menu-stats-head">
-                  <span>📊 메뉴 클릭</span>
-                  <span class="menu-stats-hint">오늘 / 누적</span>
-                </div>
-                <div class="menu-stats-body" id="menu-stats-body">
-                  <p class="empty-msg" style="font-size:12px">로딩 중…</p>
-                </div>
-              </div>
-
               <!-- 카드별 7일 추이 구분선 -->
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 카드별 클릭 7일 추이</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 우측버튼 · 하단네비 7일 클릭 추이</span>
                 <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
               </div>
 
@@ -3182,6 +3171,8 @@
         <button class="upload-tab" data-panel="up-knowledge">📚 보험지식</button>
         <button class="upload-tab" data-panel="up-sidebar">🖼 사이드바 배너</button>
         <button class="upload-tab" data-panel="up-textbook">📖 보험교재</button>
+        <button class="upload-tab" data-panel="up-alert">🚨 점검·장애 알림</button>
+        <button class="upload-tab" data-panel="up-kakao">💬 대화순위</button>
       </div>
 
       <!-- 소식지 관리 패널 -->
@@ -3443,22 +3434,18 @@
           <h4 style="margin:0 0 14px;font-size:14px;color:var(--blue-mid);font-weight:700;letter-spacing:0.04em;">📖 보험교재 업로드</h4>
           <div class="nl-form" id="tb-form">
             <div class="nl-field" style="width:100%;">
-              <label>제목 *</label>
-              <input type="text" id="tb-title" placeholder="예: 변액보험 핵심교재 2026" maxlength="120">
-            </div>
-            <div class="nl-field" style="width:100%;">
-              <label>설명 (선택)</label>
-              <input type="text" id="tb-desc" placeholder="예: 변액보험 판매 자격시험 대비, 134페이지" maxlength="200">
-            </div>
-            <div class="nl-field" style="width:100%;">
-              <label>파일 (PDF / JPG / PNG)</label>
-              <label class="nl-file-label">
-                📎 파일 선택
-                <input type="file" id="tb-file" accept="application/pdf,image/jpeg,image/png,image/webp">
-                <span class="nl-file-name" id="tb-file-name">없음</span>
+              <label>파일 선택 (PDF / JPG / PNG, 여러 파일 동시 선택 가능)</label>
+              <label class="nl-file-label" style="cursor:pointer;">
+                📎 파일 선택 (복수 선택 가능)
+                <input type="file" id="tb-file" accept="application/pdf,image/jpeg,image/png,image/webp" multiple>
               </label>
             </div>
-            <button class="nl-upload-btn" id="tb-upload-btn" onclick="uploadTextbook()">업로드</button>
+          </div>
+          <!-- 파일별 제목/설명 입력 행 -->
+          <div id="tb-file-rows" style="display:none;margin-top:12px;"></div>
+          <div id="tb-btn-row" style="display:none;margin-top:10px;display:none;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button class="nl-upload-btn" id="tb-upload-btn" onclick="uploadTextbook()" style="margin:0;">업로드</button>
+            <button onclick="document.getElementById('tb-file').value='';tbClearRows();" style="padding:8px 16px;background:rgba(220,38,38,0.08);color:#dc2626;border:1px solid rgba(220,38,38,0.2);border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;">초기화</button>
           </div>
           <p class="nl-status" id="tb-status"></p>
         </div>
@@ -3467,6 +3454,106 @@
           <p class="empty-msg">교재 로딩 중…</p>
         </div>
       </div><!-- /#up-textbook -->
+
+      <!-- ══════════════════ 점검·장애 알림 관리 ══════════════════ -->
+      <div class="upload-panel" id="up-alert">
+        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(220,38,38,0.30);border-left:3px solid #dc2626;border-radius:8px;background:linear-gradient(90deg,rgba(220,38,38,0.08),rgba(220,38,38,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#dc2626;margin-bottom:6px;letter-spacing:0.03em;">🚨 점검·장애 알림 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>보험사 전산 점검·장애를 등록하면 랜딩페이지 상단에 배너로 표시됩니다</li>
+            <li>심각도(info/warn/down)에 따라 배너 색상이 다르게 표시됩니다</li>
+            <li>종료 시각이 지나거나 활성화를 끄면 자동으로 사라집니다</li>
+            <li>이용자는 X 버튼으로 알림을 오늘 하루 숨길 수 있습니다</li>
+          </ul>
+        </div>
+
+        <div class="nl-upload-box">
+          <h4 style="margin:0 0 14px;font-size:14px;color:var(--blue-mid);font-weight:700;letter-spacing:0.04em;">🚨 알림 등록</h4>
+          <div class="nl-form" id="al-form">
+            <div class="nl-field" style="flex:1;min-width:140px;">
+              <label>보험사 *</label>
+              <input type="text" id="al-insurer" placeholder="예: 메리츠화재" maxlength="40">
+            </div>
+            <div class="nl-field" style="min-width:120px;">
+              <label>심각도</label>
+              <select id="al-severity">
+                <option value="info">📢 일반 (info)</option>
+                <option value="warn" selected>⚠️ 점검 (warn)</option>
+                <option value="down">🚨 장애 (down)</option>
+              </select>
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>제목 *</label>
+              <input type="text" id="al-title" placeholder="예: 정기 시스템 점검 안내" maxlength="120">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>상세 메시지 (선택)</label>
+              <input type="text" id="al-message" placeholder="예: 11/22 02:00~06:00 전산 일시 중단" maxlength="240">
+            </div>
+            <div class="nl-field" style="flex:1;min-width:160px;">
+              <label>시작 시각 (선택, 비우면 즉시)</label>
+              <input type="datetime-local" id="al-starts">
+            </div>
+            <div class="nl-field" style="flex:1;min-width:160px;">
+              <label>종료 시각 (선택)</label>
+              <input type="datetime-local" id="al-ends">
+            </div>
+            <button class="nl-upload-btn" id="al-save-btn" onclick="saveAlert()">등록</button>
+          </div>
+          <p class="nl-status" id="al-status"></p>
+        </div>
+
+        <div class="nl-list" id="al-list">
+          <p class="empty-msg">알림 로딩 중…</p>
+        </div>
+      </div><!-- /#up-alert -->
+
+      <!-- ══════════════════ 카카오톡 대화 순위 관리 ══════════════════ -->
+      <div class="upload-panel" id="up-kakao">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(254,229,0,0.35);border-left:3px solid #fee500;border-radius:8px;background:linear-gradient(90deg,rgba(254,229,0,0.09),rgba(254,229,0,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#b8a000;margin-bottom:6px;letter-spacing:0.03em;">💬 카카오톡 대화 순위 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.8;">
+            <li>카카오톡 PC앱에서 <strong>대화 내보내기</strong>로 저장한 <strong>.txt 파일</strong>을 업로드하세요</li>
+            <li>파일을 파싱해 대화 횟수 기준으로 자동 순위를 산출합니다</li>
+            <li>결과 미리보기 확인 후 저장하면 홈 대시보드 채용공고 옆에 실시간 표시됩니다</li>
+            <li>가장 최근에 저장된 통계 1건이 표시됩니다</li>
+          </ul>
+        </div>
+
+        <!-- 업로드 폼 -->
+        <div class="nl-upload-box" style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:14px;">📂 카카오톡 대화 파일 업로드</div>
+
+          <div class="nl-field">
+            <label>모임방 이름 (선택)</label>
+            <input type="text" id="kk-room-name" placeholder="예: 보험설계사 모임방" style="font-family:inherit;">
+          </div>
+          <div class="nl-field">
+            <label>기간 레이블 (선택)</label>
+            <input type="text" id="kk-period" placeholder="예: 2026년 5월" style="font-family:inherit;">
+          </div>
+          <div class="nl-field">
+            <label>카카오톡 대화 내보내기 파일 (.txt)</label>
+            <input type="file" id="kk-file" accept=".txt" style="font-family:inherit;">
+          </div>
+
+          <button class="nl-btn" id="kk-parse-btn" onclick="kkParseFile()" style="margin-top:8px;">🔍 파일 분석하기</button>
+        </div>
+
+        <!-- 미리보기 -->
+        <div id="kk-preview" style="display:none;margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">📊 분석 결과 미리보기</div>
+          <div id="kk-preview-meta" style="font-size:12px;color:var(--txt-mid);margin-bottom:10px;"></div>
+          <div id="kk-preview-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;"></div>
+          <button class="nl-btn" id="kk-save-btn" onclick="kkSave()" style="background:linear-gradient(135deg,#fee500,#f97316);color:#1a1a1a;">💾 홈 대시보드에 저장</button>
+        </div>
+
+        <!-- 저장된 통계 목록 -->
+        <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">📋 저장된 통계 목록</div>
+        <div class="nl-list" id="kk-list">
+          <p class="empty-msg">통계 로딩 중…</p>
+        </div>
+      </div><!-- /#up-kakao -->
 
       <!-- ══════ 배너 미리보기 모달 (이용자 시점) ══════ -->
       <div id="sb-preview-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSbPreview()">
@@ -3864,7 +3951,7 @@
     }
 
     /* ── 메뉴 클릭 통계 렌더 ── */
-    const MENU_ORDER = ['🏠 홈', '보험설계사 커뮤니티', '설계매니저 커뮤니티', '운영자 문의'];
+    const MENU_ORDER = ['🏠 홈', 'CREW300 오픈채팅 참여', 'MANAGERLINK 오픈채팅 참여', '운영자 문의'];
     function renderMenuStats(rows) {
       const body = document.getElementById('menu-stats-body');
       if (!body) return;
@@ -4109,9 +4196,8 @@
 
     /* ── 카드별 클릭 통계 렌더 ── */
     const MENU_LABEL = {
-      '홈':    '🏠 홈 대시보드',
-      '실무도구': '🔧 실무도구',
-      '보험포털': '🌐 보험 포털',
+      '우측버튼':  '↗ 우측 네비 버튼',
+      '하단네비':  '📱 하단 네비 (모바일)',
     };
     async function loadCardStats() {
       const el = document.getElementById('card-stats-body');
@@ -4131,13 +4217,14 @@
         }
 
         /* 메뉴별 그룹화 */
-        const menuOrder = ['홈','실무도구','보험포털'];
+        const menuOrder = ['우측버튼','하단네비'];
         const groups = {};
         rows.forEach(r => {
           if (!groups[r.menu]) groups[r.menu] = [];
           groups[r.menu].push(r);
         });
-        const allMenus = [...new Set([...menuOrder, ...Object.keys(groups)])].filter(m => groups[m]);
+        /* menuOrder에 있는 메뉴만 표시 (그 외 메뉴는 통계에서 제외) */
+        const allMenus = menuOrder.filter(m => groups[m]);
 
         /* HTML 생성 — 메뉴 그룹 > 카드 그리드 */
         let html = '';
@@ -4157,14 +4244,21 @@
             <div class="cs-cards-grid">${cardItems}</div>
           </div>`;
         });
+        if (!html) {
+          el.innerHTML = '<p class="cs-empty">> 우측버튼·하단네비 클릭 데이터가 아직 없습니다.</p>';
+          ssUpdateHeight();
+          return;
+        }
         el.innerHTML = html;
 
-        /* 캐시 저장 (슬라이드 전환 재렌더용) */
-        _cachedCardCharts = rows.map(({ menu, card, data }) => ({ menu, card, data }));
+        /* 캐시 저장 (슬라이드 전환 재렌더용) — menuOrder에 있는 것만 */
+        _cachedCardCharts = rows
+          .filter(({ menu }) => menuOrder.includes(menu))
+          .map(({ menu, card, data }) => ({ menu, card, data }));
 
         /* 차트 렌더 */
         requestAnimationFrame(() => {
-          rows.forEach(({ menu, card, data }) => {
+          rows.filter(({ menu }) => menuOrder.includes(menu)).forEach(({ menu, card, data }) => {
             const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
             renderLineChart(id, data, 'clicks');
           });
@@ -4304,8 +4398,7 @@
           bar.textContent = `오늘: ${todayStr}  |  이번 주: ${ws} ~ ${we}`;
         })();
 
-        /* 메뉴 클릭 통계 */
-        renderMenuStats(d.menu_clicks);
+        /* 메뉴 클릭 요약은 제거됨 (우측버튼·하단네비만 추적) */
 
         /* 체류 시간 통계 */
         loadSessionStats();
@@ -4343,6 +4436,8 @@
       loadKnowledgeList();
       loadSidebarBanners();
       loadTextbooks();
+      loadAlerts();
+      loadKakaoStats();
     }
 
     /* ── 파일 선택 표시 ── */
@@ -5588,63 +5683,117 @@
       }
     }
 
-    /* ── 보험교재 업로드 ── */
+    /* ── 보험교재: 파일 선택 시 행 렌더링 ── */
+    function tbClearRows() {
+      document.getElementById('tb-file-rows').innerHTML = '';
+      document.getElementById('tb-file-rows').style.display = 'none';
+      document.getElementById('tb-btn-row').style.display = 'none';
+      document.getElementById('tb-status').textContent = '';
+    }
+
+    document.getElementById('tb-file').addEventListener('change', function() {
+      const files = Array.from(this.files);
+      const rows  = document.getElementById('tb-file-rows');
+      const btnRow = document.getElementById('tb-btn-row');
+      if (!files.length) { tbClearRows(); return; }
+
+      rows.innerHTML = files.map((f, i) => {
+        const autoTitle = f.name.replace(/\.[^.]+$/, '').replace(/[_\-]+/g, ' ').trim();
+        const icon = f.type === 'application/pdf' ? '📄' : '🖼';
+        const sizeKb = f.size < 1048576 ? (f.size / 1024).toFixed(0) + ' KB' : (f.size / 1048576).toFixed(1) + ' MB';
+        return `<div data-idx="${i}" style="padding:10px 12px;border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;">
+            <span style="font-size:18px;">${icon}</span>
+            <span style="font-size:11.5px;color:var(--txt-lo);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${esc(f.name)}">${esc(f.name)}</span>
+            <span style="font-size:11px;color:var(--txt-lo);flex-shrink:0;">${sizeKb}</span>
+          </div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <div class="nl-field" style="flex:1;min-width:160px;margin:0;">
+              <label style="margin-bottom:4px;">제목 *</label>
+              <input type="text" data-role="title" value="${esc(autoTitle)}" maxlength="120" placeholder="제목을 입력하세요">
+            </div>
+            <div class="nl-field" style="flex:1;min-width:160px;margin:0;">
+              <label style="margin-bottom:4px;">설명 (선택)</label>
+              <input type="text" data-role="desc" maxlength="200" placeholder="설명 (선택)">
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+
+      rows.style.display = 'block';
+      btnRow.style.display = 'flex';
+      document.getElementById('tb-status').textContent = '';
+    });
+
+    /* ── 보험교재 업로드 (다중) ── */
     async function uploadTextbook() {
-      const title   = document.getElementById('tb-title').value.trim();
-      const desc    = document.getElementById('tb-desc').value.trim();
       const fileEl  = document.getElementById('tb-file');
       const status  = document.getElementById('tb-status');
       const btn     = document.getElementById('tb-upload-btn');
+      const files   = Array.from(fileEl.files);
 
-      if (!title)        { status.textContent = '⚠ 제목을 입력해주세요.'; return; }
-      if (!fileEl.files[0]) { status.textContent = '⚠ 파일을 선택해주세요.'; return; }
+      if (!files.length) { status.textContent = '⚠ 파일을 선택해주세요.'; return; }
 
-      const file = fileEl.files[0];
-      const isPdf = file.type === 'application/pdf';
-      const ext = isPdf ? 'pdf' : file.name.split('.').pop().toLowerCase();
-      const safeTitle = title.replace(/[^a-zA-Z0-9가-힣]/g, '_').slice(0, 40);
-      const fileName = `${Date.now()}_${safeTitle}.${ext}`;
+      const rows = document.querySelectorAll('#tb-file-rows [data-idx]');
+      const entries = files.map((file, i) => {
+        const row   = rows[i];
+        const title = row ? row.querySelector('[data-role="title"]').value.trim() : '';
+        const desc  = row ? row.querySelector('[data-role="desc"]').value.trim() : '';
+        return { file, title, desc };
+      });
+
+      const missing = entries.filter(e => !e.title);
+      if (missing.length) { status.textContent = '⚠ 모든 파일에 제목을 입력해주세요.'; return; }
 
       btn.disabled = true;
-      status.textContent = '업로드 중…';
+      let ok = 0, fail = 0;
 
-      try {
-        const uploadRes = await fetch(`${SB_URL}/storage/v1/object/textbooks/${fileName}`, {
-          method: 'POST',
-          headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
-          body: file
-        });
-        if (!uploadRes.ok) {
-          const err = await uploadRes.text();
-          throw new Error(`스토리지 오류 (${uploadRes.status}): ${err}`);
+      for (let idx = 0; idx < entries.length; idx++) {
+        const { file, title, desc } = entries[idx];
+        status.textContent = `업로드 중… (${idx + 1}/${entries.length})`;
+        const isPdf     = file.type === 'application/pdf';
+        const ext       = isPdf ? 'pdf' : file.name.split('.').pop().toLowerCase();
+        const safeTitle = (title.replace(/[^a-zA-Z0-9]/g, '_').replace(/_+/g, '_').replace(/^_|_$/g, '').slice(0, 40)) || 'file';
+        const fileName  = `${Date.now()}_${safeTitle}.${ext}`;
+
+        try {
+          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/textbooks/${fileName}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
+            body: file
+          });
+          if (!uploadRes.ok) {
+            const err = await uploadRes.text();
+            throw new Error(`스토리지 오류 (${uploadRes.status}): ${err}`);
+          }
+
+          const fileUrl = `${SB_URL}/storage/v1/object/public/textbooks/${fileName}`;
+          const dbRes = await fetch(`${SB_URL}/rest/v1/ic_textbooks`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': 'application/json' }),
+            body: JSON.stringify({
+              title,
+              description: desc || null,
+              file_url: fileUrl,
+              file_type: isPdf ? 'pdf' : 'image',
+              file_size: file.size
+            })
+          });
+          if (!dbRes.ok) throw new Error('DB 저장 실패');
+          ok++;
+        } catch (e) {
+          fail++;
+          status.textContent = `❌ "${title}" 업로드 실패: ${e.message}`;
+          btn.disabled = false;
+          return;
         }
-
-        const fileUrl = `${SB_URL}/storage/v1/object/public/textbooks/${fileName}`;
-
-        const dbRes = await fetch(`${SB_URL}/rest/v1/ic_textbooks`, {
-          method: 'POST',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({
-            title,
-            description: desc || null,
-            file_url: fileUrl,
-            file_type: isPdf ? 'pdf' : 'image',
-            file_size: file.size
-          })
-        });
-        if (!dbRes.ok) throw new Error('DB 저장 실패');
-
-        status.textContent = '✅ 업로드 완료!';
-        fileEl.value = '';
-        document.getElementById('tb-file-name').textContent = '없음';
-        document.getElementById('tb-title').value = '';
-        document.getElementById('tb-desc').value = '';
-        loadTextbooks();
-      } catch (e) {
-        status.textContent = '❌ 업로드 실패: ' + e.message;
-      } finally {
-        btn.disabled = false;
       }
+
+      status.textContent = `✅ ${ok}개 업로드 완료!` + (fail ? ` (${fail}개 실패)` : '');
+      fileEl.value = '';
+      tbClearRows();
+      loadTextbooks();
+      btn.disabled = false;
     }
 
     /* ── 보험교재 목록 로드 ── */
@@ -5706,10 +5855,284 @@
       }
     }
 
-    document.getElementById('tb-file').addEventListener('change', function() {
-      document.getElementById('tb-file-name').textContent =
-        this.files && this.files[0] ? this.files[0].name : '없음';
-    });
+    /* ── 점검·장애 알림 ── */
+    async function saveAlert() {
+      const insurer = document.getElementById('al-insurer').value.trim();
+      const severity = document.getElementById('al-severity').value;
+      const title = document.getElementById('al-title').value.trim();
+      const message = document.getElementById('al-message').value.trim();
+      const startsRaw = document.getElementById('al-starts').value;
+      const endsRaw   = document.getElementById('al-ends').value;
+      const status = document.getElementById('al-status');
+      const btn = document.getElementById('al-save-btn');
+
+      if (!insurer || !title) { status.textContent = '⚠ 보험사와 제목을 입력해주세요.'; return; }
+
+      const body = {
+        insurer, severity, title,
+        message: message || null,
+        starts_at: startsRaw ? new Date(startsRaw).toISOString() : new Date().toISOString(),
+        ends_at:   endsRaw   ? new Date(endsRaw).toISOString()   : null,
+        is_active: true,
+      };
+
+      btn.disabled = true;
+      status.textContent = '등록 중…';
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_service_alerts`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify(body),
+        });
+        if (!res.ok) throw new Error('등록 실패 (' + res.status + ')');
+        status.textContent = '✅ 등록 완료!';
+        document.getElementById('al-insurer').value = '';
+        document.getElementById('al-title').value = '';
+        document.getElementById('al-message').value = '';
+        document.getElementById('al-starts').value = '';
+        document.getElementById('al-ends').value = '';
+        loadAlerts();
+      } catch (e) {
+        status.textContent = '❌ ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function loadAlerts() {
+      const el = document.getElementById('al-list');
+      if (!el) return;
+      try {
+        const res = await fetch(
+          `${SB_URL}/rest/v1/ic_service_alerts?select=*&order=is_active.desc,starts_at.desc&limit=100`,
+          { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
+        );
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 알림이 없습니다.</p>';
+          return;
+        }
+        const fmt = (s) => {
+          if (!s) return '—';
+          const d = new Date(s);
+          return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        };
+        const sevIcon = { info: '📢', warn: '⚠️', down: '🚨' };
+        const sevColor = { info: '#1e3a8a', warn: '#92400e', down: '#991b1b' };
+        el.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;opacity:${it.is_active ? '1' : '0.55'};">
+            <span style="font-size:20px;">${sevIcon[it.severity] || '📢'}</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:${sevColor[it.severity] || 'var(--txt-hi)'};overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">
+                [${esc(it.insurer)}] ${esc(it.title)}
+              </div>
+              ${it.message ? `<div style="font-size:11px;color:var(--txt-lo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.message)}</div>` : ''}
+              <div style="font-size:10.5px;color:var(--txt-lo);">${fmt(it.starts_at)} ~ ${fmt(it.ends_at)} · ${it.is_active ? '🟢 활성' : '⚫ 비활성'}</div>
+            </div>
+            <button onclick="toggleAlert(${it.id}, ${!it.is_active})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
+            <button onclick="deleteAlert(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">알림 로드 실패</p>';
+      }
+    }
+
+    async function toggleAlert(id, newState) {
+      try {
+        await fetch(`${SB_URL}/rest/v1/ic_service_alerts?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ is_active: newState }),
+        });
+        loadAlerts();
+      } catch (e) {
+        alert('변경 실패: ' + e.message);
+      }
+    }
+
+    async function deleteAlert(id) {
+      if (!confirm('이 알림을 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`${SB_URL}/rest/v1/ic_service_alerts?id=eq.${id}`, {
+          method: 'DELETE', headers: adminHeaders()
+        });
+        loadAlerts();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
+
+
+    /* ══════════════════ 카카오톡 대화 순위 ══════════════════ */
+    let _kkParsed = null; // 파싱된 결과 임시 저장
+
+    /* 카카오톡 .txt 파일 파싱 */
+    function parseKakaoTxt(text) {
+      const lines = text.split(/\r?\n/);
+      const counts = {};
+
+      // 패턴1: [이름] [오전/오후 H:MM] 내용  (PC 내보내기)
+      const re1 = /^\[(.+?)\] \[(오전|오후) \d{1,2}:\d{2}\] (.+)$/;
+      // 패턴2: (날짜 )오전/오후 H:MM, 이름 : 내용  (모바일 내보내기)
+      const re2 = /^(?:\d{4}년 \d{1,2}월 \d{1,2}일 )?(오전|오후) \d{1,2}:\d{2}, (.+?) : (.+)$/;
+
+      // 시스템 메시지 제외 키워드
+      const skip = ['이모티콘', '사진', '동영상', '파일', '음성메시지',
+        '님이 들어왔습니다', '님이 나갔습니다', '님을 초대했습니다',
+        '채팅방 이름', '저장한 날짜', '카카오톡 대화', '오픈채팅 대화'];
+
+      for (const line of lines) {
+        const trimmed = line.trim();
+        if (!trimmed) continue;
+        if (skip.some(s => trimmed.includes(s))) continue;
+
+        const m1 = trimmed.match(re1);
+        if (m1) {
+          const name = m1[1].trim();
+          const content = m1[3];
+          if (skip.some(s => content.includes(s))) continue;
+          counts[name] = (counts[name] || 0) + 1;
+          continue;
+        }
+        const m2 = trimmed.match(re2);
+        if (m2) {
+          const name = m2[2].trim();
+          const content = m2[3];
+          if (skip.some(s => content.includes(s))) continue;
+          counts[name] = (counts[name] || 0) + 1;
+        }
+      }
+
+      return Object.entries(counts)
+        .map(([name, count]) => ({ name, count }))
+        .sort((a, b) => b.count - a.count);
+    }
+
+    function kkParseFile() {
+      const fileInput = document.getElementById('kk-file');
+      if (!fileInput.files || !fileInput.files[0]) {
+        alert('.txt 파일을 먼저 선택해주세요.');
+        return;
+      }
+      const btn = document.getElementById('kk-parse-btn');
+      btn.textContent = '⏳ 분석 중…';
+      btn.disabled = true;
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const text = e.target.result;
+          const rankings = parseKakaoTxt(text);
+          const total = rankings.reduce((s, r) => s + r.count, 0);
+          _kkParsed = { rankings, total };
+
+          // 미리보기 표시
+          const medals = ['🥇','🥈','🥉'];
+          const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+          document.getElementById('kk-preview-meta').innerHTML =
+            `총 <strong>${total.toLocaleString()}</strong>건 · 참여자 <strong>${rankings.length}</strong>명`;
+          document.getElementById('kk-preview-list').innerHTML = rankings.slice(0,10).map((r,i) => `
+            <div style="display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg);border-radius:8px;">
+              <span style="min-width:24px;text-align:center;font-size:${i<3?'16px':'12px'};font-weight:800;">${i < 3 ? medals[i] : i+1}</span>
+              <span style="flex:1;font-size:13px;font-weight:700;color:var(--txt-hi);">${esc2(r.name)}</span>
+              <span style="font-size:12px;color:var(--txt-lo);font-weight:600;">${r.count.toLocaleString()}건</span>
+            </div>`).join('');
+          document.getElementById('kk-preview').style.display = 'block';
+        } catch (err) {
+          alert('파일 파싱 오류: ' + err.message);
+        } finally {
+          btn.textContent = '🔍 파일 분석하기';
+          btn.disabled = false;
+        }
+      };
+      reader.onerror = () => {
+        alert('파일 읽기 실패');
+        btn.textContent = '🔍 파일 분석하기';
+        btn.disabled = false;
+      };
+      reader.readAsText(fileInput.files[0], 'UTF-8');
+    }
+
+    async function kkSave() {
+      if (!_kkParsed) return;
+      const btn = document.getElementById('kk-save-btn');
+      btn.textContent = '⏳ 저장 중…';
+      btn.disabled = true;
+      try {
+        const payload = {
+          room_name: document.getElementById('kk-room-name').value.trim() || '모임방',
+          period_label: document.getElementById('kk-period').value.trim() || null,
+          rankings: _kkParsed.rankings,
+          total_messages: _kkParsed.total,
+          participant_count: _kkParsed.rankings.length,
+          updated_at: new Date().toISOString()
+        };
+        const res = await fetch(`${SB_URL}/rest/v1/ic_kakao_stats`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const err = await res.text();
+          throw new Error(err);
+        }
+        alert('✅ 저장 완료! 홈 대시보드에 반영됩니다.');
+        document.getElementById('kk-preview').style.display = 'none';
+        document.getElementById('kk-file').value = '';
+        _kkParsed = null;
+        loadKakaoStats();
+      } catch (e) {
+        alert('저장 실패: ' + e.message);
+      } finally {
+        btn.textContent = '💾 홈 대시보드에 저장';
+        btn.disabled = false;
+      }
+    }
+
+    async function loadKakaoStats() {
+      const el = document.getElementById('kk-list');
+      if (!el) return;
+      try {
+        const res = await fetch(
+          `${SB_URL}/rest/v1/ic_kakao_stats?select=id,room_name,period_label,total_messages,participant_count,updated_at&order=created_at.desc&limit=20`,
+          { headers: adminHeaders() }
+        );
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">저장된 통계가 없습니다.</p>';
+          return;
+        }
+        const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;');
+        const fmt = (s) => {
+          if (!s) return '—';
+          const d = new Date(s);
+          return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        };
+        el.innerHTML = items.map((it, idx) => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid ${idx===0?'rgba(254,229,0,0.5)':'var(--border)'};border-radius:10px;margin-bottom:8px;">
+            ${idx===0 ? '<span style="font-size:10px;font-weight:800;padding:2px 7px;background:#fee500;color:#1a1a1a;border-radius:8px;flex-shrink:0;">최신</span>' : ''}
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);">💬 ${esc2(it.room_name)}${it.period_label ? ` · ${esc2(it.period_label)}` : ''}</div>
+              <div style="font-size:11px;color:var(--txt-lo);">참여자 ${it.participant_count||0}명 · 총 ${(it.total_messages||0).toLocaleString()}건 · ${fmt(it.updated_at)}</div>
+            </div>
+            <button onclick="kkDelete(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">통계 로드 실패</p>';
+      }
+    }
+
+    async function kkDelete(id) {
+      if (!confirm('이 통계를 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`${SB_URL}/rest/v1/ic_kakao_stats?id=eq.${id}`, {
+          method: 'DELETE', headers: adminHeaders()
+        });
+        loadKakaoStats();
+      } catch (e) {
+        alert('삭제 실패: ' + e.message);
+      }
+    }
 
     // 미리보기 모달: ESC 닫기 + 좌우 방향키 슬라이드 탐색
     document.addEventListener('keydown', function(e) {
