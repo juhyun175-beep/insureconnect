@@ -4596,21 +4596,31 @@
       position: relative;
       width: 100%;
       flex: 1;
-      min-height: 70px;
+      min-height: 140px;
       overflow: hidden;
-      background: rgba(26,61,232,0.06);
+      /* contain 모드의 letterbox 영역을 자연스럽게 - 부드러운 그라디언트 */
+      background:
+        radial-gradient(ellipse at center, rgba(255,255,255,0.4) 0%, rgba(240,245,255,0.6) 50%, rgba(26,61,232,0.10) 100%),
+        linear-gradient(135deg, rgba(26,61,232,0.05), rgba(0,200,238,0.05));
       display: flex; align-items: center; justify-content: center;
     }
-    .side-cn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    [data-theme="dark"] .side-cn-thumb {
+      background:
+        radial-gradient(ellipse at center, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.02) 60%, rgba(0,0,0,0.18) 100%),
+        linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
+    }
+    /* contain 모드 — 업로드된 원본 전체가 잘리지 않고 표시 */
+    .side-cn-thumb img { width: 100%; height: 100%; object-fit: contain; display: block; padding: 4px; }
     .side-cn-fallback { font-size: 32px; }
 
-    /* 슬라이드 자동 전환 (페이드) */
+    /* 슬라이드 자동 전환 (페이드) — contain 모드로 잘림 방지 */
     .side-cn-slide {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      object-fit: cover;
+      object-fit: contain;
+      padding: 4px;
       opacity: 0;
       transition: opacity 0.7s ease-in-out;
       display: block;
@@ -4752,13 +4762,15 @@
         display: flex !important;
         flex-direction: column !important;
       }
-      /* 4) 썸네일: 카드에서 body 빼고 다 차지 → 자연스러운 배너 비율 */
+      /* 4) 썸네일: 카드에서 body 빼고 다 차지 → contain으로 원본 전체 표시 */
       .side-cn-thumb {
         flex: 1 1 0 !important;
-        min-height: 80px !important;
+        min-height: 160px !important;
         height: auto !important;
         max-height: none !important;
-        display: block !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
         position: relative !important;
         overflow: hidden !important;
       }
@@ -4767,8 +4779,13 @@
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        object-fit: cover !important;
+        object-fit: contain !important;
+        padding: 4px !important;
         display: block !important;
+      }
+      .side-cn-thumb .side-cn-slide {
+        object-fit: contain !important;
+        padding: 4px !important;
       }
       /* 5) body: 자연 높이 (텍스트만큼) */
       .side-cn-body { flex: none !important; }
