@@ -7,6 +7,13 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
+  <link rel="manifest" href="/manifest.json">
+  <meta name="theme-color" content="#1a3de8">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="InsureConnect">
+  <link rel="apple-touch-icon" href="/logo.png">
   <title>InsureConnect — 보험으로 연결하다</title>
   <!-- OG:START -->
   <meta property="og:type" content="website">
@@ -870,6 +877,27 @@
       text-align: left;
       transition: background 0.15s, color 0.15s;
     }
+    #pwa-install-btn {
+      background: linear-gradient(135deg, #1a3de8, #4a70f5);
+      color: #fff !important;
+      font-weight: 700;
+      font-size: 13px;
+      border-radius: 10px;
+      padding: 10px 12px;
+      justify-content: center;
+      box-shadow: 0 2px 12px rgba(26,61,232,0.30);
+      border: none;
+      animation: pwa-pulse 2.4s ease-in-out infinite;
+    }
+    #pwa-install-btn:hover {
+      background: linear-gradient(135deg, #1530c4, #3a60e5);
+      box-shadow: 0 4px 18px rgba(26,61,232,0.45);
+      animation: none;
+    }
+    @keyframes pwa-pulse {
+      0%, 100% { box-shadow: 0 2px 12px rgba(26,61,232,0.30); }
+      50%       { box-shadow: 0 2px 20px rgba(26,61,232,0.55); }
+    }
     .side-footer-link:hover { background: rgba(26,61,232,0.06); color: var(--blue-mid); }
     .side-stats {
       display: flex;
@@ -915,46 +943,6 @@
       color: var(--txt-lo);
       padding: 4px 10px 0;
       font-family: 'Pretendard', sans-serif;
-    }
-    /* 파트너 전용 페이지 링크 (사이드바 푸터 하단) */
-    .side-partner-link {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin-top: 8px;
-      padding: 7px 10px;
-      border: 1px dashed rgba(12,31,184,0.20);
-      border-radius: 10px;
-      background: rgba(12,31,184,0.03);
-      color: var(--txt-mid);
-      font-size: 11px;
-      font-weight: 600;
-      text-decoration: none;
-      transition: all 0.18s;
-    }
-    .side-partner-link:hover {
-      border-color: var(--blue-mid);
-      background: rgba(26,61,232,0.07);
-      color: var(--blue-mid);
-    }
-    .side-partner-link .spl-icon { font-size: 13px; line-height: 1; }
-    .side-partner-link .spl-text { flex: 1; }
-    .side-partner-link .spl-arrow {
-      font-size: 14px;
-      color: var(--txt-lo);
-      transition: transform 0.18s;
-    }
-    .side-partner-link:hover .spl-arrow {
-      color: var(--blue-mid);
-      transform: translateX(2px);
-    }
-    [data-theme="dark"] .side-partner-link {
-      border-color: rgba(255,255,255,0.10);
-      background: rgba(255,255,255,0.03);
-    }
-    [data-theme="dark"] .side-partner-link:hover {
-      border-color: var(--blue-mid);
-      background: rgba(74,112,245,0.10);
     }
 
     .side-contact {
@@ -1285,8 +1273,7 @@
       .side-footer-link { font-size: 11px; padding: 4px 8px; }
       .side-stats { font-size: 10px; padding: 3px 8px; }
       .side-theme-toggle { padding: 3px 8px; gap: 3px; }
-      .side-partner-link { margin-top: 5px; padding: 5px 8px; font-size: 10px; }
-      .side-partner-link .spl-icon { font-size: 11px; }
+
       .side-theme-btn { font-size: 10px; padding: 4px 2px; }
       .side-footer-copy { display: none; }
     }
@@ -3267,16 +3254,120 @@
     /* ══════════════════════════════
        홈 대시보드 - Hero / 기능 / 신뢰 / 푸터
     ══════════════════════════════ */
+    /* 히어로 + 시계 위젯 2열 레이아웃 */
+    .ic-hero-row {
+      display: grid;
+      grid-template-columns: 1fr 300px;
+      gap: 18px;
+      align-items: stretch;
+      margin: 0 0 22px;
+    }
+    @media (max-width: 860px) {
+      .ic-hero-row { grid-template-columns: 1fr; }
+    }
     .ic-hero {
       text-align: center;
       padding: 32px 20px 28px;
-      margin: 0 0 22px;
+      margin: 0;
       background: linear-gradient(135deg, rgba(26,61,232,0.06), rgba(0,200,238,0.05));
       border: 1px solid var(--border);
       border-radius: 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
     }
     [data-theme="dark"] .ic-hero {
       background: linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
+    }
+
+    /* iPhone 시계 위젯 스타일 */
+    .ic-clock {
+      position: relative;
+      padding: 22px 24px;
+      background: linear-gradient(135deg, #0c1fb8 0%, #1a3de8 55%, #4a70f5 100%);
+      border-radius: 18px;
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 14px;
+      min-height: 200px;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(12,31,184,0.25);
+    }
+    .ic-clock::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 0%, rgba(255,255,255,0.18), transparent 50%),
+        radial-gradient(circle at 100% 100%, rgba(0,240,255,0.20), transparent 55%);
+      pointer-events: none;
+    }
+    .ic-clock-head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      opacity: 0.78;
+    }
+    .ic-clock-head .ic-clock-dot {
+      width: 7px; height: 7px;
+      background: #4ade80;
+      border-radius: 50%;
+      box-shadow: 0 0 8px rgba(74,222,128,0.7);
+      animation: clockPulse 2s ease-in-out infinite;
+    }
+    @keyframes clockPulse {
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.45; }
+    }
+    .ic-clock-time {
+      position: relative;
+      font-size: clamp(2.8rem, 4vw, 3.4rem);
+      font-weight: 300;
+      letter-spacing: -0.025em;
+      line-height: 1;
+      font-variant-numeric: tabular-nums;
+      font-feature-settings: 'tnum';
+      text-align: center;
+    }
+    .ic-clock-time .ic-clock-colon {
+      display: inline-block;
+      animation: colonBlink 1s steps(2, end) infinite;
+    }
+    .ic-clock-time .ic-clock-seconds {
+      font-size: 0.42em;
+      font-weight: 400;
+      opacity: 0.65;
+      vertical-align: super;
+      margin-left: 4px;
+      letter-spacing: 0;
+    }
+    @keyframes colonBlink {
+      50% { opacity: 0.35; }
+    }
+    .ic-clock-date {
+      position: relative;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      opacity: 0.92;
+      text-align: center;
+    }
+    .ic-clock-date .ic-clock-day {
+      display: inline-block;
+      padding: 1.5px 8px;
+      background: rgba(255,255,255,0.16);
+      border-radius: 10px;
+      margin-right: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
     }
     .ic-hero-title {
       font-size: clamp(1.4rem, 3vw, 1.9rem);
@@ -3366,7 +3457,10 @@
       box-shadow: var(--sh-sm);
       cursor: default;
       user-select: none;
+      min-height: 110px;
+      justify-content: flex-start;
     }
+    .ic-feat-card .ic-feat-desc { flex: 1; }
     .ic-feat-icon { font-size: 26px; line-height: 1; margin-bottom: 6px; }
     .ic-feat-name {
       font-size: 0.95rem;
@@ -3378,6 +3472,367 @@
       font-size: 0.78rem;
       color: var(--txt-mid);
       line-height: 1.45;
+      margin-top: 2px;
+    }
+
+    /* ══════════════════════════════
+       홈 대시보드: 채용공고 쇼케이스 (광고 스타일)
+    ══════════════════════════════ */
+    .ic-jobs { margin: 0 0 24px; }
+    .ic-jobs-head {
+      display: flex; align-items: center; gap: 12px;
+      margin-bottom: 14px;
+    }
+    .ic-jobs-title {
+      display: flex; align-items: center; gap: 8px;
+      font-size: 1.05rem; font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .ic-jobs-pill {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 10.5px; font-weight: 800;
+      padding: 3px 10px; border-radius: 12px;
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      letter-spacing: 0.08em;
+      box-shadow: 0 2px 8px rgba(239,68,68,0.30);
+      animation: jobsPulse 2.2s ease-in-out infinite;
+    }
+    @keyframes jobsPulse {
+      0%, 100% { box-shadow: 0 2px 8px rgba(239,68,68,0.30); }
+      50%       { box-shadow: 0 2px 16px rgba(239,68,68,0.55); }
+    }
+    .ic-jobs-spacer { flex: 1; }
+    .ic-jobs-all {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 12px; font-weight: 700;
+      color: var(--blue-mid);
+      text-decoration: none;
+      padding: 6px 12px; border-radius: 8px;
+      background: rgba(26,61,232,0.06);
+      transition: all 0.15s;
+      cursor: pointer; border: none;
+      font-family: inherit;
+    }
+    .ic-jobs-all:hover {
+      background: rgba(26,61,232,0.12);
+      transform: translateX(2px);
+    }
+    .ic-jobs-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 900px) { .ic-jobs-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .ic-jobs-grid { grid-template-columns: 1fr; } }
+    .ic-job-card {
+      position: relative;
+      display: flex; flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      text-align: left;
+      font-family: inherit;
+      padding: 0;
+      transition: all 0.2s;
+      box-shadow: var(--sh-sm);
+    }
+    .ic-job-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.10);
+      border-color: var(--blue-mid);
+    }
+    .ic-job-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: linear-gradient(135deg, #f1f5f9, #e2e8f0);
+      overflow: hidden;
+      display: flex; align-items: center; justify-content: center;
+    }
+    [data-theme="dark"] .ic-job-thumb { background: linear-gradient(135deg, #1e293b, #0f172a); }
+    .ic-job-thumb img,
+    .ic-job-thumb iframe {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      border: none;
+      pointer-events: none;
+    }
+    .ic-job-thumb-fallback {
+      font-size: 36px;
+      opacity: 0.4;
+    }
+    .ic-job-new {
+      position: absolute;
+      top: 8px; left: 8px;
+      padding: 3px 8px;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: #fff;
+      font-size: 9.5px; font-weight: 800;
+      letter-spacing: 0.08em;
+      border-radius: 10px;
+      box-shadow: 0 2px 6px rgba(239,68,68,0.35);
+    }
+    .ic-job-type-badge {
+      position: absolute;
+      top: 8px; right: 8px;
+      padding: 3px 8px;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
+      color: #fff;
+      font-size: 9.5px; font-weight: 700;
+      border-radius: 8px;
+      letter-spacing: 0.04em;
+    }
+    .ic-job-body {
+      padding: 12px 14px 14px;
+      display: flex; flex-direction: column;
+      gap: 4px;
+    }
+    .ic-job-company {
+      font-size: 10.5px; font-weight: 800;
+      color: var(--blue-mid);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ic-job-title {
+      font-size: 13.5px; font-weight: 700;
+      color: var(--txt-hi);
+      line-height: 1.4;
+      letter-spacing: -0.01em;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+      min-height: 2.8em;
+    }
+    .ic-job-date {
+      font-size: 10.5px;
+      color: var(--txt-lo);
+      margin-top: 2px;
+    }
+    .ic-jobs-empty {
+      padding: 28px 16px;
+      text-align: center;
+      color: var(--txt-lo);
+      font-size: 13px;
+      border: 1px dashed var(--border);
+      border-radius: 12px;
+    }
+    .ic-jobs-skel {
+      aspect-ratio: 4/3.4;
+      background: linear-gradient(90deg, var(--bg) 0%, var(--bg-card) 50%, var(--bg) 100%);
+      background-size: 200% 100%;
+      border-radius: 14px;
+      animation: jobsSkel 1.4s ease-in-out infinite;
+    }
+    @keyframes jobsSkel { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+    /* ══════════════════════════════
+       홈 대시보드: 4-컬럼 실시간 쇼케이스
+    ══════════════════════════════ */
+    .ic-showcase-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+      align-items: start;
+    }
+    @media (max-width: 1024px) {
+      .ic-showcase-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .ic-showcase-row { grid-template-columns: 1fr; }
+    }
+    .ic-showcase-col {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px 14px 12px;
+      box-shadow: var(--sh-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      min-height: 0;
+    }
+    .ic-showcase-head {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 4px;
+    }
+    .ic-showcase-title {
+      font-size: 0.88rem;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .ic-showcase-badge {
+      font-size: 9px;
+      font-weight: 900;
+      padding: 2px 7px;
+      border-radius: 10px;
+      letter-spacing: 0.04em;
+    }
+    .ic-showcase-badge-hire {
+      background: linear-gradient(135deg, #ef4444, #f97316);
+      color: #fff;
+      animation: hiringPulse 2s ease-in-out infinite;
+    }
+    @keyframes hiringPulse {
+      0%,100% { box-shadow: 0 1px 6px rgba(239,68,68,0.30); }
+      50%      { box-shadow: 0 1px 12px rgba(239,68,68,0.55); }
+    }
+    .ic-showcase-badge-live {
+      background: linear-gradient(135deg, #1a3de8, #00c8ee);
+      color: #fff;
+    }
+    .ic-showcase-spacer { flex: 1; }
+    .ic-showcase-all {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--blue-mid);
+      background: rgba(26,61,232,0.07);
+      border: none;
+      padding: 3px 9px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .ic-showcase-all:hover { background: rgba(26,61,232,0.13); transform: translateX(2px); }
+    /* Hot 아이템 리스트 */
+    .ic-hot-list { display: flex; flex-direction: column; gap: 6px; }
+    .ic-hot-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: var(--bg);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .ic-hot-item:hover { background: rgba(26,61,232,0.08); transform: translateX(2px); }
+    .ic-hot-rank {
+      min-width: 22px;
+      height: 22px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-size: 11px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+    .ic-hot-rank-1 { background: linear-gradient(135deg, #f59e0b, #ef4444); color: #fff; }
+    .ic-hot-rank-2 { background: rgba(26,61,232,0.15); color: var(--blue-mid); }
+    .ic-hot-rank-3 { background: rgba(26,61,232,0.07); color: var(--txt-mid); }
+    .ic-hot-name {
+      flex: 1;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--txt-hi);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ic-hot-cnt {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--txt-lo);
+      white-space: nowrap;
+    }
+    .ic-hot-empty {
+      text-align: center;
+      color: var(--txt-lo);
+      font-size: 12px;
+      padding: 18px 0;
+    }
+    .ic-hot-skel {
+      height: 38px;
+      border-radius: 10px;
+      background: linear-gradient(90deg, var(--bg) 0%, var(--bg-card) 50%, var(--bg) 100%);
+      background-size: 200% 100%;
+      animation: jobsSkel 1.4s ease-in-out infinite;
+    }
+    /* 컴팩트 채용공고 카드 */
+    .ic-job-compact-list { display: flex; flex-direction: column; gap: 6px; }
+    .ic-job-compact-card {
+      display: flex;
+      gap: 9px;
+      align-items: center;
+      padding: 8px 9px;
+      border-radius: 10px;
+      background: var(--bg);
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      text-align: left;
+      width: 100%;
+      transition: background 0.15s, transform 0.12s;
+    }
+    .ic-job-compact-card:hover { background: rgba(26,61,232,0.08); transform: translateX(2px); }
+    .ic-job-compact-thumb {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border: 1px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      overflow: hidden;
+    }
+    .ic-job-compact-thumb img,
+    .ic-job-compact-thumb iframe {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      pointer-events: none;
+      border: none;
+    }
+    .ic-job-compact-info { flex: 1; min-width: 0; }
+    .ic-job-compact-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      color: var(--txt-hi);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ic-job-compact-meta {
+      font-size: 10.5px;
+      color: var(--txt-lo);
+      margin-top: 1px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ic-job-compact-new {
+      font-size: 8.5px;
+      font-weight: 900;
+      background: #ef4444;
+      color: #fff;
+      padding: 1px 5px;
+      border-radius: 5px;
+      flex-shrink: 0;
+    }
+    .ic-hot-updated {
+      font-size: 10px;
+      color: var(--txt-lo);
+      text-align: right;
       margin-top: 2px;
     }
 
@@ -4411,9 +4866,499 @@
       .tb-item  { flex-wrap: wrap; }
       .tb-dl-btn { width: 100%; justify-content: center; }
     }
+
+    /* ══════════════════════════════
+       즐겨찾기 (별 버튼) — 모든 .tool-card[data-tool-id]에 자동 주입
+    ══════════════════════════════ */
+    .tool-card { position: relative; }
+    .tool-fav-btn {
+      position: absolute;
+      top: 10px;
+      right: 38px;
+      width: 26px;
+      height: 26px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      color: rgba(120,120,140,0.45);
+      font-size: 16px;
+      line-height: 1;
+      transition: all 0.15s;
+      z-index: 2;
+    }
+    .tool-fav-btn:hover {
+      background: rgba(255,193,7,0.12);
+      color: #f59e0b;
+      transform: scale(1.15);
+    }
+    .tool-fav-btn.active {
+      color: #f59e0b;
+      text-shadow: 0 0 8px rgba(245,158,11,0.55);
+    }
+    .tool-fav-btn.active:hover {
+      color: #d97706;
+    }
+    /* 카드 우측 화살표가 있는 카드에 별 버튼 자리 확보 */
+    .tool-card .tool-card-copy { right: 8px; }
+
+    /* 내 즐겨찾기 섹션 */
+    #favorites-section { display: none; }
+    #favorites-section.has-items { display: block; }
+    .fav-section-head {
+      display: flex; align-items: center; gap: 10px;
+      margin-bottom: 14px;
+    }
+    .fav-section-head .fav-pill {
+      font-size: 10px; font-weight: 700;
+      color: #f59e0b;
+      background: rgba(245,158,11,0.12);
+      padding: 3px 10px; border-radius: 12px;
+      letter-spacing: 0.06em;
+    }
+    .fav-section-head .fav-line {
+      flex: 1; height: 1px;
+      background: linear-gradient(90deg, rgba(245,158,11,0.35), transparent);
+    }
+    .fav-empty {
+      font-size: 12.5px; color: var(--txt-lo);
+      padding: 14px 16px;
+      border: 1px dashed rgba(245,158,11,0.30);
+      border-radius: 10px;
+      background: rgba(245,158,11,0.04);
+    }
+    /* 홈 대시보드: 즐겨찾기가 비어있을 때 안내 카드 */
+    .fav-onboard {
+      display: flex; align-items: center; gap: 16px;
+      padding: 16px 18px;
+      border: 1px dashed rgba(245,158,11,0.35);
+      border-radius: 14px;
+      background: linear-gradient(135deg, rgba(245,158,11,0.06), rgba(245,158,11,0.02));
+    }
+    .fav-onboard-icon { font-size: 32px; flex-shrink: 0; }
+    .fav-onboard-body { flex: 1; min-width: 0; }
+    .fav-onboard-title {
+      font-size: 14px; font-weight: 800;
+      color: var(--txt-hi);
+      margin-bottom: 4px;
+    }
+    .fav-onboard-desc {
+      font-size: 12px; color: var(--txt-mid);
+      line-height: 1.5;
+    }
+    .fav-onboard-desc strong {
+      color: #f59e0b;
+      background: rgba(245,158,11,0.12);
+      padding: 1px 6px;
+      border-radius: 4px;
+    }
+    .fav-onboard-btn {
+      flex-shrink: 0;
+      padding: 9px 16px;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #fff;
+      border: none; border-radius: 8px;
+      font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(245,158,11,0.30);
+      white-space: nowrap;
+    }
+    .fav-onboard-btn:hover { box-shadow: 0 4px 14px rgba(245,158,11,0.45); }
+    @media (max-width: 640px) {
+      .fav-onboard { flex-direction: column; align-items: flex-start; }
+      .fav-onboard-btn { width: 100%; padding: 11px; }
+    }
+
+    /* ══════════════════════════════
+       글로벌 검색 모달 (Ctrl+K / ⌘K)
+    ══════════════════════════════ */
+    #global-search-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 9990;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(3px);
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 8vh;
+    }
+    #global-search-overlay.open { display: flex; }
+    .gs-modal {
+      width: 100%; max-width: 620px;
+      max-height: 78vh;
+      display: flex; flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .gs-input-wrap {
+      display: flex; align-items: center; gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .gs-input-wrap .gs-search-icon { font-size: 18px; color: var(--txt-lo); flex-shrink: 0; }
+    .gs-input-wrap input {
+      flex: 1;
+      border: none; outline: none;
+      background: transparent;
+      font-size: 16px;
+      color: var(--txt-hi);
+      font-family: inherit;
+      min-width: 0;
+    }
+    .gs-input-wrap input::placeholder { color: var(--txt-lo); }
+    .gs-input-wrap .gs-kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 10px; font-weight: 700;
+      color: var(--txt-lo);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 2px 6px;
+      flex-shrink: 0;
+    }
+    .gs-results {
+      flex: 1; min-height: 0;
+      overflow-y: auto;
+      padding: 6px 6px 10px;
+    }
+    .gs-group-head {
+      padding: 10px 14px 4px;
+      font-size: 10px; font-weight: 700;
+      color: var(--txt-lo);
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+    }
+    .gs-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--txt-hi);
+      text-decoration: none;
+      transition: background 0.12s;
+      border: none; background: none;
+      width: 100%; text-align: left;
+      font-family: inherit; font-size: 13px;
+    }
+    .gs-item:hover, .gs-item.active {
+      background: rgba(26,61,232,0.08);
+    }
+    .gs-item .gs-icon { font-size: 16px; flex-shrink: 0; }
+    .gs-item .gs-text { flex: 1; min-width: 0; }
+    .gs-item .gs-name {
+      font-weight: 600;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .gs-item .gs-sub {
+      font-size: 11px; color: var(--txt-lo);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .gs-item .gs-tag {
+      font-size: 9.5px; font-weight: 700;
+      padding: 2px 7px; border-radius: 10px;
+      color: var(--txt-mid);
+      background: var(--bg);
+      flex-shrink: 0;
+    }
+    .gs-empty {
+      padding: 30px 16px;
+      text-align: center;
+      color: var(--txt-lo);
+      font-size: 13px;
+    }
+    .gs-hint {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 8px 14px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      font-size: 10.5px;
+      color: var(--txt-lo);
+    }
+    .gs-hint .gs-kbd { font-size: 9.5px; padding: 1px 5px; }
+    /* 검색 버튼 (사이드바) */
+    .side-search-btn {
+      display: flex; align-items: center; gap: 8px;
+      width: calc(100% - 20px); margin: 8px 10px 6px;
+      padding: 8px 12px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--txt-lo);
+      cursor: pointer;
+      font-family: inherit; font-size: 12px;
+      transition: all 0.15s;
+    }
+    .side-search-btn:hover {
+      border-color: var(--blue-mid);
+      color: var(--blue-mid);
+      background: rgba(26,61,232,0.04);
+    }
+    .side-search-btn .ssb-icon { font-size: 13px; flex-shrink: 0; }
+    .side-search-btn .ssb-label { flex: 1; text-align: left; }
+    .side-search-btn .ssb-kbd {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 9.5px; font-weight: 700;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 1px 5px;
+      color: var(--txt-mid);
+      flex-shrink: 0;
+    }
+
+    @media (max-width: 480px) {
+      .tool-fav-btn { width: 22px; height: 22px; font-size: 14px; right: 32px; top: 8px; }
+      #global-search-overlay { padding-top: 4vh; padding-left: 12px; padding-right: 12px; }
+      .gs-modal { max-height: 90vh; }
+      .gs-input-wrap input { font-size: 15px; }
+    }
+
+    /* ══════════════════════════════
+       통합 계산기 모달 (화폐가치·예적금·연금·보험료환산)
+    ══════════════════════════════ */
+    #calc-overlay {
+      display: none;
+      position: fixed; inset: 0;
+      z-index: 9700;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(3px);
+      align-items: center; justify-content: center;
+      padding: 16px;
+    }
+    #calc-overlay.open { display: flex; }
+    .calc-modal {
+      width: 100%; max-width: 540px;
+      max-height: 92vh;
+      display: flex; flex-direction: column;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.35);
+    }
+    .calc-header {
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 10px;
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(90deg, rgba(26,61,232,0.08), rgba(159,122,234,0.05));
+      flex-shrink: 0;
+    }
+    .calc-header h2 {
+      font-size: 16px; font-weight: 700;
+      color: var(--txt-hi);
+      margin: 0;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .calc-header .calc-close {
+      background: none; border: none;
+      font-size: 22px; color: var(--txt-lo);
+      cursor: pointer; line-height: 1;
+      padding: 2px 6px;
+    }
+    .calc-body {
+      padding: 16px 18px 20px;
+      overflow-y: auto;
+      flex: 1; min-height: 0;
+    }
+    .calc-tabs {
+      display: flex; gap: 4px;
+      padding: 4px;
+      background: var(--bg);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .calc-tab {
+      flex: 1;
+      padding: 7px 10px;
+      border: none;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--txt-mid);
+      font-size: 12.5px; font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .calc-tab.active {
+      background: var(--bg-card);
+      color: var(--blue-mid);
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+    }
+    .calc-field {
+      margin-bottom: 12px;
+    }
+    .calc-field label {
+      display: block;
+      font-size: 11.5px; font-weight: 600;
+      color: var(--txt-mid);
+      margin-bottom: 6px;
+      letter-spacing: 0.02em;
+    }
+    .calc-field input,
+    .calc-field select {
+      width: 100%;
+      padding: 9px 12px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--bg);
+      color: var(--txt-hi);
+      font-size: 14px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .calc-field input:focus,
+    .calc-field select:focus {
+      border-color: var(--blue-mid);
+    }
+    .calc-field-inline {
+      display: flex; gap: 8px;
+    }
+    .calc-field-inline > * { flex: 1; }
+    .calc-btn {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      background: linear-gradient(135deg, #1a3de8, #4a70f5);
+      color: #fff;
+      border: none; border-radius: 10px;
+      font-size: 14px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 10px rgba(26,61,232,0.25);
+      transition: all 0.15s;
+    }
+    .calc-btn:hover {
+      box-shadow: 0 4px 14px rgba(26,61,232,0.4);
+      transform: translateY(-1px);
+    }
+    .calc-result {
+      margin-top: 14px;
+      padding: 14px 16px;
+      border: 1px solid rgba(26,61,232,0.20);
+      background: linear-gradient(135deg, rgba(26,61,232,0.06), rgba(159,122,234,0.04));
+      border-radius: 10px;
+    }
+    .calc-result-label {
+      font-size: 11px; font-weight: 700;
+      color: var(--blue-mid);
+      letter-spacing: 0.06em;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+    .calc-result-value {
+      font-size: 22px; font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+      word-break: break-all;
+    }
+    .calc-result-sub {
+      font-size: 11.5px;
+      color: var(--txt-lo);
+      margin-top: 4px;
+    }
+    .calc-note {
+      font-size: 11px;
+      color: var(--txt-lo);
+      margin-top: 10px;
+      padding: 8px 10px;
+      background: var(--bg);
+      border-radius: 6px;
+      line-height: 1.5;
+    }
+    @media (max-width: 480px) {
+      .calc-modal { max-height: 95vh; }
+      .calc-body { padding: 14px; }
+      .calc-result-value { font-size: 19px; }
+    }
+
+    /* ══════════════════════════════
+       보험사 점검/장애 알림 배너 (상단 고정)
+    ══════════════════════════════ */
+    #alert-banner {
+      display: none;
+      position: relative;
+      z-index: 100;
+      padding: 10px 16px;
+      gap: 10px;
+      align-items: center;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid rgba(0,0,0,0.06);
+      animation: alertSlideDown 0.35s ease;
+    }
+    #alert-banner.open { display: flex; }
+    #alert-banner.sev-info { background: linear-gradient(90deg, #dbeafe, #eff6ff); color: #1e3a8a; }
+    #alert-banner.sev-warn { background: linear-gradient(90deg, #fef3c7, #fffbeb); color: #92400e; }
+    #alert-banner.sev-down { background: linear-gradient(90deg, #fee2e2, #fef2f2); color: #991b1b; }
+    .alert-icon { font-size: 16px; flex-shrink: 0; }
+    .alert-text { flex: 1; min-width: 0; overflow: hidden; }
+    .alert-text strong { display: inline; }
+    .alert-text .alert-msg {
+      font-weight: 500; opacity: 0.85;
+      margin-left: 8px;
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .alert-nav {
+      display: flex; align-items: center; gap: 4px;
+      flex-shrink: 0;
+    }
+    .alert-nav-btn,
+    .alert-close-btn {
+      background: rgba(0,0,0,0.05);
+      border: none;
+      width: 24px; height: 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      color: inherit;
+      font-size: 12px; font-weight: 700;
+      line-height: 1;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .alert-nav-btn:hover, .alert-close-btn:hover { background: rgba(0,0,0,0.1); }
+    .alert-count {
+      font-size: 11px; opacity: 0.7;
+      padding: 0 6px;
+    }
+    @keyframes alertSlideDown {
+      from { transform: translateY(-100%); opacity: 0; }
+      to   { transform: translateY(0); opacity: 1; }
+    }
+    [data-theme="dark"] #alert-banner.sev-info { background: linear-gradient(90deg, rgba(30,58,138,0.30), rgba(30,58,138,0.15)); color: #c7d2fe; }
+    [data-theme="dark"] #alert-banner.sev-warn { background: linear-gradient(90deg, rgba(146,64,14,0.30), rgba(146,64,14,0.15)); color: #fde68a; }
+    [data-theme="dark"] #alert-banner.sev-down { background: linear-gradient(90deg, rgba(153,27,27,0.35), rgba(153,27,27,0.15)); color: #fca5a5; }
+    [data-theme="dark"] .alert-nav-btn,
+    [data-theme="dark"] .alert-close-btn { background: rgba(255,255,255,0.10); }
+    [data-theme="dark"] .alert-nav-btn:hover,
+    [data-theme="dark"] .alert-close-btn:hover { background: rgba(255,255,255,0.18); }
+    @media (max-width: 480px) {
+      #alert-banner { padding: 8px 12px; font-size: 12px; }
+      .alert-text .alert-msg { display: none; }
+    }
   </style>
 </head>
 <body>
+
+  <!-- ══ 보험사 점검/장애 알림 배너 ══ -->
+  <div id="alert-banner" role="alert" aria-live="polite">
+    <span class="alert-icon" id="alert-icon">ℹ️</span>
+    <div class="alert-text">
+      <strong id="alert-title">알림</strong>
+      <span class="alert-msg" id="alert-msg"></span>
+    </div>
+    <div class="alert-nav" id="alert-nav-wrap">
+      <span class="alert-count" id="alert-count"></span>
+      <button class="alert-nav-btn" id="alert-prev" onclick="window.__alertPrev()" aria-label="이전 알림" title="이전">‹</button>
+      <button class="alert-nav-btn" id="alert-next" onclick="window.__alertNext()" aria-label="다음 알림" title="다음">›</button>
+      <button class="alert-close-btn" onclick="window.__alertDismiss()" aria-label="알림 닫기" title="오늘 하루 숨기기">✕</button>
+    </div>
+  </div>
 
   <!-- 햄버거 토글 (모바일) -->
   <button class="side-toggle" id="side-toggle" type="button" aria-label="메뉴 열기">
@@ -4429,6 +5374,12 @@
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
     </nav>
+    <!-- 글로벌 빠른 검색 트리거 -->
+    <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
+      <span class="ssb-icon">🔍</span>
+      <span class="ssb-label">빠른 검색</span>
+      <span class="ssb-kbd">Ctrl K</span>
+    </button>
     <!-- 사이드바 파트너사 프로모션 -->
     <div class="side-latest">
       <span class="side-comm-label">파트너사 프로모션</span>
@@ -4475,6 +5426,12 @@
       <button class="side-footer-link" onclick="shareApp()" type="button">
         📤 동료에게 공유하기
       </button>
+      <a class="side-footer-link"
+         href="admin.html"
+         onclick="trackClick('파트너 전용페이지','sidebar-footer')"
+         title="InsureConnect 운영진 및 파트너 전용">
+        🔐 파트너 전용 페이지
+      </a>
       <div class="side-stats">
         <span class="side-stats-dot"></span>
         오늘 <strong id="side-stat-today" style="color:var(--txt-mid);margin:0 2px">—</strong>명
@@ -4486,14 +5443,9 @@
         <button class="side-theme-btn" data-theme-val="system" onclick="setTheme('system')" type="button">시스템</button>
         <button class="side-theme-btn" data-theme-val="dark" onclick="setTheme('dark')" type="button">다크</button>
       </div>
-      <a class="side-partner-link"
-         href="admin.html"
-         onclick="trackClick('파트너 전용페이지','sidebar-footer')"
-         title="InsureConnect 운영진 및 파트너 전용">
-        <span class="spl-icon">🔐</span>
-        <span class="spl-text">파트너 전용 페이지</span>
-        <span class="spl-arrow">›</span>
-      </a>
+      <button class="side-footer-link" id="pwa-install-btn" onclick="installPWA()" type="button" style="display:none;">
+        📲 홈 화면에 앱 설치
+      </button>
       <p class="side-footer-copy">InsureConnect — 보험으로 연결하다</p>
     </div>
   </aside>
@@ -4570,67 +5522,114 @@
     </div>
 
     <!-- ══ 서비스 소개 Hero ══ -->
+    <div class="ic-hero-row">
     <section class="ic-hero" aria-label="서비스 소개">
       <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
       <p class="ic-hero-sub">각 보험사 전산·청구서류·소식지·실무도구·보험지식을<br class="ic-hero-br">한 곳에서 빠르게 만나보세요.</p>
       <div class="ic-hero-cta">
         <a class="ic-hero-btn primary" href="#" onclick="goToPage('latest');return false;">📰 최신 콘텐츠 보기</a>
-        <a class="ic-hero-btn" href="/about.html">서비스 자세히 보기 →</a>
       </div>
+    </section>
+    <aside class="ic-clock" aria-label="현재 시각">
+      <div class="ic-clock-head">
+        <span><span class="ic-clock-dot"></span> KST · SEOUL</span>
+        <span id="ic-clock-ampm">AM</span>
+      </div>
+      <div class="ic-clock-time">
+        <span id="ic-clock-hh">--</span><span class="ic-clock-colon">:</span><span id="ic-clock-mm">--</span><span class="ic-clock-seconds" id="ic-clock-ss">--</span>
+      </div>
+      <div class="ic-clock-date">
+        <span class="ic-clock-day" id="ic-clock-day">—요일</span>
+        <span id="ic-clock-date">—월 —일</span>
+      </div>
+    </aside>
+    </div>
+
+    <!-- ══ 내 즐겨찾기 (홈 대시보드 — 항상 표시, 빈 상태는 안내 카드) ══ -->
+    <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
+      <div class="fav-section-head" style="margin-bottom:12px;">
+        <span class="fav-pill">⭐ MY FAVORITES</span>
+        <span class="fav-line"></span>
+        <span class="sec-badge" id="home-fav-count" style="display:none;">0개</span>
+      </div>
+      <!-- 빈 상태 안내 카드 -->
+      <div class="fav-onboard" id="home-fav-empty">
+        <div class="fav-onboard-icon">⭐</div>
+        <div class="fav-onboard-body">
+          <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
+          <div class="fav-onboard-desc">자주 쓰는 도구의 <strong>별(☆)</strong> 버튼을 누르면 여기 홈 대시보드 최상단에 자동 표시됩니다.</div>
+        </div>
+        <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구로 이동 →</button>
+      </div>
+      <!-- 채워진 상태: 즐겨찾기 카드 그리드 -->
+      <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
     </section>
 
-    <!-- ══ 주요 기능 8개 안내 (정보성 — 클릭 불가) ══ -->
-    <section class="ic-features" aria-label="주요 기능 안내">
-      <h2 class="ic-section-title">🛠 InsureConnect 주요 기능 안내</h2>
-      <p class="ic-section-sub">아래는 본 서비스가 제공하는 기능 소개입니다. 실제 이용은 우측 <strong>PILL 메뉴</strong> 또는 좌측 <strong>사이드 메뉴</strong>를 이용해 주세요.</p>
-      <div class="ic-features-grid">
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">🖥</span>
-          <span class="ic-feat-name">보험사 전산</span>
-          <span class="ic-feat-desc">생명·손해 32개사 전산 / 연락처 모음</span>
+    <!-- ══ 4-컬럼 실시간 쇼케이스: 채용공고 + 인기 전산 + 인기 보험지식 + 인기 뉴스 ══ -->
+    <div class="ic-showcase-row" aria-label="실시간 인기 콘텐츠">
+
+      <!-- ① 채용공고 -->
+      <div class="ic-showcase-col">
+        <div class="ic-showcase-head">
+          <span class="ic-showcase-title">🔥 채용공고</span>
+          <span class="ic-showcase-badge ic-showcase-badge-hire">HIRING</span>
+          <span class="ic-showcase-spacer"></span>
+          <button class="ic-showcase-all" type="button" onclick="goToPage('recruit')">전체 →</button>
         </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">🏢</span>
-          <span class="ic-feat-name">GA 전산</span>
-          <span class="ic-feat-desc">주요 법인대리점 17곳 사내 전산 바로가기</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">💳</span>
-          <span class="ic-feat-name">수납 전산</span>
-          <span class="ic-feat-desc">카드 수납 가능 보험사 별도 정리</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">📰</span>
-          <span class="ic-feat-name">보험사 소식지</span>
-          <span class="ic-feat-desc">생명·손해 월간 소식지 바로가기</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">📋</span>
-          <span class="ic-feat-name">청구서류</span>
-          <span class="ic-feat-desc">보험사별 청구서식 / 양식 안내</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">🛠</span>
-          <span class="ic-feat-name">실무도구</span>
-          <span class="ic-feat-desc">실손계산기·KCD코드·할인할증 등 16종</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">📚</span>
-          <span class="ic-feat-name">보험지식</span>
-          <span class="ic-feat-desc">자체 제작 보험 상식·청구 노하우</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">🗞</span>
-          <span class="ic-feat-name">인슈어커넥트 뉴스</span>
-          <span class="ic-feat-desc">업계 동향을 카드뉴스로 큐레이션</span>
-        </div>
-        <div class="ic-feat-card">
-          <span class="ic-feat-icon">💼</span>
-          <span class="ic-feat-name">채용공고</span>
-          <span class="ic-feat-desc">전국 GA / 보험사 채용 정보</span>
+        <div class="ic-job-compact-list" id="home-jobs-compact">
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
         </div>
       </div>
-    </section>
+
+      <!-- ② 인기 전산 -->
+      <div class="ic-showcase-col">
+        <div class="ic-showcase-head">
+          <span class="ic-showcase-title">📊 인기 전산</span>
+          <span class="ic-showcase-badge ic-showcase-badge-live">LIVE</span>
+          <span class="ic-showcase-spacer"></span>
+          <button class="ic-showcase-all" type="button" onclick="goToPage('jeonsan')">전체 →</button>
+        </div>
+        <div class="ic-hot-list" id="home-hot-jeonsan">
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+        </div>
+        <div class="ic-hot-updated" id="home-hot-updated"></div>
+      </div>
+
+      <!-- ③ 인기 보험지식 -->
+      <div class="ic-showcase-col">
+        <div class="ic-showcase-head">
+          <span class="ic-showcase-title">💡 인기 보험지식</span>
+          <span class="ic-showcase-badge ic-showcase-badge-live">LIVE</span>
+          <span class="ic-showcase-spacer"></span>
+          <button class="ic-showcase-all" type="button" onclick="goToPage('knowledge')">전체 →</button>
+        </div>
+        <div class="ic-hot-list" id="home-hot-knowledge">
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+        </div>
+      </div>
+
+      <!-- ④ 인기 뉴스 -->
+      <div class="ic-showcase-col">
+        <div class="ic-showcase-head">
+          <span class="ic-showcase-title">📰 인기 뉴스</span>
+          <span class="ic-showcase-badge ic-showcase-badge-live">LIVE</span>
+          <span class="ic-showcase-spacer"></span>
+          <button class="ic-showcase-all" type="button" onclick="goToPage('newsletter')">전체 →</button>
+        </div>
+        <div class="ic-hot-list" id="home-hot-cardnews">
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+          <div class="ic-hot-skel"></div>
+        </div>
+      </div>
+
+    </div>
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
@@ -4641,30 +5640,6 @@
            data-ad-format="auto"
            data-full-width-responsive="true"></ins>
     </aside>
-
-    <!-- ══ 안내 / 신뢰 ══ -->
-    <section class="ic-trust" aria-label="서비스 안내">
-      <div class="ic-trust-card">
-        <span class="ic-trust-icon">🆓</span>
-        <strong>회원가입 없이 무료</strong>
-        <p>이메일·개인정보 입력 없이 누구나 즉시 이용 가능합니다.</p>
-      </div>
-      <div class="ic-trust-card">
-        <span class="ic-trust-icon">🔒</span>
-        <strong>개인정보 안전</strong>
-        <p>익명 통계 로그(접속 일시, 클릭 메뉴)만 1년간 저장 후 파기. <a href="/privacy.html">자세히</a></p>
-      </div>
-      <div class="ic-trust-card">
-        <span class="ic-trust-icon">⚖</span>
-        <strong>중립 정보 제공</strong>
-        <p>특정 보험사 추천 없이 모든 보험사 정보를 동등하게 게재.</p>
-      </div>
-      <div class="ic-trust-card">
-        <span class="ic-trust-icon">💬</span>
-        <strong>피드백 환영</strong>
-        <p>잘못된 정보·추가 요청은 <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">카카오톡</a>으로.</p>
-      </div>
-    </section>
 
   </div>
 
@@ -4849,13 +5824,23 @@
   <!-- ══════ PAGE: 실무 도구 ══════ -->
   <div class="content" id="page-tools" style="display:none">
 
+    <!-- 내 즐겨찾기 (즐겨찾기한 항목이 있을 때만 표시) -->
+    <div class="section" id="favorites-section">
+      <div class="fav-section-head">
+        <span class="fav-pill">⭐ MY FAVORITES</span>
+        <span class="fav-line"></span>
+        <span class="sec-badge" id="fav-count">0개</span>
+      </div>
+      <div class="tools-grid" id="favorites-grid"></div>
+    </div>
+
     <!-- 실무 도구 통합 -->
     <div class="section">
       <div class="section-head" style="margin-bottom:18px">
         <span class="sec-num">01</span>
         <span class="sec-title">실무도구</span>
         <span class="sec-line"></span>
-        <span class="sec-badge">16개</span>
+        <span class="sec-badge">20개</span>
       </div>
       <div class="tools-grid">
         <a class="tool-card" data-tool-id="kidi-discount" href="https://prem.kidi.or.kr:1443/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','할인 할증요인 조회')">
@@ -4928,6 +5913,42 @@
             <div class="tool-card-sub">1~4세대 · 유병자 보상금액 계산</div>
           </div>
           <button class="tool-card-copy" onclick="copyToolLink(event,'shilbi')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <div class="tool-card-arrow">→</div>
+        </div>
+        <div class="tool-card" data-tool-id="calc-money" onclick="trackCardClick('실무도구','화폐가치 계산기'); openCalc('money');" style="cursor:pointer;">
+          <div class="tool-card-icon">💴</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">화폐가치 계산기</div>
+            <div class="tool-card-sub">물가상승률 반영 미래·과거 가치</div>
+          </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'calc-money')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <div class="tool-card-arrow">→</div>
+        </div>
+        <div class="tool-card" data-tool-id="calc-saving" onclick="trackCardClick('실무도구','예적금 계산기'); openCalc('saving');" style="cursor:pointer;">
+          <div class="tool-card-icon">🏦</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">예·적금 계산기</div>
+            <div class="tool-card-sub">단리·복리 만기 수령액 계산</div>
+          </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'calc-saving')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <div class="tool-card-arrow">→</div>
+        </div>
+        <div class="tool-card" data-tool-id="calc-pension" onclick="trackCardClick('실무도구','연금 계산기'); openCalc('pension');" style="cursor:pointer;">
+          <div class="tool-card-icon">👴</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">연금 계산기</div>
+            <div class="tool-card-sub">납입·운용 후 예상 수령액</div>
+          </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'calc-pension')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <div class="tool-card-arrow">→</div>
+        </div>
+        <div class="tool-card" data-tool-id="calc-premium" onclick="trackCardClick('실무도구','보험료 환산'); openCalc('premium');" style="cursor:pointer;">
+          <div class="tool-card-icon">💰</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">보험료 환산</div>
+            <div class="tool-card-sub">월·연·일시납 단위 환산</div>
+          </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'calc-premium')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </div>
         <div class="tool-card" data-tool-id="surgery" onclick="trackCardClick('실무도구','수술명 검색'); openSurg();" style="cursor:pointer;">
@@ -5013,7 +6034,7 @@
         <span class="sec-badge">5개</span>
       </div>
       <div class="tools-grid">
-        <a class="tool-card" href="https://www.klia.or.kr/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','생명보험협회')">
+        <a class="tool-card" data-tool-id="portal-klia" href="https://www.klia.or.kr/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','생명보험협회')">
           <div class="tool-card-icon">🏛️</div>
           <div class="tool-card-body">
             <div class="tool-card-name">생명보험협회</div>
@@ -5021,7 +6042,7 @@
           </div>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.knia.or.kr/main" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','손해보험협회')">
+        <a class="tool-card" data-tool-id="portal-knia" href="https://www.knia.or.kr/main" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','손해보험협회')">
           <div class="tool-card-icon">🛡️</div>
           <div class="tool-card-body">
             <div class="tool-card-name">손해보험협회</div>
@@ -5029,7 +6050,7 @@
           </div>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.in.or.kr/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','보험연수원')">
+        <a class="tool-card" data-tool-id="portal-in" href="https://www.in.or.kr/" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','보험연수원')">
           <div class="tool-card-icon">📖</div>
           <div class="tool-card-body">
             <div class="tool-card-name">보험연수원</div>
@@ -5037,7 +6058,7 @@
           </div>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.kidi.or.kr/home/homeIndex.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','보험개발원')">
+        <a class="tool-card" data-tool-id="portal-kidi" href="https://www.kidi.or.kr/home/homeIndex.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','보험개발원')">
           <div class="tool-card-icon">📊</div>
           <div class="tool-card-body">
             <div class="tool-card-name">보험개발원</div>
@@ -5045,7 +6066,7 @@
           </div>
           <div class="tool-card-arrow">→</div>
         </a>
-        <a class="tool-card" href="https://www.fss.or.kr/fss/main/main.do?menuNo=200000" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','금융감독원')">
+        <a class="tool-card" data-tool-id="portal-fss" href="https://www.fss.or.kr/fss/main/main.do?menuNo=200000" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('보험포털','금융감독원')">
           <div class="tool-card-icon">🔍</div>
           <div class="tool-card-body">
             <div class="tool-card-name">금융감독원</div>
@@ -5069,8 +6090,8 @@
         </div>
         <button onclick="closeSidebannerModal()" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;" aria-label="닫기">✕</button>
       </div>
-      <!-- 콘텐츠 -->
-      <div id="sb-modal-content" style="flex:1;min-height:0;max-height:70vh;display:flex;align-items:center;justify-content:center;padding:16px;overflow:auto;"></div>
+      <!-- 콘텐츠: 가로폭 기준 자연 크기, 세로 길면 스크롤 → 잘림 방지 -->
+      <div id="sb-modal-content" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14px;overflow-y:auto;overflow-x:hidden;"></div>
       <!-- 내비게이션 -->
       <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
         <button id="sb-modal-prev" onclick="sbModalPrev()" style="padding:8px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">◀ 이전</button>
@@ -5090,8 +6111,8 @@
         </div>
         <button onclick="closePromoPopup(false)" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:22px;cursor:pointer;line-height:1;padding:2px 8px;" aria-label="닫기">✕</button>
       </div>
-      <!-- 콘텐츠 -->
-      <div id="promo-popup-content" style="flex:1;min-height:0;max-height:70vh;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:#000;"></div>
+      <!-- 콘텐츠: 가로폭 기준 자연 크기, 세로 길면 스크롤 → 잘림 방지 -->
+      <div id="promo-popup-content" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0;overflow-y:auto;overflow-x:hidden;background:#000;"></div>
       <!-- 내비게이션 -->
       <div id="promo-popup-nav" style="display:none;align-items:center;justify-content:center;gap:12px;padding:10px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
         <button id="promo-popup-prev" onclick="promoPopupPrev()" style="padding:7px 18px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">◀ 이전</button>
@@ -5152,7 +6173,6 @@
           <a href="/about.html">서비스 소개</a>
           <a href="/terms.html">이용약관</a>
           <a href="/privacy.html">개인정보처리방침</a>
-          <a href="/disclaimer.html">면책조항</a>
           <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">운영자 문의</a>
         </nav>
         <p class="foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다.</p>
@@ -8106,6 +9126,7 @@
       renderSurg();
     });
   })();
+  </script>
 
   <!-- ══════ 보험교재 모달 ══════ -->
   <div id="tb-overlay">
@@ -8190,14 +9211,19 @@
   })();
   </script>
 
+  <script>
     /* ══════════════════════════════
        실무도구 링크복사 + 해시 라우팅
     ══════════════════════════════ */
     const TOOL_MODAL_MAP = {
-      shilbi:   () => window.openShilbi && window.openShilbi(),
-      surgery:  () => window.openSurg   && window.openSurg(),
-      cardpay:  () => window.openCardGuide && window.openCardGuide(),
-      textbook: () => window.openTextbookModal && window.openTextbookModal(),
+      shilbi:         () => window.openShilbi && window.openShilbi(),
+      surgery:        () => window.openSurg   && window.openSurg(),
+      cardpay:        () => window.openCardGuide && window.openCardGuide(),
+      textbook:       () => window.openTextbookModal && window.openTextbookModal(),
+      'calc-money':   () => window.openCalc && window.openCalc('money'),
+      'calc-saving':  () => window.openCalc && window.openCalc('saving'),
+      'calc-pension': () => window.openCalc && window.openCalc('pension'),
+      'calc-premium': () => window.openCalc && window.openCalc('premium'),
     };
 
     function copyToolLink(event, toolId) {
@@ -8530,9 +9556,10 @@
 
       const content = document.getElementById('sb-modal-content');
       if (isPdf) {
-        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:100%;border:none;border-radius:8px;" title="${title}"></iframe>`;
+        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:75vh;min-height:420px;border:none;border-radius:8px;flex-shrink:0;" title="${title}"></iframe>`;
       } else {
-        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
+        /* 배너는 가로폭 100% 채움 + 세로는 자연비율 → 콘텐츠 잘림 없음 */
+        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="width:100%;height:auto;display:block;border-radius:8px;flex-shrink:0;">`;
       }
     }
 
@@ -8621,9 +9648,10 @@
 
       const content = document.getElementById('promo-popup-content');
       if (isPdf) {
-        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:65vh;border:none;border-radius:8px;background:#fff;" title="${title}"></iframe>`;
+        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:70vh;min-height:420px;border:none;background:#fff;flex-shrink:0;" title="${title}"></iframe>`;
       } else {
-        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
+        /* 배너는 가로폭 100% 채움 + 세로는 자연비율 → 콘텐츠 잘림 없음 */
+        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="width:100%;height:auto;display:block;flex-shrink:0;">`;
       }
     }
 
@@ -8813,6 +9841,9 @@
         const upd = document.getElementById('lm-updated');
         if (upd) upd.textContent = `· 업데이트 ${hh}:${mm}`;
       });
+
+      // 홈 대시보드 실시간 인기 섹션도 같이 갱신
+      renderHomeHot();
     }
 
     // 클릭 시 해당 항목으로 이동
@@ -8918,6 +9949,18 @@
       <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','실비 계산기'); openShilbi();">
         <span class="tp-icon">🧮</span><span class="tp-name">실비 계산기</span><span class="tp-arrow">›</span>
       </button>
+      <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','화폐가치 계산기'); openCalc('money');">
+        <span class="tp-icon">💴</span><span class="tp-name">화폐가치 계산기</span><span class="tp-arrow">›</span>
+      </button>
+      <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','예적금 계산기'); openCalc('saving');">
+        <span class="tp-icon">🏦</span><span class="tp-name">예·적금 계산기</span><span class="tp-arrow">›</span>
+      </button>
+      <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','연금 계산기'); openCalc('pension');">
+        <span class="tp-icon">👴</span><span class="tp-name">연금 계산기</span><span class="tp-arrow">›</span>
+      </button>
+      <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','보험료 환산'); openCalc('premium');">
+        <span class="tp-icon">💰</span><span class="tp-name">보험료 환산</span><span class="tp-arrow">›</span>
+      </button>
       <button class="tp-item" type="button" onclick="closeToolsPanel(); trackCardClick('실무도구패널','수술명 검색'); openSurg();">
         <span class="tp-icon">🔬</span><span class="tp-name">수술명 검색</span><span class="tp-arrow">›</span>
       </button>
@@ -8944,6 +9987,1037 @@
       </button>
     </div>
   </div>
+
+  <!-- ══ 통합 계산기 모달 (화폐가치·예적금·연금·보험료환산) ══ -->
+  <div id="calc-overlay" onclick="if(event.target===this)closeCalc()">
+    <div class="calc-modal" onclick="event.stopPropagation()">
+      <div class="calc-header">
+        <h2 id="calc-title">계산기</h2>
+        <button class="calc-close" onclick="closeCalc()" aria-label="닫기">✕</button>
+      </div>
+      <div class="calc-body" id="calc-body"></div>
+    </div>
+  </div>
+
+  <!-- ══ 글로벌 검색 모달 (Ctrl+K / ⌘K) ══ -->
+  <div id="global-search-overlay" onclick="if(event.target===this)closeGlobalSearch()">
+    <div class="gs-modal" onclick="event.stopPropagation()">
+      <div class="gs-input-wrap">
+        <span class="gs-search-icon">🔍</span>
+        <input type="text" id="gs-input" placeholder="전산·실무도구·보험포털·페이지 검색…" autocomplete="off">
+        <span class="gs-kbd">ESC</span>
+      </div>
+      <div class="gs-results" id="gs-results"></div>
+      <div class="gs-hint">
+        <span><span class="gs-kbd">↑</span> <span class="gs-kbd">↓</span> 이동 · <span class="gs-kbd">↵</span> 선택</span>
+        <span>InsureConnect</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ iOS 홈 화면 추가 안내 배너 ══ -->
+  <div id="ios-install-banner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9980;
+       background:var(--bg-card);border-top:1.5px solid var(--border);
+       padding:12px 16px;align-items:center;gap:12px;
+       box-shadow:0 -4px 20px rgba(0,0,0,0.10);">
+    <img src="/logo.png" style="width:40px;height:40px;border-radius:10px;flex-shrink:0;object-fit:contain;">
+    <div style="flex:1;min-width:0;">
+      <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:2px;">InsureConnect 홈 화면에 추가</div>
+      <div style="font-size:11.5px;color:var(--txt-lo);">하단 공유 버튼(<span style="font-size:13px;">⎙</span>) → <strong style="color:var(--txt-mid);">홈 화면에 추가</strong> 탭하세요</div>
+    </div>
+    <button onclick="dismissIosBanner()" type="button"
+      style="background:none;border:none;color:var(--txt-lo);font-size:20px;cursor:pointer;padding:4px 6px;line-height:1;flex-shrink:0;">✕</button>
+  </div>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════
+     통합 계산기 (화폐가치 · 예적금 · 연금 · 보험료 환산)
+  ══════════════════════════════════════════════════════════ */
+  (function() {
+    const fmt = n => {
+      if (!isFinite(n)) return '—';
+      const sign = n < 0 ? '-' : '';
+      const abs = Math.abs(Math.round(n));
+      return sign + abs.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    };
+    const num = (id) => {
+      const v = parseFloat(document.getElementById(id)?.value || '0');
+      return isNaN(v) ? 0 : v;
+    };
+    const val = (id) => document.getElementById(id)?.value || '';
+
+    /* ── 화폐가치 계산기 ── */
+    function renderMoney() {
+      return `
+        <div class="calc-tabs">
+          <button class="calc-tab active" data-mode="future" onclick="window.__calcSwitch('money',this,'future')">현재 → 미래 가치</button>
+          <button class="calc-tab" data-mode="past" onclick="window.__calcSwitch('money',this,'past')">미래 → 현재 가치</button>
+        </div>
+        <div class="calc-field">
+          <label>금액 (원)</label>
+          <input type="number" id="m-amount" placeholder="예: 10000000" value="10000000">
+        </div>
+        <div class="calc-field-inline">
+          <div class="calc-field">
+            <label>기간 (년)</label>
+            <input type="number" id="m-years" placeholder="10" value="10" min="1" max="100">
+          </div>
+          <div class="calc-field">
+            <label>연 물가상승률 (%)</label>
+            <input type="number" id="m-rate" placeholder="3.0" value="3.0" step="0.1">
+          </div>
+        </div>
+        <button class="calc-btn" onclick="window.__calcRun('money')">계산하기</button>
+        <div id="m-result"></div>
+        <div class="calc-note">* 물가상승률은 한국은행 연평균 소비자물가 상승률 참고치 (보통 2~3%). 실제 인플레이션·자산 가치는 변동될 수 있습니다.</div>
+      `;
+    }
+    function runMoney() {
+      const amount = num('m-amount');
+      const years  = num('m-years');
+      const rate   = num('m-rate') / 100;
+      const mode   = document.querySelector('#calc-body .calc-tab.active')?.dataset.mode || 'future';
+      const factor = Math.pow(1 + rate, years);
+      let result, label, sub;
+      if (mode === 'future') {
+        result = amount * factor;
+        label  = `${years}년 후 동등한 가치`;
+        sub    = `오늘 ${fmt(amount)}원의 구매력을 ${years}년 후에도 유지하려면 약 ${fmt(result)}원이 필요합니다.`;
+      } else {
+        result = amount / factor;
+        label  = `${years}년 후 ${fmt(amount)}원의 현재가치`;
+        sub    = `${years}년 후 ${fmt(amount)}원은 오늘 기준 약 ${fmt(result)}원의 구매력에 해당합니다.`;
+      }
+      document.getElementById('m-result').innerHTML = `
+        <div class="calc-result">
+          <div class="calc-result-label">${label}</div>
+          <div class="calc-result-value">${fmt(result)} 원</div>
+          <div class="calc-result-sub">${sub}</div>
+        </div>`;
+    }
+
+    /* ── 예·적금 계산기 ── */
+    function renderSaving() {
+      return `
+        <div class="calc-tabs">
+          <button class="calc-tab active" data-mode="deposit" onclick="window.__calcSwitch('saving',this,'deposit')">예금 (일시예치)</button>
+          <button class="calc-tab" data-mode="install" onclick="window.__calcSwitch('saving',this,'install')">적금 (매월 납입)</button>
+        </div>
+        <div class="calc-field" id="s-principal-field">
+          <label>원금 (원)</label>
+          <input type="number" id="s-principal" placeholder="10000000" value="10000000">
+        </div>
+        <div class="calc-field" id="s-monthly-field" style="display:none">
+          <label>월 납입액 (원)</label>
+          <input type="number" id="s-monthly" placeholder="500000" value="500000">
+        </div>
+        <div class="calc-field-inline">
+          <div class="calc-field">
+            <label>기간 (개월)</label>
+            <input type="number" id="s-months" value="12" min="1" max="600">
+          </div>
+          <div class="calc-field">
+            <label>연 이율 (%)</label>
+            <input type="number" id="s-rate" value="3.5" step="0.1">
+          </div>
+        </div>
+        <div class="calc-field-inline">
+          <div class="calc-field">
+            <label>이자 방식</label>
+            <select id="s-method">
+              <option value="simple">단리</option>
+              <option value="compound" selected>월 복리</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label>세금</label>
+            <select id="s-tax">
+              <option value="0.154" selected>일반과세 (15.4%)</option>
+              <option value="0.014">세금우대 (1.4%)</option>
+              <option value="0">비과세</option>
+            </select>
+          </div>
+        </div>
+        <button class="calc-btn" onclick="window.__calcRun('saving')">계산하기</button>
+        <div id="s-result"></div>
+      `;
+    }
+    function runSaving() {
+      const mode    = document.querySelector('#calc-body .calc-tab.active')?.dataset.mode || 'deposit';
+      const months  = num('s-months');
+      const years   = months / 12;
+      const annual  = num('s-rate') / 100;
+      const monthly = annual / 12;
+      const method  = val('s-method');
+      const tax     = num('s-tax');
+      let principal, gross, interest;
+      if (mode === 'deposit') {
+        principal = num('s-principal');
+        if (method === 'simple') {
+          interest = principal * annual * years;
+        } else {
+          interest = principal * (Math.pow(1 + monthly, months) - 1);
+        }
+        gross = principal + interest;
+      } else {
+        const pmt = num('s-monthly');
+        principal = pmt * months;
+        if (method === 'simple') {
+          interest = pmt * monthly * (months * (months + 1) / 2);
+        } else {
+          let bal = 0;
+          for (let i = 0; i < months; i++) {
+            bal = (bal + pmt) * (1 + monthly);
+          }
+          interest = bal - principal;
+        }
+        gross = principal + interest;
+      }
+      const taxAmt = interest * tax;
+      const net    = gross - taxAmt;
+      document.getElementById('s-result').innerHTML = `
+        <div class="calc-result">
+          <div class="calc-result-label">세후 수령액</div>
+          <div class="calc-result-value">${fmt(net)} 원</div>
+          <div class="calc-result-sub">
+            원금 ${fmt(principal)}원 + 이자 ${fmt(interest)}원 − 세금 ${fmt(taxAmt)}원
+          </div>
+        </div>`;
+    }
+
+    /* ── 연금 계산기 ── */
+    function renderPension() {
+      return `
+        <div class="calc-tabs">
+          <button class="calc-tab active" data-mode="accumulate" onclick="window.__calcSwitch('pension',this,'accumulate')">적립금 계산</button>
+          <button class="calc-tab" data-mode="withdraw" onclick="window.__calcSwitch('pension',this,'withdraw')">수령액 계산</button>
+        </div>
+        <div class="calc-field">
+          <label>월 납입액 (원)</label>
+          <input type="number" id="p-monthly" value="300000">
+        </div>
+        <div class="calc-field-inline">
+          <div class="calc-field">
+            <label>납입 기간 (년)</label>
+            <input type="number" id="p-years" value="20" min="1" max="50">
+          </div>
+          <div class="calc-field">
+            <label>연 운용수익률 (%)</label>
+            <input type="number" id="p-rate" value="4.0" step="0.1">
+          </div>
+        </div>
+        <div class="calc-field" id="p-withdraw-field" style="display:none">
+          <label>수령 기간 (년)</label>
+          <input type="number" id="p-withdraw-years" value="20" min="1" max="50">
+        </div>
+        <button class="calc-btn" onclick="window.__calcRun('pension')">계산하기</button>
+        <div id="p-result"></div>
+        <div class="calc-note">* 적립 단계는 월복리 운용 가정. 수령 단계는 균등 인출 + 잔액 운용 가정. 실제 연금 상품 수익률·수수료는 다를 수 있습니다.</div>
+      `;
+    }
+    function runPension() {
+      const mode    = document.querySelector('#calc-body .calc-tab.active')?.dataset.mode || 'accumulate';
+      const pmt     = num('p-monthly');
+      const years   = num('p-years');
+      const months  = years * 12;
+      const annual  = num('p-rate') / 100;
+      const monthly = annual / 12;
+      /* 적립 단계 future value */
+      let fv = 0;
+      for (let i = 0; i < months; i++) fv = (fv + pmt) * (1 + monthly);
+      if (mode === 'accumulate') {
+        document.getElementById('p-result').innerHTML = `
+          <div class="calc-result">
+            <div class="calc-result-label">${years}년 후 적립 예상액</div>
+            <div class="calc-result-value">${fmt(fv)} 원</div>
+            <div class="calc-result-sub">
+              총 납입 ${fmt(pmt * months)}원 + 운용수익 ${fmt(fv - pmt * months)}원 (연 ${(annual*100).toFixed(1)}%)
+            </div>
+          </div>`;
+      } else {
+        const wYears = num('p-withdraw-years');
+        const wMonths = wYears * 12;
+        /* 균등 인출 + 잔액 운용: monthly withdrawal where balance depletes after wMonths */
+        const r = monthly;
+        const withdraw = r === 0 ? fv / wMonths
+          : (fv * r) / (1 - Math.pow(1 + r, -wMonths));
+        document.getElementById('p-result').innerHTML = `
+          <div class="calc-result">
+            <div class="calc-result-label">${wYears}년간 매월 수령액</div>
+            <div class="calc-result-value">${fmt(withdraw)} 원/월</div>
+            <div class="calc-result-sub">
+              ${years}년 적립 ${fmt(fv)}원 → 연 ${(annual*100).toFixed(1)}% 운용 시 균등 인출 가능액
+            </div>
+          </div>`;
+      }
+    }
+
+    /* ── 보험료 환산 ── */
+    function renderPremium() {
+      return `
+        <div class="calc-field">
+          <label>입력 금액 (원)</label>
+          <input type="number" id="pr-amount" value="100000">
+        </div>
+        <div class="calc-field-inline">
+          <div class="calc-field">
+            <label>입력 단위</label>
+            <select id="pr-from">
+              <option value="monthly" selected>월납</option>
+              <option value="annual">연납</option>
+              <option value="lump">일시납</option>
+            </select>
+          </div>
+          <div class="calc-field">
+            <label>일시납 기간 (년)</label>
+            <input type="number" id="pr-years" value="10" min="1" max="50">
+          </div>
+        </div>
+        <button class="calc-btn" onclick="window.__calcRun('premium')">환산하기</button>
+        <div id="pr-result"></div>
+        <div class="calc-note">* 단순 산술 환산입니다. 실제 보험료는 계약 조건·예정이율·사업비에 따라 다릅니다.</div>
+      `;
+    }
+    function runPremium() {
+      const amount = num('pr-amount');
+      const from   = val('pr-from');
+      const years  = Math.max(1, num('pr-years'));
+      let monthly, annual, lump;
+      if (from === 'monthly') {
+        monthly = amount;
+        annual  = amount * 12;
+        lump    = amount * 12 * years;
+      } else if (from === 'annual') {
+        annual  = amount;
+        monthly = amount / 12;
+        lump    = amount * years;
+      } else {
+        lump    = amount;
+        annual  = amount / years;
+        monthly = annual / 12;
+      }
+      document.getElementById('pr-result').innerHTML = `
+        <div class="calc-result">
+          <div class="calc-result-label">환산 결과 (${years}년 기준)</div>
+          <div style="display:flex;flex-direction:column;gap:6px;margin-top:6px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-size:12px;color:var(--txt-mid);">월납</span>
+              <span style="font-size:16px;font-weight:700;color:var(--txt-hi);">${fmt(monthly)} 원</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-size:12px;color:var(--txt-mid);">연납</span>
+              <span style="font-size:16px;font-weight:700;color:var(--txt-hi);">${fmt(annual)} 원</span>
+            </div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;">
+              <span style="font-size:12px;color:var(--txt-mid);">${years}년 일시납</span>
+              <span style="font-size:16px;font-weight:700;color:var(--txt-hi);">${fmt(lump)} 원</span>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    const CALCS = {
+      money:   { title: '💴 화폐가치 계산기', render: renderMoney,   run: runMoney },
+      saving:  { title: '🏦 예·적금 계산기',  render: renderSaving,  run: runSaving },
+      pension: { title: '👴 연금 계산기',      render: renderPension, run: runPension },
+      premium: { title: '💰 보험료 환산',     render: renderPremium, run: runPremium },
+    };
+
+    let _curCalc = null;
+
+    window.openCalc = function(type) {
+      const c = CALCS[type];
+      if (!c) return;
+      _curCalc = type;
+      document.getElementById('calc-title').textContent = c.title;
+      document.getElementById('calc-body').innerHTML = c.render();
+      document.getElementById('calc-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    };
+    window.closeCalc = function() {
+      document.getElementById('calc-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    };
+    window.__calcRun = function(type) {
+      CALCS[type]?.run();
+    };
+    window.__calcSwitch = function(type, btn, mode) {
+      document.querySelectorAll('#calc-body .calc-tab').forEach(t => t.classList.remove('active'));
+      btn.classList.add('active');
+      /* 적금/예금 모드별 필드 토글 */
+      if (type === 'saving') {
+        const isDeposit = mode === 'deposit';
+        document.getElementById('s-principal-field').style.display = isDeposit ? '' : 'none';
+        document.getElementById('s-monthly-field').style.display   = isDeposit ? 'none' : '';
+      }
+      /* 연금 수령 모드 필드 토글 */
+      if (type === 'pension') {
+        document.getElementById('p-withdraw-field').style.display = mode === 'withdraw' ? '' : 'none';
+      }
+    };
+
+    /* ESC 닫기 */
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && document.getElementById('calc-overlay')?.classList.contains('open')) {
+        closeCalc();
+      }
+    });
+  })();
+  </script>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════
+     홈 시계 위젯 (iPhone-style)
+  ══════════════════════════════════════════════════════════ */
+  (function() {
+    const DAYS = ['일','월','화','수','목','금','토'];
+    function tick() {
+      const hhEl = document.getElementById('ic-clock-hh');
+      if (!hhEl) return;
+      const now = new Date();
+      const h24 = now.getHours();
+      const h12 = h24 % 12 || 12;
+      const mm = String(now.getMinutes()).padStart(2, '0');
+      const ss = String(now.getSeconds()).padStart(2, '0');
+      hhEl.textContent = String(h24).padStart(2, '0');
+      document.getElementById('ic-clock-mm').textContent = mm;
+      document.getElementById('ic-clock-ss').textContent = ss;
+      document.getElementById('ic-clock-ampm').textContent = h24 < 12 ? 'AM' : 'PM';
+      document.getElementById('ic-clock-day').textContent = DAYS[now.getDay()] + '요일';
+      document.getElementById('ic-clock-date').textContent = `${now.getMonth()+1}월 ${now.getDate()}일`;
+    }
+    function start() {
+      tick();
+      /* 다음 초의 시작 시점에 맞춰 정렬 → 이후 매초 갱신 */
+      const now = new Date();
+      const delay = 1000 - now.getMilliseconds();
+      setTimeout(() => { tick(); setInterval(tick, 1000); }, delay);
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', start);
+    } else {
+      start();
+    }
+  })();
+  </script>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════
+     홈 대시보드: 채용공고 쇼케이스 (광고 스타일)
+  ══════════════════════════════════════════════════════════ */
+  (function() {
+    const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
+    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
+    const HDR = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
+
+    function esc(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+    function fmtDate(iso) {
+      const d = new Date(iso);
+      return `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function isNew(iso) {
+      const d = new Date(iso);
+      const diff = (Date.now() - d.getTime()) / (1000 * 60 * 60 * 24);
+      return diff < 7;
+    }
+
+    async function loadHomeJobs() {
+      const list = document.getElementById('home-jobs-compact');
+      if (!list) return;
+      try {
+        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?select=id,title,company_name,file_url,file_type,created_at&order=created_at.desc&limit=3`, { headers: HDR });
+        if (!res.ok) throw new Error('fetch failed');
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) {
+          list.innerHTML = '<div class="ic-hot-empty">현재 등록된 채용공고가 없습니다.</div>';
+          return;
+        }
+        list.innerHTML = items.map(it => {
+          let thumbInner;
+          if (it.file_url && it.file_type === 'image') {
+            thumbInner = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+          } else if (it.file_url && it.file_type === 'pdf') {
+            thumbInner = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+          } else {
+            thumbInner = `📝`;
+          }
+          const newBadge = isNew(it.created_at) ? '<span class="ic-job-compact-new">NEW</span>' : '';
+          const meta = [it.company_name, fmtDate(it.created_at)].filter(Boolean).join(' · ');
+          return `<button class="ic-job-compact-card" type="button" onclick="window.__openHomeJob(${it.id})">
+            <div class="ic-job-compact-thumb">${thumbInner}</div>
+            <div class="ic-job-compact-info">
+              <div class="ic-job-compact-title">${esc(it.title)}</div>
+              <div class="ic-job-compact-meta">${esc(meta)}</div>
+            </div>
+            ${newBadge}
+          </button>`;
+        }).join('');
+      } catch (e) {
+        list.innerHTML = '<div class="ic-hot-empty">로드 실패. 잠시 후 다시 시도해주세요.</div>';
+      }
+    }
+
+    /* 홈 대시보드 실시간 인기 콘텐츠 렌더 (_lmCache 데이터 활용) */
+    function renderHomeHot() {
+      if (!_lmCache) return;
+      const suffix = _lmPeriod === 'today' ? 'today' : 'total';
+      const jeonsan   = _lmCache[`jeonsan_${suffix}`]   || [];
+      const knowledge = _lmCache[`knowledge_${suffix}`] || [];
+      const cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
+
+      const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+
+      const makeHotItems = (arr, onClickFn) => {
+        if (!arr.length) return '<div class="ic-hot-empty">아직 클릭 기록이 없습니다</div>';
+        return arr.slice(0, 3).map((it, i) => {
+          const rank = i + 1;
+          const cnt = (it.clicks || 0).toLocaleString();
+          const safeN = esc2(it.name);
+          const onclk = onClickFn ? `onclick="${onClickFn(it.name)}"` : '';
+          return `<button class="ic-hot-item" type="button" ${onclk}>
+            <span class="ic-hot-rank ic-hot-rank-${rank}">${rank}</span>
+            <span class="ic-hot-name" title="${safeN}">${safeN}</span>
+            <span class="ic-hot-cnt">${cnt}회</span>
+          </button>`;
+        }).join('');
+      };
+
+      const jeonsanHtml   = makeHotItems(jeonsan,   (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`);
+      const knowledgeHtml = makeHotItems(knowledge, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`);
+      const cardnewsHtml  = makeHotItems(cardnews,  (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`);
+
+      requestAnimationFrame(() => {
+        const hj = document.getElementById('home-hot-jeonsan');
+        const hk = document.getElementById('home-hot-knowledge');
+        const hc = document.getElementById('home-hot-cardnews');
+        const hu = document.getElementById('home-hot-updated');
+        if (hj) hj.innerHTML = jeonsanHtml;
+        if (hk) hk.innerHTML = knowledgeHtml;
+        if (hc) hc.innerHTML = cardnewsHtml;
+        if (hu) {
+          const now = new Date();
+          const hh = String(now.getHours()).padStart(2,'0');
+          const mm = String(now.getMinutes()).padStart(2,'0');
+          hu.textContent = `업데이트 ${hh}:${mm}`;
+        }
+      });
+    }
+
+    /* 홈에서 채용공고 카드 클릭 → 채용공고 페이지로 이동 + 해당 항목 자동 오픈 */
+    window.__openHomeJob = function(id) {
+      try { trackCardClick('홈', '채용공고'); } catch(_) {}
+      if (typeof goToPage === 'function') goToPage('recruit');
+      /* 채용공고 페이지 데이터 로드 후 해당 ID의 뷰어 오픈 */
+      const tryOpen = (attempts) => {
+        if (typeof recruitState !== 'undefined' && recruitState.items && recruitState.items.length) {
+          const idx = recruitState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openRecruitViewer === 'function') {
+            openRecruitViewer(idx);
+            return;
+          }
+        }
+        if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 200);
+      };
+      setTimeout(() => tryOpen(15), 250);
+    };
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadHomeJobs);
+    } else {
+      loadHomeJobs();
+    }
+  })();
+  </script>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════
+     보험사 점검/장애 알림 (ic_service_alerts)
+  ══════════════════════════════════════════════════════════ */
+  (function() {
+    const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
+    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
+    const HDR = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
+    const DISMISS_KEY = 'ic_alert_dismissed_v1';
+
+    const SEV_META = {
+      info: { icon: '📢', label: '알림' },
+      warn: { icon: '⚠️', label: '점검' },
+      down: { icon: '🚨', label: '장애' },
+    };
+
+    let _alerts = [];
+    let _idx = 0;
+
+    function todayStr() {
+      const d = new Date();
+      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+    }
+    function getDismissed() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(DISMISS_KEY) || '{}');
+        if (raw.date !== todayStr()) return [];
+        return raw.ids || [];
+      } catch(_) { return []; }
+    }
+    function addDismissed(id) {
+      try {
+        localStorage.setItem(DISMISS_KEY, JSON.stringify({
+          date: todayStr(),
+          ids: [...new Set([...getDismissed(), id])],
+        }));
+      } catch(_) {}
+    }
+
+    function render() {
+      const banner = document.getElementById('alert-banner');
+      if (!banner) return;
+      if (!_alerts.length) { banner.classList.remove('open'); return; }
+      const a = _alerts[_idx];
+      const sev = SEV_META[a.severity] || SEV_META.info;
+      banner.className = `open sev-${a.severity || 'info'}`;
+      document.getElementById('alert-icon').textContent = sev.icon;
+      document.getElementById('alert-title').textContent = `[${a.insurer}] ${a.title}`;
+      document.getElementById('alert-msg').textContent = a.message || '';
+      const navWrap = document.getElementById('alert-nav-wrap');
+      const cnt = document.getElementById('alert-count');
+      const prev = document.getElementById('alert-prev');
+      const next = document.getElementById('alert-next');
+      if (_alerts.length > 1) {
+        cnt.textContent = `${_idx + 1}/${_alerts.length}`;
+        cnt.style.display = '';
+        prev.style.display = '';
+        next.style.display = '';
+      } else {
+        cnt.style.display = 'none';
+        prev.style.display = 'none';
+        next.style.display = 'none';
+      }
+    }
+
+    window.__alertPrev = () => { if (_alerts.length) { _idx = (_idx - 1 + _alerts.length) % _alerts.length; render(); } };
+    window.__alertNext = () => { if (_alerts.length) { _idx = (_idx + 1) % _alerts.length; render(); } };
+    window.__alertDismiss = () => {
+      if (!_alerts.length) return;
+      const a = _alerts[_idx];
+      addDismissed(a.id);
+      _alerts = _alerts.filter(x => x.id !== a.id);
+      _idx = 0;
+      render();
+    };
+
+    async function loadAlerts() {
+      try {
+        const now = new Date().toISOString();
+        const url = `${SB_URL}/rest/v1/ic_service_alerts?select=id,insurer,severity,title,message,starts_at,ends_at&is_active=eq.true&starts_at=lte.${now}&or=(ends_at.is.null,ends_at.gte.${now})&order=severity.asc,starts_at.desc&limit=20`;
+        const res = await fetch(url, { headers: HDR });
+        if (!res.ok) return;
+        const arr = await res.json();
+        if (!Array.isArray(arr)) return;
+        const dismissed = getDismissed();
+        _alerts = arr.filter(a => !dismissed.includes(a.id));
+        _idx = 0;
+        render();
+      } catch(_) {}
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadAlerts);
+    } else {
+      loadAlerts();
+    }
+  })();
+  </script>
+
+  <script>
+  /* ══════════════════════════════════════════════════════════
+     즐겨찾기 + 글로벌 검색 (Ctrl+K)
+  ══════════════════════════════════════════════════════════ */
+  (function() {
+    const FAV_KEY = 'ic_favorites_v1';
+
+    /* ── 즐겨찾기 저장/조회 ── */
+    function getFavorites() {
+      try { return JSON.parse(localStorage.getItem(FAV_KEY) || '[]'); }
+      catch(_) { return []; }
+    }
+    function saveFavorites(arr) {
+      try { localStorage.setItem(FAV_KEY, JSON.stringify(arr)); } catch(_) {}
+    }
+    function isFavorite(id) {
+      return getFavorites().includes(id);
+    }
+    function toggleFavorite(id) {
+      const favs = getFavorites();
+      const idx = favs.indexOf(id);
+      if (idx >= 0) favs.splice(idx, 1);
+      else favs.push(id);
+      saveFavorites(favs);
+      return favs.includes(id);
+    }
+
+    /* ── 모든 .tool-card[data-tool-id]에 별 버튼 주입 ── */
+    function injectFavButtons() {
+      document.querySelectorAll('.tool-card[data-tool-id]').forEach(card => {
+        if (card.querySelector('.tool-fav-btn')) return;
+        const id = card.dataset.toolId;
+        const btn = document.createElement('button');
+        btn.className = 'tool-fav-btn' + (isFavorite(id) ? ' active' : '');
+        btn.type = 'button';
+        btn.setAttribute('aria-label', '즐겨찾기');
+        btn.title = '즐겨찾기';
+        btn.textContent = isFavorite(id) ? '★' : '☆';
+        btn.addEventListener('click', (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          const nowActive = toggleFavorite(id);
+          btn.classList.toggle('active', nowActive);
+          btn.textContent = nowActive ? '★' : '☆';
+          renderFavorites();
+        });
+        card.appendChild(btn);
+      });
+    }
+
+    /* ── 카드 메타 데이터 추출 ── */
+    function getCardMeta(card) {
+      const id   = card.dataset.toolId;
+      const icon = card.querySelector('.tool-card-icon')?.textContent?.trim() || '⭐';
+      const name = card.querySelector('.tool-card-name')?.textContent?.trim() || '';
+      const sub  = card.querySelector('.tool-card-sub')?.textContent?.trim() || '';
+      const href = card.getAttribute('href') || '';
+      const onclick = card.getAttribute('onclick') || '';
+      const tag = id.startsWith('portal-') ? '보험포털' : '실무도구';
+      return { id, icon, name, sub, href, onclick, tag };
+    }
+
+    /* ── 즐겨찾기 카드 클릭 시 원본 카드의 액션 트리거 ── */
+    function triggerCardAction(id) {
+      const card = document.querySelector(`.tool-card[data-tool-id="${id}"]`);
+      if (!card) return;
+      const meta = getCardMeta(card);
+      if (meta.href) {
+        window.open(meta.href, '_blank', 'noopener,noreferrer');
+        if (meta.onclick) {
+          try { (new Function(meta.onclick))(); } catch(_) {}
+        }
+      } else {
+        card.click();
+      }
+    }
+
+    /* ── 내 즐겨찾기 섹션 렌더 (실무도구 페이지 + 홈 대시보드 동시 갱신) ── */
+    function renderFavorites() {
+      const favs = getFavorites();
+      const cards = favs
+        .map(id => document.querySelector(`.tool-card[data-tool-id="${id}"]`))
+        .filter(Boolean);
+
+      const gridHTML = cards.map(card => {
+        const m = getCardMeta(card);
+        return `<div class="tool-card" data-fav-link="${m.id}" style="cursor:pointer;" onclick="window.__favCardClick('${m.id}')">
+          <div class="tool-card-icon">${m.icon}</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">${m.name}</div>
+            <div class="tool-card-sub">${m.sub}</div>
+          </div>
+          <div class="tool-card-arrow">→</div>
+        </div>`;
+      }).join('');
+
+      /* 실무도구 페이지: 빈 상태면 섹션 숨김 */
+      const section = document.getElementById('favorites-section');
+      const grid    = document.getElementById('favorites-grid');
+      const count   = document.getElementById('fav-count');
+      if (section && grid) {
+        if (!cards.length) {
+          section.classList.remove('has-items');
+          grid.innerHTML = '';
+        } else {
+          section.classList.add('has-items');
+          if (count) count.textContent = `${cards.length}개`;
+          grid.innerHTML = gridHTML;
+        }
+      }
+
+      /* 홈 대시보드: 항상 표시, 빈 상태면 안내 카드로 전환 */
+      const homeEmpty = document.getElementById('home-fav-empty');
+      const homeGrid  = document.getElementById('home-fav-grid');
+      const homeCount = document.getElementById('home-fav-count');
+      if (homeGrid && homeEmpty) {
+        if (!cards.length) {
+          homeEmpty.style.display = '';
+          homeGrid.style.display = 'none';
+          homeGrid.innerHTML = '';
+          if (homeCount) homeCount.style.display = 'none';
+        } else {
+          homeEmpty.style.display = 'none';
+          homeGrid.style.display = '';
+          homeGrid.innerHTML = gridHTML;
+          if (homeCount) {
+            homeCount.textContent = `${cards.length}개`;
+            homeCount.style.display = '';
+          }
+        }
+      }
+    }
+    window.__favCardClick = triggerCardAction;
+
+    /* ══════════════════════════════════════════════════════════
+       글로벌 검색
+    ══════════════════════════════════════════════════════════ */
+    let _searchIndex = [];
+    let _activeIdx = 0;
+
+    /* 검색 인덱스 구축 (실무도구 + 보험포털 + 페이지 네비) */
+    function buildSearchIndex() {
+      const items = [];
+      /* 실무도구 + 보험포털 (.tool-card[data-tool-id]) */
+      document.querySelectorAll('.tool-card[data-tool-id]').forEach(card => {
+        const m = getCardMeta(card);
+        items.push({
+          type: 'tool',
+          id: m.id, name: m.name, sub: m.sub, icon: m.icon, tag: m.tag,
+          action: () => triggerCardAction(m.id),
+        });
+      });
+      /* 네비게이션 페이지 (하드코딩) */
+      const NAV_PAGES = [
+        { id:'home',       icon:'🏠', name:'홈',           sub:'대시보드 메인',           tag:'페이지' },
+        { id:'latest',     icon:'🆕', name:'최신 콘텐츠',  sub:'카드뉴스·보험지식 최신',  tag:'페이지' },
+        { id:'jeonsan',    icon:'🖥', name:'보험사 전산',  sub:'생명·손해보험사 전산',    tag:'페이지' },
+        { id:'ga',         icon:'🏢', name:'GA 전산',      sub:'법인대리점 전산',         tag:'페이지' },
+        { id:'payment',    icon:'💳', name:'수납 전산',    sub:'보험사 수납 전산',        tag:'페이지' },
+        { id:'newsletter', icon:'📰', name:'소식지',       sub:'보험사별 소식지',         tag:'페이지' },
+        { id:'claimform',  icon:'📋', name:'청구서류',     sub:'보험금 청구 서류',        tag:'페이지' },
+        { id:'recruit',    icon:'📢', name:'채용공고',     sub:'보험업계 채용',           tag:'페이지' },
+        { id:'cardnews',   icon:'🃏', name:'카드뉴스',     sub:'일일 카드뉴스',           tag:'페이지' },
+        { id:'knowledge',  icon:'📚', name:'보험지식',     sub:'보험 지식 블로그',        tag:'페이지' },
+        { id:'tools',      icon:'🔧', name:'실무도구',     sub:'실무 통합 도구 모음',     tag:'페이지' },
+      ];
+      NAV_PAGES.forEach(p => items.push({
+        type: 'page',
+        ...p,
+        action: () => {
+          if (typeof goToPage === 'function') goToPage(p.id);
+          else location.hash = `#${p.id}`;
+        },
+      }));
+      _searchIndex = items;
+    }
+
+    function normalize(s) {
+      return String(s || '').toLowerCase().replace(/\s+/g, '');
+    }
+
+    function search(q) {
+      const nq = normalize(q);
+      if (!nq) return [];
+      const matched = _searchIndex.filter(it => {
+        const hay = normalize(it.name + ' ' + it.sub + ' ' + it.tag);
+        return hay.includes(nq);
+      });
+      /* 그룹화: 페이지 → 실무도구 → 보험포털 */
+      const order = ['페이지', '실무도구', '보험포털'];
+      return matched.sort((a, b) => {
+        const ai = order.indexOf(a.tag); const bi = order.indexOf(b.tag);
+        return (ai === -1 ? 99 : ai) - (bi === -1 ? 99 : bi);
+      });
+    }
+
+    function escapeHtml(s) {
+      return String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    }
+
+    function renderResults(q) {
+      const el = document.getElementById('gs-results');
+      if (!el) return;
+      const items = search(q);
+      _activeIdx = 0;
+      if (!q.trim()) {
+        /* 빈 검색어: 즐겨찾기 + 인기 페이지 추천 */
+        const favs = getFavorites();
+        const favItems = _searchIndex.filter(it => favs.includes(it.id));
+        const recommend = _searchIndex.filter(it => it.type === 'page').slice(0, 6);
+        const sections = [];
+        if (favItems.length) {
+          sections.push(`<div class="gs-group-head">⭐ 즐겨찾기</div>` +
+            favItems.map((it, i) => itemHTML(it, i)).join(''));
+        }
+        sections.push(`<div class="gs-group-head">바로가기</div>` +
+          recommend.map((it, i) => itemHTML(it, favItems.length + i)).join(''));
+        el.innerHTML = sections.join('');
+        _renderedItems = [...favItems, ...recommend];
+        return;
+      }
+      if (!items.length) {
+        el.innerHTML = `<div class="gs-empty">'${escapeHtml(q)}'에 대한 검색 결과가 없습니다.</div>`;
+        _renderedItems = [];
+        return;
+      }
+      /* 그룹별 헤더 표시 */
+      let html = '';
+      let currentTag = '';
+      let idx = 0;
+      items.forEach(it => {
+        if (it.tag !== currentTag) {
+          currentTag = it.tag;
+          html += `<div class="gs-group-head">${currentTag}</div>`;
+        }
+        html += itemHTML(it, idx++);
+      });
+      el.innerHTML = html;
+      _renderedItems = items;
+      updateActiveItem();
+    }
+
+    let _renderedItems = [];
+
+    function itemHTML(it, idx) {
+      return `<button class="gs-item" data-idx="${idx}" type="button" onclick="window.__gsPick(${idx})">
+        <span class="gs-icon">${it.icon}</span>
+        <span class="gs-text">
+          <span class="gs-name">${escapeHtml(it.name)}</span>
+          ${it.sub ? `<span class="gs-sub">${escapeHtml(it.sub)}</span>` : ''}
+        </span>
+        <span class="gs-tag">${it.tag}</span>
+      </button>`;
+    }
+
+    function updateActiveItem() {
+      const items = document.querySelectorAll('#gs-results .gs-item');
+      items.forEach((el, i) => el.classList.toggle('active', i === _activeIdx));
+      const active = items[_activeIdx];
+      if (active) active.scrollIntoView({ block: 'nearest' });
+    }
+
+    function pickItem(idx) {
+      const it = _renderedItems[idx];
+      if (!it || !it.action) return;
+      closeGlobalSearch();
+      setTimeout(() => { try { it.action(); } catch(_) {} }, 30);
+    }
+    window.__gsPick = pickItem;
+
+    window.openGlobalSearch = function() {
+      const ov = document.getElementById('global-search-overlay');
+      const input = document.getElementById('gs-input');
+      if (!ov || !input) return;
+      if (!_searchIndex.length) buildSearchIndex();
+      ov.classList.add('open');
+      input.value = '';
+      renderResults('');
+      setTimeout(() => input.focus(), 50);
+    };
+    window.closeGlobalSearch = function() {
+      const ov = document.getElementById('global-search-overlay');
+      if (ov) ov.classList.remove('open');
+    };
+
+    /* ── 키보드 이벤트 ── */
+    document.addEventListener('keydown', (e) => {
+      /* Ctrl+K / Cmd+K → 검색 열기 */
+      if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        window.openGlobalSearch();
+        return;
+      }
+      const ov = document.getElementById('global-search-overlay');
+      if (!ov || !ov.classList.contains('open')) return;
+      if (e.key === 'Escape') { e.preventDefault(); closeGlobalSearch(); return; }
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        if (_activeIdx < _renderedItems.length - 1) { _activeIdx++; updateActiveItem(); }
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        if (_activeIdx > 0) { _activeIdx--; updateActiveItem(); }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        pickItem(_activeIdx);
+      }
+    });
+
+    /* ── 입력 이벤트 ── */
+    document.addEventListener('DOMContentLoaded', () => {
+      const input = document.getElementById('gs-input');
+      if (input) input.addEventListener('input', (e) => renderResults(e.target.value));
+    });
+
+    /* ── 페이지 로드 후 초기화 ── */
+    function init() {
+      injectFavButtons();
+      renderFavorites();
+      buildSearchIndex();
+      const input = document.getElementById('gs-input');
+      if (input && !input._bound) {
+        input._bound = true;
+        input.addEventListener('input', (e) => renderResults(e.target.value));
+      }
+    }
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      init();
+    }
+  })();
+  </script>
+
+  <script>
+  /* ── PWA 설치 ── */
+  (function() {
+    let _prompt = null;
+
+    window.addEventListener('beforeinstallprompt', e => {
+      e.preventDefault();
+      _prompt = e;
+      const btn = document.getElementById('pwa-install-btn');
+      if (btn) btn.style.display = '';
+    });
+
+    window.addEventListener('appinstalled', () => {
+      _prompt = null;
+      const btn = document.getElementById('pwa-install-btn');
+      if (btn) btn.style.display = 'none';
+    });
+
+    window.installPWA = async function() {
+      if (!_prompt) return;
+      _prompt.prompt();
+      const { outcome } = await _prompt.userChoice;
+      _prompt = null;
+      if (outcome === 'accepted') {
+        const btn = document.getElementById('pwa-install-btn');
+        if (btn) btn.style.display = 'none';
+      }
+    };
+
+    /* iOS Safari — standalone 아닐 때만 배너 표시 (하루 한 번) */
+    const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (isIOS && !window.navigator.standalone) {
+      try {
+        const key = 'ios_install_dismissed';
+        const last = localStorage.getItem(key);
+        const today = new Date().toISOString().slice(0, 10);
+        if (last !== today) {
+          const banner = document.getElementById('ios-install-banner');
+          if (banner) banner.style.display = 'flex';
+        }
+      } catch(_) {}
+    }
+
+    window.dismissIosBanner = function() {
+      const banner = document.getElementById('ios-install-banner');
+      if (banner) banner.style.display = 'none';
+      try { localStorage.setItem('ios_install_dismissed', new Date().toISOString().slice(0, 10)); } catch(_) {}
+    };
+
+    /* Service Worker 등록 */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  })();
+  </script>
 
 </body>
 </html>
