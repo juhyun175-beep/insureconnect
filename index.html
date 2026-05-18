@@ -4511,6 +4511,11 @@
           <span class="ic-feat-desc">생명·손해 32개사 전산 / 연락처 모음</span>
         </div>
         <div class="ic-feat-card">
+          <span class="ic-feat-icon">🏢</span>
+          <span class="ic-feat-name">GA 전산</span>
+          <span class="ic-feat-desc">주요 법인대리점 17곳 사내 전산 바로가기</span>
+        </div>
+        <div class="ic-feat-card">
           <span class="ic-feat-icon">💳</span>
           <span class="ic-feat-name">수납 전산</span>
           <span class="ic-feat-desc">카드 수납 가능 보험사 별도 정리</span>
@@ -4666,6 +4671,31 @@
         <span class="sec-badge">12개사</span>
       </div>
       <div class="grid" id="grid-nonlife"></div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: GA 전산 ══════ -->
+  <div class="content" id="page-ga" style="display:none">
+    <div class="content-source-notice">
+      <span class="csn-icon">ℹ️</span>
+      <span>본 페이지는 <strong>주요 GA(General Agency) 법인대리점</strong>의 사내 전산 시스템 로그인 페이지 안내입니다. 각 법인의 소속 설계사만 접속 가능합니다.</span>
+    </div>
+    <div class="controls">
+      <div class="search-box">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="ga-search" placeholder="GA 법인 이름으로 검색…" autocomplete="off">
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-head">
+        <span class="sec-num">01</span>
+        <span class="sec-title">GA 법인대리점 전산</span>
+        <span class="sec-line"></span>
+        <span class="sec-badge" id="ga-count">17개사</span>
+      </div>
+      <div class="grid" id="grid-ga"></div>
     </div>
   </div>
 
@@ -5337,6 +5367,74 @@
       PAYMENT.forEach((ins, i) => paymentGrid.appendChild(makeCard({ ...ins, c:'#1a3de8' }, i, 'payment')));
     }
 
+    /* ── GA 전산 (법인대리점) ── */
+    const GA = [
+      { name:'에이플러스에셋',  abbr:'A+',  url:'https://www.aplusga.com/tfa/login.do' },
+      { name:'어센틱금융그룹',  abbr:'AFG', url:'https://line.afg.kr/login' },
+      { name:'더베스트금융',    abbr:'BST', url:'https://erp.thebestfs.co.kr/login.go' },
+      { name:'프라임에셋',      abbr:'PA',  url:'https://pams.kr/' },
+      { name:'메가',            abbr:'MG',  url:'https://mega.megafn.com/' },
+      { name:'IFA',             abbr:'IFA', url:'https://www1.ifacloud.co.kr/new_index.aspx?ReturnUrl=%2f' },
+      { name:'지에이코리아',    abbr:'GAK', url:'https://nerp.gakorea.biz/login.go' },
+      { name:'글로벌금융',      abbr:'GG',  url:'https://www.globalgoms.co.kr/#/login' },
+      { name:'메타리치',        abbr:'MR',  url:'https://meta-on.kr/#/login' },
+      { name:'FM에셋',          abbr:'FM',  url:'https://inskorea.net/irs/login/' },
+      { name:'엠금융',          abbr:'M',   url:'https://ap2.gaiasystem.co.kr/mfweb/x_install2.jsp' },
+      { name:'KGA에셋',         abbr:'KGA', url:'https://ktams.kgaasset.com/Install/newLauncher_XP.html' },
+      { name:'토스인슈어런스',  abbr:'토스',url:'https://erp.tossinsu.com/login.go' },
+      { name:'굿리치',          abbr:'GR',  url:'https://sso.goodrich.kr/account/login?reqMethod=get&returnUrl=https://rion-sales.goodrich.kr' },
+      { name:'벨류마크',        abbr:'VM',  url:'https://login.valuemark.co.kr/login?reUrl=http://bokji.valuemark.co.kr/velueSSoTest' },
+      { name:'한화피플라이프',  abbr:'한화',url:'https://pines.peoplelife.co.kr/login;jsessionid=5C66FE4E633F62000CD83B9701933F25' },
+      { name:'에즈금융서비스',  abbr:'AZ',  url:'https://az.azlife.kr/login' },
+    ];
+
+    function makeGaCard(ga, idx) {
+      const a = document.createElement('a');
+      a.href = ga.url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      a.className = 'card';
+      a.dataset.name = ga.name;
+      a.dataset.type = 'ga';
+      a.style.setProperty('--c', 'var(--blue-mid)');
+      a.style.animationDelay = (idx * 40) + 'ms';
+      a.innerHTML = `
+        <div class="c-badge no-img">
+          <span class="c-badge-text" style="font-size:14px;">${ga.abbr}</span>
+        </div>
+        <div class="c-name">${ga.name}</div>
+        <div class="c-type">GA 법인대리점 · 전산 바로가기</div>
+        <div class="c-arrow">↗</div>`;
+      a.addEventListener('click', function(e) {
+        trackClick(ga.name, 'ga');
+        const r = document.createElement('span');
+        r.className = 'ripple';
+        const rect = this.getBoundingClientRect();
+        const sz = Math.max(rect.width, rect.height);
+        r.style.cssText = `width:${sz}px;height:${sz}px;left:${e.clientX-rect.left-sz/2}px;top:${e.clientY-rect.top-sz/2}px`;
+        this.appendChild(r);
+        setTimeout(() => r.remove(), 600);
+      });
+      return a;
+    }
+    const gaGrid = document.getElementById('grid-ga');
+    if (gaGrid) {
+      GA.forEach((ga, i) => gaGrid.appendChild(makeGaCard(ga, i)));
+      document.getElementById('ga-count').textContent = `${GA.length}개사`;
+    }
+
+    /* GA 검색 */
+    const gaSearchInput = document.getElementById('ga-search');
+    if (gaSearchInput) {
+      gaSearchInput.addEventListener('input', function() {
+        const q = this.value.trim().toLowerCase();
+        document.querySelectorAll('#grid-ga .card').forEach(c => {
+          const name = (c.dataset.name || '').toLowerCase();
+          c.style.display = (!q || name.includes(q)) ? '' : 'none';
+        });
+      });
+    }
+
     /* ── 필터 & 검색 ── */
     let curFilter = 'all';
     document.querySelectorAll('.tab').forEach(btn => {
@@ -5446,6 +5544,7 @@
       home:             '홈',
       latest:           '최신 콘텐츠',
       jeonsan:          '보험사 전산',
+      ga:               'GA 전산',
       payment:          '수납 전산',
       newsletter:       '보험사 소식지',
       claimform:        '보험사 청구서류',
@@ -8545,6 +8644,7 @@
   <div class="right-nav-group">
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','최신콘텐츠'); goToPage('latest');" title="최신 콘텐츠" type="button">최신</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">전산</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','GA전산'); goToPage('ga');" title="GA 법인대리점 전산" type="button">GA</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','수납전산'); goToPage('payment');" title="보험사 수납 전산" type="button">수납</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">소식지</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">청구</button>
