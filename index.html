@@ -3254,38 +3254,54 @@
     /* ══════════════════════════════
        홈 대시보드 - Hero / 기능 / 신뢰 / 푸터
     ══════════════════════════════ */
-    /* 히어로 + 즐겨찾기 + 시계 위젯 3열 레이아웃 */
-    .ic-hero-row {
+    /* ═══════ 상단 영역: 좌측(인기콘텐츠 + 허브+즐겨찾기) | 우측(모임방순위) ═══════ */
+    .ic-top-row {
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr) 280px;
+      grid-template-columns: minmax(0, 1fr) 280px;
       gap: 14px;
       align-items: stretch;
       margin: 0 0 18px;
     }
-    @media (max-width: 1100px) {
-      .ic-hero-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
-      .ic-hero-row .ic-clock { grid-column: 1 / -1; }
+    @media (max-width: 1024px) {
+      .ic-top-row { grid-template-columns: 1fr; }
+    }
+    .ic-top-left {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+    .ic-top-left > .live-monitor { margin-bottom: 0 !important; }
+    .ic-top-row > .ic-kakao-panel { margin-bottom: 0; }
+
+    /* 히어로 + 즐겨찾기 (상단 행 좌측의 하단 영역) */
+    .ic-hero-fav {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 14px;
+      flex: 1;
+      min-height: 0;
     }
     @media (max-width: 720px) {
-      .ic-hero-row { grid-template-columns: 1fr; }
-      .ic-hero-row .ic-clock { grid-column: auto; }
+      .ic-hero-fav { grid-template-columns: 1fr; }
     }
+    .ic-hero-fav > .ic-hero,
+    .ic-hero-fav > #home-fav-section { margin: 0; }
 
-    /* 히어로 행 내 컴팩트 즐겨찾기 카드 */
-    .ic-hero-row #home-fav-section {
+    /* 컴팩트 즐겨찾기 카드 (.ic-hero-fav 내부) */
+    .ic-hero-fav #home-fav-section {
       background: var(--bg-card);
       border: 1px solid var(--border);
       border-radius: 18px;
       padding: 14px 14px 12px;
-      margin: 0;
       box-shadow: var(--sh-sm);
       display: flex;
       flex-direction: column;
       min-height: 0;
       overflow: hidden;
     }
-    .ic-hero-row #home-fav-section .fav-section-head { margin-bottom: 10px; }
-    .ic-hero-row #home-fav-empty {
+    .ic-hero-fav #home-fav-section .fav-section-head { margin-bottom: 10px; }
+    .ic-hero-fav #home-fav-empty {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -3297,10 +3313,10 @@
       background: var(--bg);
       border-radius: 12px;
     }
-    .ic-hero-row .fav-onboard-icon { font-size: 28px; }
-    .ic-hero-row .fav-onboard-title { font-size: 12.5px; font-weight: 800; color: var(--txt-hi); }
-    .ic-hero-row .fav-onboard-desc { font-size: 11px; color: var(--txt-mid); line-height: 1.5; }
-    .ic-hero-row .fav-onboard-btn {
+    .ic-hero-fav .fav-onboard-icon { font-size: 28px; }
+    .ic-hero-fav .fav-onboard-title { font-size: 12.5px; font-weight: 800; color: var(--txt-hi); }
+    .ic-hero-fav .fav-onboard-desc { font-size: 11px; color: var(--txt-mid); line-height: 1.5; }
+    .ic-hero-fav .fav-onboard-btn {
       padding: 6px 12px;
       font-size: 11.5px;
       font-weight: 700;
@@ -3312,34 +3328,34 @@
       font-family: inherit;
       margin-top: 4px;
     }
-    .ic-hero-row #home-fav-grid {
+    .ic-hero-fav #home-fav-grid {
       grid-template-columns: repeat(2, 1fr) !important;
       gap: 8px !important;
       overflow-y: auto;
-      max-height: 200px;
+      max-height: 220px;
     }
-    .ic-hero-row #home-fav-grid .tool-card,
-    .ic-hero-row #home-fav-grid .portal-card {
+    .ic-hero-fav #home-fav-grid .tool-card,
+    .ic-hero-fav #home-fav-grid .portal-card {
       padding: 8px 9px !important;
       min-height: auto !important;
     }
-    .ic-hero-row #home-fav-grid .tool-card-title,
-    .ic-hero-row #home-fav-grid .portal-card-name {
+    .ic-hero-fav #home-fav-grid .tool-card-title,
+    .ic-hero-fav #home-fav-grid .portal-card-name {
       font-size: 11.5px !important;
     }
 
-    /* 상단 행: 실시간 인기 콘텐츠 + 모임방 대화순위 */
-    .ic-top-row {
+    /* ═══════ 하단 영역: 채용공고 | 시계 ═══════ */
+    .ic-bottom-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 280px;
       gap: 14px;
-      margin: 0 0 18px;
       align-items: stretch;
+      margin: 0 0 22px;
     }
-    .ic-top-row > .live-monitor { margin-bottom: 0 !important; }
-    .ic-top-row > .ic-kakao-panel { margin-bottom: 0; }
-    @media (max-width: 1024px) {
-      .ic-top-row { grid-template-columns: 1fr; }
+    .ic-bottom-row > .ic-jobs { margin-bottom: 0; }
+    .ic-bottom-row > .ic-clock { height: 100%; margin: 0; }
+    @media (max-width: 900px) {
+      .ic-bottom-row { grid-template-columns: 1fr; }
     }
     .ic-hero {
       text-align: center;
@@ -5462,8 +5478,9 @@
 
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <div class="content" id="page-home">
-    <!-- 상단 행: 실시간 인기 콘텐츠 + 모임방 대화순위 -->
+    <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
+    <div class="ic-top-left">
     <!-- 실시간 인기 콘텐츠 모니터 -->
     <div class="live-monitor" id="live-monitor">
       <div class="lm-header">
@@ -5509,7 +5526,37 @@
       </div>
     </div>
 
-    <!-- 우: 모임방 대화 순위 (실시간 인기 콘텐츠 카드 오른쪽) -->
+    <!-- 좌측 하단 (히어로 + 즐겨찾기) -->
+    <div class="ic-hero-fav">
+      <section class="ic-hero" aria-label="서비스 소개">
+        <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
+        <p class="ic-hero-sub">각 보험사 전산·청구서류·소식지·실무도구·보험지식을<br class="ic-hero-br">한 곳에서 빠르게 만나보세요.</p>
+        <div class="ic-hero-cta">
+          <a class="ic-hero-btn primary" href="#" onclick="goToPage('latest');return false;">📰 최신 콘텐츠 보기</a>
+        </div>
+      </section>
+
+      <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
+        <div class="fav-section-head">
+          <span class="fav-pill">⭐ MY FAVORITES</span>
+          <span class="fav-line"></span>
+          <span class="sec-badge" id="home-fav-count" style="display:none;">0개</span>
+        </div>
+        <div class="fav-onboard" id="home-fav-empty">
+          <div class="fav-onboard-icon">⭐</div>
+          <div class="fav-onboard-body">
+            <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
+            <div class="fav-onboard-desc">실무도구·전산의 <strong>☆</strong> 버튼을 누르면 여기에 자동 표시됩니다.</div>
+          </div>
+          <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구 →</button>
+        </div>
+        <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
+      </section>
+    </div>
+
+    </div><!-- /.ic-top-left -->
+
+    <!-- 우측: 모임방 대화순위 (전체 높이 채움) -->
     <div class="ic-kakao-panel" aria-label="모임방 대화 순위">
       <div class="ic-kakao-head">
         <span class="ic-kakao-title">💬 모임방 대화순위</span>
@@ -5530,68 +5577,39 @@
     </div>
     </div><!-- /.ic-top-row -->
 
-    <!-- ══ 서비스 소개 Hero + 즐겨찾기 + 시계 ══ -->
-    <div class="ic-hero-row">
-    <section class="ic-hero" aria-label="서비스 소개">
-      <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
-      <p class="ic-hero-sub">각 보험사 전산·청구서류·소식지·실무도구·보험지식을<br class="ic-hero-br">한 곳에서 빠르게 만나보세요.</p>
-      <div class="ic-hero-cta">
-        <a class="ic-hero-btn primary" href="#" onclick="goToPage('latest');return false;">📰 최신 콘텐츠 보기</a>
-      </div>
-    </section>
-
-    <!-- 즐겨찾기 (히어로 오른쪽 / 시계 왼쪽) -->
-    <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
-      <div class="fav-section-head">
-        <span class="fav-pill">⭐ MY FAVORITES</span>
-        <span class="fav-line"></span>
-        <span class="sec-badge" id="home-fav-count" style="display:none;">0개</span>
-      </div>
-      <!-- 빈 상태 안내 카드 -->
-      <div class="fav-onboard" id="home-fav-empty">
-        <div class="fav-onboard-icon">⭐</div>
-        <div class="fav-onboard-body">
-          <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
-          <div class="fav-onboard-desc">실무도구·전산의 <strong>☆</strong> 버튼을 누르면 여기에 자동 표시됩니다.</div>
+    <!-- ══ 하단 행: 채용공고 | 시계 ══ -->
+    <div class="ic-bottom-row">
+      <section class="ic-jobs" aria-label="진행중인 채용공고">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            🔥 진행중인 채용공고
+            <span class="ic-jobs-pill">HIRING</span>
+          </div>
+          <span class="ic-jobs-spacer"></span>
+          <button class="ic-jobs-all" type="button" onclick="goToPage('recruit')">전체 보기 →</button>
         </div>
-        <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구 →</button>
-      </div>
-      <!-- 채워진 상태: 즐겨찾기 카드 그리드 -->
-      <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
-    </section>
+        <div class="ic-jobs-grid" id="home-jobs-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
 
-    <aside class="ic-clock" aria-label="현재 시각">
-      <div class="ic-clock-head">
-        <span><span class="ic-clock-dot"></span> KST · SEOUL</span>
-        <span id="ic-clock-ampm">AM</span>
-      </div>
-      <div class="ic-clock-time">
-        <span id="ic-clock-hh">--</span><span class="ic-clock-colon">:</span><span id="ic-clock-mm">--</span><span class="ic-clock-seconds" id="ic-clock-ss">--</span>
-      </div>
-      <div class="ic-clock-date">
-        <span class="ic-clock-day" id="ic-clock-day">—요일</span>
-        <span id="ic-clock-date">—월 —일</span>
-      </div>
-    </aside>
+      <aside class="ic-clock" aria-label="현재 시각">
+        <div class="ic-clock-head">
+          <span><span class="ic-clock-dot"></span> KST · SEOUL</span>
+          <span id="ic-clock-ampm">AM</span>
+        </div>
+        <div class="ic-clock-time">
+          <span id="ic-clock-hh">--</span><span class="ic-clock-colon">:</span><span id="ic-clock-mm">--</span><span class="ic-clock-seconds" id="ic-clock-ss">--</span>
+        </div>
+        <div class="ic-clock-date">
+          <span class="ic-clock-day" id="ic-clock-day">—요일</span>
+          <span id="ic-clock-date">—월 —일</span>
+        </div>
+      </aside>
     </div>
-
-    <!-- ══ 진행중인 채용공고 (컴팩트) ══ -->
-    <section class="ic-jobs" aria-label="진행중인 채용공고">
-      <div class="ic-jobs-head">
-        <div class="ic-jobs-title">
-          🔥 진행중인 채용공고
-          <span class="ic-jobs-pill">HIRING</span>
-        </div>
-        <span class="ic-jobs-spacer"></span>
-        <button class="ic-jobs-all" type="button" onclick="goToPage('recruit')">전체 보기 →</button>
-      </div>
-      <div class="ic-jobs-grid" id="home-jobs-grid">
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-      </div>
-    </section>
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
