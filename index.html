@@ -3817,14 +3817,28 @@
     .ic-kakao-meta {
       font-size: 10.5px;
       color: var(--txt-lo);
-      padding: 4px 10px;
+      padding: 6px 10px;
       background: var(--bg);
       border-radius: 8px;
+      /* 2행 세로 정렬 (좁은 컬럼에서 텍스트 밀림 방지) */
       display: flex;
-      align-items: center;
-      gap: 6px;
+      flex-direction: column;
+      gap: 2px;
     }
-    .ic-kakao-meta-label { font-weight: 700; color: var(--txt-mid); }
+    .ic-kakao-meta-label {
+      font-weight: 700;
+      color: var(--txt-mid);
+      font-size: 11px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ic-kakao-meta > #home-kakao-period {
+      font-size: 10px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
     .ic-kakao-rank-list { display: flex; flex-direction: column; gap: 5px; }
     .ic-kakao-rank-item {
       display: flex;
@@ -3882,7 +3896,12 @@
       font-size: 10px;
       color: var(--txt-lo);
       text-align: right;
+      line-height: 1.5;
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
     }
+    .ic-kakao-updated > span { display: block; }
 
     /* AdSense 슬롯 — 광고가 실제로 채워졌을 때만 시각화 (빈 박스 방지) */
     .ic-ad-slot {
@@ -5766,10 +5785,10 @@
 
     </div><!-- /.ic-top-left -->
 
-    <!-- 우측: 모임방 대화순위 (전체 높이 채움) -->
-    <div class="ic-kakao-panel" aria-label="모임방 대화 순위">
+    <!-- 우측: 오픈채팅방 대화순위 (전체 높이 채움) -->
+    <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
       <div class="ic-kakao-head">
-        <span class="ic-kakao-title">💬 모임방 대화순위</span>
+        <span class="ic-kakao-title">💬 오픈채팅방<br>대화순위</span>
         <span class="ic-kakao-badge">KAKAO</span>
       </div>
       <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
@@ -10722,19 +10741,19 @@
         const d = arr[0];
         const rankings = Array.isArray(d.rankings) ? d.rankings : [];
 
-        // 메타 표시
+        // 메타 표시 (2행: 방이름 / 기간)
         if (metaEl && (d.room_name || d.period_label)) {
           if (roomEl) roomEl.textContent = d.room_name || '';
-          if (periodEl) periodEl.textContent = d.period_label ? `· ${d.period_label}` : '';
+          if (periodEl) periodEl.textContent = d.period_label || '';
           metaEl.style.display = 'flex';
         }
 
-        // 업데이트 시각
+        // 업데이트 시각 (2행: 업데이트 시각 / 총 건수)
         if (updEl && d.updated_at) {
           const u = new Date(d.updated_at);
           const hh = String(u.getHours()).padStart(2,'0');
           const mm = String(u.getMinutes()).padStart(2,'0');
-          updEl.textContent = `업데이트 ${hh}:${mm} · 총 ${(d.total_messages||0).toLocaleString()}건`;
+          updEl.innerHTML = `<span>업데이트 ${hh}:${mm}</span><span>총 ${(d.total_messages||0).toLocaleString()}건</span>`;
         }
 
         if (rankings.length === 0) {

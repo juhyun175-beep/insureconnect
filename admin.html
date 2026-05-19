@@ -3525,8 +3525,8 @@
           <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:14px;">📂 카카오톡 대화 파일 업로드</div>
 
           <div class="nl-field">
-            <label>모임방 이름 (선택)</label>
-            <input type="text" id="kk-room-name" placeholder="예: 보험설계사 모임방" style="font-family:inherit;">
+            <label>오픈채팅방 이름 (선택)</label>
+            <input type="text" id="kk-room-name" placeholder="예: 보험설계사 오픈채팅방" style="font-family:inherit;">
           </div>
           <div class="nl-field">
             <label>기간 레이블 (선택)</label>
@@ -6128,7 +6128,7 @@
       btn.disabled = true;
       try {
         const payload = {
-          room_name: document.getElementById('kk-room-name').value.trim() || '모임방',
+          room_name: document.getElementById('kk-room-name').value.trim() || '오픈채팅방',
           period_label: document.getElementById('kk-period').value.trim() || null,
           rankings: _kkParsed.rankings,
           total_messages: _kkParsed.total,
