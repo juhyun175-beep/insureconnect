@@ -2267,6 +2267,49 @@
       grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
       gap: 14px;
     }
+
+    /* 채용공고 카드 링크복사 버튼 (rc-card + ic-job-card 공통) */
+    .rc-card-copy,
+    .ic-job-copy {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      z-index: 5;
+      width: 30px;
+      height: 30px;
+      border: none;
+      border-radius: 50%;
+      background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(6px);
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.18s, transform 0.18s, opacity 0.18s;
+      opacity: 0;
+      padding: 0;
+    }
+    .rc-card:hover .rc-card-copy,
+    .ic-job-card:hover .ic-job-copy { opacity: 1; }
+    /* 터치 디바이스에선 항상 보임 */
+    @media (hover: none), (pointer: coarse) {
+      .rc-card-copy, .ic-job-copy { opacity: 1; }
+    }
+    .rc-card-copy:hover,
+    .ic-job-copy:hover {
+      background: var(--blue-mid);
+      transform: scale(1.08);
+    }
+    .rc-card-copy.copied,
+    .ic-job-copy.copied {
+      background: #10b981 !important;
+      opacity: 1 !important;
+    }
+    .rc-card-copy svg,
+    .ic-job-copy svg { width: 14px; height: 14px; }
+    /* PDF 미리보기 iframe 위에서도 클릭 가능하도록 z-index 보장 */
+    .rc-card-thumb, .ic-job-thumb { position: relative; }
     .rc-card {
       position: relative;
       display: block;
@@ -7178,6 +7221,9 @@
           }
           html += `
             <button class="rc-card" type="button" onclick="openRecruitViewer(${i})">
+              <span class="rc-card-copy" role="button" tabindex="0" title="링크 복사" onclick="shareRecruit(${it.id}, event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+              </span>
               <div class="rc-card-thumb">
                 ${thumb}
                 ${typeBadge}
@@ -7194,6 +7240,55 @@
       } catch (e) {
         body.innerHTML = '<p class="nl-empty">채용공고를 불러올 수 없습니다.</p>';
       }
+    }
+
+    /* ── 채용공고 링크 복사 ── */
+    async function shareRecruit(recruitId, evt) {
+      if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+      const btn = evt && evt.currentTarget;
+      const url = `${location.origin}${location.pathname}?recruit=${encodeURIComponent(recruitId)}`;
+      let ok = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(url); ok = true; }
+        catch (_) { ok = false; }
+      }
+      if (!ok) ok = copyTextFallback(url);
+
+      if (ok) {
+        if (btn) {
+          btn.classList.add('copied');
+          setTimeout(() => btn.classList.remove('copied'), 1400);
+        }
+        try { cnShareToast('채용공고 링크가 복사되었습니다'); } catch (_) {}
+        try { trackClick(`recruit_${recruitId}`, 'recruit_copy'); } catch (_) {}
+      } else {
+        try { cnShareToast('복사 실패 — 직접 URL을 복사해주세요'); } catch (_) {}
+      }
+    }
+    window.shareRecruit = shareRecruit;
+
+    /* 진입 시 ?recruit=<id> 파라미터 있으면 채용공고 페이지로 이동 + 자동 오픈 */
+    function openRecruitFromURL() {
+      const qs = new URLSearchParams(location.search);
+      const rid = qs.get('recruit');
+      if (!rid) return;
+      const id = parseInt(rid, 10);
+      if (!id) return;
+      if (typeof goToPage === 'function') goToPage('recruit');
+      const tryOpen = (attempts) => {
+        if (recruitState && recruitState.items && recruitState.items.length) {
+          const idx = recruitState.items.findIndex(x => x.id === id);
+          if (idx >= 0) { openRecruitViewer(idx); return; }
+        }
+        if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 250);
+      };
+      setTimeout(() => tryOpen(20), 300);
+    }
+    // 페이지 로드 시 실행
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', openRecruitFromURL);
+    } else {
+      openRecruitFromURL();
     }
 
     function openRecruitViewer(idx) {
@@ -10706,6 +10801,9 @@
           }
           const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
           return `<button class="ic-job-card" type="button" onclick="window.__openHomeJob(${it.id})">
+            <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareRecruit(${it.id}, event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+            </span>
             <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}</div>
             <div class="ic-job-body">
               ${it.company_name ? `<div class="ic-job-company">${esc(it.company_name)}</div>` : ''}
