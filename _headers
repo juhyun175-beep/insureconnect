@@ -40,12 +40,10 @@
 /*.ico
   Cache-Control: public, max-age=31536000, immutable
 
-# 폰트/CSS/JS: 1년 캐시
+# 폰트/CSS: 1년 캐시 (JS는 sw.js 캐시 충돌 방지 위해 일반 룰 제거 — root에 .js는 sw.js뿐)
 /*.woff2
   Cache-Control: public, max-age=31536000, immutable
 /*.woff
   Cache-Control: public, max-age=31536000, immutable
 /*.css
-  Cache-Control: public, max-age=31536000, immutable
-/*.js
   Cache-Control: public, max-age=31536000, immutable
