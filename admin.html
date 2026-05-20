@@ -5986,10 +5986,7 @@
       const el = document.getElementById('al-list');
       if (!el) return;
       try {
-        const res = await fetch(
-          `/api/service-alerts?select=*&order=is_active.desc,starts_at.desc&limit=100`,
-          { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
-        );
+        const res = await fetch('/api/service-alerts');
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 알림이 없습니다.</p>';
@@ -6245,7 +6242,7 @@
       if (!el) return;
       try {
         const res = await fetch(
-          `/api/kakao-stats?select=id,room_name,period_label,total_messages,participant_count,updated_at&order=created_at.desc&limit=20`,
+          `/api/kakao-stats`,
           { headers: adminHeaders() }
         );
         const items = await res.json();
@@ -6370,10 +6367,7 @@
       const el = document.getElementById('hp-list');
       if (!el) return;
       try {
-        const res = await fetch(
-          `/api/home-popups?select=*&order=is_active.desc,created_at.desc&limit=50`,
-          { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
-        );
+        const res = await fetch('/api/home-popups');
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 공지가 없습니다.</p>';

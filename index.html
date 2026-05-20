@@ -6671,8 +6671,12 @@
     }
 
     async function trackVisit() {
-      /* [응급조치] Supabase 부하 차단 — D1 마이그레이션 후 재활성화 예정 */
-      return;
+      const today = kstDateKey();
+      if (localStorage.getItem('ic_visited_date') === today) return;
+      localStorage.setItem('ic_visited_date', today);
+      try {
+        await fetch('/api/track/visit', { method: 'POST' });
+      } catch (_) {}
     }
 
     /* ── 앱 공유 ── */
@@ -6710,9 +6714,26 @@
       applyTheme(saved);
     })();
 
-    /* ── 클릭 기록 [응급조치: D1 마이그레이션 후 재활성화] ── */
-    async function trackClick(name, type) { return; }
-    async function trackCardClick(menu, card) { return; }
+    /* ── 외부 링크 클릭 기록 (회사명·타입별 카운터) ── */
+    async function trackClick(name, type) {
+      try {
+        await fetch('/api/track/link-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ company_type: type, company_name: name })
+        });
+      } catch (_) {}
+    }
+    /* ── 카드 클릭 기록 (메뉴+카드 카운터) ── */
+    async function trackCardClick(menu, card) {
+      try {
+        await fetch('/api/track/card-click', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ menu, card })
+        });
+      } catch (_) {}
+    }
 
 
     /* ── 로고 폴백 ── */
@@ -10298,11 +10319,12 @@
     // 3) idle 타이밍에 통계성 데이터 로드 (UI 차단 안 함)
     _ric(() => loadLiveMonitor(), { timeout: 1500 });
     _ric(() => loadSideStats(),   { timeout: 2000 });
-    // [응급조치] 자동 갱신 비활성화 — Supabase 부하 감소를 위해
+    // 60초마다 모니터 + 사이드 통계 자동 갱신 (탭 비활성 시 일시정지)
     let _lmIntervalId = null;
     let _ssIntervalId = null;
     function startLmInterval() {
-      /* Supabase D1 마이그레이션 후 재활성화 */
+      if (!_lmIntervalId) _lmIntervalId = setInterval(loadLiveMonitor, 60_000);
+      if (!_ssIntervalId) _ssIntervalId = setInterval(loadSideStats, 60_000);
     }
     function stopLmInterval() {
       if (_lmIntervalId) { clearInterval(_lmIntervalId); _lmIntervalId = null; }
