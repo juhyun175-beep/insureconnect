@@ -10386,16 +10386,16 @@
     // 3) idle 타이밍에 통계성 데이터 로드 (UI 차단 안 함)
     _ric(() => loadLiveMonitor(), { timeout: 1500 });
     _ric(() => loadSideStats(),   { timeout: 2000 });
-    // 60초마다 모니터 자동 갱신 (탭 비활성 시 일시정지)
+    // 60초마다 모니터 + 사이드 통계 자동 갱신 (탭 비활성 시 일시정지)
     let _lmIntervalId = null;
+    let _ssIntervalId = null;
     function startLmInterval() {
-      if (_lmIntervalId) return;
-      _lmIntervalId = setInterval(loadLiveMonitor, 60_000);
+      if (!_lmIntervalId) _lmIntervalId = setInterval(loadLiveMonitor, 60_000);
+      if (!_ssIntervalId) _ssIntervalId = setInterval(loadSideStats, 60_000);
     }
     function stopLmInterval() {
-      if (!_lmIntervalId) return;
-      clearInterval(_lmIntervalId);
-      _lmIntervalId = null;
+      if (_lmIntervalId) { clearInterval(_lmIntervalId); _lmIntervalId = null; }
+      if (_ssIntervalId) { clearInterval(_ssIntervalId); _ssIntervalId = null; }
     }
     startLmInterval();
     // 탭/창 비활성 시 인터벌 정지 → CPU·네트워크·배터리 절약
@@ -10405,9 +10405,27 @@
       } else {
         // 다시 활성화되면 즉시 한 번 갱신 + 인터벌 재개
         loadLiveMonitor();
+        loadSideStats();
         startLmInterval();
       }
     });
+
+    // 페이지 이동(goToPage) 시에도 사이드 통계 갱신 (홈 페이지뷰 카운트 즉시 반영)
+    (function hookGoToPageStats() {
+      if (typeof window.goToPage === 'function' && !window._sideStatsHooked) {
+        const _origGoToPage = window.goToPage;
+        window.goToPage = function(page) {
+          const r = _origGoToPage.apply(this, arguments);
+          // 통계 반영까지 약간의 지연 후 갱신
+          setTimeout(() => { try { loadSideStats(); } catch(_) {} }, 800);
+          return r;
+        };
+        window._sideStatsHooked = true;
+      } else if (!window._sideStatsHooked) {
+        // goToPage가 아직 정의되지 않았다면 잠시 후 재시도
+        setTimeout(hookGoToPageStats, 200);
+      }
+    })();
 
     /* ══════════════════════════════
        실시간 인기 콘텐츠 모니터
