@@ -3173,6 +3173,7 @@
         <button class="upload-tab" data-panel="up-textbook">📖 보험교재</button>
         <button class="upload-tab" data-panel="up-alert">🚨 점검·장애 알림</button>
         <button class="upload-tab" data-panel="up-kakao">💬 대화순위</button>
+        <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
       </div>
 
       <!-- 소식지 관리 패널 -->
@@ -3554,6 +3555,70 @@
           <p class="empty-msg">통계 로딩 중…</p>
         </div>
       </div><!-- /#up-kakao -->
+
+      <!-- ══════════════════ 홈 팝업 공지 관리 ══════════════════ -->
+      <div class="upload-panel" id="up-popup">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(176,38,255,0.30);border-left:3px solid var(--neon-purple,#b026ff);border-radius:8px;background:linear-gradient(90deg,rgba(176,38,255,0.08),rgba(176,38,255,0.02));">
+          <div style="font-size:12px;font-weight:700;color:var(--neon-purple,#b026ff);margin-bottom:6px;letter-spacing:0.03em;">📢 홈 팝업 공지 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.8;">
+            <li>홈 대시보드 진입 시 자동으로 표시되는 공지 팝업입니다</li>
+            <li>표(table)를 포함한 본문 + 선택적 PDF/이미지 1개를 등록할 수 있습니다</li>
+            <li>활성 상태인 공지 중 가장 최근 1건이 표시됩니다</li>
+            <li>이용자가 '오늘 그만보기'를 체크하면 그 날은 더 이상 표시되지 않습니다</li>
+            <li>파트너사 프로모션 팝업이 함께 있을 경우 공지가 먼저 표시됩니다</li>
+          </ul>
+        </div>
+
+        <!-- 작성 폼 -->
+        <div class="nl-upload-box" style="margin-bottom:16px;">
+          <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:14px;">✍ 공지 작성</div>
+
+          <div class="nl-field">
+            <label>제목 *</label>
+            <input type="text" id="hp-title" placeholder="예: 5월 정기 시스템 점검 안내" style="font-family:inherit;">
+          </div>
+
+          <div class="nl-field">
+            <label>본문 (표 삽입 지원)</label>
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:6px;flex-wrap:wrap;">
+              <button type="button" class="nl-btn" onclick="openTableModal('hp-content')" style="padding:5px 10px;font-size:11px;background:linear-gradient(135deg,var(--neon-purple,#b026ff),var(--neon-pink,#ff006e));color:#fff;">📊 표 삽입</button>
+              <span style="font-size:10.5px;color:var(--txt-lo);">표를 본문에 추가하려면 클릭</span>
+            </div>
+            <textarea id="hp-content" rows="8" placeholder="공지 내용을 입력하세요. 표는 위 버튼으로 삽입할 수 있습니다." style="font-family:inherit;width:100%;resize:vertical;"></textarea>
+          </div>
+
+          <div class="nl-field">
+            <label>첨부 파일 (선택 · PDF 또는 이미지)</label>
+            <input type="file" id="hp-file" accept=".pdf,image/*" style="font-family:inherit;">
+            <span class="nl-file-name" id="hp-file-name" style="font-size:11px;color:var(--txt-lo);">없음</span>
+          </div>
+
+          <div class="nl-field" style="display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" id="hp-active" checked style="width:16px;height:16px;cursor:pointer;">
+            <label for="hp-active" style="cursor:pointer;margin:0;">활성 상태 (등록 즉시 팝업 표시 시작)</label>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
+            <div class="nl-field">
+              <label>시작 시각 (선택)</label>
+              <input type="datetime-local" id="hp-starts" style="font-family:inherit;">
+            </div>
+            <div class="nl-field">
+              <label>종료 시각 (선택)</label>
+              <input type="datetime-local" id="hp-ends" style="font-family:inherit;">
+            </div>
+          </div>
+
+          <button class="nl-btn" id="hp-submit-btn" onclick="uploadHomePopup()" style="margin-top:8px;">📢 공지 등록</button>
+          <p class="nl-status" id="hp-status"></p>
+        </div>
+
+        <!-- 저장된 공지 목록 -->
+        <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">📋 등록된 공지 목록</div>
+        <div class="nl-list" id="hp-list">
+          <p class="empty-msg">공지 로딩 중…</p>
+        </div>
+      </div><!-- /#up-popup -->
 
       <!-- ══════ 배너 미리보기 모달 (이용자 시점) ══════ -->
       <div id="sb-preview-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSbPreview()">
@@ -4438,6 +4503,7 @@
       loadTextbooks();
       loadAlerts();
       loadKakaoStats();
+      loadHomePopups();
     }
 
     /* ── 파일 선택 표시 ── */
@@ -4837,7 +4903,10 @@
     let ktmSelected = null;   // {r, c}
     let ktmRangeStart = null; // Shift+클릭 범위 시작
 
-    function openTableModal() {
+    /* 표 빌더 대상 textarea ID (재사용용) — 기본값은 보험지식 본문 */
+    let _ktmTargetId = 'kn-content-input';
+    function openTableModal(targetId) {
+      _ktmTargetId = targetId || 'kn-content-input';
       document.getElementById('kn-table-modal').classList.add('open');
       buildTableGrid();
     }
@@ -5055,8 +5124,8 @@
       });
       ktmState.merges = cleanMerges;
       const serialized = serializeTable(ktmState);
-      const textarea = document.getElementById('kn-content-input');
-      insertAtCursor(textarea, serialized);
+      const textarea = document.getElementById(_ktmTargetId || 'kn-content-input');
+      if (textarea) insertAtCursor(textarea, serialized);
       closeTableModal();
     }
 
@@ -6200,6 +6269,151 @@
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
+    }
+
+    /* ══════════════════ 홈 팝업 공지 관리 ══════════════════ */
+    document.getElementById('hp-file').addEventListener('change', function() {
+      const f = this.files[0];
+      document.getElementById('hp-file-name').textContent = f ? `${f.name} (${(f.size/1024/1024).toFixed(2)}MB)` : '없음';
+    });
+
+    async function uploadHomePopup() {
+      const title = document.getElementById('hp-title').value.trim();
+      const content = document.getElementById('hp-content').value;
+      const fileInput = document.getElementById('hp-file');
+      const isActive = document.getElementById('hp-active').checked;
+      const startsAt = document.getElementById('hp-starts').value;
+      const endsAt = document.getElementById('hp-ends').value;
+      const status = document.getElementById('hp-status');
+      const btn = document.getElementById('hp-submit-btn');
+
+      if (!title) { alert('제목을 입력해주세요.'); return; }
+      if (!content.trim() && !fileInput.files[0]) {
+        alert('본문 또는 파일 중 하나 이상은 등록해야 합니다.'); return;
+      }
+
+      btn.disabled = true; btn.textContent = '⏳ 등록 중…';
+      status.textContent = '';
+
+      try {
+        let file_url = null, file_type = null;
+        if (fileInput.files[0]) {
+          const file = fileInput.files[0];
+          const isPdf = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+          const isImg = file.type.startsWith('image/');
+          if (!isPdf && !isImg) throw new Error('PDF 또는 이미지 파일만 업로드 가능합니다.');
+          file_type = isPdf ? 'pdf' : 'image';
+          const ext = file.name.split('.').pop() || (isPdf ? 'pdf' : 'jpg');
+          const path = `popup_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const upRes = await fetch(`${SB_URL}/storage/v1/object/home-popup/${path}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
+            body: file
+          });
+          if (!upRes.ok) {
+            const err = await upRes.text();
+            throw new Error('파일 업로드 실패: ' + err);
+          }
+          file_url = `${SB_URL}/storage/v1/object/public/home-popup/${path}`;
+        }
+
+        const payload = {
+          title,
+          content,
+          file_url,
+          file_type,
+          is_active: isActive,
+          starts_at: startsAt ? new Date(startsAt).toISOString() : null,
+          ends_at:   endsAt   ? new Date(endsAt).toISOString()   : null,
+          updated_at: new Date().toISOString()
+        };
+        const res = await fetch(`${SB_URL}/rest/v1/ic_home_popups`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(await res.text());
+
+        status.textContent = '✅ 등록 완료';
+        status.style.color = '#10b981';
+        document.getElementById('hp-title').value = '';
+        document.getElementById('hp-content').value = '';
+        document.getElementById('hp-file').value = '';
+        document.getElementById('hp-file-name').textContent = '없음';
+        document.getElementById('hp-starts').value = '';
+        document.getElementById('hp-ends').value = '';
+        document.getElementById('hp-active').checked = true;
+        loadHomePopups();
+      } catch (e) {
+        status.textContent = '❌ ' + e.message;
+        status.style.color = '#ef4444';
+      } finally {
+        btn.disabled = false; btn.textContent = '📢 공지 등록';
+      }
+    }
+
+    async function loadHomePopups() {
+      const el = document.getElementById('hp-list');
+      if (!el) return;
+      try {
+        const res = await fetch(
+          `${SB_URL}/rest/v1/ic_home_popups?select=*&order=is_active.desc,created_at.desc&limit=50`,
+          { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
+        );
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 공지가 없습니다.</p>';
+          return;
+        }
+        const fmt = (s) => {
+          if (!s) return '—';
+          const d = new Date(s);
+          return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        };
+        el.innerHTML = items.map((it, idx) => {
+          const fileBadge = it.file_url
+            ? (it.file_type === 'pdf' ? '<span style="font-size:9.5px;padding:1px 6px;background:rgba(220,38,38,0.15);color:#dc2626;border-radius:5px;font-weight:700;">📄 PDF</span>' : '<span style="font-size:9.5px;padding:1px 6px;background:rgba(26,61,232,0.12);color:var(--blue-mid);border-radius:5px;font-weight:700;">🖼 IMG</span>')
+            : '';
+          const periodStr = (it.starts_at || it.ends_at) ? `${fmt(it.starts_at)} ~ ${fmt(it.ends_at)}` : '무기한';
+          const liveBadge = (idx===0 && it.is_active) ? '<span style="font-size:9.5px;padding:1px 6px;background:#10b981;color:#fff;border-radius:5px;font-weight:800;letter-spacing:0.04em;">LIVE</span>' : '';
+          return `
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid ${idx===0 && it.is_active ? 'rgba(16,185,129,0.4)' : 'var(--border)'};border-radius:10px;margin-bottom:8px;opacity:${it.is_active ? '1' : '0.55'};">
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px;">
+                  ${liveBadge}
+                  ${fileBadge}
+                  <span style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.title)}</span>
+                </div>
+                <div style="font-size:10.5px;color:var(--txt-lo);">${periodStr} · ${it.is_active ? '🟢 활성' : '⚫ 비활성'} · 등록 ${fmt(it.created_at)}</div>
+              </div>
+              <button onclick="toggleHomePopup(${it.id}, ${!it.is_active})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
+              <button onclick="deleteHomePopup(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">공지 로드 실패</p>';
+      }
+    }
+
+    async function toggleHomePopup(id, newState) {
+      try {
+        await fetch(`${SB_URL}/rest/v1/ic_home_popups?id=eq.${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ is_active: newState, updated_at: new Date().toISOString() }),
+        });
+        loadHomePopups();
+      } catch (e) { alert('변경 실패: ' + e.message); }
+    }
+
+    async function deleteHomePopup(id) {
+      if (!confirm('이 공지를 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`${SB_URL}/rest/v1/ic_home_popups?id=eq.${id}`, {
+          method: 'DELETE', headers: adminHeaders()
+        });
+        loadHomePopups();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
     // 미리보기 모달: ESC 닫기 + 좌우 방향키 슬라이드 탐색
