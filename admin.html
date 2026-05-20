@@ -3719,7 +3719,7 @@
       if (!val) { errEl.classList.add('show'); return; }
       try {
         // DB 측 RPC 로 검증 (x-admin-secret 헤더를 읽고 boolean 반환)
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/verify_admin_secret`, {
+        const res = await fetch(`/api/admin/verify`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -3745,7 +3745,7 @@
     if (ADMIN_SECRET) {
       (async () => {
         try {
-          const res = await fetch(`${SB_URL}/rest/v1/rpc/verify_admin_secret`, {
+          const res = await fetch(`/api/admin/verify`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': 'application/json' }),
             body: '{}'
@@ -4050,7 +4050,7 @@
       const el = document.getElementById('sess-stats-body');
       if (!el) return;
       try {
-        const res  = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_session_stats`, {
+        const res  = await fetch(`/api/stats`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           body: '{}'
@@ -4125,7 +4125,7 @@
 
     async function loadTrafficSources() {
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_traffic_sources`, {
+        const res = await fetch(`/api/stats`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           body: '{}'
@@ -4223,7 +4223,7 @@
 
     async function loadPopularContent() {
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_top_items`, {
+        const res = await fetch(`/api/top-items`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           body: '{}'
@@ -4282,7 +4282,7 @@
       const el = document.getElementById('card-stats-body');
       if (!el) return;
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_card_clicks_7d`, {
+        const res = await fetch(`/api/stats`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           body: '{}'
@@ -4436,7 +4436,7 @@
     /* ── 대시보드 데이터 로드 ── */
     async function loadDashboard() {
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_stats`, {
+        const res = await fetch(`/api/stats`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -4548,7 +4548,7 @@
 
       try {
         /* 1. Storage에 파일 업로드 */
-        const uploadRes = await fetch(`${SB_URL}/storage/v1/object/newsletters/${fileName}`, {
+        const uploadRes = await fetch(`/api/files/newsletters/${fileName}`, {
           method: 'POST',
           headers: adminHeaders({
             'Content-Type': file.type,
@@ -4562,10 +4562,10 @@
         }
 
         /* 2. 공개 URL */
-        const fileUrl = `${SB_URL}/storage/v1/object/public/newsletters/${fileName}`;
+        const fileUrl = `/api/files/newsletters/${fileName}`;
 
         /* 3. DB에 레코드 삽입 */
-        await fetch(`${SB_URL}/rest/v1/ic_newsletters`, {
+        await fetch(`/api/newsletters`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
@@ -4593,7 +4593,7 @@
     async function loadNewsletters() {
       const el = document.getElementById('nl-list');
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_newsletters?order=created_at.desc&limit=50`, {
+        const res = await fetch(`/api/newsletters?order=created_at.desc&limit=50`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -4650,7 +4650,7 @@
       status.textContent = '업로드 중…';
 
       try {
-        const uploadRes = await fetch(`${SB_URL}/storage/v1/object/claim-forms/${fileName}`, {
+        const uploadRes = await fetch(`/api/files/claim-forms/${fileName}`, {
           method: 'POST',
           headers: adminHeaders({
             'Content-Type': file.type,
@@ -4663,9 +4663,9 @@
           throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
         }
 
-        const fileUrl = `${SB_URL}/storage/v1/object/public/claim-forms/${fileName}`;
+        const fileUrl = `/api/files/claim-forms/${fileName}`;
 
-        await fetch(`${SB_URL}/rest/v1/ic_claim_forms`, {
+        await fetch(`/api/claim-forms`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
@@ -4692,7 +4692,7 @@
     async function loadClaimForms() {
       const el = document.getElementById('cf-list');
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_claim_forms?order=created_at.desc&limit=100`, {
+        const res = await fetch(`/api/claim-forms?order=created_at.desc&limit=100`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -4729,12 +4729,12 @@
       try {
         const path = fileUrl.split('/claim-forms/')[1];
         if (path) {
-          await fetch(`${SB_URL}/storage/v1/object/claim-forms/${path}`, {
+          await fetch(`/api/files/claim-forms/${path}`, {
             method: 'DELETE',
             headers: adminHeaders()
           });
         }
-        await fetch(`${SB_URL}/rest/v1/ic_claim_forms?id=eq.${id}`, {
+        await fetch(`/api/claim-forms/${id}`, {
           method: 'DELETE',
           headers: adminHeaders()
         });
@@ -4771,7 +4771,7 @@
           const isPdf = file.type === 'application/pdf';
           const ext = isPdf ? 'pdf' : (file.name.split('.').pop() || 'jpg');
           const fileName = `${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/recruitments/${fileName}`, {
+          const uploadRes = await fetch(`/api/files/recruitments/${fileName}`, {
             method: 'POST',
             headers: adminHeaders({
               'Content-Type': file.type,
@@ -4783,11 +4783,11 @@
             const errBody = await uploadRes.text();
             throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
           }
-          fileUrl = `${SB_URL}/storage/v1/object/public/recruitments/${fileName}`;
+          fileUrl = `/api/files/recruitments/${fileName}`;
           fileTypeVal = isPdf ? 'pdf' : 'image';
         }
 
-        await fetch(`${SB_URL}/rest/v1/ic_recruitments`, {
+        await fetch(`/api/recruitments`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
@@ -4818,7 +4818,7 @@
       const el = document.getElementById('rc-list');
       if (!el) return;
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?order=created_at.desc&limit=100`, {
+        const res = await fetch(`/api/recruitments?order=created_at.desc&limit=100`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -4856,12 +4856,12 @@
       try {
         const path = fileUrl.split('/recruitments/')[1];
         if (path) {
-          await fetch(`${SB_URL}/storage/v1/object/recruitments/${path}`, {
+          await fetch(`/api/files/recruitments/${path}`, {
             method: 'DELETE',
             headers: adminHeaders()
           });
         }
-        await fetch(`${SB_URL}/rest/v1/ic_recruitments?id=eq.${id}`, {
+        await fetch(`/api/recruitments/${id}`, {
           method: 'DELETE',
           headers: adminHeaders()
         });
@@ -5173,13 +5173,13 @@
       try {
         const ext  = file.name.split('.').pop() || 'jpg';
         const path = `inline_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-        const upRes = await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+        const upRes = await fetch(`/api/files/knowledge/${path}`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
           body: file
         });
         if (!upRes.ok) throw new Error('업로드 실패: ' + (await upRes.text()));
-        const url = `${SB_URL}/storage/v1/object/public/knowledge/${path}`;
+        const url = `/api/files/knowledge/${path}`;
         insertAtCursor(textarea, `[img:${url}]`);
         statusEl.textContent = '✅ 삽입 완료';
         statusEl.style.color = 'var(--neon-green)';
@@ -5207,15 +5207,15 @@
           const file = fileEl.files[0];
           const ext  = file.name.split('.').pop() || 'jpg';
           const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-          const upRes = await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+          const upRes = await fetch(`/api/files/knowledge/${path}`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
             body: file
           });
           if (!upRes.ok) throw new Error('이미지 업로드 실패: ' + (await upRes.text()));
-          imageUrl = `${SB_URL}/storage/v1/object/public/knowledge/${path}`;
+          imageUrl = `/api/files/knowledge/${path}`;
         }
-        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts`, {
+        const res = await fetch(`/api/knowledge-posts`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
           body: JSON.stringify({ title, content, image_url: imageUrl })
@@ -5238,7 +5238,7 @@
       const el = document.getElementById('kn-list');
       if (!el) return;
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?order=created_at.desc&limit=100`, {
+        const res = await fetch(`/api/knowledge-posts?order=created_at.desc&limit=100`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -5274,11 +5274,11 @@
       try {
         if (imageUrl) {
           const path = imageUrl.split('/knowledge/')[1];
-          if (path) await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+          if (path) await fetch(`/api/files/knowledge/${path}`, {
             method: 'DELETE', headers: adminHeaders()
           });
         }
-        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${id}`, {
+        const res = await fetch(`/api/knowledge-posts/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
         if (!res.ok) throw new Error(`(${res.status})`);
@@ -5293,7 +5293,7 @@
 
     async function editKnowledgePost(id, originalImageUrl) {
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${id}`, {
+        const res = await fetch(`/api/knowledge-posts/${id}`, {
           headers: adminHeaders()
         });
         if (!res.ok) throw new Error(`불러오기 실패 (${res.status})`);
@@ -5353,15 +5353,15 @@
           const file = fileEl.files[0];
           const ext  = file.name.split('.').pop() || 'jpg';
           const path = `${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-          const upRes = await fetch(`${SB_URL}/storage/v1/object/knowledge/${path}`, {
+          const upRes = await fetch(`/api/files/knowledge/${path}`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
             body: file
           });
           if (!upRes.ok) throw new Error('이미지 업로드 실패: ' + (await upRes.text()));
-          imageUrl = `${SB_URL}/storage/v1/object/public/knowledge/${path}`;
+          imageUrl = `/api/files/knowledge/${path}`;
         }
-        const res = await fetch(`${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${knEditingId}`, {
+        const res = await fetch(`/api/knowledge-posts/${knEditingId}`, {
           method: 'PATCH',
           headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
           body: JSON.stringify({ title, content, image_url: imageUrl })
@@ -5416,7 +5416,7 @@
           const ext = isPdf ? 'pdf' : (file.name.split('.').pop() || 'jpg');
           const fileName = `${setId}/${String(i+1).padStart(3,'0')}_${Date.now()}.${ext}`;
 
-          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/card-news/${fileName}`, {
+          const uploadRes = await fetch(`/api/files/card-news/${fileName}`, {
             method: 'POST',
             headers: adminHeaders({
               'Content-Type': file.type,
@@ -5428,9 +5428,9 @@
             const errBody = await uploadRes.text();
             throw new Error(`스토리지 오류 (${uploadRes.status}): ${errBody}`);
           }
-          const fileUrl = `${SB_URL}/storage/v1/object/public/card-news/${fileName}`;
+          const fileUrl = `/api/files/card-news/${fileName}`;
 
-          await fetch(`${SB_URL}/rest/v1/ic_card_news`, {
+          await fetch(`/api/card-news`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -5458,7 +5458,7 @@
     async function loadCardNews() {
       const el = document.getElementById('cn-list');
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_card_news?order=created_at.desc&limit=300`, {
+        const res = await fetch(`/api/card-news?order=created_at.desc&limit=300`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -5500,7 +5500,7 @@
     async function deleteCardNewsSet(setId) {
       if (!confirm('이 카드뉴스 세트를 모두 삭제하시겠습니까?')) return;
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_card_news?set_id=eq.${setId}&select=file_url`, {
+        const res = await fetch(`/api/card-news?set_id=${setId}&select=file_url`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const rows = await res.json();
@@ -5508,13 +5508,13 @@
         for (const r of rows) {
           const path = r.file_url.split('/card-news/')[1];
           if (path) {
-            await fetch(`${SB_URL}/storage/v1/object/card-news/${path}`, {
+            await fetch(`/api/files/card-news/${path}`, {
               method: 'DELETE',
               headers: adminHeaders()
             });
           }
         }
-        await fetch(`${SB_URL}/rest/v1/ic_card_news?set_id=eq.${setId}`, {
+        await fetch(`/api/card-news?set_id=${setId}`, {
           method: 'DELETE',
           headers: adminHeaders()
         });
@@ -5531,13 +5531,13 @@
         /* Storage에서 파일 삭제 */
         const path = fileUrl.split('/newsletters/')[1];
         if (path) {
-          await fetch(`${SB_URL}/storage/v1/object/newsletters/${path}`, {
+          await fetch(`/api/files/newsletters/${path}`, {
             method: 'DELETE',
             headers: adminHeaders()
           });
         }
         /* DB 레코드 삭제 */
-        await fetch(`${SB_URL}/rest/v1/ic_newsletters?id=eq.${id}`, {
+        await fetch(`/api/newsletters/${id}`, {
           method: 'DELETE',
           headers: adminHeaders()
         });
@@ -5607,7 +5607,7 @@
           const fileName = `${setId}/${String(i+1).padStart(3,'0')}_${Date.now()}.${ext}`;
 
           /* 1. Storage 업로드 */
-          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/sidebar-banner/${fileName}`, {
+          const uploadRes = await fetch(`/api/files/sidebar-banner/${fileName}`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
             body: file
@@ -5615,10 +5615,10 @@
           if (!uploadRes.ok) throw new Error(`스토리지 오류 (${uploadRes.status}): ${await uploadRes.text()}`);
 
           /* 2. 공개 URL */
-          const fileUrl = `${SB_URL}/storage/v1/object/public/sidebar-banner/${fileName}`;
+          const fileUrl = `/api/files/sidebar-banner/${fileName}`;
 
           /* 3. DB 삽입 */
-          const dbRes = await fetch(`${SB_URL}/rest/v1/ic_sidebar_banner`, {
+          const dbRes = await fetch(`/api/sidebar-banner`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
             body: JSON.stringify({
@@ -5648,7 +5648,7 @@
       const el = document.getElementById('sb-list');
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_sidebar_banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
+          `/api/sidebar-banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
           { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
         );
         const items = await res.json();
@@ -5703,7 +5703,7 @@
       if (!confirm('이 세트 전체를 삭제하시겠습니까?')) return;
       try {
         // DB에서 set_id 전체 삭제 (스토리지는 고아 파일로 남지만 무시)
-        await fetch(`${SB_URL}/rest/v1/ic_sidebar_banner?set_id=eq.${setId}`, {
+        await fetch(`/api/sidebar-banner?set_id=${setId}`, {
           method: 'DELETE', headers: adminHeaders()
         });
         loadSidebarBanners();
@@ -5840,7 +5840,7 @@
         const fileName  = `${Date.now()}_${safeTitle}.${ext}`;
 
         try {
-          const uploadRes = await fetch(`${SB_URL}/storage/v1/object/textbooks/${fileName}`, {
+          const uploadRes = await fetch(`/api/files/textbooks/${fileName}`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
             body: file
@@ -5850,8 +5850,8 @@
             throw new Error(`스토리지 오류 (${uploadRes.status}): ${err}`);
           }
 
-          const fileUrl = `${SB_URL}/storage/v1/object/public/textbooks/${fileName}`;
-          const dbRes = await fetch(`${SB_URL}/rest/v1/ic_textbooks`, {
+          const fileUrl = `/api/files/textbooks/${fileName}`;
+          const dbRes = await fetch(`/api/textbooks`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': 'application/json' }),
             body: JSON.stringify({
@@ -5884,7 +5884,7 @@
       const el = document.getElementById('tb-list');
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_textbooks?order=sort_order.asc,created_at.desc&limit=50`,
+          `/api/textbooks?order=sort_order.asc,created_at.desc&limit=50`,
           { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
         );
         const items = await res.json();
@@ -5925,11 +5925,11 @@
       const pathMatch = fileUrl.match(/\/object\/public\/textbooks\/(.+)$/);
       try {
         if (pathMatch) {
-          await fetch(`${SB_URL}/storage/v1/object/textbooks/${pathMatch[1]}`, {
+          await fetch(`/api/files/textbooks/${pathMatch[1]}`, {
             method: 'DELETE', headers: adminHeaders()
           });
         }
-        await fetch(`${SB_URL}/rest/v1/ic_textbooks?id=eq.${id}`, {
+        await fetch(`/api/textbooks/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
         loadTextbooks();
@@ -5962,7 +5962,7 @@
       btn.disabled = true;
       status.textContent = '등록 중…';
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_service_alerts`, {
+        const res = await fetch(`/api/service-alerts`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify(body),
@@ -5987,7 +5987,7 @@
       if (!el) return;
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_service_alerts?select=*&order=is_active.desc,starts_at.desc&limit=100`,
+          `/api/service-alerts?select=*&order=is_active.desc,starts_at.desc&limit=100`,
           { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
         );
         const items = await res.json();
@@ -6022,7 +6022,7 @@
 
     async function toggleAlert(id, newState) {
       try {
-        await fetch(`${SB_URL}/rest/v1/ic_service_alerts?id=eq.${id}`, {
+        await fetch(`/api/service-alerts/${id}`, {
           method: 'PATCH',
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ is_active: newState }),
@@ -6036,7 +6036,7 @@
     async function deleteAlert(id) {
       if (!confirm('이 알림을 삭제하시겠습니까?')) return;
       try {
-        await fetch(`${SB_URL}/rest/v1/ic_service_alerts?id=eq.${id}`, {
+        await fetch(`/api/service-alerts/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
         loadAlerts();
@@ -6218,7 +6218,7 @@
           participant_count: _kkParsed.rankings.length,
           updated_at: new Date().toISOString()
         };
-        const res = await fetch(`${SB_URL}/rest/v1/ic_kakao_stats`, {
+        const res = await fetch(`/api/kakao-stats`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
           body: JSON.stringify(payload)
@@ -6245,7 +6245,7 @@
       if (!el) return;
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_kakao_stats?select=id,room_name,period_label,total_messages,participant_count,updated_at&order=created_at.desc&limit=20`,
+          `/api/kakao-stats?select=id,room_name,period_label,total_messages,participant_count,updated_at&order=created_at.desc&limit=20`,
           { headers: adminHeaders() }
         );
         const items = await res.json();
@@ -6276,7 +6276,7 @@
     async function kkDelete(id) {
       if (!confirm('이 통계를 삭제하시겠습니까?')) return;
       try {
-        await fetch(`${SB_URL}/rest/v1/ic_kakao_stats?id=eq.${id}`, {
+        await fetch(`/api/kakao-stats/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
         loadKakaoStats();
@@ -6319,7 +6319,7 @@
           file_type = isPdf ? 'pdf' : 'image';
           const ext = file.name.split('.').pop() || (isPdf ? 'pdf' : 'jpg');
           const path = `popup_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-          const upRes = await fetch(`${SB_URL}/storage/v1/object/home-popup/${path}`, {
+          const upRes = await fetch(`/api/files/home-popup/${path}`, {
             method: 'POST',
             headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
             body: file
@@ -6328,7 +6328,7 @@
             const err = await upRes.text();
             throw new Error('파일 업로드 실패: ' + err);
           }
-          file_url = `${SB_URL}/storage/v1/object/public/home-popup/${path}`;
+          file_url = `/api/files/home-popup/${path}`;
         }
 
         const payload = {
@@ -6341,7 +6341,7 @@
           ends_at:   endsAt   ? new Date(endsAt).toISOString()   : null,
           updated_at: new Date().toISOString()
         };
-        const res = await fetch(`${SB_URL}/rest/v1/ic_home_popups`, {
+        const res = await fetch(`/api/home-popups`, {
           method: 'POST',
           headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
           body: JSON.stringify(payload)
@@ -6371,7 +6371,7 @@
       if (!el) return;
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_home_popups?select=*&order=is_active.desc,created_at.desc&limit=50`,
+          `/api/home-popups?select=*&order=is_active.desc,created_at.desc&limit=50`,
           { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
         );
         const items = await res.json();
@@ -6411,7 +6411,7 @@
 
     async function toggleHomePopup(id, newState) {
       try {
-        await fetch(`${SB_URL}/rest/v1/ic_home_popups?id=eq.${id}`, {
+        await fetch(`/api/home-popups/${id}`, {
           method: 'PATCH',
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ is_active: newState, updated_at: new Date().toISOString() }),
@@ -6423,7 +6423,7 @@
     async function deleteHomePopup(id) {
       if (!confirm('이 공지를 삭제하시겠습니까?')) return;
       try {
-        await fetch(`${SB_URL}/rest/v1/ic_home_popups?id=eq.${id}`, {
+        await fetch(`/api/home-popups/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
         loadHomePopups();
