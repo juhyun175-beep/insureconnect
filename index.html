@@ -7019,6 +7019,9 @@
       }
     }
     async function fetchNewCount(table, sinceIso) {
+      /* [D1 마이그레이션] 메뉴 NEW 배지 — 추후 endpoint 추가 예정. 일단 0 반환 */
+      return 0;
+      // 옛 Supabase 코드 (참조용):
       const url = `${SB_URL}/rest/v1/${table}?created_at=gt.${encodeURIComponent(sinceIso)}&select=id`;
       const res = await fetch(url, {
         method: 'HEAD',
@@ -7170,7 +7173,7 @@
     async function loadNewsletterPage() {
       const body = document.getElementById('nl-page-body');
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_newsletters?order=company_name.asc,created_at.desc`, {
+        const res = await fetch(`/api/newsletters?limit=200`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -7242,7 +7245,7 @@
     async function loadClaimFormPage() {
       const body = document.getElementById('cf-page-body');
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_claim_forms?order=company_name.asc,created_at.desc`, {
+        const res = await fetch(`/api/claim-forms?limit=200`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -7344,7 +7347,7 @@
       const body = document.getElementById('rc-page-body');
       const count = document.getElementById('rc-count');
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?order=created_at.desc`, {
+        const res = await fetch(`/api/recruitments`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -7506,7 +7509,7 @@
 
     async function loadCardNews() {
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_card_news?order=created_at.desc,sort_order.asc`, {
+        const res = await fetch(`/api/card-news`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
@@ -7900,10 +7903,9 @@
         const rawByKey = {};
         await Promise.all(TICKER_SOURCES.map(async src => {
           try {
-            const r = await fetch(
-              `${SB_URL}/rest/v1/${src.table}?order=created_at.desc&limit=${src.limit || 15}&select=${src.select}`,
-              { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
-            );
+            // ic_card_news → /api/card-news 등 매핑
+            const ep = src.table.replace(/^ic_/, '').replace(/_/g, '-');
+            const r = await fetch(`/api/${ep}?limit=${src.limit || 15}`);
             let items = await r.json();
             if (!Array.isArray(items)) { rawByKey[src.key] = []; return; }
             if (src.dedupField) {
@@ -7996,7 +7998,7 @@
     async function loadKnowledgePage() {
       const body = document.getElementById('kn-page-body');
       try {
-        const res  = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_posts?order=created_at.desc&limit=100`, { headers: SB_HDR_KN });
+        const res  = await fetch(`/api/knowledge-posts?limit=100`);
         const posts = await res.json();
         const count = document.getElementById('kn-count');
         if (!posts || posts.length === 0) {
@@ -8175,7 +8177,7 @@
       }
 
       try {
-        const res  = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_posts?id=eq.${postId}`, { headers: SB_HDR_KN });
+        const res  = await fetch(`/api/knowledge-posts/${postId}`);
         const resJson = await res.json();
         const post = Array.isArray(resJson) ? resJson[0] : null;
         if (!post) throw new Error('포스트 없음');
@@ -8203,7 +8205,7 @@
       const list  = document.getElementById('kn-cmt-list');
       const count = document.getElementById('kn-cmt-count');
       try {
-        const res  = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_comments?post_id=eq.${postId}&order=created_at.asc&limit=200`, { headers: SB_HDR_KN });
+        const res  = await fetch(`/api/knowledge-comments?post_id=${postId}`);
         const cmts = await res.json();
         count.textContent = cmts.length;
         if (!cmts.length) {
@@ -8233,7 +8235,7 @@
       btn.disabled = true;
       statusEl.textContent = '';
       try {
-        const res = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_comments`, {
+        const res = await fetch(`/api/knowledge-comments`, {
           method: 'POST',
           headers: { ...SB_HDR_KN, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
           body: JSON.stringify({ post_id: Number(postId), author_name: author, content })
@@ -9550,7 +9552,7 @@
       const body = document.getElementById('tb-modal-body');
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_textbooks?order=sort_order.asc,created_at.desc&limit=50`,
+          `/api/textbooks?limit=50`,
           { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
         );
         const items = await res.json();
@@ -9582,11 +9584,7 @@
     }
 
     window.incrementDownload = function(id) {
-      fetch(`${SB_URL}/rest/v1/rpc/increment_textbook_download`, {
-        method: 'POST',
-        headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ textbook_id: id })
-      }).catch(() => {});
+      fetch(`/api/textbooks/${id}`, { method: 'POST' }).catch(() => {});
     };
 
     window.openTextbookModal = function() {
@@ -9770,7 +9768,7 @@
       let knCards = [];
       try {
         const knRes = await fetch(
-          `${SB_URL}/rest/v1/ic_knowledge_posts?select=id,title,image_url,created_at&order=created_at.desc&limit=100`,
+          `/api/knowledge-posts?limit=100`,
           { headers: hdr }
         );
         if (knRes.ok) {
@@ -9864,7 +9862,7 @@
       try {
         // 전체 슬라이드 가져오기 (최신 세트 추출용)
         const r = await fetch(
-          `${SB_URL}/rest/v1/ic_sidebar_banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
+          `/api/sidebar-banner?limit=200`,
           { headers: hdr }
         );
         if (!r.ok) { el.innerHTML = ''; return; }
@@ -10064,7 +10062,7 @@
         try {
           const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
           const r = await fetch(
-            `${SB_URL}/rest/v1/ic_sidebar_banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
+            `/api/sidebar-banner?limit=200`,
             { headers: hdr }
           );
           if (!r.ok) return;
@@ -10140,11 +10138,7 @@
         const nowIso = new Date().toISOString();
         // 활성 + 기간(시작 <= 지금 OR null) — 종료시각은 클라이언트에서 추가 필터
         // 주의: PostgREST or=(...) 필터는 URL 인코딩이 필요하므로 안전하게 분리 호출 방식 사용
-        const baseUrl = `${SB_URL}/rest/v1/ic_home_popups?select=id,title,content,file_url,file_type,starts_at,ends_at`
-          + `&is_active=eq.true`
-          + `&order=created_at.desc&limit=10`;
-        const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
-        const res = await fetch(baseUrl, { headers: hdr });
+        const res = await fetch(`/api/home-popups?active=1`);
         if (!res.ok) { runHpAfterClose(); return; }
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) { runHpAfterClose(); return; }
@@ -10247,7 +10241,7 @@
 
       // 1차: RPC 시도 (관리자 페이지와 동일한 방식)
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_stats`, {
+        const res = await fetch(`/api/stats`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
@@ -10283,8 +10277,9 @@
           return parseInt(cr.split('/')[1] || '0', 10);
         };
         const [todayCnt, totalCnt] = await Promise.all([
-          getCount(`${SB_URL}/rest/v1/ic_page_visits?created_at=gte.${encodeURIComponent(todayUTC)}`),
-          getCount(`${SB_URL}/rest/v1/ic_page_visits`)
+          // [fallback] /api/stats가 정상이면 이쪽은 사용 안 됨. 단순화.
+          Promise.resolve(0),
+          Promise.resolve(0)
         ]);
         if (todayEl) todayEl.textContent = todayCnt.toLocaleString();
         if (totalEl) totalEl.textContent = totalCnt.toLocaleString();
@@ -10351,7 +10346,7 @@
 
     async function loadLiveMonitor() {
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/rpc/get_ic_top_items`, {
+        const res = await fetch(`/api/top-items`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           body: '{}'
@@ -10436,7 +10431,7 @@
       // 제목으로 포스트 찾아 열기 (가벼운 시도)
       setTimeout(async () => {
         try {
-          const r = await fetch(`${SB_URL_KN}/rest/v1/ic_knowledge_posts?title=eq.${encodeURIComponent(name)}&select=id&limit=1`, { headers: SB_HDR_KN });
+          const r = await fetch(`/api/knowledge-posts?title=${encodeURIComponent(name)}&limit=1`);
           const arr = await r.json();
           if (Array.isArray(arr) && arr[0] && typeof openKnPost === 'function') openKnPost(arr[0].id, true);
         } catch (_) {}
@@ -11008,7 +11003,7 @@
       const grid = document.getElementById('home-jobs-grid');
       if (!grid) return;
       try {
-        const res = await fetch(`${SB_URL}/rest/v1/ic_recruitments?select=id,title,company_name,file_url,file_type,created_at&order=created_at.desc&limit=4`, { headers: HDR });
+        const res = await fetch(`/api/recruitments?limit=4`);
         if (!res.ok) throw new Error('fetch failed');
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) {
@@ -11056,8 +11051,8 @@
       if (!listEl) return;
       try {
         const res = await fetch(
-          `${SB_URL}/rest/v1/ic_kakao_stats?select=room_name,period_label,rankings,total_messages,updated_at&order=created_at.desc&limit=1`,
-          { headers: HDR }
+          `/api/kakao-stats?latest=1`,
+          {}
         );
         if (!res.ok) throw new Error('fetch failed');
         const arr = await res.json();
@@ -11211,8 +11206,8 @@
     async function loadAlerts() {
       try {
         const now = new Date().toISOString();
-        const url = `${SB_URL}/rest/v1/ic_service_alerts?select=id,insurer,severity,title,message,starts_at,ends_at&is_active=eq.true&starts_at=lte.${now}&or=(ends_at.is.null,ends_at.gte.${now})&order=severity.asc,starts_at.desc&limit=20`;
-        const res = await fetch(url, { headers: HDR });
+        const url = `/api/service-alerts?active=1`;
+        const res = await fetch(url);
         if (!res.ok) return;
         const arr = await res.json();
         if (!Array.isArray(arr)) return;
