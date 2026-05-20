@@ -5,7 +5,21 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="noindex, nofollow, noarchive, nosnippet">
   <meta name="googlebot" content="noindex, nofollow">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>InsureConnect 관리자 통계</title>
+  <script>
+    /* 관리자 페이지에서는 Service Worker 완전 해제 — 캐시로 인한 잘못된 응답 차단 */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister());
+      }).catch(() => {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+      }
+    }
+  </script>
   <script>
     /* 테마 초기화 (FOUC 방지: head에서 즉시 실행) */
     (function() {
