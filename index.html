@@ -7,13 +7,20 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
-  <link rel="manifest" href="/manifest.json">
+  <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
   <meta name="theme-color" content="#1a3de8">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <meta name="apple-mobile-web-app-title" content="InsureConnect">
   <link rel="apple-touch-icon" href="/logo.png">
+  <script>
+    /* 옛 Service Worker 강제 제거 — sw.js 404 + 등록 해제 + 모든 캐시 삭제 */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        regs.forEach(r => r.unregister().catch(() => {}));
+      }).catch(() => {});
+      if (window.caches && caches.keys) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+      }
+    }
+  </script>
   <title>InsureConnect — 보험으로 연결하다</title>
   <!-- OG:START -->
   <meta property="og:type" content="website">
@@ -11697,21 +11704,7 @@
       try { localStorage.setItem('ios_install_dismissed', new Date().toISOString().slice(0, 10)); } catch(_) {}
     };
 
-    /* Service Worker — 모든 환경에서 일단 등록·해제 + 캐시 정리
-       (옛 SW로 인한 무한 로딩 응급 조치. 안정화 후 PWA 재개 예정) */
-    if ('serviceWorker' in navigator) {
-      // 1) 새 sw.js를 한 번 install → activate (스스로 unregister + cache clear 수행)
-      navigator.serviceWorker.register('/sw.js').catch(() => {});
-      // 2) 기존 등록된 SW가 있으면 즉시 해제 (cleanup)
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        // 새로 막 등록한 것 포함 — 새 sw.js의 activate 핸들러가 알아서 unregister
-        // 옛 SW가 남아있으면 강제로도 해제
-      }).catch(() => {});
-      // 3) 모든 캐시 storage 초기화
-      if (window.caches && caches.keys) {
-        caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
-      }
-    }
+    /* Service Worker — PWA 임시 비활성화 (head에서 이미 해제 코드 실행 중) */
   })();
   </script>
 

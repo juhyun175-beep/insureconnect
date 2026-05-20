@@ -1,17 +1,11 @@
 {
-  "version": "0.3.5",
+  "version": "0.0.1",
   "configurations": [
     {
-      "name": "Wrangler Pages Dev (with functions)",
-      "runtimeExecutable": "npx",
-      "runtimeArgs": ["--yes", "wrangler@latest", "pages", "dev", ".", "--port", "8788"],
-      "port": 8788
-    },
-    {
-      "name": "Python Static Server",
+      "name": "ic-static",
       "runtimeExecutable": "python",
-      "runtimeArgs": ["-m", "http.server", "5500"],
-      "port": 5500
+      "runtimeArgs": ["-m", "http.server", "8765"],
+      "port": 8765
     }
   ]
 }
