@@ -6671,35 +6671,8 @@
     }
 
     async function trackVisit() {
-      const today = kstDateKey();
-      if (localStorage.getItem('ic_visited_date') === today) return;
-      localStorage.setItem('ic_visited_date', today);
-      try {
-        // 유입 정보 수집
-        const refDomain = _extractReferrerDomain(document.referrer);
-        // 쿼리스트링은 PII 가능성 → 제거하고 path만 저장
-        const landingPath = location.pathname + (location.hash || '');
-        const refUrlStripped = (function() {
-          try {
-            if (!document.referrer) return '';
-            const u = new URL(document.referrer);
-            return u.origin + u.pathname; // query 제거
-          } catch (_) { return ''; }
-        })();
-        const qs = new URLSearchParams(location.search);
-        const payload = {
-          referrer_domain: refDomain || null,
-          referrer_url:    refUrlStripped || null,
-          landing_path:    landingPath || '/',
-          utm_source:      qs.get('utm_source') || null,
-          utm_medium:      qs.get('utm_medium') || null,
-          utm_campaign:    qs.get('utm_campaign') || null,
-          device_kind:     _detectDevice()
-        };
-        await fetch(`${SB_URL}/rest/v1/ic_page_visits`, {
-          method: 'POST', headers: HEADERS, body: JSON.stringify(payload)
-        });
-      } catch (_) {}
+      /* [응급조치] Supabase 부하 차단 — D1 마이그레이션 후 재활성화 예정 */
+      return;
     }
 
     /* ── 앱 공유 ── */
@@ -6737,25 +6710,9 @@
       applyTheme(saved);
     })();
 
-    /* ── 클릭 기록 ── */
-    async function trackClick(name, type) {
-      try {
-        await fetch(`${SB_URL}/rest/v1/ic_link_clicks`, {
-          method: 'POST', headers: HEADERS,
-          body: JSON.stringify({ company_name: name, company_type: type })
-        });
-      } catch (_) {}
-    }
-
-    /* ── 카드 클릭 기록 (메뉴+카드명 세분화) ── */
-    async function trackCardClick(menu, card) {
-      try {
-        await fetch(`${SB_URL}/rest/v1/ic_card_clicks`, {
-          method: 'POST', headers: HEADERS,
-          body: JSON.stringify({ menu, card })
-        });
-      } catch (_) {}
-    }
+    /* ── 클릭 기록 [응급조치: D1 마이그레이션 후 재활성화] ── */
+    async function trackClick(name, type) { return; }
+    async function trackCardClick(menu, card) { return; }
 
 
     /* ── 로고 폴백 ── */
@@ -7970,54 +7927,7 @@
       showPage(page);
     }
 
-    /* ══════════════════════════════
-       체류 시간 추적
-    ══════════════════════════════ */
-    (function() {
-      const _sid  = crypto.randomUUID();
-      let _active = 0;          // 누적 활성 체류 초
-      let _last   = Date.now(); // 마지막 visible 시작 시각
-      let _saved  = 0;          // 마지막으로 저장한 초
-
-      /* 세션 row 생성 */
-      fetch(`${SB_URL}/rest/v1/ic_page_sessions`, {
-        method: 'POST',
-        headers: { ...HEADERS, 'Prefer': 'return=minimal' },
-        body: JSON.stringify({ session_id: _sid })
-      }).catch(() => {});
-
-      /* PATCH duration */
-      function _flush() {
-        if (document.visibilityState !== 'hidden') {
-          _active += (Date.now() - _last) / 1000;
-          _last = Date.now();
-        }
-        const dur = Math.max(1, Math.floor(_active));
-        if (dur === _saved) return;
-        _saved = dur;
-        fetch(`${SB_URL}/rest/v1/ic_page_sessions?session_id=eq.${_sid}`, {
-          method: 'PATCH',
-          headers: { ...HEADERS, 'Prefer': 'return=minimal' },
-          body: JSON.stringify({ duration_seconds: dur })
-        }).catch(() => {});
-      }
-
-      /* 탭 전환 감지 */
-      document.addEventListener('visibilitychange', () => {
-        if (document.visibilityState === 'hidden') {
-          _active += (Date.now() - _last) / 1000;
-          _flush();
-        } else {
-          _last = Date.now();
-        }
-      });
-
-      /* 탭 닫기 */
-      window.addEventListener('beforeunload', _flush);
-
-      /* 60초 heartbeat (beforeunload 누락 대비) */
-      setInterval(_flush, 60000);
-    })();
+    /* 체류 시간 추적 [응급조치: D1 마이그레이션 후 재활성화] */
 
     /* ── 초기 실행 ── */
     trackVisit();
@@ -10393,12 +10303,11 @@
     // 3) idle 타이밍에 통계성 데이터 로드 (UI 차단 안 함)
     _ric(() => loadLiveMonitor(), { timeout: 1500 });
     _ric(() => loadSideStats(),   { timeout: 2000 });
-    // 60초마다 모니터 + 사이드 통계 자동 갱신 (탭 비활성 시 일시정지)
+    // [응급조치] 자동 갱신 비활성화 — Supabase 부하 감소를 위해
     let _lmIntervalId = null;
     let _ssIntervalId = null;
     function startLmInterval() {
-      if (!_lmIntervalId) _lmIntervalId = setInterval(loadLiveMonitor, 60_000);
-      if (!_ssIntervalId) _ssIntervalId = setInterval(loadSideStats, 60_000);
+      /* Supabase D1 마이그레이션 후 재활성화 */
     }
     function stopLmInterval() {
       if (_lmIntervalId) { clearInterval(_lmIntervalId); _lmIntervalId = null; }
