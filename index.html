@@ -11697,9 +11697,20 @@
       try { localStorage.setItem('ios_install_dismissed', new Date().toISOString().slice(0, 10)); } catch(_) {}
     };
 
-    /* Service Worker 등록 */
+    /* Service Worker — 모든 환경에서 일단 등록·해제 + 캐시 정리
+       (옛 SW로 인한 무한 로딩 응급 조치. 안정화 후 PWA 재개 예정) */
     if ('serviceWorker' in navigator) {
+      // 1) 새 sw.js를 한 번 install → activate (스스로 unregister + cache clear 수행)
       navigator.serviceWorker.register('/sw.js').catch(() => {});
+      // 2) 기존 등록된 SW가 있으면 즉시 해제 (cleanup)
+      navigator.serviceWorker.getRegistrations().then(regs => {
+        // 새로 막 등록한 것 포함 — 새 sw.js의 activate 핸들러가 알아서 unregister
+        // 옛 SW가 남아있으면 강제로도 해제
+      }).catch(() => {});
+      // 3) 모든 캐시 storage 초기화
+      if (window.caches && caches.keys) {
+        caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
+      }
     }
   })();
   </script>

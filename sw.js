@@ -1,28 +1,19 @@
-const CACHE = 'ic-pwa-v2';
-
+/* PWA 임시 비활성화 — 옛 캐시로 인한 무한 로딩 문제 해결 후 재활성화 예정 */
 self.addEventListener('install', () => self.skipWaiting());
+
 self.addEventListener('activate', e => e.waitUntil((async () => {
-  // 이전 캐시 전부 삭제 (admin 등이 잘못 캐시됐을 가능성 제거)
-  const keys = await caches.keys();
-  await Promise.all(keys.map(k => caches.delete(k)));
-  await clients.claim();
+  // 모든 캐시 삭제
+  try {
+    const keys = await caches.keys();
+    await Promise.all(keys.map(k => caches.delete(k)));
+  } catch (_) {}
+  // 자기 자신(SW) 등록 해제
+  try { await self.registration.unregister(); } catch (_) {}
+  // 모든 열린 클라이언트 새로고침 → 새 콘텐츠 즉시 적용
+  const all = await self.clients.matchAll({ type: 'window' });
+  for (const c of all) {
+    try { c.navigate(c.url); } catch (_) {}
+  }
 })()));
 
-self.addEventListener('fetch', e => {
-  if (e.request.method !== 'GET') return;
-
-  // 관리자 페이지와 모든 API/Supabase 요청은 SW가 절대 가로채지 않음
-  const url = new URL(e.request.url);
-  if (url.pathname === '/admin' ||
-      url.pathname === '/admin.html' ||
-      url.pathname.startsWith('/admin/') ||
-      url.hostname.endsWith('.supabase.co') ||
-      url.pathname.startsWith('/api/')) {
-    return; // 브라우저 기본 동작 (네트워크 직행)
-  }
-
-  // 일반 navigation: 네트워크 우선, 실패 시에도 fallback 하지 않음 (오류 명시)
-  if (e.request.mode === 'navigate') {
-    e.respondWith(fetch(e.request));
-  }
-});
+// fetch는 절대 가로채지 않음 (브라우저 기본 동작)
