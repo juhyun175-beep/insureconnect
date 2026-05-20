@@ -10221,17 +10221,23 @@
       _hpAfterCloseFn = afterCloseFn || null;
       try {
         const nowIso = new Date().toISOString();
-        // 활성 + 기간(시작 <= 지금 OR null) + (종료 >= 지금 OR null)
-        const url = `${SB_URL}/rest/v1/ic_home_popups?select=id,title,content,file_url,file_type,starts_at,ends_at`
+        // 활성 + 기간(시작 <= 지금 OR null) — 종료시각은 클라이언트에서 추가 필터
+        // 주의: PostgREST or=(...) 필터는 URL 인코딩이 필요하므로 안전하게 분리 호출 방식 사용
+        const baseUrl = `${SB_URL}/rest/v1/ic_home_popups?select=id,title,content,file_url,file_type,starts_at,ends_at`
           + `&is_active=eq.true`
-          + `&or=(starts_at.is.null,starts_at.lte.${nowIso})`
-          + `&order=created_at.desc&limit=5`;
-        const res = await fetch(url, { headers: HDR });
+          + `&order=created_at.desc&limit=10`;
+        const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
+        const res = await fetch(baseUrl, { headers: hdr });
         if (!res.ok) { runHpAfterClose(); return; }
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) { runHpAfterClose(); return; }
-        // 종료시각이 있고 이미 지났으면 제외 (서버측 or 조건이 까다로워 클라에서 한 번 더 필터)
-        const valid = items.filter(it => !it.ends_at || new Date(it.ends_at) >= new Date());
+        // 시작시각/종료시각 클라이언트 필터 (활성 + 기간 검증)
+        const now = new Date();
+        const valid = items.filter(it => {
+          if (it.starts_at && new Date(it.starts_at) > now) return false;
+          if (it.ends_at && new Date(it.ends_at) < now) return false;
+          return true;
+        });
         if (!valid.length) { runHpAfterClose(); return; }
         const popup = valid[0];
 
