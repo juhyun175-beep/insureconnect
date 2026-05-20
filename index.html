@@ -10244,11 +10244,15 @@
     window.closeHomePopup = closeHomePopup;
     window.showHomePopupIfNeeded = showHomePopupIfNeeded;
 
-    // 페이지 로드 시 자동 호출 (홈 공지 → 닫히면 파트너 프로모션)
+    // 페이지 로드 시 자동 호출 — 단 현재 노출된 페이지가 홈일 때만
     window.addEventListener('load', () => {
       setTimeout(() => {
-        showHomePopupIfNeeded(showPromoPopupIfNeeded);
-        // 이후 홈 진입 시 재호출 가능하도록 플래그 설정
+        const homePage = document.getElementById('page-home');
+        const isHomeVisible = homePage && homePage.style.display !== 'none';
+        if (isHomeVisible) {
+          showHomePopupIfNeeded(showPromoPopupIfNeeded);
+        }
+        // 이후 홈 진입 시(goToPage('home')) 자동 트리거
         window._homePopupInitDone = true;
       }, 1200);
     });

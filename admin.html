@@ -4050,11 +4050,7 @@
       const el = document.getElementById('sess-stats-body');
       if (!el) return;
       try {
-        const res  = await fetch(`/api/stats`, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
-          body: '{}'
-        });
+        const res  = await fetch(`/api/stats/sessions`);
         const d = await res.json();
 
         function fmtDur(sec) {
@@ -4125,11 +4121,7 @@
 
     async function loadTrafficSources() {
       try {
-        const res = await fetch(`/api/stats`, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
-          body: '{}'
-        });
+        const res = await fetch(`/api/stats/traffic`);
         if (!res.ok) return;
         _tsCache = await res.json();
         renderTrafficSources();
@@ -4282,11 +4274,7 @@
       const el = document.getElementById('card-stats-body');
       if (!el) return;
       try {
-        const res = await fetch(`/api/stats`, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
-          body: '{}'
-        });
+        const res = await fetch(`/api/stats/cards`);
         const rows = await res.json();
 
         if (!Array.isArray(rows) || rows.length === 0) {
