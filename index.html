@@ -3329,7 +3329,7 @@
        body.ic-mobile 일 때만 활성화
        ════════════════════════════════════════════ */
     body.ic-mobile #page-home { display: none !important; }
-    body.ic-mobile #page-home-mobile { display: block; }
+    body.ic-mobile #page-home-mobile { display: block !important; }
     body:not(.ic-mobile) #page-home-mobile { display: none !important; }
 
     .ic-m-hero {
@@ -6131,8 +6131,8 @@
   </div>
 
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
-  <!-- ══════ MOBILE 전용 홈 (JS가 모바일 감지 시에만 노출) ══════ -->
-  <div class="content" id="page-home-mobile" style="display:none">
+  <!-- ══════ MOBILE 전용 홈 (CSS로만 표시/숨김 제어 — 인라인 style 없음) ══════ -->
+  <div class="content" id="page-home-mobile">
     <div class="ic-m-hero">
       <h1 class="ic-m-hero-title">InsureConnect</h1>
       <p class="ic-m-hero-sub">보험설계사를 위한 통합 허브</p>
@@ -7428,6 +7428,11 @@
         const el = document.getElementById(`page-${p}`);
         if (el) el.style.display = p === page ? '' : 'none';
       });
+      /* 모바일 홈 별도 처리: 홈일 때만 표시, 다른 페이지 갈 땐 강제 숨김 */
+      const mobileHome = document.getElementById('page-home-mobile');
+      if (mobileHome) {
+        mobileHome.style.display = (page === 'home') ? '' : 'none';
+      }
 
       /* 뒤로가기 바 */
       const backBar   = document.getElementById('back-bar');
