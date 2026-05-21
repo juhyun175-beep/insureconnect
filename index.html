@@ -3333,16 +3333,42 @@
     body:not(.ic-mobile) #page-home-mobile { display: none !important; }
 
     .ic-m-hero {
-      padding: 24px 18px 18px;
+      padding: 28px 18px 22px;
       background: linear-gradient(135deg, #1a3de8 0%, #00c8ee 100%);
       color: #fff;
-      margin: -16px -16px 16px;
+      margin: -16px -16px 18px;
       border-radius: 0 0 24px 24px;
       text-align: center;
       box-shadow: 0 8px 24px rgba(26,61,232,0.20);
+      position: relative;
+      overflow: hidden;
     }
-    .ic-m-hero-title { font-size: 22px; font-weight: 900; letter-spacing: -0.02em; margin-bottom: 4px; }
-    .ic-m-hero-sub { font-size: 13px; opacity: 0.92; }
+    .ic-m-hero::before {
+      content: '';
+      position: absolute;
+      top: -40%; right: -20%;
+      width: 200px; height: 200px;
+      background: radial-gradient(circle, rgba(255,255,255,0.16), transparent 70%);
+      pointer-events: none;
+    }
+    .ic-m-hero::after {
+      content: '';
+      position: absolute;
+      bottom: -50%; left: -10%;
+      width: 180px; height: 180px;
+      background: radial-gradient(circle, rgba(255,255,255,0.10), transparent 70%);
+      pointer-events: none;
+    }
+    .ic-m-hero-logo {
+      position: relative;
+      max-width: 220px;
+      max-height: 80px;
+      width: auto;
+      height: auto;
+      display: block;
+      margin: 0 auto;
+      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+    }
 
     .ic-m-section { margin-bottom: 22px; }
     .ic-m-section-head {
@@ -6515,8 +6541,10 @@
   <!-- ══════ MOBILE 전용 홈 (CSS로만 표시/숨김 제어 — 인라인 style 없음) ══════ -->
   <div class="content" id="page-home-mobile">
     <div class="ic-m-hero">
-      <h1 class="ic-m-hero-title">InsureConnect</h1>
-      <p class="ic-m-hero-sub">보험설계사를 위한 통합 허브</p>
+      <picture>
+        <source srcset="/logo-full.webp" type="image/webp">
+        <img src="/logo-full.png" alt="InsureConnect" class="ic-m-hero-logo" onerror="this.onerror=null;this.src='/logo.png';">
+      </picture>
     </div>
 
     <!-- 모바일 빠른 검색 -->
@@ -6777,8 +6805,6 @@
           🎓 진행중인 강의
           <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
         </div>
-        <span class="ic-jobs-spacer"></span>
-        <button class="ic-jobs-all" type="button" onclick="goToPage('lecture')">전체 보기 →</button>
       </div>
       <div class="ic-jobs-grid" id="home-lectures-grid">
         <div class="ic-jobs-skel"></div>
