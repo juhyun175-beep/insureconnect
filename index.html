@@ -6051,6 +6051,7 @@
           <button class="ic-hero-pill" onclick="goToPage('newsletter')">📰 소식지</button>
           <button class="ic-hero-pill" onclick="goToPage('claimform')">📋 청구</button>
           <button class="ic-hero-pill" onclick="goToPage('recruit')">💼 채용</button>
+          <button class="ic-hero-pill" onclick="goToPage('lecture')">🎓 강의</button>
           <button class="ic-hero-pill" onclick="goToPage('tools')">🛠 실무도구</button>
           <button class="ic-hero-pill" onclick="goToPage('knowledge')">📚 보험지식</button>
           <button class="ic-hero-pill" onclick="goToPage('newsletter')">🗞 뉴스</button>
@@ -6098,7 +6099,7 @@
     </div>
     </div><!-- /.ic-top-row -->
 
-    <!-- ══ 진행중인 채용공고 (시계는 사이드바로 이동) ══ -->
+    <!-- ══ 진행중인 채용공고 ══ -->
     <section class="ic-jobs" aria-label="진행중인 채용공고">
       <div class="ic-jobs-head">
         <div class="ic-jobs-title">
@@ -6107,6 +6108,24 @@
         </div>
       </div>
       <div class="ic-jobs-grid" id="home-jobs-grid">
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div>
+      </div>
+    </section>
+
+    <!-- ══ 진행중인 강의 ══ -->
+    <section class="ic-jobs" aria-label="진행중인 강의" style="margin-top:18px;">
+      <div class="ic-jobs-head">
+        <div class="ic-jobs-title">
+          🎓 진행중인 강의
+          <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
+        </div>
+        <span class="ic-jobs-spacer"></span>
+        <button class="ic-jobs-all" type="button" onclick="goToPage('lecture')">전체 보기 →</button>
+      </div>
+      <div class="ic-jobs-grid" id="home-lectures-grid">
         <div class="ic-jobs-skel"></div>
         <div class="ic-jobs-skel"></div>
         <div class="ic-jobs-skel"></div>
@@ -6300,6 +6319,21 @@
       </div>
       <div id="rc-page-body">
         <p class="nl-empty">채용공고를 불러오는 중…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════ PAGE: 강의 ══════ -->
+  <div class="content" id="page-lecture" style="display:none">
+    <div class="section">
+      <div class="section-head" style="margin-bottom:18px">
+        <span class="sec-num">02</span>
+        <span class="sec-title">🎓 강의</span>
+        <span class="sec-line"></span>
+        <span class="sec-badge" id="lec-count">—</span>
+      </div>
+      <div id="lec-page-body">
+        <p class="nl-empty">강의를 불러오는 중…</p>
       </div>
     </div>
   </div>
@@ -6990,25 +7024,26 @@
       PAYMENT.forEach((ins, i) => paymentGrid.appendChild(makeCard({ ...ins, c:'#1a3de8' }, i, 'payment')));
     }
 
-    /* ── GA 전산 (법인대리점) ── */
+    /* ── GA 전산 (법인대리점) — Google favicon API 로고 자동 ── */
+    const _fav = (d) => `https://www.google.com/s2/favicons?sz=128&domain=${d}`;
     const GA = [
-      { name:'에이플러스에셋',  abbr:'A+',  url:'https://www.aplusga.com/tfa/login.do' },
-      { name:'어센틱금융그룹',  abbr:'AFG', url:'https://line.afg.kr/login' },
-      { name:'더베스트금융',    abbr:'BST', url:'https://erp.thebestfs.co.kr/login.go' },
-      { name:'프라임에셋',      abbr:'PA',  url:'https://pams.kr/' },
-      { name:'메가',            abbr:'MG',  url:'https://mega.megafn.com/' },
-      { name:'IFA',             abbr:'IFA', url:'https://www1.ifacloud.co.kr/new_index.aspx?ReturnUrl=%2f' },
-      { name:'지에이코리아',    abbr:'GAK', url:'https://nerp.gakorea.biz/login.go' },
-      { name:'글로벌금융',      abbr:'GG',  url:'https://www.globalgoms.co.kr/#/login' },
-      { name:'메타리치',        abbr:'MR',  url:'https://meta-on.kr/#/login' },
-      { name:'FM에셋',          abbr:'FM',  url:'https://inskorea.net/irs/login/' },
-      { name:'엠금융',          abbr:'M',   url:'https://ap2.gaiasystem.co.kr/mfweb/x_install2.jsp' },
-      { name:'KGA에셋',         abbr:'KGA', url:'https://ktams.kgaasset.com/Install/newLauncher_XP.html' },
-      { name:'토스인슈어런스',  abbr:'토스',url:'https://erp.tossinsu.com/login.go' },
-      { name:'굿리치',          abbr:'GR',  url:'https://sso.goodrich.kr/account/login?reqMethod=get&returnUrl=https://rion-sales.goodrich.kr' },
-      { name:'벨류마크',        abbr:'VM',  url:'https://login.valuemark.co.kr/login?reUrl=http://bokji.valuemark.co.kr/velueSSoTest' },
-      { name:'한화피플라이프',  abbr:'한화',url:'https://pines.peoplelife.co.kr/login;jsessionid=5C66FE4E633F62000CD83B9701933F25' },
-      { name:'에즈금융서비스',  abbr:'AZ',  url:'https://az.azlife.kr/login' },
+      { name:'에이플러스에셋',  abbr:'A+',  logo:_fav('aplusga.com'),    url:'https://www.aplusga.com/tfa/login.do' },
+      { name:'어센틱금융그룹',  abbr:'AFG', logo:_fav('afg.kr'),         url:'https://line.afg.kr/login' },
+      { name:'더베스트금융',    abbr:'BST', logo:_fav('thebestfs.co.kr'),url:'https://erp.thebestfs.co.kr/login.go' },
+      { name:'프라임에셋',      abbr:'PA',  logo:_fav('pams.kr'),        url:'https://pams.kr/' },
+      { name:'메가',            abbr:'MG',  logo:_fav('megafn.com'),     url:'https://mega.megafn.com/' },
+      { name:'IFA',             abbr:'IFA', logo:_fav('ifacloud.co.kr'), url:'https://www1.ifacloud.co.kr/new_index.aspx?ReturnUrl=%2f' },
+      { name:'지에이코리아',    abbr:'GAK', logo:_fav('gakorea.biz'),    url:'https://nerp.gakorea.biz/login.go' },
+      { name:'글로벌금융',      abbr:'GG',  logo:_fav('globalgoms.co.kr'),url:'https://www.globalgoms.co.kr/#/login' },
+      { name:'메타리치',        abbr:'MR',  logo:_fav('meta-on.kr'),     url:'https://meta-on.kr/#/login' },
+      { name:'FM에셋',          abbr:'FM',  logo:_fav('inskorea.net'),   url:'https://inskorea.net/irs/login/' },
+      { name:'엠금융',          abbr:'M',   logo:_fav('m-fn.co.kr'),     url:'https://ap2.gaiasystem.co.kr/mfweb/x_install2.jsp' },
+      { name:'KGA에셋',         abbr:'KGA', logo:_fav('kgaasset.com'),   url:'https://ktams.kgaasset.com/Install/newLauncher_XP.html' },
+      { name:'토스인슈어런스',  abbr:'토스',logo:_fav('tossinsu.com'),   url:'https://erp.tossinsu.com/login.go' },
+      { name:'굿리치',          abbr:'GR',  logo:_fav('goodrich.kr'),    url:'https://sso.goodrich.kr/account/login?reqMethod=get&returnUrl=https://rion-sales.goodrich.kr' },
+      { name:'벨류마크',        abbr:'VM',  logo:_fav('valuemark.co.kr'),url:'https://login.valuemark.co.kr/login?reUrl=http://bokji.valuemark.co.kr/velueSSoTest' },
+      { name:'한화피플라이프',  abbr:'한화',logo:_fav('peoplelife.co.kr'),url:'https://pines.peoplelife.co.kr/login;jsessionid=5C66FE4E633F62000CD83B9701933F25' },
+      { name:'에즈금융서비스',  abbr:'AZ',  logo:_fav('azlife.kr'),      url:'https://az.azlife.kr/login' },
     ];
 
     function makeGaCard(ga, idx) {
@@ -7021,10 +7056,12 @@
       a.dataset.type = 'ga';
       a.style.setProperty('--c', 'var(--blue-mid)');
       a.style.animationDelay = (idx * 40) + 'ms';
+      const logoHtml = ga.logo
+        ? `<img src="${ga.logo}" alt="${ga.name}" loading="lazy" onerror="this.parentElement.classList.add('no-img');this.outerHTML='<span class=\\'c-badge-text\\' style=\\'font-size:14px;\\'>${ga.abbr}</span>'">`
+        : `<span class="c-badge-text" style="font-size:14px;">${ga.abbr}</span>`;
+      const badgeCls = ga.logo ? 'c-badge' : 'c-badge no-img';
       a.innerHTML = `
-        <div class="c-badge no-img">
-          <span class="c-badge-text" style="font-size:14px;">${ga.abbr}</span>
-        </div>
+        <div class="${badgeCls}">${logoHtml}</div>
         <div class="c-name">${ga.name}</div>
         <div class="c-type">GA 법인대리점 · 전산 바로가기</div>
         <div class="c-arrow">↗</div>`;
@@ -7087,6 +7124,7 @@
     let nlLoaded = false;
     let cfLoaded = false;
     let rcLoaded = false;
+    let lecLoaded = false;
     let cnLoaded = true; // 초기 페이지에서 자동 로드
     let knLoaded = false;
 
@@ -7175,6 +7213,7 @@
       newsletter:       '보험사 소식지',
       claimform:        '보험사 청구서류',
       recruit:          '채용공고',
+      lecture:          '🎓 강의',
       tools:            '실무 도구',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
@@ -7216,6 +7255,7 @@
       if (page === 'newsletter' && !nlLoaded) { loadNewsletterPage(); nlLoaded  = true; }
       if (page === 'claimform'  && !cfLoaded) { loadClaimFormPage();  cfLoaded  = true; }
       if (page === 'recruit'    && !rcLoaded) { loadRecruitPage();    rcLoaded  = true; }
+      if (page === 'lecture'    && !lecLoaded){ loadLecturePage();    lecLoaded = true; }
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
@@ -7495,6 +7535,85 @@
         body.innerHTML = '<p class="nl-empty">채용공고를 불러올 수 없습니다.</p>';
       }
     }
+
+    /* ── 강의 페이지 ── */
+    const lectureState = { items: [] };
+    async function loadLecturePage() {
+      const body = document.getElementById('lec-page-body');
+      const count = document.getElementById('lec-count');
+      try {
+        const res = await fetch('/api/lectures');
+        const items = await res.json();
+        lectureState.items = items || [];
+        if (!items || !items.length) {
+          if (count) count.textContent = '0건';
+          body.innerHTML = '<p class="nl-empty">등록된 강의가 없습니다.</p>';
+          return;
+        }
+        if (count) count.textContent = `${items.length}건`;
+        const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        body.innerHTML = '<div class="rc-card-grid">' + items.map((it, i) => {
+          const d = new Date(it.created_at);
+          const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+          const instr = it.instructor ? esc(it.instructor) : '';
+          let thumb, typeBadge = '';
+          if (it.file_url && it.file_type === 'image') {
+            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy">`;
+            typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
+          } else if (it.file_url && it.file_type === 'pdf') {
+            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            typeBadge = '<span class="rc-card-type-badge">📄 PDF</span>';
+          } else {
+            thumb = `<span class="rc-card-thumb-fallback">🎓<small>강의</small></span>`;
+            typeBadge = '<span class="rc-card-type-badge">📝 일반</span>';
+          }
+          return `<button class="rc-card" type="button" onclick="openLectureViewer(${i})">
+            <div class="rc-card-thumb">${thumb}${typeBadge}</div>
+            <div class="rc-card-body">
+              ${instr ? `<span class="rc-card-company">${instr}</span>` : ''}
+              <div class="rc-card-title">${esc(it.title)}</div>
+              <div class="rc-card-date">${dateStr}</div>
+            </div>
+          </button>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        body.innerHTML = '<p class="nl-empty">강의를 불러올 수 없습니다.</p>';
+      }
+    }
+
+    function openLectureViewer(idx) {
+      const it = lectureState.items[idx];
+      if (!it) return;
+      // 채용공고 뷰어를 재사용 (구조 동일)
+      const modal = document.getElementById('rc-viewer');
+      if (!modal) { alert(it.title + '\n' + (it.description || '')); return; }
+      const d = new Date(it.created_at);
+      const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const fileBlock = it.file_url
+        ? `<div class="rc-viewer-file">
+             <a href="${it.file_url}" target="_blank" rel="noopener noreferrer" class="rc-viewer-file-link">
+               ${it.file_type === 'pdf' ? '📄 첨부 PDF 열기' : '🖼️ 첨부 이미지 열기'}
+             </a>
+             ${it.file_type === 'image' ? `<img src="${it.file_url}" alt="강의 이미지" class="rc-viewer-img">` : ''}
+           </div>`
+        : '';
+      const descBlock = it.description
+        ? `<div class="rc-viewer-desc">${esc(it.description).replace(/\n/g,'<br>')}</div>`
+        : (it.file_url ? '' : '<div class="rc-viewer-empty">상세 내용이 등록되지 않았습니다.</div>');
+      document.getElementById('rc-viewer-body').innerHTML = `
+        <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
+        <div class="rc-viewer-head">
+          ${it.instructor ? `<div class="rc-viewer-company">🎓 ${esc(it.instructor)}</div>` : ''}
+          <div class="rc-viewer-title">${esc(it.title)}</div>
+          <div class="rc-viewer-date">${dateStr}</div>
+        </div>
+        ${descBlock}${fileBlock}
+      `;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    window.openLectureViewer = openLectureViewer;
 
     /* ── 채용공고 링크 복사 ── */
     async function shareRecruit(recruitId, evt) {
@@ -10609,6 +10728,7 @@
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">소식지</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">청구</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">채용</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','강의'); goToPage('lecture');" title="강의" type="button">강의</button>
     <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">실무도구</button>
   </div>
 
@@ -11264,10 +11384,60 @@
       setTimeout(() => tryOpen(15), 250);
     };
 
+    /* 홈 진행중인 강의 (최신 4건) */
+    async function loadHomeLectures() {
+      const grid = document.getElementById('home-lectures-grid');
+      if (!grid) return;
+      try {
+        const res = await fetch('/api/lectures?limit=4');
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 강의가 없습니다.</div>';
+          return;
+        }
+        grid.innerHTML = items.map((it, i) => {
+          let thumb, typeBadge = '';
+          if (it.file_url && it.file_type === 'image') {
+            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
+          } else if (it.file_url && it.file_type === 'pdf') {
+            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
+          } else {
+            thumb = `<span class="ic-job-thumb-fallback">🎓</span>`;
+            typeBadge = '<span class="ic-job-type-badge">📝 강의</span>';
+          }
+          const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
+          return `<button class="ic-job-card" type="button" onclick="window.__openHomeLecture(${it.id})">
+            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}</div>
+            <div class="ic-job-body">
+              ${it.instructor ? `<div class="ic-job-company">${esc(it.instructor)}</div>` : ''}
+              <div class="ic-job-title">${esc(it.title)}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)}</div>
+            </div>
+          </button>`;
+        }).join('');
+      } catch (e) {
+        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">강의 로드 실패</div>';
+      }
+    }
+    window.__openHomeLecture = function(id) {
+      if (typeof goToPage === 'function') goToPage('lecture');
+      const tryOpen = (n) => {
+        if (typeof lectureState !== 'undefined' && lectureState.items && lectureState.items.length) {
+          const idx = lectureState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openLectureViewer === 'function') { openLectureViewer(idx); return; }
+        }
+        if (n > 0) setTimeout(() => tryOpen(n-1), 200);
+      };
+      setTimeout(() => tryOpen(15), 250);
+    };
+
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { loadHomeJobs(); loadKakaoRank(); });
+      document.addEventListener('DOMContentLoaded', () => { loadHomeJobs(); loadHomeLectures(); loadKakaoRank(); });
     } else {
       loadHomeJobs();
+      loadHomeLectures();
       loadKakaoRank();
     }
   })();

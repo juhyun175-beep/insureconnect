@@ -3188,6 +3188,7 @@
         <button class="upload-tab" data-panel="up-alert">🚨 점검·장애 알림</button>
         <button class="upload-tab" data-panel="up-kakao">💬 대화순위</button>
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
+        <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
       </div>
 
       <!-- 소식지 관리 패널 -->
@@ -3641,6 +3642,45 @@
           <p class="empty-msg">공지 로딩 중…</p>
         </div>
       </div><!-- /#up-popup -->
+
+      <!-- ══════════════════ 강의 관리 패널 ══════════════════ -->
+      <div class="upload-panel" id="up-lecture">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(16,185,129,0.30);border-left:3px solid #10b981;border-radius:8px;background:linear-gradient(90deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px;letter-spacing:0.03em;">🎓 강의 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>강의명, 강사명, 설명을 등록하면 강의 페이지 카드로 노출됩니다</li>
+            <li>PDF 또는 이미지 첨부 가능 (선택)</li>
+            <li>홈 대시보드 "🎓 진행중인 강의" 섹션에 최신 4건 자동 표시</li>
+          </ul>
+        </div>
+
+        <div class="nl-upload-box">
+          <h4 style="margin:0 0 14px;font-size:14px;color:var(--neon-cyan,#10b981);font-weight:700;letter-spacing:0.08em;">🎓 강의 등록</h4>
+          <div class="nl-form">
+            <div class="nl-field"><label>강의명 *</label>
+              <input type="text" id="lec-title" placeholder="예: 보험설계사 실무 마스터 과정" style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>강사 (선택)</label>
+              <input type="text" id="lec-instructor" placeholder="예: 홍길동 강사" style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>설명 (선택)</label>
+              <textarea id="lec-description" rows="4" placeholder="강의 일정·장소·신청방법 등" style="font-family:inherit;width:100%;resize:vertical;"></textarea>
+            </div>
+            <div class="nl-field"><label>파일 (선택 · PDF/이미지)</label>
+              <label class="nl-file-label">📎 파일 선택
+                <input type="file" id="lec-file" accept=".pdf,image/*">
+                <span class="nl-file-name" id="lec-file-name">없음</span>
+              </label>
+            </div>
+            <button class="nl-upload-btn" id="lec-upload-btn" onclick="uploadLecture()">강의 등록</button>
+            <p class="nl-status" id="lec-status"></p>
+          </div>
+        </div>
+
+        <div class="nl-list" id="lec-list">
+          <p class="empty-msg">강의 로딩 중…</p>
+        </div>
+      </div><!-- /#up-lecture -->
 
       <!-- ══════ 배너 미리보기 모달 (이용자 시점) ══════ -->
       <div id="sb-preview-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSbPreview()">
@@ -4514,6 +4554,91 @@
       loadAlerts();
       loadKakaoStats();
       loadHomePopups();
+      loadLectures();
+    }
+
+    /* ══════════════════ 강의 관리 ══════════════════ */
+    document.getElementById('lec-file').addEventListener('change', function() {
+      const f = this.files[0];
+      document.getElementById('lec-file-name').textContent = f ? `${f.name} (${(f.size/1024/1024).toFixed(2)}MB)` : '없음';
+    });
+
+    async function uploadLecture() {
+      const title = document.getElementById('lec-title').value.trim();
+      const instructor = document.getElementById('lec-instructor').value.trim();
+      const description = document.getElementById('lec-description').value.trim();
+      const fileInput = document.getElementById('lec-file');
+      const status = document.getElementById('lec-status');
+      const btn = document.getElementById('lec-upload-btn');
+      if (!title) { alert('강의명 입력 필수'); return; }
+      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; status.textContent = '';
+      try {
+        let file_url = null, file_type = null;
+        const f = fileInput.files[0];
+        if (f) {
+          const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+          file_type = isPdf ? 'pdf' : 'image';
+          const ext = f.name.split('.').pop() || (isPdf ? 'pdf' : 'jpg');
+          const path = `lecture_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const up = await fetch(`/api/files/lectures/${path}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': f.type, 'x-upsert': 'true' }),
+            body: f
+          });
+          if (!up.ok) throw new Error('파일 업로드 실패');
+          file_url = `/api/files/lectures/${path}`;
+        }
+        const res = await fetch(`/api/lectures`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ title, instructor, description, file_url, file_type })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
+        document.getElementById('lec-title').value = '';
+        document.getElementById('lec-instructor').value = '';
+        document.getElementById('lec-description').value = '';
+        document.getElementById('lec-file').value = '';
+        document.getElementById('lec-file-name').textContent = '없음';
+        loadLectures();
+      } catch (e) {
+        status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
+      } finally {
+        btn.disabled = false; btn.textContent = '강의 등록';
+      }
+    }
+
+    async function loadLectures() {
+      const el = document.getElementById('lec-list');
+      if (!el) return;
+      try {
+        const res = await fetch('/api/lectures');
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          el.innerHTML = '<p class="empty-msg">등록된 강의가 없습니다.</p>';
+          return;
+        }
+        const fmt = (s) => { const d = new Date(s); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+        el.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
+            <span style="font-size:18px;">🎓</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.title)}</div>
+              <div style="font-size:11px;color:var(--txt-lo);">${esc(it.instructor||'')} · ${fmt(it.created_at)}</div>
+            </div>
+            <button onclick="deleteLecture(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (_) {
+        el.innerHTML = '<p class="empty-msg">강의 로드 실패</p>';
+      }
+    }
+
+    async function deleteLecture(id) {
+      if (!confirm('이 강의를 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`/api/lectures/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        loadLectures();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
     /* ── 파일 선택 표시 ── */
