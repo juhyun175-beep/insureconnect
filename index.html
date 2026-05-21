@@ -3459,6 +3459,89 @@
     body.ic-mobile .live-monitor { display: none !important; } /* 모바일에선 sidebar live-monitor 숨김 */
 
     /* ════════════════════════════════════════════
+       MOBILE 전용 사이드바 (깔끔하게 풀스크린)
+       ════════════════════════════════════════════ */
+    body.ic-mobile .side-nav {
+      width: 88vw !important;
+      max-width: 360px !important;
+      box-shadow: 0 0 32px rgba(0,0,0,0.20);
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch;
+    }
+    body.ic-mobile .side-nav-header {
+      padding: 18px 16px 14px !important;
+    }
+    body.ic-mobile .side-nav-header img {
+      max-height: 38px !important;
+      width: auto !important;
+    }
+    body.ic-mobile .menu-tab {
+      padding: 13px 16px !important;
+      font-size: 14.5px !important;
+      font-weight: 700 !important;
+      gap: 10px !important;
+    }
+    body.ic-mobile .sub-menu-item {
+      padding: 11px 16px 11px 36px !important;
+      font-size: 13px !important;
+    }
+    /* 빠른 검색 버튼 — 모바일에서 더 크게 */
+    body.ic-mobile .side-search-btn {
+      width: calc(100% - 24px) !important;
+      margin: 10px 12px 8px !important;
+      padding: 12px 14px !important;
+      font-size: 13.5px !important;
+      gap: 10px !important;
+    }
+    /* 시계 — 모바일 사이드바에서 더 보기 좋게 */
+    body.ic-mobile .side-clock {
+      margin: 8px 12px 12px !important;
+      padding: 14px 16px 12px !important;
+    }
+    body.ic-mobile .side-clock-time { font-size: 30px !important; }
+    body.ic-mobile .side-clock-time .ic-clock-seconds { font-size: 14px !important; }
+    /* 사이드바 배너 카드 — 모바일에서 더 크게 */
+    body.ic-mobile .side-latest {
+      padding: 12px 14px !important;
+    }
+    body.ic-mobile .side-latest > .side-comm-label {
+      font-size: 11px !important;
+      margin-bottom: 8px !important;
+      letter-spacing: 0.08em !important;
+    }
+    body.ic-mobile .side-cn-card {
+      border-radius: 14px !important;
+    }
+    body.ic-mobile .side-cn-thumb {
+      /* 모바일에서 thumb 영역 배경을 그라데이션으로 (letterbox 자연스럽게) */
+      background: linear-gradient(135deg, #f0f5ff 0%, #e0e9ff 100%) !important;
+    }
+    [data-theme="dark"] body.ic-mobile .side-cn-thumb {
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
+    }
+    body.ic-mobile .side-cn-title { font-size: 13.5px !important; }
+    body.ic-mobile .side-cn-body  { padding: 10px 12px !important; }
+    body.ic-mobile .side-cn-date  { font-size: 11px !important; }
+    /* 커뮤니티 섹션 */
+    body.ic-mobile .side-comm-section { padding: 10px 12px !important; }
+    body.ic-mobile .side-comm-btn {
+      padding: 11px 12px !important;
+      font-size: 12.5px !important;
+      gap: 8px !important;
+    }
+    body.ic-mobile .side-comm-btn img { width: 36px !important; height: 36px !important; }
+    /* 푸터 링크 */
+    body.ic-mobile .side-footer { padding: 8px 12px 14px !important; }
+    body.ic-mobile .side-footer-link {
+      padding: 10px 12px !important;
+      font-size: 13px !important;
+    }
+    body.ic-mobile .side-stats {
+      padding: 8px 12px !important;
+      font-size: 11.5px !important;
+    }
+
+    /* ════════════════════════════════════════════
        MOBILE 전용 페이지 컴포넌트 (Phase 2)
        채용공고·강의·소식지·청구서류·카드뉴스·보험지식 카드 통일
        ════════════════════════════════════════════ */
@@ -5161,10 +5244,11 @@
         inset: 0 !important;
         width: 100% !important;
         height: 100% !important;
-        object-fit: cover !important;
+        /* 모바일에선 contain — 이미지 원본 비율 유지, 잘림 없음 */
+        object-fit: contain !important;
         display: block !important;
       }
-      .side-cn-thumb .side-cn-slide { object-fit: cover !important; }
+      .side-cn-thumb .side-cn-slide { object-fit: contain !important; }
       /* 5) body: 자연 높이 (텍스트만큼) */
       .side-cn-body { flex: none !important; }
       /* 6) 푸터: margin-top:auto 제거 → 커뮤니티 바로 아래 붙음 */
