@@ -3454,9 +3454,194 @@
     .ic-m-rank-name { flex: 1; font-size: 13px; font-weight: 700; color: var(--txt-hi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ic-m-rank-cnt { font-size: 11.5px; color: var(--txt-lo); font-weight: 700; }
 
-    /* 모바일 모드일 때 우측 PILL·일부 PC 요소 숨김 */
+    /* 모바일 검색 바 */
+    .ic-m-search-section { margin-top: -10px; }
+    .ic-m-search-bar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 13px 16px;
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 14px;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 2px 8px rgba(12,31,184,0.04);
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .ic-m-search-bar:active { border-color: var(--blue-mid); }
+    .ic-m-search-icon { font-size: 16px; }
+    .ic-m-search-text { color: var(--txt-lo); font-size: 13.5px; }
+
+    /* 모바일 시계 카드 */
+    .ic-m-clock-card {
+      padding: 16px 18px;
+      background: linear-gradient(135deg, var(--blue-mid) 0%, var(--blue-deep) 100%);
+      color: #fff;
+      border-radius: 16px;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 8px 22px rgba(26,61,232,0.20);
+    }
+    .ic-m-clock-card::before {
+      content: '';
+      position: absolute;
+      top: -30%; right: -10%;
+      width: 130px; height: 130px;
+      background: radial-gradient(circle, rgba(255,255,255,0.18), transparent 70%);
+    }
+    .ic-m-clock-head {
+      position: relative;
+      display: flex; align-items: center; justify-content: space-between;
+      font-size: 10.5px; letter-spacing: 0.08em; opacity: 0.92;
+      margin-bottom: 6px; font-weight: 700;
+    }
+    .ic-m-clock-dot {
+      display: inline-block; width: 7px; height: 7px;
+      background: #4ade80; border-radius: 50%;
+      box-shadow: 0 0 6px rgba(74,222,128,0.7);
+      margin-right: 6px;
+      animation: clockDotPulse 2s ease-in-out infinite;
+    }
+    .ic-m-clock-label { flex: 1; }
+    .ic-m-clock-time {
+      position: relative;
+      font-size: 34px; font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      line-height: 1; display: flex; align-items: baseline; gap: 1px;
+    }
+    .ic-m-clock-colon { animation: colonBlink 1s steps(2, end) infinite; }
+    .ic-m-clock-seconds { font-size: 15px; font-weight: 600; opacity: 0.7; margin-left: 6px; }
+    .ic-m-clock-date {
+      position: relative;
+      font-size: 11.5px; margin-top: 8px;
+      display: flex; align-items: center; gap: 6px; opacity: 0.95;
+    }
+    .ic-m-clock-day {
+      background: rgba(255,255,255,0.18);
+      padding: 2px 8px; border-radius: 8px;
+      font-weight: 700; font-size: 10.5px;
+    }
+
+    /* 모바일 배너 카드 */
+    .ic-m-banner-card {
+      display: block;
+      width: 100%;
+      padding: 0;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+      cursor: pointer;
+      font-family: inherit;
+      box-shadow: 0 4px 12px rgba(26,61,232,0.06);
+    }
+    .ic-m-banner-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-top: 1px solid var(--border);
+    }
+    .ic-m-banner-label {
+      font-size: 9.5px; font-weight: 800;
+      padding: 2px 7px;
+      background: linear-gradient(135deg, #a78bfa, #6366f1);
+      color: #fff;
+      border-radius: 8px;
+      letter-spacing: 0.06em;
+    }
+    .ic-m-banner-title {
+      flex: 1; font-size: 12.5px; font-weight: 700;
+      color: var(--txt-hi);
+      overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    }
+    .ic-m-banner-count {
+      font-size: 10.5px; color: var(--txt-lo); font-weight: 600;
+    }
+
+    /* 모바일 커뮤니티 그리드 */
+    .ic-m-comm-grid { display: flex; flex-direction: column; gap: 8px; }
+    .ic-m-comm-btn {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      text-decoration: none;
+      color: var(--txt-hi);
+      transition: transform 0.12s;
+    }
+    .ic-m-comm-btn:active { transform: scale(0.98); }
+    .ic-m-comm-icon { font-size: 24px; flex-shrink: 0; }
+    .ic-m-comm-body { flex: 1; min-width: 0; }
+    .ic-m-comm-title { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+    .ic-m-comm-sub   { font-size: 11.5px; color: var(--txt-lo); }
+    .ic-m-comm-arrow { color: var(--blue-mid); font-size: 16px; font-weight: 700; }
+
+    /* 모바일 도구 그리드 */
+    .ic-m-tools-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .ic-m-tool-btn {
+      display: flex; flex-direction: column; align-items: center; gap: 5px;
+      padding: 14px 6px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      text-decoration: none;
+      color: var(--txt-hi);
+      font-family: inherit;
+      cursor: pointer;
+      font-size: 11.5px; font-weight: 700;
+      transition: transform 0.12s;
+    }
+    .ic-m-tool-btn:active { transform: scale(0.95); }
+    .ic-m-tool-btn span:first-child { font-size: 22px; }
+
+    /* 모바일 통계 + 테마 (맨 아래) */
+    .ic-m-bottom {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 6px;
+    }
+    .ic-m-stats-row {
+      font-size: 11.5px; color: var(--txt-mid);
+      display: flex; align-items: center; gap: 4px;
+    }
+    .ic-m-stats-row strong { color: var(--txt-hi); font-weight: 800; margin: 0 2px; }
+    .ic-m-stats-dot {
+      width: 6px; height: 6px; background: #4ade80;
+      border-radius: 50%; margin-right: 5px;
+      box-shadow: 0 0 5px rgba(74,222,128,0.6);
+    }
+    .ic-m-theme-row { display: flex; gap: 4px; }
+    .ic-m-theme-btn {
+      width: 32px; height: 32px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      cursor: pointer; font-size: 14px;
+      font-family: inherit;
+    }
+    .ic-m-theme-btn.active {
+      background: var(--blue-mid); border-color: var(--blue-mid); color: #fff;
+    }
+
+    /* 모바일 모드일 때 PC 전용 요소 모두 숨김 */
     body.ic-mobile .right-nav-group { display: none !important; }
-    body.ic-mobile .live-monitor { display: none !important; } /* 모바일에선 sidebar live-monitor 숨김 */
+    body.ic-mobile .live-monitor { display: none !important; }
+    /* 모바일에서 사이드바·햄버거·백드롭 완전 숨김 (열리지 않음) */
+    body.ic-mobile .side-nav,
+    body.ic-mobile .side-toggle,
+    body.ic-mobile #side-backdrop,
+    body.ic-mobile .mobile-bottom-nav,
+    body.ic-mobile .mobile-bottom-nav-toggle { display: none !important; }
+    /* 콘텐츠 패딩 조정 (햄버거·하단 nav 사라졌으니) */
+    body.ic-mobile .content { padding-top: 12px !important; padding-bottom: 40px !important; }
+    body.ic-mobile .back-bar { left: 0 !important; }
 
     /* ════════════════════════════════════════════
        MOBILE 전용 사이드바 (깔끔하게 풀스크린)
@@ -6334,6 +6519,32 @@
       <p class="ic-m-hero-sub">보험설계사를 위한 통합 허브</p>
     </div>
 
+    <!-- 모바일 빠른 검색 -->
+    <section class="ic-m-section ic-m-search-section">
+      <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
+        <span class="ic-m-search-icon">🔍</span>
+        <span class="ic-m-search-text">전산·실무도구·페이지 검색…</span>
+      </button>
+    </section>
+
+    <!-- 모바일 시계 -->
+    <section class="ic-m-section ic-m-clock-section">
+      <div class="ic-m-clock-card">
+        <div class="ic-m-clock-head">
+          <span class="ic-m-clock-dot"></span>
+          <span class="ic-m-clock-label">KST · SEOUL</span>
+          <span id="m-clock-ampm">AM</span>
+        </div>
+        <div class="ic-m-clock-time">
+          <span id="m-clock-hh">--</span><span class="ic-m-clock-colon">:</span><span id="m-clock-mm">--</span><span class="ic-m-clock-seconds" id="m-clock-ss">--</span>
+        </div>
+        <div class="ic-m-clock-date">
+          <span class="ic-m-clock-day" id="m-clock-day">—요일</span>
+          <span id="m-clock-date">—월 —일</span>
+        </div>
+      </div>
+    </section>
+
     <!-- 모바일 빠른 메뉴 그리드 -->
     <section class="ic-m-section">
       <div class="ic-m-section-head">🚀 빠른 메뉴</div>
@@ -6378,6 +6589,66 @@
       <div class="ic-m-section-head"><span>💬 오픈채팅방 순위</span></div>
       <div class="ic-m-list" id="m-home-kakao">
         <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
+      </div>
+    </section>
+
+    <!-- 파트너사 프로모션 배너 -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>✨ 파트너사 프로모션</span></div>
+      <div id="m-home-banner"><div class="ic-m-list-skel" style="height:140px;"></div></div>
+    </section>
+
+    <!-- 커뮤니티 참여 -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>💬 커뮤니티 참여</span></div>
+      <div class="ic-m-comm-grid">
+        <a class="ic-m-comm-btn" href="https://open.kakao.com/o/gd0a5Cjh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','sidebar')">
+          <span class="ic-m-comm-icon">🎯</span>
+          <div class="ic-m-comm-body">
+            <div class="ic-m-comm-title">CREW 300</div>
+            <div class="ic-m-comm-sub">보험설계사 커뮤니티</div>
+          </div>
+          <span class="ic-m-comm-arrow">→</span>
+        </a>
+        <a class="ic-m-comm-btn" href="https://open.kakao.com/o/gxFQUWFh" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar')">
+          <span class="ic-m-comm-icon">👥</span>
+          <div class="ic-m-comm-body">
+            <div class="ic-m-comm-title">MANAGER LINK</div>
+            <div class="ic-m-comm-sub">설계매니저 커뮤니티</div>
+          </div>
+          <span class="ic-m-comm-arrow">→</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 빠른 도구 (운영자 문의 / 공유 / 파트너) -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>🛠 기타 메뉴</span></div>
+      <div class="ic-m-tools-grid">
+        <a class="ic-m-tool-btn" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')">
+          <span>✏️</span><span>운영자 문의</span>
+        </a>
+        <button class="ic-m-tool-btn" type="button" onclick="shareApp()">
+          <span>📤</span><span>앱 공유</span>
+        </button>
+        <a class="ic-m-tool-btn" href="/admin.html">
+          <span>🔐</span><span>파트너 전용</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- 통계 + 테마 -->
+    <section class="ic-m-section ic-m-bottom">
+      <div class="ic-m-stats-row">
+        <span class="ic-m-stats-dot"></span>
+        오늘 <strong id="m-stat-today">—</strong>명
+        &nbsp;·&nbsp;
+        누적 <strong id="m-stat-total">—</strong>명
+      </div>
+      <div class="ic-m-theme-row" role="group" aria-label="테마 선택">
+        <button type="button" class="ic-m-theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
+        <button type="button" class="ic-m-theme-btn" data-theme-val="system" onclick="setTheme('system')">🖥</button>
+        <button type="button" class="ic-m-theme-btn" data-theme-val="dark" onclick="setTheme('dark')">🌙</button>
       </div>
     </section>
   </div>
@@ -11833,10 +12104,91 @@
     _applyMobileClass();
     window.addEventListener('resize', _applyMobileClass);
 
+    /** 모바일 시계 tick (사이드바 시계와 같은 ID 패턴) */
+    function _mClockTick() {
+      if (!document.body.classList.contains('ic-mobile')) return;
+      const d = new Date();
+      const hh = d.getHours();
+      const ampm = hh < 12 ? 'AM' : 'PM';
+      const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+      setEl('m-clock-hh', String(hh).padStart(2,'0'));
+      setEl('m-clock-mm', String(d.getMinutes()).padStart(2,'0'));
+      setEl('m-clock-ss', String(d.getSeconds()).padStart(2,'0'));
+      setEl('m-clock-ampm', ampm);
+      const days = ['일','월','화','수','목','금','토'];
+      setEl('m-clock-day', days[d.getDay()] + '요일');
+      setEl('m-clock-date', `${d.getMonth()+1}월 ${d.getDate()}일`);
+    }
+    setInterval(_mClockTick, 1000);
+    _mClockTick();
+
+    /** 모바일 통계 */
+    async function loadMobileStats() {
+      if (!document.body.classList.contains('ic-mobile')) return;
+      try {
+        const r = await fetch('/api/stats');
+        const d = await r.json();
+        const t = document.getElementById('m-stat-today');
+        const T = document.getElementById('m-stat-total');
+        if (t) t.textContent = (d.today_visits || 0).toLocaleString();
+        if (T) T.textContent = (d.total_visits || 0).toLocaleString();
+      } catch (_) {}
+    }
+    setInterval(loadMobileStats, 60000);
+
+    /** 모바일 테마 버튼 active 동기화 */
+    function _mApplyThemeActive() {
+      const saved = localStorage.getItem('ic-theme') || 'light';
+      document.querySelectorAll('.ic-m-theme-btn').forEach(b => {
+        b.classList.toggle('active', b.dataset.themeVal === saved);
+      });
+    }
+    setInterval(_mApplyThemeActive, 1000); // 간단 동기화
+
     /** 모바일 홈 데이터 로드 (PC와 같은 API 사용) */
     async function loadMobileHome() {
       if (!document.body.classList.contains('ic-mobile')) return;
       const escH = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      loadMobileStats();
+      _mApplyThemeActive();
+
+      // 파트너 프로모션 배너 (사이드바 cn-card와 동일 데이터)
+      try {
+        const r = await fetch('/api/sidebar-banner?limit=200');
+        const arr = await r.json();
+        const el = document.getElementById('m-home-banner');
+        if (el) {
+          if (!arr.length) {
+            el.innerHTML = '<div class="ic-m-list-empty">등록된 배너가 없습니다</div>';
+          } else {
+            // 가장 최근 set의 첫 슬라이드만 표시 (모바일 컴팩트)
+            const setsMap = new Map();
+            for (const item of arr) {
+              if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
+              setsMap.get(item.set_id).push(item);
+            }
+            for (const v of setsMap.values()) v.sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
+            const latest = Array.from(setsMap.values())[0];
+            if (latest && latest.length) {
+              const cover = latest[0];
+              const slideCount = latest.length;
+              window._sideLatestSlides = latest;
+              const isPdf = cover.file_type === 'pdf';
+              const thumb = isPdf
+                ? `<span style="font-size:48px">📄</span>`
+                : `<img src="${escH(cover.file_url)}" alt="" style="width:100%;height:auto;display:block;border-radius:14px;object-fit:contain;max-height:220px;background:linear-gradient(135deg,#f0f5ff,#e0e9ff);">`;
+              el.innerHTML = `<button class="ic-m-banner-card" type="button" onclick="openSidebannerModal()">
+                ${thumb}
+                <div class="ic-m-banner-meta">
+                  <span class="ic-m-banner-label">PROMOTION</span>
+                  <span class="ic-m-banner-title">${escH(cover.title || '공지 / 자료')}</span>
+                  ${slideCount > 1 ? `<span class="ic-m-banner-count">${slideCount}장</span>` : ''}
+                </div>
+              </button>`;
+            }
+          }
+        }
+      } catch (_) {}
       // 채용공고
       try {
         const r = await fetch('/api/recruitments?limit=3');
