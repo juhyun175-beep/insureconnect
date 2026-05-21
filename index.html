@@ -3324,6 +3324,50 @@
     .ic-top-left > .live-monitor { margin-bottom: 0 !important; }
     .ic-top-row > .ic-kakao-panel { margin-bottom: 0; }
 
+    /* ════════════════════════════════════════════
+       통일된 검색 input 디자인 (.ic-search-input)
+       ════════════════════════════════════════════ */
+    input.ic-search-input,
+    .ic-search-input {
+      width: 100%;
+      padding: 11px 16px 11px 40px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--txt-hi);
+      background-color: var(--bg-card);
+      background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238fa5cc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='11' cy='11' r='7'/><line x1='21' y1='21' x2='16.65' y2='16.65'/></svg>");
+      background-repeat: no-repeat;
+      background-position: 12px center;
+      background-size: 18px 18px;
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+      box-shadow: 0 1px 3px rgba(12,31,184,0.04);
+      letter-spacing: -0.01em;
+      box-sizing: border-box;
+    }
+    input.ic-search-input::placeholder,
+    .ic-search-input::placeholder {
+      color: var(--txt-lo);
+      letter-spacing: -0.01em;
+    }
+    input.ic-search-input:focus,
+    .ic-search-input:focus {
+      border-color: var(--blue-mid);
+      box-shadow: 0 0 0 3px rgba(26,61,232,0.10), 0 2px 8px rgba(26,61,232,0.06);
+    }
+    [data-theme="dark"] input.ic-search-input,
+    [data-theme="dark"] .ic-search-input {
+      border-color: rgba(255,255,255,0.08);
+    }
+    .ic-search-wrap {
+      position: relative;
+      width: 100%;
+      max-width: 520px;
+      margin: 0 0 14px;
+    }
+
     /* 히어로 + 즐겨찾기 (상단 행 좌측의 하단 영역) */
     .ic-hero-fav {
       display: grid;
@@ -6137,7 +6181,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" id="search" placeholder="보험사 이름으로 검색…" autocomplete="off">
+        <input type="text" id="search" class="ic-search-input" placeholder="보험사 이름으로 검색…" autocomplete="off">
       </div>
       <div class="tabs">
         <button class="tab active" data-f="all">전체</button>
@@ -6178,7 +6222,7 @@
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
         </svg>
-        <input type="text" id="ga-search" placeholder="GA 법인 이름으로 검색…" autocomplete="off">
+        <input type="text" id="ga-search" class="ic-search-input" placeholder="GA 법인 이름으로 검색…" autocomplete="off">
       </div>
     </div>
     <div class="section">
@@ -6213,7 +6257,7 @@
         <span>본 페이지의 소식지 자료는 <strong>각 보험사가 공식 공개한 자료를 안내</strong>합니다. 저작권은 해당 보험사에 있으며, 본 사이트는 정보 안내 목적으로 링크합니다. 최신 자료는 반드시 해당 보험사 공식 채널에서 확인해 주세요.</span>
       </div>
       <div class="nlcf-search-wrap">
-        <input type="text" class="nlcf-search" id="nl-search" placeholder="🔎 보험사명 또는 제목으로 검색">
+        <input type="text" class="nlcf-search ic-search-input" id="nl-search" placeholder="보험사명 또는 제목으로 검색">
         <button class="nlcf-search-clear" id="nl-search-clear" type="button" aria-label="검색 지우기">✕</button>
       </div>
       <div id="nl-page-body">
@@ -6231,7 +6275,7 @@
         <span>본 페이지의 청구서류는 <strong>각 보험사가 공식 공개한 양식을 안내</strong>합니다. 저작권은 해당 보험사에 있으며, 실제 청구 시에는 해당 보험사 공식 채널에서 최신 서식을 확인해 주세요.</span>
       </div>
       <div class="nlcf-search-wrap">
-        <input type="text" class="nlcf-search" id="cf-search" placeholder="🔎 보험사명 또는 제목으로 검색">
+        <input type="text" class="nlcf-search ic-search-input" id="cf-search" placeholder="보험사명 또는 제목으로 검색">
         <button class="nlcf-search-clear" id="cf-search-clear" type="button" aria-label="검색 지우기">✕</button>
       </div>
       <div id="cf-page-body">
@@ -7982,7 +8026,51 @@
       showPage(page);
     }
 
-    /* 체류 시간 추적 [응급조치: D1 마이그레이션 후 재활성화] */
+    /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
+    (function() {
+      let _activeSec = 0;            // 활성 누적 초
+      let _lastTick  = Date.now();   // 마지막 시점
+      let _flushed   = false;         // 중복 flush 방지
+
+      function _tick() {
+        if (document.visibilityState !== 'hidden') {
+          _activeSec += (Date.now() - _lastTick) / 1000;
+          _lastTick = Date.now();
+        }
+      }
+      function _flush() {
+        if (_flushed) return;
+        _tick();
+        const dur = Math.max(1, Math.floor(_activeSec));
+        if (dur < 3) return; // 3초 미만은 무시
+        _flushed = true;
+        try {
+          // sendBeacon이 가장 안정적 (unload에서도 동작)
+          const payload = JSON.stringify({ duration: dur });
+          if (navigator.sendBeacon) {
+            navigator.sendBeacon('/api/track/session', new Blob([payload], { type: 'application/json' }));
+          } else {
+            fetch('/api/track/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: payload,
+              keepalive: true
+            }).catch(() => {});
+          }
+        } catch (_) {}
+      }
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'hidden') {
+          _tick();
+          _flush();
+        } else {
+          _lastTick = Date.now();
+          _flushed = false; // 다시 visible되면 reset (탭 전환 후 돌아옴)
+        }
+      });
+      window.addEventListener('pagehide', _flush);
+      window.addEventListener('beforeunload', _flush);
+    })();
 
     /* ── 초기 실행 ── */
     trackVisit();
@@ -8988,7 +9076,7 @@
         <button class="cg-close" onclick="closeCardGuide()">✕</button>
       </div>
       <div class="cg-search-wrap">
-        <input class="cg-search-input" id="cg-q" type="text" placeholder="🔎 보험사명으로 검색" autocomplete="off">
+        <input class="cg-search-input ic-search-input" id="cg-q" type="text" placeholder="보험사명으로 검색" autocomplete="off">
       </div>
       <div class="cg-tabs">
         <button class="cg-tab active" data-t="life" onclick="cgSetTab('life')">🏢 생보사</button>
@@ -9199,7 +9287,7 @@
         <button class="surg-close" onclick="closeSurg()">✕</button>
       </div>
       <div class="surg-search-wrap">
-        <input class="surg-search-input" id="surg-q" type="text" placeholder="수술명을 입력하세요 (예: 충수절제, 담낭, 관절경…)" autocomplete="off" autocorrect="off" spellcheck="false">
+        <input class="surg-search-input ic-search-input" id="surg-q" type="text" placeholder="수술명 입력 (예: 충수절제, 담낭, 관절경…)" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
       <div class="surg-filter-row" id="surg-filters">
         <button class="surg-filter-btn active" data-j="0">전체</button>
