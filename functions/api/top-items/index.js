@@ -57,5 +57,14 @@ export const onRequestGet = async ({ env }) => handle(async () => {
     knowledge_total:  kT,
     cardnews_today:   ct,
     cardnews_total:   cT,
+    // admin 호환: 공유 유입·복사 카운터는 미구현 → 빈 배열
+    knowledge_top_shared_today: [],
+    knowledge_top_shared_total: [],
+    knowledge_top_copy_today:   [],
+    knowledge_top_copy_total:   [],
+    cardnews_top_shared_today:  [],
+    cardnews_top_shared_total:  [],
+    cardnews_top_copy_today:    [],
+    cardnews_top_copy_total:    [],
   });
 });

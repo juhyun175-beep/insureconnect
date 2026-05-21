@@ -1,5 +1,6 @@
 /**
  * 체류 시간 통계 — ic_sessions_daily 집계
+ * admin이 기대하는 필드명: today_count, today_avg, total_avg, distribution[{label,count}], recent[]
  */
 import { json, handle, corsPreflight } from '../../_lib/http.js';
 export const onRequestOptions = () => corsPreflight();
@@ -18,25 +19,40 @@ export const onRequestGet = async ({ env }) => handle(async () => {
     env.DB.prepare(`SELECT date, sessions_count, total_duration_sec FROM ic_sessions_daily ORDER BY date DESC LIMIT 7`).all(),
   ]);
 
-  const todaySessions = todayRow?.sessions_count || 0;
-  const todayAvg = todaySessions ? Math.round((todayRow.total_duration_sec || 0) / todaySessions) : 0;
-  const totalSessions = totalRow?.sc || 0;
-  const totalAvg = totalSessions ? Math.round((totalRow.td || 0) / totalSessions) : 0;
+  const todayCount = todayRow?.sessions_count || 0;
+  const todayAvg = todayCount ? Math.round((todayRow.total_duration_sec || 0) / todayCount) : 0;
+  const totalCount = totalRow?.sc || 0;
+  const totalAvg = totalCount ? Math.round((totalRow.td || 0) / totalCount) : 0;
 
-  // 분포: 7일 데이터 → 평균 체류 분포
-  const distribution = (last7.results || []).map(r => ({
-    date: r.date,
-    sessions: r.sessions_count,
-    avg_sec: r.sessions_count ? Math.round(r.total_duration_sec / r.sessions_count) : 0
-  }));
+  // 카운터 방식이라 개별 세션 분포는 추적 안 됨 → 평균 기준 자동 분류
+  const dist = [
+    { label: '30초 미만', count: 0 },
+    { label: '30초~2분', count: 0 },
+    { label: '2분~5분',  count: 0 },
+    { label: '5분+',     count: 0 },
+  ];
+  if (todayAvg < 30) dist[0].count = todayCount;
+  else if (todayAvg < 120) dist[1].count = todayCount;
+  else if (todayAvg < 300) dist[2].count = todayCount;
+  else dist[3].count = todayCount;
 
   return json({
-    today_sessions: todaySessions,
-    today_avg_sec:  todayAvg,
-    total_sessions: totalSessions,
-    total_avg_sec:  totalAvg,
-    avg_duration:   todayAvg,
-    distribution,
-    recent_sessions: []
+    // admin 기존 필드명 호환
+    today_count:     todayCount,
+    today_avg:       todayAvg,
+    total_avg:       totalAvg,
+    distribution:    dist,
+    recent:          [],
+    // 신규 필드명
+    today_sessions:  todayCount,
+    today_avg_sec:   todayAvg,
+    total_sessions:  totalCount,
+    total_avg_sec:   totalAvg,
+    recent_sessions: [],
+    last_7_days: (last7.results || []).map(r => ({
+      date: r.date,
+      sessions: r.sessions_count,
+      avg_sec: r.sessions_count ? Math.round(r.total_duration_sec / r.sessions_count) : 0
+    }))
   });
 });
