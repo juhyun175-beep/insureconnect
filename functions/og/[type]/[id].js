@@ -11,6 +11,14 @@
 const SITE = 'https://insureconnect-hub.pages.dev';
 const FALLBACK_IMG = `${SITE}/logo-full.png`;
 
+/** 상대 경로 → 절대 URL (카카오톡 봇은 절대 URL 필요) */
+const absUrl = (u) => {
+  if (!u) return FALLBACK_IMG;
+  if (u.startsWith('http://') || u.startsWith('https://')) return u;
+  if (u.startsWith('/')) return SITE + u;
+  return SITE + '/' + u;
+};
+
 const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -30,7 +38,7 @@ export const onRequestGet = async ({ params, env }) => {
       ).bind(id).first();
       if (r) {
         title = r.title || title;
-        if (r.file_url) image = r.file_url;
+        if (r.file_url) image = absUrl(r.file_url);
         target = `${SITE}/?news=${encodeURIComponent(id)}`;
         desc = '인슈어커넥트 뉴스 카드 보러가기';
       }
@@ -41,7 +49,7 @@ export const onRequestGet = async ({ params, env }) => {
       if (r) {
         title = r.title || title;
         desc = r.company_name ? `[${r.company_name}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
-        if (r.file_type === 'image' && r.file_url) image = r.file_url;
+        if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
         target = `${SITE}/?recruit=${encodeURIComponent(id)}`;
       }
     } else if (type === 'knowledge') {
@@ -51,7 +59,7 @@ export const onRequestGet = async ({ params, env }) => {
       if (r) {
         title = r.title || title;
         desc = (r.content || '').replace(/\[.*?\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 120);
-        if (r.image_url) image = r.image_url;
+        if (r.image_url) image = absUrl(r.image_url);
         target = `${SITE}/knowledge/${encodeURIComponent(id)}`;
       }
     }
