@@ -3361,13 +3361,20 @@
     }
     .ic-m-hero-logo {
       position: relative;
-      max-width: 220px;
-      max-height: 80px;
+      max-width: 240px;
+      max-height: 70px;
       width: auto;
       height: auto;
       display: block;
       margin: 0 auto;
-      filter: drop-shadow(0 2px 8px rgba(0,0,0,0.15));
+      padding: 12px 24px;
+      background: #ffffff;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+      box-sizing: content-box;
+    }
+    [data-theme="dark"] .ic-m-hero-logo {
+      background: #ffffff; /* 다크모드에서도 흰 카드 유지 (로고 검정 텍스트 가독성) */
     }
 
     .ic-m-section { margin-bottom: 22px; }
@@ -3550,19 +3557,42 @@
       font-weight: 700; font-size: 10.5px;
     }
 
-    /* 모바일 배너 카드 */
+    /* 모바일 배너 카드 — PC 사이드바와 같은 글로우·shine 효과 */
     .ic-m-banner-card {
       display: block;
       width: 100%;
       padding: 0;
       background: var(--bg-card);
-      border: 1px solid var(--border);
+      border: 1.5px solid rgba(99,179,237,0.35);
       border-radius: 14px;
       overflow: hidden;
       cursor: pointer;
       font-family: inherit;
-      box-shadow: 0 4px 12px rgba(26,61,232,0.06);
+      position: relative;
+      animation: promo-glow 3s ease-in-out infinite;
     }
+    .ic-m-banner-card::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.18) 50%, transparent 60%);
+      transform: translateX(-100%) skewX(-18deg);
+      animation: promo-shine 3.5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 1;
+    }
+    /* 모바일 배너 thumb — 풀너비, aspect-ratio 동적 */
+    .ic-m-banner-thumb {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      overflow: hidden;
+      background: rgba(26,61,232,0.06);
+      display: block;
+    }
+    [data-theme="dark"] .ic-m-banner-thumb { background: rgba(74,112,245,0.10); }
+    /* PC sidebar의 .side-cn-card 글로벌 애니메이션이 모바일 카드에서 중복되지 않게 (사이드바 자체 hidden) */
+    body.ic-mobile .side-cn-card:not(.ic-m-banner-card) { animation: none !important; }
     .ic-m-banner-meta {
       display: flex;
       align-items: center;
@@ -12184,7 +12214,7 @@
       loadMobileStats();
       _mApplyThemeActive();
 
-      // 파트너 프로모션 배너 (사이드바 cn-card와 동일 데이터)
+      // 파트너 프로모션 배너 — PC 사이드바 카드와 동일한 글로우·페이드 슬라이드
       try {
         const r = await fetch('/api/sidebar-banner?limit=200');
         const arr = await r.json();
@@ -12193,7 +12223,6 @@
           if (!arr.length) {
             el.innerHTML = '<div class="ic-m-list-empty">등록된 배너가 없습니다</div>';
           } else {
-            // 가장 최근 set의 첫 슬라이드만 표시 (모바일 컴팩트)
             const setsMap = new Map();
             for (const item of arr) {
               if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
@@ -12202,21 +12231,56 @@
             for (const v of setsMap.values()) v.sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
             const latest = Array.from(setsMap.values())[0];
             if (latest && latest.length) {
+              window._sideLatestSlides = latest;
               const cover = latest[0];
               const slideCount = latest.length;
-              window._sideLatestSlides = latest;
-              const isPdf = cover.file_type === 'pdf';
-              const thumb = isPdf
-                ? `<span style="font-size:48px">📄</span>`
-                : `<img src="${escH(cover.file_url)}" alt="" style="width:100%;height:auto;display:block;border-radius:14px;object-fit:contain;max-height:220px;background:linear-gradient(135deg,#f0f5ff,#e0e9ff);">`;
-              el.innerHTML = `<button class="ic-m-banner-card" type="button" onclick="openSidebannerModal()">
-                ${thumb}
+              // 모든 슬라이드를 stack 으로 (PC와 동일 클래스 사용 → 글로벌 회전 함수가 인식)
+              const slideHtml = latest.map((s, idx) => {
+                const cls = idx === 0 ? 'side-cn-slide active' : 'side-cn-slide';
+                const fbCls = idx === 0 ? 'side-cn-slide-fb active' : 'side-cn-slide-fb';
+                const isPdf = s.file_type === 'pdf';
+                const isImg = !isPdf && s.file_url;
+                if (isImg) {
+                  return `<img class="${cls}" src="${escH(s.file_url)}" alt="${escH(s.title||'')}" loading="lazy" onerror="this.outerHTML='<div class=\\'${fbCls}\\'>📄</div>'">`;
+                }
+                return `<div class="${fbCls}">${isPdf ? '📄' : '🖼'}</div>`;
+              }).join('');
+              const dotsHtml = slideCount > 1
+                ? `<div class="side-cn-dots">${latest.map((_, i) =>
+                    `<span class="side-cn-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
+                : '';
+              const countBadge = slideCount > 1
+                ? `<span style="margin-left:5px;font-size:10px;opacity:0.7;">${slideCount}장</span>`
+                : '';
+
+              el.innerHTML = `<button class="ic-m-banner-card side-cn-card" type="button" onclick="openSidebannerModal()">
+                <div class="ic-m-banner-thumb side-cn-thumb">
+                  ${slideHtml}
+                  <span class="side-cn-badge">최신${countBadge}</span>
+                  ${dotsHtml}
+                </div>
                 <div class="ic-m-banner-meta">
                   <span class="ic-m-banner-label">PROMOTION</span>
                   <span class="ic-m-banner-title">${escH(cover.title || '공지 / 자료')}</span>
-                  ${slideCount > 1 ? `<span class="ic-m-banner-count">${slideCount}장</span>` : ''}
                 </div>
               </button>`;
+
+              // 첫 슬라이드 비율로 thumb aspect-ratio 동적 설정 (잘림 제거)
+              const thumbEl = el.querySelector('.side-cn-thumb');
+              const firstImg = el.querySelector('.side-cn-thumb img.side-cn-slide');
+              if (thumbEl && firstImg) {
+                const apply = (img) => {
+                  if (img.naturalWidth && img.naturalHeight) {
+                    thumbEl.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
+                  }
+                };
+                if (firstImg.complete) apply(firstImg);
+                else firstImg.addEventListener('load', () => apply(firstImg), { once: true });
+              }
+              // 자동 슬라이드 회전 시작 (PC와 동일 함수 재사용)
+              if (typeof startSideBannerRotation === 'function') {
+                startSideBannerRotation(slideCount);
+              }
             }
           }
         }
