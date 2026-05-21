@@ -7500,7 +7500,8 @@
     async function shareRecruit(recruitId, evt) {
       if (evt) { evt.stopPropagation(); evt.preventDefault(); }
       const btn = evt && evt.currentTarget;
-      const url = `${location.origin}${location.pathname}?recruit=${encodeURIComponent(recruitId)}`;
+      // OG meta가 동적으로 적용되는 share URL (카카오톡 미리보기 정확히)
+      const url = `${location.origin}/og/recruit/${encodeURIComponent(recruitId)}`;
       let ok = false;
       if (navigator.clipboard && window.isSecureContext) {
         try { await navigator.clipboard.writeText(url); ok = true; }
@@ -7758,7 +7759,8 @@
     async function shareCardNews(target, evt) {
       const set = cardNewsState.sets[cardNewsState.currentSet];
       if (!set) return;
-      const url = `${location.origin}${location.pathname}?news=${encodeURIComponent(set.set_id || '')}`;
+      // OG meta 동적 share URL (카카오톡 첫 페이지 이미지 미리보기)
+      const url = `${location.origin}/og/news/${encodeURIComponent(set.set_id || '')}`;
       if (target === 'copy') {
         let ok = false;
         if (navigator.clipboard && window.isSecureContext) {
@@ -8400,11 +8402,11 @@
       }
     }
 
-    /* ── 링크 복사 ── */
+    /* ── 링크 복사 (OG meta 동적 share URL) ── */
     async function copyKnLink(evt) {
       const postId = document.getElementById('kn-active-post-id').value;
       if (!postId) return;
-      const url = `${location.origin}${location.pathname}?post=${encodeURIComponent(postId)}`;
+      const url = `${location.origin}/og/knowledge/${encodeURIComponent(postId)}`;
       let ok = false;
       if (navigator.clipboard && window.isSecureContext) {
         try { await navigator.clipboard.writeText(url); ok = true; } catch (_) {}
