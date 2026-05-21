@@ -3578,6 +3578,36 @@
       justify-content: center;
       flex-wrap: wrap;
     }
+    /* 통합 정보 허브 카드 내 PILL 그리드 */
+    .ic-hero-pillgrid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 14px;
+    }
+    @media (max-width: 720px) { .ic-hero-pillgrid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 380px) { .ic-hero-pillgrid { grid-template-columns: repeat(2, 1fr); } }
+    .ic-hero-pill {
+      padding: 9px 4px;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      border-radius: 10px;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--txt-hi);
+      cursor: pointer;
+      transition: transform 0.12s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+      letter-spacing: -0.01em;
+      white-space: nowrap;
+    }
+    .ic-hero-pill:hover {
+      background: rgba(26,61,232,0.06);
+      border-color: var(--blue-mid);
+      color: var(--blue-mid);
+      transform: translateY(-1px);
+      box-shadow: 0 3px 10px rgba(26,61,232,0.10);
+    }
     .ic-hero-btn {
       display: inline-flex;
       align-items: center;
@@ -4121,6 +4151,8 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
     }
+    .lm-grid.lm-grid-2col { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 700px) { .lm-grid, .lm-grid.lm-grid-2col { grid-template-columns: 1fr; } }
     .lm-col {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -5940,7 +5972,7 @@
         </div>
         <span class="lm-updated" id="lm-updated"></span>
       </div>
-      <div class="lm-grid">
+      <div class="lm-grid lm-grid-2col">
         <div class="lm-col">
           <div class="lm-col-head">
             <span class="lm-col-icon">🖥</span>
@@ -5952,19 +5984,10 @@
         </div>
         <div class="lm-col">
           <div class="lm-col-head">
-            <span class="lm-col-icon">📚</span>
-            <span class="lm-col-name">인기 보험지식</span>
+            <span class="lm-col-icon">📰</span>
+            <span class="lm-col-name">최신 콘텐츠 순위</span>
           </div>
-          <ol class="lm-list" id="lm-list-knowledge">
-            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
-          </ol>
-        </div>
-        <div class="lm-col">
-          <div class="lm-col-head">
-            <span class="lm-col-icon">🗞</span>
-            <span class="lm-col-name">인기 카드뉴스</span>
-          </div>
-          <ol class="lm-list" id="lm-list-cardnews">
+          <ol class="lm-list" id="lm-list-latest">
             <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
           </ol>
         </div>
@@ -5976,8 +5999,17 @@
       <section class="ic-hero" aria-label="서비스 소개">
         <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
         <p class="ic-hero-sub">각 보험사 전산·청구서류·소식지·실무도구·보험지식을<br class="ic-hero-br">한 곳에서 빠르게 만나보세요.</p>
-        <div class="ic-hero-cta">
-          <a class="ic-hero-btn primary" href="#" onclick="goToPage('latest');return false;">📰 최신 콘텐츠 보기</a>
+        <div class="ic-hero-pillgrid" role="navigation" aria-label="빠른 메뉴">
+          <button class="ic-hero-pill" onclick="goToPage('latest')">📰 최신</button>
+          <button class="ic-hero-pill" onclick="goToPage('jeonsan')">🖥 전산</button>
+          <button class="ic-hero-pill" onclick="goToPage('ga')">🏢 GA</button>
+          <button class="ic-hero-pill" onclick="goToPage('payment')">💳 수납</button>
+          <button class="ic-hero-pill" onclick="goToPage('newsletter')">📰 소식지</button>
+          <button class="ic-hero-pill" onclick="goToPage('claimform')">📋 청구</button>
+          <button class="ic-hero-pill" onclick="goToPage('recruit')">💼 채용</button>
+          <button class="ic-hero-pill" onclick="goToPage('tools')">🛠 실무도구</button>
+          <button class="ic-hero-pill" onclick="goToPage('knowledge')">📚 보험지식</button>
+          <button class="ic-hero-pill" onclick="goToPage('newsletter')">🗞 뉴스</button>
         </div>
       </section>
 
@@ -6508,7 +6540,7 @@
   </div>
 
   <!-- ══════ 홈 진입 자동 팝업 (관리자 공지) ══════ -->
-  <div id="home-popup-overlay" onclick="if(event.target===this)closeHomePopup()">
+  <div id="home-popup-overlay">
     <div class="hp-modal" role="dialog" aria-labelledby="hp-head-title" aria-modal="true">
       <div class="hp-head">
         <span class="hp-head-badge">📢 공지</span>
@@ -6527,7 +6559,7 @@
   </div>
 
   <!-- ══════ 첫 접속 자동 팝업 (배너 광고) ══════ -->
-  <div id="promo-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closePromoPopup(false)">
+  <div id="promo-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:16px;">
     <div style="position:relative;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--bg-card,#0e1a3a);border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
       <!-- 헤더 -->
       <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;background:linear-gradient(90deg,rgba(99,179,237,0.12),rgba(159,122,234,0.12));">
@@ -10159,7 +10191,7 @@
         const nowIso = new Date().toISOString();
         // 활성 + 기간(시작 <= 지금 OR null) — 종료시각은 클라이언트에서 추가 필터
         // 주의: PostgREST or=(...) 필터는 URL 인코딩이 필요하므로 안전하게 분리 호출 방식 사용
-        const res = await fetch(`/api/home-popups?active=1`);
+        const res = await fetch(`/api/home-popups?active=1&_=${Date.now()}`, { cache: 'no-store' });
         if (!res.ok) { runHpAfterClose(); return; }
         const items = await res.json();
         if (!Array.isArray(items) || items.length === 0) { runHpAfterClose(); return; }
@@ -10234,12 +10266,7 @@
       if (typeof fn === 'function') setTimeout(fn, 220);
     }
 
-    // ESC 키로 닫기
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && document.getElementById('home-popup-overlay').style.display === 'flex') {
-        closeHomePopup();
-      }
-    });
+    // ESC 키로는 닫지 않음 — 사용자가 명시적으로 "확인" 또는 ✕ 버튼만
 
     window.closeHomePopup = closeHomePopup;
     window.showHomePopupIfNeeded = showHomePopupIfNeeded;
@@ -10395,10 +10422,12 @@
       if (!_lmCache) return;
       const suffix = _lmPeriod === 'today' ? 'today' : 'total';
 
-      // 조회수(내부 클릭) 모드만 표시
-      const jeonsan   = _lmCache[`jeonsan_${suffix}`]   || [];
-      const knowledge = _lmCache[`knowledge_${suffix}`] || [];
-      const cardnews  = _lmCache[`cardnews_${suffix}`]  || [];
+      const jeonsan = _lmCache[`jeonsan_${suffix}`] || [];
+      // 보험지식 + 카드뉴스 통합 = 최신 콘텐츠 순위
+      const latest  = _lmCache[`latest_${suffix}`]  ||
+        // backwards compat: 옛 응답 형식
+        [...(_lmCache[`knowledge_${suffix}`] || []), ...(_lmCache[`cardnews_${suffix}`] || [])]
+          .sort((a, b) => (b.clicks || 0) - (a.clicks || 0));
 
       const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
@@ -10414,29 +10443,20 @@
         </li>`;
       };
 
-      // 전산
       const jeonsanHtml = !jeonsan.length
         ? '<li class="lm-empty">아직 클릭 기록이 없습니다</li>'
-        : jeonsan.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
+        : jeonsan.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenJeonsan('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
-      // 보험지식
-      const knowledgeHtml = !knowledge.length
+      // 최신 콘텐츠 (보험지식 + 카드뉴스 통합) — 클릭 시 둘 다 시도
+      const latestHtml = !latest.length
         ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
-        : knowledge.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenKnowledge('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
+        : latest.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenLatest('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
-      // 카드뉴스
-      const cardnewsHtml = !cardnews.length
-        ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
-        : cardnews.slice(0,3).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenCardnews('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
-
-      // 3개 리스트를 한 frame에 배치 적용 (layout thrashing 회피)
       requestAnimationFrame(() => {
         const lj = document.getElementById('lm-list-jeonsan');
-        const lk = document.getElementById('lm-list-knowledge');
-        const lc = document.getElementById('lm-list-cardnews');
+        const ll = document.getElementById('lm-list-latest');
         if (lj) lj.innerHTML = jeonsanHtml;
-        if (lk) lk.innerHTML = knowledgeHtml;
-        if (lc) lc.innerHTML = cardnewsHtml;
+        if (ll) ll.innerHTML = latestHtml;
 
         // 마지막 업데이트 시각
         const now = new Date();
@@ -10451,6 +10471,16 @@
     // 클릭 시 해당 항목으로 이동
     function lmOpenJeonsan(name) {
       goToPage('jeonsan');
+    }
+    // 통합 최신 콘텐츠 — 카드뉴스 먼저 시도, 없으면 보험지식
+    function lmOpenLatest(name) {
+      try {
+        if (typeof cardNewsState !== 'undefined' && cardNewsState.sets && cardNewsState.sets.length) {
+          const idx = cardNewsState.sets.findIndex(s => s && s.title === name);
+          if (idx >= 0) { openCardNewsModal(idx); return; }
+        }
+      } catch (_) {}
+      lmOpenKnowledge(name);
     }
     function lmOpenKnowledge(name) {
       goToPage('knowledge');
@@ -11232,8 +11262,8 @@
     async function loadAlerts() {
       try {
         const now = new Date().toISOString();
-        const url = `/api/service-alerts?active=1`;
-        const res = await fetch(url);
+        const url = `/api/service-alerts?active=1&_=${Date.now()}`;
+        const res = await fetch(url, { cache: 'no-store' });
         if (!res.ok) return;
         const arr = await res.json();
         if (!Array.isArray(arr)) return;

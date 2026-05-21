@@ -34,21 +34,25 @@ export const onRequestGet = async ({ env }) => handle(async () => {
   };
 
   const jeonsanTypes  = ['life','nonlife','payment','ga'];
-  const knowledgeTypes = ['knowledge'];
-  const cardnewsTypes = ['cardnews'];
+  const latestTypes   = ['knowledge','cardnews']; // 보험지식 + 카드뉴스 통합
 
-  const [jt, jT, kt, kT, ct, cT] = await Promise.all([
+  const [jt, jT, lt, lT, kt, kT, ct, cT] = await Promise.all([
     topByType(jeonsanTypes, true),
     topByType(jeonsanTypes, false),
-    topByType(knowledgeTypes, true),
-    topByType(knowledgeTypes, false),
-    topByType(cardnewsTypes, true),
-    topByType(cardnewsTypes, false),
+    topByType(latestTypes, true),
+    topByType(latestTypes, false),
+    // 기존 호환성: 보험지식·카드뉴스 분리도 유지
+    topByType(['knowledge'], true),
+    topByType(['knowledge'], false),
+    topByType(['cardnews'], true),
+    topByType(['cardnews'], false),
   ]);
 
   return json({
     jeonsan_today:    jt,
     jeonsan_total:    jT,
+    latest_today:     lt,   // 통합: 보험지식 + 카드뉴스
+    latest_total:     lT,
     knowledge_today:  kt,
     knowledge_total:  kT,
     cardnews_today:   ct,
