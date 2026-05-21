@@ -3877,17 +3877,49 @@
     /* 모바일에서 모달 — 풀 화면 */
     body.ic-mobile .cn-modal,
     body.ic-mobile #rc-viewer,
-    body.ic-mobile .kn-modal {
+    body.ic-mobile .kn-modal,
+    body.ic-mobile #sb-modal-overlay,
+    body.ic-mobile #promo-popup-overlay,
+    body.ic-mobile #home-popup-overlay {
       padding: 0 !important;
     }
     body.ic-mobile .cn-modal-body,
     body.ic-mobile #rc-viewer .rc-viewer-card,
-    body.ic-mobile .kn-modal-card {
+    body.ic-mobile .kn-modal-card,
+    body.ic-mobile #sb-modal-overlay > div,
+    body.ic-mobile #promo-popup-overlay > div,
+    body.ic-mobile #home-popup-overlay > .hp-modal {
       max-width: 100% !important;
-      max-height: 100vh !important;
+      max-height: 100dvh !important;
       border-radius: 0 !important;
       width: 100% !important;
-      height: 100vh !important;
+      height: 100dvh !important;
+    }
+    /* sb-modal: 헤더 / 콘텐츠 / nav 비율 보장 (헤더·nav 잘림 방지) */
+    body.ic-mobile #sb-modal-overlay > div {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    body.ic-mobile #sb-modal-overlay > div > div:first-child {
+      /* 헤더 */
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 10 !important;
+      flex-shrink: 0 !important;
+      background: var(--bg-card, #0e1a3a) !important;
+    }
+    body.ic-mobile #sb-modal-content {
+      flex: 1 1 0 !important;
+      overflow-y: auto !important;
+      -webkit-overflow-scrolling: touch !important;
+    }
+    body.ic-mobile #sb-modal-overlay > div > div:last-child {
+      /* nav */
+      position: sticky !important;
+      bottom: 0 !important;
+      z-index: 10 !important;
+      flex-shrink: 0 !important;
+      background: var(--bg-card, #0e1a3a) !important;
     }
 
     /* 모바일에서 sidebar는 햄버거로 열고 닫는 기존 동작 유지하되,
@@ -5378,11 +5410,19 @@
       position: absolute;
       bottom: 6px; right: 6px;
       background: rgba(0,0,0,0.55);
+      backdrop-filter: blur(4px);
       color: #fff;
       font-size: 10px;
       font-weight: 600;
-      padding: 2px 7px;
+      padding: 3px 8px;
       border-radius: 10px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      white-space: nowrap;
+      max-width: calc(100% - 12px);
+      z-index: 5;
+      line-height: 1.2;
     }
     .side-cn-body { padding: 8px 10px 10px; flex-shrink: 0; position: relative; z-index: 2; }
     .side-cn-label {
@@ -10869,7 +10909,7 @@
         const d = new Date(cover.created_at);
         const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
         const slideCount = latestSlides.length;
-        const countBadge = slideCount > 1 ? `<span style="margin-left:5px;font-size:10px;opacity:0.7;">${slideCount}장</span>` : '';
+        const countBadge = slideCount > 1 ? ` · ${slideCount}장` : '';
 
         // 모든 슬라이드를 스택으로 렌더 (자동 페이드 전환용)
         const slideHtml = latestSlides.map((slide, idx) => {
@@ -12249,9 +12289,7 @@
                 ? `<div class="side-cn-dots">${latest.map((_, i) =>
                     `<span class="side-cn-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
                 : '';
-              const countBadge = slideCount > 1
-                ? `<span style="margin-left:5px;font-size:10px;opacity:0.7;">${slideCount}장</span>`
-                : '';
+              const countBadge = slideCount > 1 ? ` · ${slideCount}장` : '';
 
               el.innerHTML = `<button class="ic-m-banner-card side-cn-card" type="button" onclick="openSidebannerModal()">
                 <div class="ic-m-banner-thumb side-cn-thumb">
