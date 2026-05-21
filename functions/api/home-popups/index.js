@@ -8,7 +8,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const url = new URL(request.url);
   if (url.searchParams.get('active') === '1') {
     const rs = await env.DB.prepare(
-      `SELECT id, title, content, file_url, file_type, starts_at, ends_at
+      `SELECT id, title, content, file_url, file_type, starts_at, ends_at, created_at, updated_at
        FROM ic_home_popups
        WHERE is_active = 1
          AND (starts_at IS NULL OR starts_at <= datetime('now'))

@@ -6542,8 +6542,8 @@
   <div class="content" id="page-home-mobile">
     <div class="ic-m-hero">
       <picture>
-        <source srcset="/logo-full.webp" type="image/webp">
-        <img src="/logo-full.png" alt="InsureConnect" class="ic-m-hero-logo" onerror="this.onerror=null;this.src='/logo.png';">
+        <source srcset="/logo-banner.webp" type="image/webp">
+        <img src="/logo-banner.png" alt="InsureConnect" class="ic-m-hero-logo" decoding="async" fetchpriority="high">
       </picture>
     </div>
 
@@ -11100,10 +11100,12 @@
         if (!valid.length) { runHpAfterClose(); return; }
         const popup = valid[0];
 
-        // 오늘 그만보기 체크 확인
+        // 오늘 그만보기 체크 — popup 내용 갱신 시(updated_at 변경) 자동 무효화
         try {
           const hideKey = `home_popup_hide_${popup.id}`;
-          if (localStorage.getItem(hideKey) === _getTodayStr()) {
+          const stamp = popup.updated_at || popup.created_at || '';
+          const expectedValue = `${_getTodayStr()}|${stamp}`;
+          if (localStorage.getItem(hideKey) === expectedValue) {
             runHpAfterClose();
             return;
           }
@@ -11145,7 +11147,11 @@
       if (_hpCurrent) {
         const hide = document.getElementById('hp-hide-today-chk')?.checked;
         if (hide) {
-          try { localStorage.setItem(`home_popup_hide_${_hpCurrent.id}`, _getTodayStr()); } catch(_) {}
+          try {
+            const stamp = _hpCurrent.updated_at || _hpCurrent.created_at || '';
+            // 키에 updated_at 포함 → 공지 수정/재등록 시 자동 무효
+            localStorage.setItem(`home_popup_hide_${_hpCurrent.id}`, `${_getTodayStr()}|${stamp}`);
+          } catch(_) {}
         }
       }
       document.getElementById('home-popup-overlay').style.display = 'none';
