@@ -3454,8 +3454,120 @@
     .ic-m-rank-name { flex: 1; font-size: 13px; font-weight: 700; color: var(--txt-hi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ic-m-rank-cnt { font-size: 11.5px; color: var(--txt-lo); font-weight: 700; }
 
-    /* 모바일 모드일 때 우측 PILL·사이드바 등 PC 요소 일부 숨김 */
+    /* 모바일 모드일 때 우측 PILL·일부 PC 요소 숨김 */
     body.ic-mobile .right-nav-group { display: none !important; }
+    body.ic-mobile .live-monitor { display: none !important; } /* 모바일에선 sidebar live-monitor 숨김 */
+
+    /* ════════════════════════════════════════════
+       MOBILE 전용 페이지 컴포넌트 (Phase 2)
+       채용공고·강의·소식지·청구서류·카드뉴스·보험지식 카드 통일
+       ════════════════════════════════════════════ */
+    body.ic-mobile .content {
+      padding: 12px 14px 80px;
+    }
+    body.ic-mobile .section-head {
+      margin-bottom: 14px !important;
+      padding: 0 4px;
+    }
+    body.ic-mobile .section-head .sec-num { display: none; }
+    body.ic-mobile .section-head .sec-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+
+    /* 모바일에서 채용공고/강의 카드 그리드 → 1열 큰 카드 */
+    body.ic-mobile .rc-card-grid {
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    body.ic-mobile .rc-card {
+      flex-direction: row;
+      max-height: 120px;
+    }
+    body.ic-mobile .rc-card-thumb {
+      width: 110px;
+      height: 110px;
+      flex-shrink: 0;
+      aspect-ratio: 1;
+    }
+    body.ic-mobile .rc-card-body {
+      padding: 10px 12px;
+    }
+    body.ic-mobile .rc-card-title {
+      -webkit-line-clamp: 2;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    body.ic-mobile .rc-card-company { font-size: 11px; }
+    body.ic-mobile .rc-card-date { font-size: 10.5px; }
+
+    /* 모바일에서 소식지·청구서류 카드 그리드 → 2열 */
+    body.ic-mobile .nl-items-grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px;
+    }
+    body.ic-mobile .nl-card {
+      padding: 14px 10px;
+    }
+    body.ic-mobile .nl-card-icon { font-size: 32px; margin-bottom: 6px; }
+    body.ic-mobile .nl-card-title { font-size: 12.5px; }
+    body.ic-mobile .nl-card-date  { font-size: 10px; }
+
+    /* 모바일에서 보험사 전산·GA 카드 → 2열 */
+    body.ic-mobile .grid {
+      grid-template-columns: repeat(2, 1fr) !important;
+      gap: 10px;
+    }
+    body.ic-mobile .card { padding: 14px 10px; }
+    body.ic-mobile .c-badge { width: 48px; height: 48px; }
+    body.ic-mobile .c-name { font-size: 13px; }
+    body.ic-mobile .c-type { font-size: 10px; }
+
+    /* 모바일에서 카드뉴스 그리드 → 1열 */
+    body.ic-mobile .cn-tile-grid {
+      grid-template-columns: 1fr !important;
+      gap: 10px;
+    }
+
+    /* 모바일에서 보험지식 카드 → 1열 */
+    body.ic-mobile .kn-card-grid {
+      grid-template-columns: 1fr !important;
+      gap: 12px;
+    }
+    body.ic-mobile .kn-card { padding: 14px; }
+    body.ic-mobile .kn-card-title { font-size: 15px; }
+
+    /* 모바일 검색 input — 풀 너비 */
+    body.ic-mobile .ic-search-input,
+    body.ic-mobile .nlcf-search-wrap,
+    body.ic-mobile .ic-search-wrap {
+      max-width: 100%;
+    }
+    body.ic-mobile .ic-search-input {
+      font-size: 15px;
+      padding: 12px 16px 12px 42px;
+    }
+
+    /* 모바일에서 모달 — 풀 화면 */
+    body.ic-mobile .cn-modal,
+    body.ic-mobile #rc-viewer,
+    body.ic-mobile .kn-modal {
+      padding: 0 !important;
+    }
+    body.ic-mobile .cn-modal-body,
+    body.ic-mobile #rc-viewer .rc-viewer-card,
+    body.ic-mobile .kn-modal-card {
+      max-width: 100% !important;
+      max-height: 100vh !important;
+      border-radius: 0 !important;
+      width: 100% !important;
+      height: 100vh !important;
+    }
+
+    /* 모바일에서 sidebar는 햄버거로 열고 닫는 기존 동작 유지하되,
+       데스크탑 사이드바 콘텐츠는 보이게 (생략) */
 
     /* ════════════════════════════════════════════
        통일된 검색 input 디자인 (.ic-search-input)
