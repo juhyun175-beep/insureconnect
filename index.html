@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="naver-site-verification" content="4fcf893d685734f2d316b513538536124d81db67" />
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
-  <meta name="version" content="2.0.8" />
+  <meta name="version" content="2.0.9" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
   <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
@@ -8036,6 +8036,11 @@
       const today = kstDateKey();
       if (localStorage.getItem('ic_visited_date') === today) return;
       localStorage.setItem('ic_visited_date', today);
+      // v2.0.9: OG 공유 링크에서 들어오면 서버가 이미 카운트 → 중복 방지
+      try {
+        const qs = new URLSearchParams(location.search);
+        if (qs.get('_via') === 'share') return;
+      } catch (_) {}
       try {
         await fetch('/api/track/visit', { method: 'POST' });
       } catch (_) {}

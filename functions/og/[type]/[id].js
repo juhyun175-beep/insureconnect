@@ -23,8 +23,38 @@ const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-export const onRequestGet = async ({ params, env }) => {
+/** v2.0.9: 봇/크롤러 UA 패턴 (이런 UA는 방문자 카운트에서 제외) */
+const BOT_UA_RE = /bot|crawler|spider|scrap|preview|facebookexternalhit|twitterbot|slackbot|telegrambot|whatsapp|line\/|kakaotalk-scrap|kakao-link|naverbot|yeti|googlebot|bingbot|duckduck|baidu|yandex|applebot|embedly|outbrain|pinterest|discordbot|skypeuripreview|chatgpt|gptbot|claudebot|perplexitybot/i;
+
+function kstDateKey() {
+  const d = new Date();
+  const kst = new Date(d.getTime() + 9 * 3600 * 1000);
+  return kst.toISOString().slice(0, 10);
+}
+
+/** OG 공유 링크로 들어온 사람 카운트 (봇 제외) */
+async function trackOgVisit(env, request) {
+  try {
+    const ua = (request.headers.get('User-Agent') || '').toLowerCase();
+    if (!ua || BOT_UA_RE.test(ua)) return false; // 봇 제외
+
+    const date = kstDateKey();
+    await env.DB.prepare(
+      `INSERT INTO ic_visits_daily (date, visits, unique_visits)
+       VALUES (?, 1, 1)
+       ON CONFLICT (date) DO UPDATE SET visits = visits + 1`
+    ).bind(date).run();
+    return true;
+  } catch (_) {
+    return false;
+  }
+}
+
+export const onRequestGet = async ({ params, env, request }) => {
   const { type, id } = params;
+
+  // v2.0.9: 봇 아닌 사람이 OG 링크 클릭 시 방문자수 증가
+  const tracked = await trackOgVisit(env, request);
 
   let title = 'InsureConnect — 보험으로 연결하다';
   let desc  = '보험설계사를 위한 통합 허브';
@@ -64,6 +94,12 @@ export const onRequestGet = async ({ params, env }) => {
       }
     }
   } catch (_) {}
+
+  // v2.0.9: 서버측 카운트 성공 시 클라이언트 중복 트래킹 방지 플래그
+  if (tracked) {
+    const sep = target.includes('?') ? '&' : '?';
+    target = `${target}${sep}_via=share`;
+  }
 
   const html = `<!DOCTYPE html>
 <html lang="ko">
