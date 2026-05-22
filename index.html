@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="naver-site-verification" content="4fcf893d685734f2d316b513538536124d81db67" />
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
-  <meta name="version" content="2.0.7" />
+  <meta name="version" content="2.0.8" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
   <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
@@ -4691,11 +4691,23 @@
     }
     .ic-jobs-grid {
       display: grid;
-      /* v2.0.7: 홈 대시보드 채용·강의 모두 2열 종대 */
+      /* v2.0.7/8: 채용·강의 각각 내부 2열 (좌우 섹션이 가로로 배치되어 총 4열) */
       grid-template-columns: repeat(2, 1fr);
-      gap: 14px;
+      gap: 12px;
     }
     @media (max-width: 480px) { .ic-jobs-grid { grid-template-columns: 1fr; } }
+
+    /* v2.0.8: 채용공고 + 강의 가로 2열 페어 (PC) */
+    .ic-jobs-pair {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .ic-jobs-pair > .ic-jobs { margin: 0; }
+    @media (max-width: 1024px) {
+      .ic-jobs-pair { grid-template-columns: 1fr; gap: 22px; }
+    }
     .ic-job-card {
       position: relative;
       display: flex; flex-direction: column;
@@ -7322,37 +7334,40 @@
       </div>
     </section>
 
-    <!-- ══ 진행중인 채용공고 ══ -->
-    <section class="ic-jobs" aria-label="진행중인 채용공고">
-      <div class="ic-jobs-head">
-        <div class="ic-jobs-title">
-          🔥 진행중인 채용공고
-          <span class="ic-jobs-pill">HIRING</span>
+    <!-- v2.0.8: 채용공고 + 강의 가로 2열 (각 섹션 내부도 2열 → 시각적 총 4열) -->
+    <div class="ic-jobs-pair">
+      <!-- ══ 진행중인 채용공고 ══ -->
+      <section class="ic-jobs" aria-label="진행중인 채용공고">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            🔥 진행중인 채용공고
+            <span class="ic-jobs-pill">HIRING</span>
+          </div>
         </div>
-      </div>
-      <div class="ic-jobs-grid" id="home-jobs-grid">
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-      </div>
-    </section>
+        <div class="ic-jobs-grid" id="home-jobs-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
 
-    <!-- ══ 진행중인 강의 ══ -->
-    <section class="ic-jobs" aria-label="진행중인 강의" style="margin-top:18px;">
-      <div class="ic-jobs-head">
-        <div class="ic-jobs-title">
-          🎓 진행중인 강의
-          <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
+      <!-- ══ 진행중인 강의 ══ -->
+      <section class="ic-jobs" aria-label="진행중인 강의">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            🎓 진행중인 강의
+            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
+          </div>
         </div>
-      </div>
-      <div class="ic-jobs-grid" id="home-lectures-grid">
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div>
-      </div>
-    </section>
+        <div class="ic-jobs-grid" id="home-lectures-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
+    </div>
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
