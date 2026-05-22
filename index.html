@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="naver-site-verification" content="4fcf893d685734f2d316b513538536124d81db67" />
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
-  <meta name="version" content="2.0.3" />
+  <meta name="version" content="2.0.4" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
   <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
@@ -1515,6 +1515,43 @@
       white-space: nowrap;
     }
     .submit-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,61,232,0.35); }
+
+    /* v2.0.4: PC 홈 대시보드 공고 등록 CTA */
+    .home-submit-cta {
+      margin: 18px 0;
+      padding: 16px 18px;
+      border-radius: 16px;
+      background: linear-gradient(135deg, rgba(26,61,232,0.08), rgba(219,39,119,0.08));
+      border: 1.5px dashed rgba(26,61,232,0.28);
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 16px; flex-wrap: wrap;
+    }
+    .hsc-head { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 220px; }
+    .hsc-icon { font-size: 28px; }
+    .hsc-title { font-size: 14.5px; font-weight: 800; color: var(--txt-hi); margin-bottom: 2px; }
+    .hsc-sub { font-size: 11.5px; color: var(--txt-lo); }
+    .hsc-buttons { display: flex; gap: 8px; flex-wrap: wrap; }
+    .hsc-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 10px 16px;
+      border-radius: 10px;
+      border: none;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transition: transform .12s, box-shadow .12s;
+      white-space: nowrap;
+    }
+    .hsc-btn.recruit { background: linear-gradient(135deg, #1a3de8, #4f6df0); }
+    .hsc-btn.lecture { background: linear-gradient(135deg, #db2777, #ec4899); }
+    .hsc-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(0,0,0,0.18); }
+    @media (max-width: 720px) {
+      .home-submit-cta { flex-direction: column; align-items: stretch; }
+      .hsc-buttons { justify-content: stretch; }
+      .hsc-btn { flex: 1; justify-content: center; }
+    }
+    [data-theme="dark"] .home-submit-cta { border-color: rgba(124,158,255,0.32); }
 
     .sm-overlay {
       display: none;
@@ -3514,16 +3551,49 @@
     body:not(.ic-mobile) #page-home-mobile { display: none !important; }
 
     .ic-m-hero {
-      padding: 28px 18px 22px;
+      padding: 18px 16px 18px;
       background: linear-gradient(135deg, #1a3de8 0%, #00c8ee 100%);
       color: #fff;
       margin: -16px -16px 18px;
       border-radius: 0 0 24px 24px;
-      text-align: center;
       box-shadow: 0 8px 24px rgba(26,61,232,0.20);
       position: relative;
       overflow: hidden;
+      /* v2.0.4: 시계 + 로고 가로 배치 */
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+    /* v2.0.4: 헤더 컴팩트 시계 (로고 왼쪽) */
+    .ic-m-hero-clock {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 8px 12px;
+      background: rgba(255,255,255,0.18);
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      min-width: 88px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.18);
+    }
+    .ic-m-hero-clock-time {
+      font: 800 18px/1 'Pretendard', sans-serif;
+      letter-spacing: 0.02em;
+      color: #fff;
+      font-variant-numeric: tabular-nums;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.18);
+    }
+    .ic-m-hero-clock-time .ic-clock-colon { animation: colonBlink 1s steps(2, end) infinite; }
+    .ic-m-hero-clock-date {
+      font: 600 10.5px/1 'Pretendard', sans-serif;
+      color: rgba(255,255,255,0.88);
+      margin-top: 4px;
+      font-variant-numeric: tabular-nums;
+    }
+    .ic-m-hero-clock-day { font-weight: 700; }
     .ic-m-hero::before {
       content: '';
       position: absolute;
@@ -3542,17 +3612,24 @@
     }
     .ic-m-hero-logo {
       position: relative;
-      max-width: 240px;
-      max-height: 70px;
+      max-width: 100%;
+      max-height: 52px;
       width: auto;
       height: auto;
       display: block;
-      margin: 0 auto;
-      padding: 12px 24px;
+      margin: 0;
+      padding: 8px 14px;
       background: #ffffff;
-      border-radius: 14px;
+      border-radius: 12px;
       box-shadow: 0 4px 16px rgba(0,0,0,0.15);
       box-sizing: content-box;
+      flex: 1;
+      min-width: 0;
+      object-fit: contain;
+    }
+    .ic-m-hero-logo-wrap {
+      flex: 1; min-width: 0;
+      display: flex; justify-content: flex-end; align-items: center;
     }
     [data-theme="dark"] .ic-m-hero-logo {
       background: #ffffff; /* 다크모드에서도 흰 카드 유지 (로고 검정 텍스트 가독성) */
@@ -3800,6 +3877,32 @@
 
     /* 모바일 커뮤니티 그리드 */
     .ic-m-comm-grid { display: flex; flex-direction: column; gap: 8px; }
+    /* v2.0.4: 모바일 홈 — 공고 등록 CTA */
+    .ic-m-submit-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+    .ic-m-submit-card {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, rgba(26,61,232,0.08), rgba(219,39,119,0.08));
+      border: 1.5px dashed rgba(26,61,232,0.35);
+      border-radius: 14px;
+      color: var(--txt-hi);
+      cursor: pointer;
+      text-align: left;
+      transition: transform 0.12s, box-shadow 0.12s;
+      font-family: inherit;
+    }
+    .ic-m-submit-card:active { transform: scale(0.98); }
+    .ic-m-submit-card.lecture { border-color: rgba(219,39,119,0.4); }
+    .ic-m-submit-icon { font-size: 28px; flex-shrink: 0; }
+    .ic-m-submit-body { flex: 1; min-width: 0; }
+    .ic-m-submit-title { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
+    .ic-m-submit-sub   { font-size: 11px; color: var(--txt-lo); }
+    .ic-m-submit-arrow { font-size: 18px; color: var(--txt-lo); flex-shrink: 0; }
+
     .ic-m-comm-btn {
       display: flex; align-items: center; gap: 12px;
       padding: 14px 16px;
@@ -3811,7 +3914,22 @@
       transition: transform 0.12s;
     }
     .ic-m-comm-btn:active { transform: scale(0.98); }
-    .ic-m-comm-icon { font-size: 24px; flex-shrink: 0; }
+    .ic-m-comm-icon {
+      font-size: 24px;
+      flex-shrink: 0;
+      width: 40px; height: 40px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 10px;
+      overflow: hidden;
+      background: #fff;
+    }
+    .ic-m-comm-icon img,
+    .ic-m-comm-icon picture {
+      width: 100%; height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+    .ic-m-comm-icon picture img { width: 100%; height: 100%; object-fit: cover; }
     .ic-m-comm-body { flex: 1; min-width: 0; }
     .ic-m-comm-title { font-size: 14px; font-weight: 800; margin-bottom: 2px; }
     .ic-m-comm-sub   { font-size: 11.5px; color: var(--txt-lo); }
@@ -6715,7 +6833,7 @@
     <div class="side-comm-section">
       <span class="side-comm-label">커뮤니티 참여</span>
       <a class="side-comm-btn kakao"
-         href="https://open.kakao.com/o/gSN4EEoh"
+         href="https://open.kakao.com/o/gd0a5Cjh"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('CREW300 오픈채팅 참여','sidebar'); armCommunityFallback('CREW 300');">
         <span class="scb-icon"><picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture></span>
@@ -6726,7 +6844,7 @@
         <span class="scb-arrow">›</span>
       </a>
       <a class="side-comm-btn manager"
-         href="https://open.kakao.com/o/gka8SGqi"
+         href="https://open.kakao.com/o/gxFQUWFh"
          target="_blank" rel="noopener noreferrer"
          onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar'); armCommunityFallback('MANAGER LINK');">
         <span class="scb-icon"><picture><source srcset="managerlink.webp" type="image/webp"><img src="managerlink.png" alt="MANAGER LINK" loading="lazy" decoding="async"></picture></span>
@@ -6904,11 +7022,23 @@
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <!-- ══════ MOBILE 전용 홈 (CSS로만 표시/숨김 제어 — 인라인 style 없음) ══════ -->
   <div class="content" id="page-home-mobile">
+    <!-- v2.0.4: 시계 좌측 + 로고 우측 -->
     <div class="ic-m-hero">
-      <picture>
-        <source srcset="/logo-banner.webp" type="image/webp">
-        <img src="/logo-banner.png" alt="InsureConnect" class="ic-m-hero-logo" decoding="async" fetchpriority="high">
-      </picture>
+      <div class="ic-m-hero-clock" aria-label="현재 시각">
+        <div class="ic-m-hero-clock-time">
+          <span id="m-clock-hh-top">--</span><span class="ic-clock-colon">:</span><span id="m-clock-mm-top">--</span>
+        </div>
+        <div class="ic-m-hero-clock-date">
+          <span class="ic-m-hero-clock-day" id="m-clock-day-top">—</span>
+          <span id="m-clock-date-top">—.—</span>
+        </div>
+      </div>
+      <div class="ic-m-hero-logo-wrap">
+        <picture>
+          <source srcset="/logo-banner.webp" type="image/webp">
+          <img src="/logo-banner.png" alt="InsureConnect" class="ic-m-hero-logo" decoding="async" fetchpriority="high">
+        </picture>
+      </div>
     </div>
 
     <!-- 모바일 빠른 검색 -->
@@ -6919,8 +7049,31 @@
       </button>
     </section>
 
-    <!-- 모바일 시계 -->
-    <section class="ic-m-section ic-m-clock-section">
+    <!-- v2.0.4: 홈 대시보드 — 공고 직접 등록 CTA -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>📤 내 공고 직접 등록</span></div>
+      <div class="ic-m-submit-grid">
+        <button type="button" class="ic-m-submit-card recruit" onclick="openSubmitModal('recruit')">
+          <span class="ic-m-submit-icon">💼</span>
+          <div class="ic-m-submit-body">
+            <div class="ic-m-submit-title">채용공고 등록</div>
+            <div class="ic-m-submit-sub">50,000원 · 승인 후 게시</div>
+          </div>
+          <span class="ic-m-submit-arrow">→</span>
+        </button>
+        <button type="button" class="ic-m-submit-card lecture" onclick="openSubmitModal('lecture')">
+          <span class="ic-m-submit-icon">🎓</span>
+          <div class="ic-m-submit-body">
+            <div class="ic-m-submit-title">강의공고 등록</div>
+            <div class="ic-m-submit-sub">50,000원 · 승인 후 게시</div>
+          </div>
+          <span class="ic-m-submit-arrow">→</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- (구) 모바일 시계 — 이제 hero에 통합되어 숨김 -->
+    <section class="ic-m-section ic-m-clock-section" style="display:none;">
       <div class="ic-m-clock-card">
         <div class="ic-m-clock-head">
           <span class="ic-m-clock-dot"></span>
@@ -6995,7 +7148,7 @@
       <div class="ic-m-section-head"><span>💬 커뮤니티 참여</span></div>
       <div class="ic-m-comm-grid">
         <a class="ic-m-comm-btn" href="https://open.kakao.com/o/gd0a5Cjh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','sidebar'); armCommunityFallback('CREW 300');">
-          <span class="ic-m-comm-icon">🎯</span>
+          <span class="ic-m-comm-icon"><picture><source srcset="/crew300.webp" type="image/webp"><img src="/crew300.png" alt="CREW 300" loading="lazy" decoding="async" onerror="this.parentElement.parentElement.innerHTML='🎯'"></picture></span>
           <div class="ic-m-comm-body">
             <div class="ic-m-comm-title">CREW 300</div>
             <div class="ic-m-comm-sub">보험설계사 커뮤니티</div>
@@ -7003,7 +7156,7 @@
           <span class="ic-m-comm-arrow">→</span>
         </a>
         <a class="ic-m-comm-btn" href="https://open.kakao.com/o/gxFQUWFh" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar'); armCommunityFallback('MANAGER LINK');">
-          <span class="ic-m-comm-icon">👥</span>
+          <span class="ic-m-comm-icon"><picture><source srcset="/managerlink.webp" type="image/webp"><img src="/managerlink.png" alt="MANAGER LINK" loading="lazy" decoding="async" onerror="this.parentElement.parentElement.innerHTML='👥'"></picture></span>
           <div class="ic-m-comm-body">
             <div class="ic-m-comm-title">MANAGER LINK</div>
             <div class="ic-m-comm-sub">설계매니저 커뮤니티</div>
@@ -7102,6 +7255,27 @@
           <button class="ic-hero-pill" onclick="goToPage('tools')">🛠 실무도구</button>
           <button class="ic-hero-pill" onclick="goToPage('knowledge')">📚 보험지식</button>
           <button class="ic-hero-pill" onclick="goToPage('newsletter')">🗞 뉴스</button>
+        </div>
+      </section>
+
+      <!-- v2.0.4: 홈 — 공고 직접 등록 CTA -->
+      <section class="home-submit-cta" aria-label="공고 직접 등록">
+        <div class="hsc-head">
+          <span class="hsc-icon">📤</span>
+          <div>
+            <div class="hsc-title">내 공고 직접 등록하기</div>
+            <div class="hsc-sub">관리자 승인 후 즉시 게시 · 등록비 50,000원</div>
+          </div>
+        </div>
+        <div class="hsc-buttons">
+          <button type="button" class="hsc-btn recruit" onclick="openSubmitModal('recruit')">
+            <span style="font-size:18px">💼</span>
+            <span>채용공고 등록</span>
+          </button>
+          <button type="button" class="hsc-btn lecture" onclick="openSubmitModal('lecture')">
+            <span style="font-size:18px">🎓</span>
+            <span>강의공고 등록</span>
+          </button>
         </div>
       </section>
 
@@ -12689,20 +12863,28 @@
     _applyMobileClass();
     window.addEventListener('resize', _applyMobileClass);
 
-    /** 모바일 시계 tick (사이드바 시계와 같은 ID 패턴) */
+    /** 모바일 시계 tick (사이드바 시계와 같은 ID 패턴 + v2.0.4 상단 시계) */
     function _mClockTick() {
       if (!document.body.classList.contains('ic-mobile')) return;
       const d = new Date();
       const hh = d.getHours();
       const ampm = hh < 12 ? 'AM' : 'PM';
       const setEl = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-      setEl('m-clock-hh', String(hh).padStart(2,'0'));
-      setEl('m-clock-mm', String(d.getMinutes()).padStart(2,'0'));
+      const HH = String(hh).padStart(2,'0');
+      const MM = String(d.getMinutes()).padStart(2,'0');
+      // 구 시계 (숨김처리 됐지만 호환 유지)
+      setEl('m-clock-hh', HH);
+      setEl('m-clock-mm', MM);
       setEl('m-clock-ss', String(d.getSeconds()).padStart(2,'0'));
       setEl('m-clock-ampm', ampm);
       const days = ['일','월','화','수','목','금','토'];
       setEl('m-clock-day', days[d.getDay()] + '요일');
       setEl('m-clock-date', `${d.getMonth()+1}월 ${d.getDate()}일`);
+      // v2.0.4: 상단 hero 시계
+      setEl('m-clock-hh-top', HH);
+      setEl('m-clock-mm-top', MM);
+      setEl('m-clock-day-top', days[d.getDay()]);
+      setEl('m-clock-date-top', `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`);
     }
     setInterval(_mClockTick, 1000);
     _mClockTick();
