@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="naver-site-verification" content="4fcf893d685734f2d316b513538536124d81db67" />
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
-  <meta name="version" content="2.0.4" />
+  <meta name="version" content="2.0.5" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
   <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
@@ -4825,6 +4825,8 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
+      /* v2.0.4: 컨텐츠 만큼만 차지 (왼쪽 컬럼이 더 길어도 늘어나지 않음) */
+      align-self: start;
     }
     .ic-kakao-head {
       display: flex;
@@ -7258,27 +7260,6 @@
         </div>
       </section>
 
-      <!-- v2.0.4: 홈 — 공고 직접 등록 CTA -->
-      <section class="home-submit-cta" aria-label="공고 직접 등록">
-        <div class="hsc-head">
-          <span class="hsc-icon">📤</span>
-          <div>
-            <div class="hsc-title">내 공고 직접 등록하기</div>
-            <div class="hsc-sub">관리자 승인 후 즉시 게시 · 등록비 50,000원</div>
-          </div>
-        </div>
-        <div class="hsc-buttons">
-          <button type="button" class="hsc-btn recruit" onclick="openSubmitModal('recruit')">
-            <span style="font-size:18px">💼</span>
-            <span>채용공고 등록</span>
-          </button>
-          <button type="button" class="hsc-btn lecture" onclick="openSubmitModal('lecture')">
-            <span style="font-size:18px">🎓</span>
-            <span>강의공고 등록</span>
-          </button>
-        </div>
-      </section>
-
       <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
         <div class="fav-section-head">
           <span class="fav-pill">⭐ MY FAVORITES</span>
@@ -7319,6 +7300,27 @@
       <div class="ic-kakao-updated" id="home-kakao-updated"></div>
     </div>
     </div><!-- /.ic-top-row -->
+
+    <!-- v2.0.4: 홈 — 공고 직접 등록 CTA (오픈채팅방 대화순위 카드 아래, 전체 폭) -->
+    <section class="home-submit-cta" aria-label="공고 직접 등록">
+      <div class="hsc-head">
+        <span class="hsc-icon">📤</span>
+        <div>
+          <div class="hsc-title">내 공고 직접 등록하기</div>
+          <div class="hsc-sub">관리자 승인 후 즉시 게시 · 등록비 50,000원</div>
+        </div>
+      </div>
+      <div class="hsc-buttons">
+        <button type="button" class="hsc-btn recruit" onclick="openSubmitModal('recruit')">
+          <span style="font-size:18px">💼</span>
+          <span>채용공고 등록</span>
+        </button>
+        <button type="button" class="hsc-btn lecture" onclick="openSubmitModal('lecture')">
+          <span style="font-size:18px">🎓</span>
+          <span>강의공고 등록</span>
+        </button>
+      </div>
+    </section>
 
     <!-- ══ 진행중인 채용공고 ══ -->
     <section class="ic-jobs" aria-label="진행중인 채용공고">
