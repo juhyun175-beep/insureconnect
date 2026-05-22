@@ -3127,7 +3127,7 @@
 
               <!-- 카드별 7일 추이 구분선 -->
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 우측버튼 · 하단네비 7일 클릭 추이</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 우측버튼 7일 클릭 추이</span>
                 <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
               </div>
 
@@ -3636,15 +3636,7 @@
               <label>상세 메시지 (선택)</label>
               <input type="text" id="al-message" placeholder="예: 11/22 02:00~06:00 전산 일시 중단" maxlength="240">
             </div>
-            <div class="nl-field" style="flex:1;min-width:160px;">
-              <label>시작 시각 (선택, 비우면 즉시)</label>
-              <input type="datetime-local" id="al-starts">
-            </div>
-            <div class="nl-field" style="flex:1;min-width:160px;">
-              <label>종료 시각 (선택)</label>
-              <input type="datetime-local" id="al-ends">
-            </div>
-            <button class="nl-upload-btn" id="al-save-btn" onclick="saveAlert()">등록</button>
+            <button class="nl-upload-btn" id="al-save-btn" onclick="saveAlert()">등록 (즉시 반영)</button>
           </div>
           <p class="nl-status" id="al-status"></p>
         </div>
@@ -3746,18 +3738,7 @@
             <label for="hp-active" style="cursor:pointer;margin:0;">활성 상태 (등록 즉시 팝업 표시 시작)</label>
           </div>
 
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px;">
-            <div class="nl-field">
-              <label>시작 시각 (선택)</label>
-              <input type="datetime-local" id="hp-starts" style="font-family:inherit;">
-            </div>
-            <div class="nl-field">
-              <label>종료 시각 (선택)</label>
-              <input type="datetime-local" id="hp-ends" style="font-family:inherit;">
-            </div>
-          </div>
-
-          <button class="nl-btn" id="hp-submit-btn" onclick="uploadHomePopup()" style="margin-top:8px;">📢 공지 등록</button>
+          <button class="nl-btn" id="hp-submit-btn" onclick="uploadHomePopup()" style="margin-top:8px;">📢 공지 등록 (즉시 반영)</button>
           <p class="nl-status" id="hp-status"></p>
         </div>
 
@@ -4441,7 +4422,7 @@
     /* ── 카드별 클릭 통계 렌더 ── */
     const MENU_LABEL = {
       '우측버튼':  '↗ 우측 네비 버튼',
-      '하단네비':  '📱 하단 네비 (모바일)',
+      // v2.0.6: 하단네비 통계 제거 (모바일에서 하단네비 자체가 삭제됨)
     };
     async function loadCardStats() {
       const el = document.getElementById('card-stats-body');
@@ -4457,7 +4438,7 @@
         }
 
         /* 메뉴별 그룹화 */
-        const menuOrder = ['우측버튼','하단네비'];
+        const menuOrder = ['우측버튼'];
         const groups = {};
         rows.forEach(r => {
           if (!groups[r.menu]) groups[r.menu] = [];
@@ -4485,7 +4466,7 @@
           </div>`;
         });
         if (!html) {
-          el.innerHTML = '<p class="cs-empty">> 우측버튼·하단네비 클릭 데이터가 아직 없습니다.</p>';
+          el.innerHTML = '<p class="cs-empty">> 우측버튼 클릭 데이터가 아직 없습니다.</p>';
           ssUpdateHeight();
           return;
         }
@@ -6339,14 +6320,12 @@
       }
     }
 
-    /* ── 점검·장애 알림 ── */
+    /* ── 점검·장애 알림 (v2.0.6: 일정 입력 제거, 등록 즉시 반영) ── */
     async function saveAlert() {
       const insurer = document.getElementById('al-insurer').value.trim();
       const severity = document.getElementById('al-severity').value;
       const title = document.getElementById('al-title').value.trim();
       const message = document.getElementById('al-message').value.trim();
-      const startsRaw = document.getElementById('al-starts').value;
-      const endsRaw   = document.getElementById('al-ends').value;
       const status = document.getElementById('al-status');
       const btn = document.getElementById('al-save-btn');
 
@@ -6355,8 +6334,9 @@
       const body = {
         insurer, severity, title,
         message: message || null,
-        starts_at: startsRaw ? new Date(startsRaw).toISOString() : new Date().toISOString(),
-        ends_at:   endsRaw   ? new Date(endsRaw).toISOString()   : null,
+        // 일정 없이 즉시 반영 — starts_at/ends_at은 null로 두면 API가 항상 활성으로 처리
+        starts_at: null,
+        ends_at:   null,
         is_active: true,
       };
 
@@ -6369,12 +6349,10 @@
           body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error('등록 실패 (' + res.status + ')');
-        status.textContent = '✅ 등록 완료!';
+        status.textContent = '✅ 등록 완료! (즉시 반영)';
         document.getElementById('al-insurer').value = '';
         document.getElementById('al-title').value = '';
         document.getElementById('al-message').value = '';
-        document.getElementById('al-starts').value = '';
-        document.getElementById('al-ends').value = '';
         loadAlerts();
       } catch (e) {
         status.textContent = '❌ ' + e.message;
@@ -6727,8 +6705,7 @@
       const content = document.getElementById('hp-content').value;
       const fileInput = document.getElementById('hp-file');
       const isActive = document.getElementById('hp-active').checked;
-      const startsAt = document.getElementById('hp-starts').value;
-      const endsAt = document.getElementById('hp-ends').value;
+      // v2.0.6: 일정 입력 제거 — 항상 즉시 반영
       const status = document.getElementById('hp-status');
       const btn = document.getElementById('hp-submit-btn');
 
@@ -6768,8 +6745,9 @@
           file_url,
           file_type,
           is_active: isActive,
-          starts_at: startsAt ? new Date(startsAt).toISOString() : null,
-          ends_at:   endsAt   ? new Date(endsAt).toISOString()   : null,
+          // v2.0.6: 일정 없이 즉시 반영 (starts_at/ends_at null → API가 항상 활성으로 처리)
+          starts_at: null,
+          ends_at:   null,
           updated_at: new Date().toISOString()
         };
         const res = await fetch(`/api/home-popups`, {
@@ -6779,21 +6757,19 @@
         });
         if (!res.ok) throw new Error(await res.text());
 
-        status.textContent = '✅ 등록 완료';
+        status.textContent = '✅ 등록 완료 (즉시 반영)';
         status.style.color = '#10b981';
         document.getElementById('hp-title').value = '';
         document.getElementById('hp-content').value = '';
         document.getElementById('hp-file').value = '';
         document.getElementById('hp-file-name').textContent = '없음';
-        document.getElementById('hp-starts').value = '';
-        document.getElementById('hp-ends').value = '';
         document.getElementById('hp-active').checked = true;
         loadHomePopups();
       } catch (e) {
         status.textContent = '❌ ' + e.message;
         status.style.color = '#ef4444';
       } finally {
-        btn.disabled = false; btn.textContent = '📢 공지 등록';
+        btn.disabled = false; btn.textContent = '📢 공지 등록 (즉시 반영)';
       }
     }
 
