@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.0.3] - 2026-05-22
+### Added
+- **사용자 공고 승인 시스템**: 채용·강의 공고를 사용자가 직접 등록 → 관리자 승인 후 노출
+  - 3-step 모달 (정보 입력 → 카카오뱅크 3333-32-2808356 / 최주현(인슈어커넥트) / 50,000원 입금 안내 → 완료)
+  - 계좌번호 복사 버튼, localStorage 기반 1시간 1회 신청 제한 (스팸 방지)
+- **관리자 승인 워크플로우** (admin.html)
+  - 「⏳ 승인대기」 탭 + 빨간 펄스 배지 + 1분 폴링
+  - 진입 시 자동 팝업 ("새 승인요청 N건 도착") + 사이드바 빨간 점 배지
+  - 승인/반려 버튼 → 신청자명·연락처 alert로 노출 (수동 카톡 발송 안내)
+- **커뮤니티 채팅방 fallback toast**: 카드 클릭 6.5초 내 페이지 이탈 없으면 "검색 가이드 + 운영자 문의" 안내
+
+### Changed
+- **모바일 보험지식·카드뉴스(최신) 그리드**: 1열 → **2열** (`body.ic-mobile`)
+- **소식지/청구서류 PDF 뷰어**: PDF.js viewer(Mozilla CDN) 통합 → 모바일에서 페이지 넘김 가능
+
+### API
+- `GET /api/recruitments`, `/api/lectures`: 기본 `status=approved`만 반환, `?status=pending|all`은 관리자 전용
+- `POST /api/recruitments`, `/api/lectures`: 관리자 인증 없으면 `status='pending'`으로 INSERT (submitter_name/contact 필수)
+- `PATCH /api/{table}/{id}`: `status`, `reject_reason`, `approved_at` 갱신 허용
+- `POST /api/user-upload/{folder}/{filename}`: 사용자 파일 업로드 (recruitments/lectures만, 10MB 제한, image/* + pdf)
+
+### Database (D1)
+- `ic_recruitments`, `ic_lectures` 컬럼 추가: `status`, `submitter_name`, `submitter_contact`, `reject_reason`, `approved_at`
+- 기존 행은 `status='approved'` 기본값으로 유지
+
 ## [2.0.2] - 2026-05-19
 - 개선: 홈 대시보드 레이아웃 재구성 (모임방순위 카드 높이에 맞춤)
   - 상단 좌측: 실시간 인기 콘텐츠(원래 크기) 위로 + 통합 정보 허브 · MY FAVORITES 아래 2열로 배치

@@ -17,8 +17,16 @@ export const onRequestDelete = async ({ params, request, env }) => handle(async 
 export const onRequestPatch = async ({ params, request, env }) => handle(async () => {
   if (!verifyAdmin(request, env)) return unauthorized();
   const body = await request.json();
-  const fields = ['title','instructor','description','file_url','file_type'].filter(k => k in body);
+  // 승인/반려/일반 수정 필드 모두 허용
+  const allowed = ['title','instructor','description','file_url','file_type',
+                   'status','reject_reason','approved_at'];
+  const fields = allowed.filter(k => k in body);
   if (!fields.length) return error('No fields');
+  // 승인 시 approved_at 자동 세팅
+  if (body.status === 'approved' && !('approved_at' in body)) {
+    fields.push('approved_at');
+    body.approved_at = new Date().toISOString();
+  }
   const sets = fields.map(f => `${f} = ?`).join(', ');
   const values = fields.map(f => body[f]);
   await env.DB.prepare(

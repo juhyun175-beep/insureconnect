@@ -1249,6 +1249,113 @@
       text-shadow: 0 0 8px rgba(255,255,255,0.4);
       box-shadow: 0 0 20px rgba(255,0,110,0.55), 0 0 40px rgba(176,38,255,0.30);
     }
+    /* v2.0.3: 승인대기 배지 */
+    .pending-badge {
+      display: inline-flex;
+      align-items: center; justify-content: center;
+      min-width: 18px; height: 18px;
+      padding: 0 5px;
+      border-radius: 9px;
+      background: #ff3355;
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      box-shadow: 0 0 8px rgba(255,51,85,0.6);
+      animation: pendingPulse 1.6s infinite;
+    }
+    @keyframes pendingPulse {
+      0%,100% { box-shadow: 0 0 8px rgba(255,51,85,0.6); }
+      50%     { box-shadow: 0 0 14px rgba(255,51,85,0.9); }
+    }
+    .pending-list {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+      gap: 16px;
+    }
+    .pending-card {
+      background: var(--bg-card);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      position: relative;
+    }
+    .pending-card.lecture { border-color: var(--neon-pink); }
+    .pending-card-tag {
+      position: absolute; top: 10px; right: 10px;
+      padding: 3px 8px; border-radius: 6px;
+      font-size: 10px; font-weight: 800; letter-spacing: 0.1em;
+    }
+    .pending-card.recruit .pending-card-tag { background: rgba(124,58,237,0.2); color: #b794f4; }
+    .pending-card.lecture .pending-card-tag { background: rgba(255,77,166,0.2); color: var(--neon-pink); }
+    .pending-card h4 { margin: 0 0 6px; font-size: 14.5px; color: var(--txt-hi); padding-right: 60px; }
+    .pending-card-meta { font-size: 11px; color: var(--txt-lo); margin-bottom: 8px; }
+    .pending-card-desc {
+      font-size: 12.5px; color: var(--txt-mid);
+      line-height: 1.55;
+      max-height: 110px; overflow-y: auto;
+      padding: 8px 10px;
+      background: rgba(0,0,0,0.2);
+      border-radius: 6px; margin-bottom: 10px;
+      white-space: pre-wrap; word-break: break-word;
+    }
+    .pending-card-file { margin-bottom: 10px; font-size: 11px; }
+    .pending-card-file a { color: var(--neon-cyan); text-decoration: underline; }
+    .pending-card-actions { display: flex; gap: 8px; }
+    .pending-card-actions button {
+      flex: 1; padding: 8px 10px; border-radius: 6px;
+      border: 1px solid; font-size: 11px; font-weight: 700;
+      cursor: pointer; letter-spacing: 0.08em;
+    }
+    .pending-btn-approve {
+      background: rgba(0,240,180,0.15); border-color: #00f0b4; color: #00f0b4;
+    }
+    .pending-btn-approve:hover { background: rgba(0,240,180,0.3); }
+    .pending-btn-reject {
+      background: rgba(255,51,85,0.15); border-color: #ff3355; color: #ff3355;
+    }
+    .pending-btn-reject:hover { background: rgba(255,51,85,0.3); }
+    .pending-popup {
+      display: none;
+      position: fixed; inset: 0;
+      background: rgba(0,0,0,0.7);
+      z-index: 20000;
+      align-items: center; justify-content: center;
+      padding: 20px;
+    }
+    .pending-popup.show { display: flex; }
+    .pending-popup-box {
+      background: var(--bg-card, #14161e);
+      border: 2px solid var(--neon-pink, #ff4da6);
+      border-radius: 14px;
+      max-width: 380px;
+      padding: 26px 22px;
+      box-shadow: 0 20px 60px rgba(255,77,166,0.4);
+    }
+    .pending-popup-icon { font-size: 36px; text-align: center; margin-bottom: 10px; }
+    .pending-popup-title {
+      text-align: center; font-size: 17px; font-weight: 800;
+      color: var(--neon-pink, #ff4da6); margin-bottom: 8px;
+      letter-spacing: 0.06em;
+    }
+    .pending-popup-msg {
+      text-align: center; font-size: 13px; color: var(--txt-mid, #aab);
+      line-height: 1.6; margin-bottom: 18px;
+    }
+    .pending-popup-actions { display: flex; gap: 10px; }
+    .pending-popup-actions button {
+      flex: 1; padding: 10px 14px; border-radius: 8px;
+      font-size: 12px; font-weight: 700; cursor: pointer;
+      letter-spacing: 0.08em;
+    }
+    .pp-btn-now {
+      background: linear-gradient(135deg, var(--neon-pink, #ff4da6), var(--neon-purple, #b794f4));
+      color: #fff; border: none;
+    }
+    .pp-btn-later {
+      background: transparent; color: var(--txt-mid, #aab);
+      border: 1px solid var(--border, #333);
+    }
+
     .upload-panel { display: none; }
     .upload-panel.active { display: block; }
 
@@ -3178,6 +3285,10 @@
       <!-- 업로드 탭 -->
       <p class="dash-section-title">콘텐츠 업로드 & 관리</p>
       <div class="upload-tabs">
+        <button class="upload-tab" data-panel="up-pending" id="up-pending-tab" style="position:relative;border-color:#ff3355;color:#ff3355;">
+          ⏳ 승인대기
+          <span class="pending-badge" id="pending-badge" style="display:none">0</span>
+        </button>
         <button class="upload-tab active" data-panel="up-news">📰 보험사 소식지</button>
         <button class="upload-tab" data-panel="up-claim">📋 보험사 청구서류</button>
         <button class="upload-tab" data-panel="up-card">🗞 인슈어커넥트 뉴스</button>
@@ -3189,6 +3300,20 @@
         <button class="upload-tab" data-panel="up-kakao">💬 대화순위</button>
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
+      </div>
+
+      <!-- v2.0.3: 승인대기 패널 -->
+      <div class="upload-panel" id="up-pending">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">⏳ 사용자 승인요청</p>
+          <button type="button" onclick="loadPending()"
+                  style="padding:6px 12px;background:transparent;border:1px solid var(--neon-cyan);color:var(--neon-cyan);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
+            🔄 새로고침
+          </button>
+        </div>
+        <div id="pending-list-container">
+          <p class="empty-msg">승인대기 로딩 중…</p>
+        </div>
       </div>
 
       <!-- 소식지 관리 패널 -->
@@ -4555,6 +4680,14 @@
       loadKakaoStats();
       loadHomePopups();
       loadLectures();
+      /* v2.0.3: 승인대기 + 1분 폴링 */
+      if (typeof loadPending === 'function') {
+        loadPending();
+        if (!window._pendingPollStarted) {
+          window._pendingPollStarted = true;
+          setInterval(loadPending, 60 * 1000);
+        }
+      }
     }
 
     /* ══════════════════ 강의 관리 ══════════════════ */
@@ -4612,7 +4745,8 @@
       const el = document.getElementById('lec-list');
       if (!el) return;
       try {
-        const res = await fetch('/api/lectures');
+        // v2.0.3: 관리자는 status=all로 pending까지 조회
+        const res = await fetch('/api/lectures?status=all', { headers: adminHeaders() });
         const items = await res.json();
         if (!Array.isArray(items) || !items.length) {
           el.innerHTML = '<p class="empty-msg">등록된 강의가 없습니다.</p>';
@@ -4639,6 +4773,151 @@
         await fetch(`/api/lectures/${id}`, { method: 'DELETE', headers: adminHeaders() });
         loadLectures();
       } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
+
+    /* ══════════════════════════════
+       v2.0.3: 승인대기 관리
+    ══════════════════════════════ */
+    const pendingState = { lastTotal: 0, dismissed: false };
+
+    async function loadPending() {
+      try {
+        const [rcRes, lcRes] = await Promise.all([
+          fetch('/api/recruitments?status=pending&order=created_at.desc&limit=100', { headers: adminHeaders() }),
+          fetch('/api/lectures?status=pending&limit=100', { headers: adminHeaders() })
+        ]);
+        const rcs = rcRes.ok ? await rcRes.json() : [];
+        const lcs = lcRes.ok ? await lcRes.json() : [];
+        renderPendingList(rcs, lcs);
+        const total = (rcs.length || 0) + (lcs.length || 0);
+        updatePendingBadge(total);
+        if (!pendingState.dismissed && total > 0 && total > pendingState.lastTotal) {
+          showPendingPopup(rcs.length, lcs.length);
+        }
+        pendingState.lastTotal = total;
+      } catch (e) {
+        const wrap = document.getElementById('pending-list-container');
+        if (wrap) wrap.innerHTML = '<p class="empty-msg">승인대기 로드 실패: ' + esc(e.message) + '</p>';
+      }
+    }
+
+    function renderPendingList(rcs, lcs) {
+      const wrap = document.getElementById('pending-list-container');
+      if (!wrap) return;
+      if ((!rcs || rcs.length === 0) && (!lcs || lcs.length === 0)) {
+        wrap.innerHTML = '<p class="empty-msg">현재 대기 중인 승인요청이 없습니다. ✨</p>';
+        return;
+      }
+      const render = (it, type) => {
+        const d = new Date(it.created_at);
+        const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const fileBlock = it.file_url
+          ? `<div class="pending-card-file">📎 <a href="${esc(it.file_url)}" target="_blank" rel="noopener">첨부파일 보기</a></div>` : '';
+        const sub = (type === 'recruit' && it.company_name)
+          ? `<span style="color:var(--neon-cyan)">[${esc(it.company_name)}]</span> `
+          : (type === 'lecture' && it.instructor)
+          ? `<span style="color:var(--neon-pink)">[강사: ${esc(it.instructor)}]</span> `
+          : '';
+        const tableName = type === 'recruit' ? 'recruitments' : 'lectures';
+        return `
+          <div class="pending-card ${type}">
+            <span class="pending-card-tag">${type === 'recruit' ? '채용' : '강의'}</span>
+            <h4>${sub}${esc(it.title)}</h4>
+            <div class="pending-card-meta">
+              🕒 ${dateStr} · 신청자: <strong>${esc(it.submitter_name || '-')}</strong>
+              · 연락처: ${esc(it.submitter_contact || '-')}
+            </div>
+            ${it.description ? `<div class="pending-card-desc">${esc(it.description)}</div>` : ''}
+            ${fileBlock}
+            <div class="pending-card-actions">
+              <button class="pending-btn-approve" type="button" onclick="approveItem('${tableName}', ${it.id})">✅ 승인</button>
+              <button class="pending-btn-reject" type="button" onclick="rejectItem('${tableName}', ${it.id})">❌ 반려</button>
+            </div>
+          </div>`;
+      };
+      let html = '<div class="pending-list">';
+      (rcs || []).forEach(it => html += render(it, 'recruit'));
+      (lcs || []).forEach(it => html += render(it, 'lecture'));
+      html += '</div>';
+      wrap.innerHTML = html;
+    }
+
+    function updatePendingBadge(n) {
+      const badge = document.getElementById('pending-badge');
+      if (!badge) return;
+      if (n > 0) {
+        badge.textContent = n > 99 ? '99+' : String(n);
+        badge.style.display = 'inline-flex';
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
+    async function approveItem(table, id) {
+      if (!confirm('이 신청을 승인하시겠어요? 사용자 페이지에 즉시 노출됩니다.')) return;
+      try {
+        const res = await fetch(`/api/${table}/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ status: 'approved', reject_reason: null })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const info = await getSubmitterContact(table, id);
+        alert('✅ 승인 완료. 사용자 페이지에 노출됩니다.\n신청자: ' + info + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
+        loadPending();
+        if (table === 'recruitments') loadRecruitList();
+        else if (table === 'lectures') loadLectures();
+      } catch (e) {
+        alert('승인 실패: ' + e.message);
+      }
+    }
+
+    async function rejectItem(table, id) {
+      const reason = prompt('반려 사유 (사용자에게 안내됩니다):');
+      if (reason === null) return;
+      if (!reason.trim()) { alert('반려 사유를 입력해 주세요.'); return; }
+      try {
+        const info = await getSubmitterContact(table, id);
+        const res = await fetch(`/api/${table}/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ status: 'rejected', reject_reason: reason.trim() })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        alert('❌ 반려 처리됨.\n신청자: ' + info + '\n사유: ' + reason.trim() + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
+        loadPending();
+        if (table === 'recruitments') loadRecruitList();
+        else if (table === 'lectures') loadLectures();
+      } catch (e) {
+        alert('반려 실패: ' + e.message);
+      }
+    }
+
+    async function getSubmitterContact(table, id) {
+      try {
+        const r = await fetch(`/api/${table}/${id}`, { headers: adminHeaders() });
+        const j = await r.json();
+        return `${j.submitter_name || '-'} / ${j.submitter_contact || '-'}`;
+      } catch (_) {
+        return '-';
+      }
+    }
+
+    function showPendingPopup(rcN, lcN) {
+      const popup = document.getElementById('pending-popup');
+      const msg = document.getElementById('pending-popup-msg');
+      if (!popup || !msg) return;
+      msg.innerHTML = `채용공고 <strong>${rcN}건</strong>, 강의공고 <strong>${lcN}건</strong><br>지금 확인하시겠어요?`;
+      popup.classList.add('show');
+    }
+    function dismissPendingPopup() {
+      document.getElementById('pending-popup').classList.remove('show');
+      pendingState.dismissed = true;
+    }
+    function openPendingTab() {
+      dismissPendingPopup();
+      const tab = document.getElementById('up-pending-tab');
+      if (tab) tab.click();
     }
 
     /* ── 파일 선택 표시 ── */
@@ -4939,8 +5218,9 @@
       const el = document.getElementById('rc-list');
       if (!el) return;
       try {
-        const res = await fetch(`/api/recruitments?order=created_at.desc&limit=100`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
+        // v2.0.3: 관리자는 status=all로 pending까지 조회
+        const res = await fetch(`/api/recruitments?order=created_at.desc&limit=100&status=all`, {
+          headers: adminHeaders()
         });
         const items = await res.json();
 
@@ -6629,6 +6909,22 @@
     <div class="ktm-footer">
       <button class="ktm-btn ktm-btn-pink"  onclick="closeTableModal()">취소</button>
       <button class="ktm-btn ktm-btn-green" onclick="insertTableToContent()">본문에 삽입</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.0.3: 승인요청 도착 팝업 -->
+<div class="pending-popup" id="pending-popup">
+  <div class="pending-popup-box">
+    <div class="pending-popup-icon">🔔</div>
+    <div class="pending-popup-title">새 승인요청 도착!</div>
+    <p class="pending-popup-msg" id="pending-popup-msg">
+      채용공고 0건, 강의공고 0건<br>
+      지금 확인하시겠어요?
+    </p>
+    <div class="pending-popup-actions">
+      <button class="pp-btn-later" type="button" onclick="dismissPendingPopup()">나중에</button>
+      <button class="pp-btn-now" type="button" onclick="openPendingTab()">지금 확인 →</button>
     </div>
   </div>
 </div>
