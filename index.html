@@ -12916,6 +12916,100 @@
     _applyMobileClass();
     window.addEventListener('resize', _applyMobileClass);
 
+    /* ══════════════════════════════
+       사이드바 줌 보정 (v2.1.2)
+       — 이용자가 브라우저 줌(Ctrl +/-)을 어떻게 바꿔도 사이드바는 항상 "100% 줌 기준"의
+         시각 크기로 유지됨. 메인 콘텐츠(홈 대시보드)는 정상적으로 줌이 먹음.
+       — 100%일 때 사이드바 안의 모든 기능(로고/메뉴/시계/배너/커뮤니티/푸터)이 다 보이는
+         레이아웃을 그대로 보존하면서, 줌을 키워도 사이드바 안의 기능들이 잘리지 않게 함.
+       — 줌 감지 자체는 신뢰성이 떨어지기 때문에, "실제로 사이드바가 뷰포트보다 길어졌는가"를
+         측정해서 그만큼만 역(逆) 줌을 적용 (overflow-driven, 안정적).
+       — CSS `zoom` 은 layout-aware 라서 fixed 사이드바도 안전; body padding-left 도 같이
+         줄여서 메인 영역 시작 위치를 정렬.
+    ══════════════════════════════ */
+    (function setupSidebarCounterZoom() {
+      let _raf = null;
+      let _lastScale = 1;
+      let _inFit = false;   // ResizeObserver 무한 루프 가드
+
+      function fit() {
+        _raf = null;
+        if (_inFit) return;
+        const sb = document.getElementById('side-nav');
+        if (!sb) return;
+
+        // 모바일/태블릿 모드는 보정하지 않음 (사이드바가 슬라이드 메뉴로 동작)
+        if (document.body.classList.contains('ic-mobile') ||
+            window.matchMedia('(max-width: 1024px)').matches) {
+          if (_lastScale !== 1) {
+            _inFit = true;
+            sb.style.zoom = '';
+            document.body.style.paddingLeft = '';
+            _lastScale = 1;
+            _inFit = false;
+          }
+          return;
+        }
+
+        _inFit = true;
+        try {
+          // 1) 일단 리셋 후 자연 크기 측정
+          sb.style.zoom = '';
+          document.body.style.paddingLeft = '';
+          // 강제 reflow 한 번
+          void sb.offsetHeight;
+
+          const naturalH = sb.scrollHeight;
+          const availH = window.innerHeight;
+
+          // 2) 오버플로우 없으면 그대로 (브라우저 줌이 100% 이하거나 화면이 충분히 큰 경우)
+          if (naturalH <= availH + 1) {
+            _lastScale = 1;
+            return;
+          }
+
+          // 3) 오버플로우 → counter-zoom 적용
+          //    너무 작아져서 가독성이 깨지지 않도록 최소 0.6 까지만
+          const scale = Math.max(0.6, availH / naturalH);
+          sb.style.zoom = String(scale);
+
+          // 4) body padding-left 도 같이 줄여서 메인 영역이 사이드바 끝과 정렬되도록
+          const sideW = getComputedStyle(document.documentElement)
+            .getPropertyValue('--side-w').trim() || '240px';
+          document.body.style.paddingLeft = `calc(${sideW} * ${scale})`;
+
+          _lastScale = scale;
+        } finally {
+          _inFit = false;
+        }
+      }
+
+      function schedule() {
+        if (_raf != null) return;
+        _raf = requestAnimationFrame(fit);
+      }
+
+      window.addEventListener('resize', schedule);
+      window.addEventListener('orientationchange', schedule);
+
+      // 사이드바 내용이 변할 때(파트너 배너 로딩 등)도 재측정
+      if (window.ResizeObserver) {
+        const sb = document.getElementById('side-nav');
+        if (sb) {
+          try { new ResizeObserver(schedule).observe(sb); } catch(_) {}
+        }
+      }
+
+      // 첫 실행 (DOM 안정 후)
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', () => setTimeout(schedule, 200));
+      } else {
+        setTimeout(schedule, 200);
+      }
+      // 안전망: 페이지 모든 리소스 로드 후 한 번 더
+      window.addEventListener('load', () => setTimeout(schedule, 350));
+    })();
+
     /** 모바일 시계 tick (사이드바 시계와 같은 ID 패턴 + v2.0.4 상단 시계) */
     function _mClockTick() {
       if (!document.body.classList.contains('ic-mobile')) return;
