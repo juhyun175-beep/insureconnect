@@ -1587,9 +1587,62 @@
        v2.1.4: 홈 — 추천 차량 라인업 (렌트카 카드 그리드)
     ══════════════════════════════ */
     .ic-rental-section {
-      margin: 0 0 20px;
+      margin: 18px 0 20px;
     }
     .ic-rental-section[hidden] { display: none; }
+    /* v2.1.5: 파트너사 혜택 배너 (추천 차량 라인업 위 헤더) */
+    .ic-pb-banner {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px 12px 22px;
+      margin-bottom: 14px;
+      background: linear-gradient(90deg, rgba(26,61,232,0.10), rgba(219,39,119,0.08), rgba(159,122,234,0.06));
+      border: 1px solid rgba(26,61,232,0.18);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+    }
+    .ic-pb-banner::before {
+      content: '';
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 4px;
+      background: linear-gradient(180deg, #1a3de8, #db2777);
+    }
+    .ic-pb-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
+    .ic-pb-title {
+      margin: 0;
+      font-size: 15px;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: -0.01em;
+    }
+    .ic-pb-pill {
+      margin-left: auto;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.1em;
+      color: #1a3de8;
+      background: rgba(26,61,232,0.10);
+      padding: 4px 10px;
+      border-radius: 999px;
+      flex-shrink: 0;
+    }
+    [data-theme="dark"] .ic-pb-banner {
+      background: linear-gradient(90deg, rgba(124,158,255,0.10), rgba(236,72,153,0.06), rgba(167,139,250,0.05));
+      border-color: rgba(124,158,255,0.20);
+    }
+    [data-theme="dark"] .ic-pb-pill {
+      background: rgba(124,158,255,0.15);
+      color: #93c5fd;
+    }
+    @media (max-width: 480px) {
+      .ic-pb-banner { padding: 10px 14px 10px 18px; gap: 10px; }
+      .ic-pb-title { font-size: 13.5px; }
+      .ic-pb-pill { font-size: 9.5px; padding: 3px 8px; }
+    }
+    body.ic-mobile .ic-pb-banner { margin-bottom: 10px; }
     .ic-rental-head {
       display: flex; align-items: center; justify-content: space-between;
       margin-bottom: 12px; gap: 10px;
@@ -7411,20 +7464,6 @@
       </div>
     </section>
 
-    <!-- v2.1.4: 모바일 — 추천 차량 라인업 -->
-    <section class="ic-m-section ic-rental-section" id="rental-section-mobile" hidden aria-label="추천 차량 라인업">
-      <div class="ic-rental-head">
-        <div class="ic-rental-title">
-          🚗 추천 차량 라인업
-          <span class="ic-rental-pill">PARTNER</span>
-        </div>
-      </div>
-      <div class="ic-rental-grid" id="rental-grid-mobile">
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-      </div>
-    </section>
-
     <!-- 모바일 빠른 메뉴 그리드 -->
     <section class="ic-m-section">
       <div class="ic-m-section-head">🚀 빠른 메뉴</div>
@@ -7461,6 +7500,24 @@
       </div>
       <div class="ic-m-list" id="m-home-lectures">
         <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
+      </div>
+    </section>
+
+    <!-- v2.1.5: 모바일 — 인슈어커넥트 파트너사 혜택 (추천 차량 라인업) -->
+    <section class="ic-m-section ic-rental-section" id="rental-section-mobile" hidden aria-label="인슈어커넥트 파트너사 혜택 — 추천 차량 라인업">
+      <div class="ic-pb-banner">
+        <span class="ic-pb-icon">🎁</span>
+        <h2 class="ic-pb-title">인슈어커넥트 파트너사 혜택</h2>
+      </div>
+      <div class="ic-rental-head">
+        <div class="ic-rental-title">
+          🚗 추천 차량 라인업
+          <span class="ic-rental-pill">PARTNER</span>
+        </div>
+      </div>
+      <div class="ic-rental-grid" id="rental-grid-mobile">
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
       </div>
     </section>
 
@@ -7655,23 +7712,6 @@
       </div>
     </section>
 
-    <!-- v2.1.4: 추천 차량 라인업 (렌트카) — 등록된 차량 있을 때만 표시 -->
-    <section class="ic-rental-section" id="rental-section" hidden aria-label="추천 차량 라인업">
-      <div class="ic-rental-head">
-        <div class="ic-rental-title">
-          🚗 추천 차량 라인업
-          <span class="ic-rental-pill">PARTNER</span>
-        </div>
-        <span class="ic-rental-sub">롯데렌터카 Biz car × AUTO.ST · 즉시 신청 가능</span>
-      </div>
-      <div class="ic-rental-grid" id="rental-grid">
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-      </div>
-    </section>
-
     <!-- v2.0.8: 채용공고 + 강의 가로 2열 (각 섹션 내부도 2열 → 시각적 총 4열) -->
     <div class="ic-jobs-pair">
       <!-- ══ 진행중인 채용공고 ══ -->
@@ -7706,6 +7746,28 @@
         </div>
       </section>
     </div>
+
+    <!-- v2.1.5: 인슈어커넥트 파트너사 혜택 — 추천 차량 라인업 (등록된 차량 있을 때만 노출) -->
+    <section class="ic-rental-section" id="rental-section" hidden aria-label="인슈어커넥트 파트너사 혜택 — 추천 차량 라인업">
+      <div class="ic-pb-banner">
+        <span class="ic-pb-icon">🎁</span>
+        <h2 class="ic-pb-title">인슈어커넥트 파트너사 혜택</h2>
+        <span class="ic-pb-pill">PARTNER BENEFITS</span>
+      </div>
+      <div class="ic-rental-head">
+        <div class="ic-rental-title">
+          🚗 추천 차량 라인업
+          <span class="ic-rental-pill">PARTNER</span>
+        </div>
+        <span class="ic-rental-sub">롯데렌터카 Biz car × AUTO.ST · 즉시 신청 가능</span>
+      </div>
+      <div class="ic-rental-grid" id="rental-grid">
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+      </div>
+    </section>
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
