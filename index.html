@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
   <meta name="naver-site-verification" content="4fcf893d685734f2d316b513538536124d81db67" />
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
-  <meta name="version" content="2.0.9" />
+  <meta name="version" content="2.1.0" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
   <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
@@ -1419,6 +1419,31 @@
       border: none;
       border-radius: 12px;
       box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    /* v2.1.0: 새 탭에서 열기 fallback */
+    .nl-viewer-ext {
+      position: absolute;
+      top: -16px; left: 0;
+      padding: 6px 12px;
+      background: #fff;
+      color: #1a3de8;
+      border-radius: 18px;
+      font-size: 12px;
+      font-weight: 700;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+      z-index: 2;
+      white-space: nowrap;
+    }
+    .nl-viewer-ext:hover { background: #1a3de8; color: #fff; }
+    @media (max-width: 768px) {
+      .nl-viewer-ext {
+        position: fixed;
+        top: 10px; left: 10px;
+        font-size: 11px;
+        padding: 8px 12px;
+        z-index: 11;
+      }
     }
     .nl-viewer-close {
       position: absolute;
@@ -8964,18 +8989,18 @@
       document.body.style.overflow = '';
     }
 
-    /* ── 소식지 뷰어 (v2.0.3: PDF.js viewer로 모바일 페이지 넘김 지원) ── */
+    /* ── 소식지 뷰어 (v2.1.0: 네이티브 iframe 복원 + 외부 열기 fallback) ── */
     function openViewer(url, type) {
       const viewer = document.getElementById('nl-viewer');
       const content = document.getElementById('nl-viewer-content');
       const closeBtn = '<button class="nl-viewer-close" onclick="closeViewer()">✕</button>';
+      const openExt = `<a class="nl-viewer-ext" href="${url}" target="_blank" rel="noopener noreferrer" title="새 탭에서 열기 (페이지 넘김 가능)">⤴ 새 탭에서 열기</a>`;
       if (type === 'pdf') {
-        // 모바일에서도 페이지 넘김이 동작하도록 PDF.js viewer 사용
-        const pdfViewer = `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(url)}`;
-        content.innerHTML = closeBtn +
-          `<iframe src="${pdfViewer}" allow="fullscreen" referrerpolicy="no-referrer"></iframe>`;
+        // 네이티브 iframe — 브라우저 내장 PDF 뷰어가 모바일에서도 페이지 스크롤/줌 처리
+        content.innerHTML = closeBtn + openExt +
+          `<iframe src="${url}#view=FitH" allow="fullscreen" loading="lazy"></iframe>`;
       } else {
-        content.innerHTML = closeBtn + `<img src="${url}" alt="소식지">`;
+        content.innerHTML = closeBtn + openExt + `<img src="${url}" alt="소식지" loading="lazy">`;
       }
       viewer.classList.add('open');
       document.body.style.overflow = 'hidden';

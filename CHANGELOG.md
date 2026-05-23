@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.1.0] - 2026-05-22
+### Fixed
+- **소식지·청구서류 뷰어 로딩 실패 복구**: v2.0.3에서 도입한 Mozilla PDF.js demo viewer(`mozilla.github.io/pdf.js/web/viewer.html`)가 비공식 임베딩이라 X-Frame-Options/CORS로 차단되어 자료가 안 떴음
+  - 네이티브 iframe(`src="${url}#view=FitH"`)으로 복원 → 브라우저 내장 PDF 뷰어가 모바일에서도 페이지 스크롤/줌 처리
+  - 모달 좌측 상단에 「⤴ 새 탭에서 열기」 fallback 링크 추가 → in-app 브라우저에서 페이지 넘김이 불편할 때 OS 기본 PDF 앱으로 바로 열 수 있음
+
 ## [2.0.9] - 2026-05-22
 ### Added
 - **공유 링크 방문자 카운트**: `/og/{type}/{id}` 진입 시 서버측에서 `ic_visits_daily` 증가
