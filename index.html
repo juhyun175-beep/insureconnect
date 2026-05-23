@@ -1583,6 +1583,129 @@
     }
     [data-theme="dark"] .home-submit-cta { border-color: rgba(124,158,255,0.32); }
 
+    /* ══════════════════════════════
+       v2.1.3: 홈 — 파트너 렌트카 판매 홍보 카드
+       (홈 대시보드 본문 한 줄짜리 promo strip)
+    ══════════════════════════════ */
+    .ic-rentcar-promo {
+      position: relative;
+      margin: 0 0 18px;
+      border-radius: 18px;
+      overflow: hidden;
+      background: linear-gradient(135deg, #0c1fb8 0%, #1e3a8a 55%, #312e81 100%);
+      color: #fff;
+      box-shadow: 0 10px 28px rgba(12,31,184,0.18);
+      isolation: isolate;
+    }
+    .ic-rentcar-promo::before {
+      content: '';
+      position: absolute; inset: 0;
+      background:
+        radial-gradient(circle at 90% 25%, rgba(99,179,237,0.30), transparent 55%),
+        radial-gradient(circle at 8% 95%,  rgba(159,122,234,0.22), transparent 55%);
+      pointer-events: none;
+      z-index: 0;
+    }
+    .rc-promo-wrap {
+      position: relative; z-index: 1;
+      display: flex; align-items: center; gap: 24px;
+      padding: 20px 26px;
+    }
+    .rc-promo-text { flex: 1; min-width: 0; }
+    .rc-promo-brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-size: 11px; letter-spacing: 0.08em; font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .rc-brand-tag {
+      background: rgba(255,255,255,0.18);
+      padding: 4px 9px;
+      border-radius: 999px;
+      backdrop-filter: blur(4px);
+    }
+    .rc-brand-names { opacity: 0.85; }
+    .rc-promo-title {
+      margin: 0 0 6px;
+      font-size: 20px;
+      line-height: 1.35;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .rc-promo-title strong { color: #fde68a; font-weight: 800; }
+    .rc-promo-sub {
+      margin: 0 0 10px;
+      font-size: 13px;
+      opacity: 0.9;
+      line-height: 1.55;
+    }
+    .rc-promo-stats {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px;
+      font-size: 12px;
+      opacity: 0.92;
+    }
+    .rc-promo-stats strong { color: #fde68a; font-weight: 800; }
+    .rc-stat-sep { opacity: 0.4; }
+    .rc-promo-actions {
+      display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+      flex-shrink: 0;
+    }
+    .rc-promo-cta {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #fde68a;
+      color: #1e3a8a;
+      font-weight: 800;
+      font-size: 14px;
+      padding: 12px 22px;
+      border-radius: 999px;
+      text-decoration: none;
+      box-shadow: 0 6px 16px rgba(253,230,138,0.35);
+      transition: transform .15s ease, box-shadow .15s ease, background .15s;
+      white-space: nowrap;
+    }
+    .rc-promo-cta:hover {
+      transform: translateY(-1px);
+      background: #fef3c7;
+      box-shadow: 0 10px 22px rgba(253,230,138,0.45);
+    }
+    .rc-promo-meta { font-size: 10.5px; opacity: 0.55; }
+    .rc-promo-close {
+      position: absolute; top: 10px; right: 12px;
+      background: rgba(255,255,255,0.12);
+      border: none;
+      color: #fff;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      font-size: 14px; line-height: 1;
+      cursor: pointer;
+      opacity: 0.7;
+      transition: opacity .15s, background .15s;
+      z-index: 2;
+    }
+    .rc-promo-close:hover { opacity: 1; background: rgba(255,255,255,0.22); }
+
+    /* 모바일 — 세로 스택 */
+    @media (max-width: 720px) {
+      .rc-promo-wrap {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 18px 18px 20px;
+        gap: 14px;
+      }
+      .rc-promo-title { font-size: 18px; }
+      .rc-promo-actions {
+        align-self: stretch;
+        align-items: stretch;
+      }
+      .rc-promo-cta { justify-content: center; }
+    }
+
+    [data-theme="dark"] .ic-rentcar-promo {
+      box-shadow: 0 12px 32px rgba(0,0,0,0.45);
+    }
+
+    /* 모바일 페이지 내부 카드 — 마진 보정 */
+    body.ic-mobile .ic-rentcar-promo { margin: 0 0 12px; }
+
     .sm-overlay {
       display: none;
       position: fixed; inset: 0;
@@ -7135,6 +7258,38 @@
       </div>
     </section>
 
+    <!-- v2.1.3: 모바일 — 파트너 렌트카 판매 홍보 카드 -->
+    <section class="ic-rentcar-promo" id="rentcar-promo-mobile" aria-label="파트너 렌트카 재고 조회">
+      <button type="button" class="rc-promo-close" aria-label="이 카드 숨기기" onclick="dismissRentcarPromo()">×</button>
+      <div class="rc-promo-wrap">
+        <div class="rc-promo-text">
+          <div class="rc-promo-brand">
+            <span class="rc-brand-tag">🚗 PARTNER</span>
+            <span class="rc-brand-names">롯데렌터카 × AUTO.ST</span>
+          </div>
+          <h2 class="rc-promo-title">
+            보험설계사 전용 <strong>렌트카 재고 조회</strong>
+          </h2>
+          <p class="rc-promo-sub">
+            전략구매·일반구매 차량을 차종·옵션·색상별로 한 번에 비교·견적
+          </p>
+          <div class="rc-promo-stats">
+            <span><strong>3,000+</strong>대 재고</span>
+            <span class="rc-stat-sep">·</span>
+            <span>전략구매 <strong>1%+ 혜택</strong></span>
+          </div>
+        </div>
+        <div class="rc-promo-actions">
+          <a class="rc-promo-cta"
+             href="https://inventory-ver0130.vercel.app/"
+             target="_blank" rel="noopener noreferrer"
+             onclick="trackClick('렌트카 재고조회','m-home-rentcar-promo')">
+            차량 재고 조회 →
+          </a>
+        </div>
+      </div>
+    </section>
+
     <!-- 모바일 빠른 메뉴 그리드 -->
     <section class="ic-m-section">
       <div class="ic-m-section-head">🚀 빠른 메뉴</div>
@@ -7362,6 +7517,41 @@
           <span style="font-size:18px">🎓</span>
           <span>강의공고 등록</span>
         </button>
+      </div>
+    </section>
+
+    <!-- v2.1.3: 파트너 렌트카 판매 홍보 카드 -->
+    <section class="ic-rentcar-promo" id="rentcar-promo" aria-label="파트너 렌트카 재고 조회">
+      <button type="button" class="rc-promo-close" aria-label="이 카드 숨기기" onclick="dismissRentcarPromo()">×</button>
+      <div class="rc-promo-wrap">
+        <div class="rc-promo-text">
+          <div class="rc-promo-brand">
+            <span class="rc-brand-tag">🚗 PARTNER</span>
+            <span class="rc-brand-names">롯데렌터카 Biz car × AUTO.ST</span>
+          </div>
+          <h2 class="rc-promo-title">
+            보험설계사 전용 <strong>렌트카 재고 즉시 조회</strong>
+          </h2>
+          <p class="rc-promo-sub">
+            전략구매·일반구매 모두 — 수천 대 차량을 차종·옵션·색상별로 한 번에 비교하고 견적까지.
+          </p>
+          <div class="rc-promo-stats">
+            <span><strong>3,000+</strong>대 재고</span>
+            <span class="rc-stat-sep">·</span>
+            <span><strong>실시간</strong> 견적 생성</span>
+            <span class="rc-stat-sep">·</span>
+            <span>전략구매 <strong>1%+ 추가 혜택</strong></span>
+          </div>
+        </div>
+        <div class="rc-promo-actions">
+          <a class="rc-promo-cta"
+             href="https://inventory-ver0130.vercel.app/"
+             target="_blank" rel="noopener noreferrer"
+             onclick="trackClick('렌트카 재고조회','home-rentcar-promo')">
+            차량 재고 조회 →
+          </a>
+          <span class="rc-promo-meta">새 탭에서 열림 · 인슈어커넥트 파트너</span>
+        </div>
       </div>
     </section>
 
@@ -13009,6 +13199,39 @@
       // 안전망: 페이지 모든 리소스 로드 후 한 번 더
       window.addEventListener('load', () => setTimeout(schedule, 350));
     })();
+
+    /* ══════════════════════════════
+       v2.1.3: 렌트카 판매 홍보 카드 dismiss
+       — 사용자가 × 누르면 7일간 숨김. 그 이후엔 다시 노출.
+    ══════════════════════════════ */
+    const RC_PROMO_DISMISS_KEY = 'ic_rc_promo_dismissed_until';
+    function _rcPromoIsDismissed() {
+      try {
+        const until = parseInt(localStorage.getItem(RC_PROMO_DISMISS_KEY) || '0', 10);
+        return until > Date.now();
+      } catch(_) { return false; }
+    }
+    function _applyRcPromoVisibility() {
+      const hide = _rcPromoIsDismissed();
+      ['rentcar-promo','rentcar-promo-mobile'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = hide ? 'none' : '';
+      });
+    }
+    function dismissRentcarPromo() {
+      try {
+        const until = Date.now() + 7 * 24 * 60 * 60 * 1000;   // 7일
+        localStorage.setItem(RC_PROMO_DISMISS_KEY, String(until));
+      } catch(_) {}
+      _applyRcPromoVisibility();
+      if (typeof trackClick === 'function') trackClick('렌트카 카드 닫기','home-rentcar-promo');
+    }
+    // 초기 노출 결정
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', _applyRcPromoVisibility);
+    } else {
+      _applyRcPromoVisibility();
+    }
 
     /** 모바일 시계 tick (사이드바 시계와 같은 ID 패턴 + v2.0.4 상단 시계) */
     function _mClockTick() {
