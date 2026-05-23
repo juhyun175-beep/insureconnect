@@ -3300,6 +3300,11 @@
         <button class="upload-tab" data-panel="up-kakao">💬 대화순위</button>
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
+        <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
+        <button class="upload-tab" data-panel="up-rental-inquiries" style="position:relative;">
+          📋 렌트카 신청
+          <span class="pending-badge" id="rental-inquiry-badge" style="display:none">0</span>
+        </button>
       </div>
 
       <!-- v2.0.3: 승인대기 패널 -->
@@ -3787,6 +3792,101 @@
           <p class="empty-msg">강의 로딩 중…</p>
         </div>
       </div><!-- /#up-lecture -->
+
+      <!-- v2.1.4: 렌트카 차량 라인업 관리 패널 -->
+      <div class="upload-panel" id="up-rental-vehicles">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">🚗 추천 차량 라인업 관리</p>
+          <button type="button" onclick="loadRentalVehiclesAdmin()"
+                  style="padding:6px 12px;background:transparent;border:1px solid var(--neon-cyan,#10b981);color:var(--neon-cyan,#10b981);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
+            🔄 새로고침
+          </button>
+        </div>
+
+        <div style="background:rgba(0,255,200,0.04);border:1px solid rgba(0,255,200,0.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid,#9aa);line-height:1.6;">
+          <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px;letter-spacing:0.03em;">🚗 차량 라인업 안내</div>
+          <ul style="margin:0;padding-left:18px;">
+            <li>여기서 등록한 차량이 홈 대시보드 "추천 차량 라인업" 섹션에 카드로 표시됩니다</li>
+            <li>이용자가 카드를 누르면 신청 모달이 열리고, 신청 내역은 옆 <strong>📋 렌트카 신청</strong> 탭으로 들어옵니다</li>
+            <li>차종 이미지는 16:10 비율 권장 (자동으로 cover crop)</li>
+            <li>표시 순서는 sort_order 오름차순 → 등록 최신순</li>
+          </ul>
+        </div>
+
+        <!-- 등록 폼 -->
+        <div class="nl-upload-box">
+          <div class="nl-form">
+            <div class="nl-field">
+              <label>차종명 <span style="color:#ff3355">*</span></label>
+              <input type="text" id="rv-name" maxlength="200" placeholder="예: 현대 아반떼 CN7 G1.6 모던 2WD AT" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field">
+              <label>옵션 설명</label>
+              <input type="text" id="rv-options" maxlength="300" placeholder="예: A/T, 컨비니언스, 하이패스, 인포터" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:160px;">
+                <label>프로모션 배지</label>
+                <input type="text" id="rv-promo" maxlength="60" placeholder="예: 1.0% 추가" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <label>구분</label>
+                <select id="rv-category" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="">없음</option>
+                  <option value="전략">전략</option>
+                  <option value="일반">일반</option>
+                </select>
+              </div>
+              <div style="width:120px;">
+                <label>정렬 (낮을수록 앞)</label>
+                <input type="number" id="rv-sort" value="100" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+            </div>
+            <div class="nl-field">
+              <label>차량 이미지 (jpg/png/webp)</label>
+              <label class="nl-file-label">
+                📎 이미지 선택
+                <input type="file" id="rv-file" accept="image/*">
+                <span class="nl-file-name" id="rv-file-name">없음</span>
+              </label>
+              <div id="rv-image-preview" style="margin-top:8px;display:none;">
+                <img id="rv-image-preview-img" style="max-width:240px;max-height:160px;border-radius:8px;border:1px solid var(--border,#333);" alt="미리보기">
+              </div>
+            </div>
+            <button class="nl-upload-btn" id="rv-upload-btn" onclick="uploadRentalVehicle()">등록</button>
+          </div>
+          <p class="nl-status" id="rv-status"></p>
+        </div>
+
+        <div class="nl-list" id="rv-list">
+          <p class="empty-msg">차량 로딩 중…</p>
+        </div>
+      </div><!-- /#up-rental-vehicles -->
+
+      <!-- v2.1.4: 렌트카 신청 내역 패널 -->
+      <div class="upload-panel" id="up-rental-inquiries">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">📋 렌트카 신청 내역</p>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <select id="ri-filter" onchange="loadRentalInquiriesAdmin()"
+                    style="padding:6px 10px;background:var(--bg-card,#222);color:var(--txt-hi,#fff);border:1px solid var(--border,#444);border-radius:6px;font-size:11px;">
+              <option value="all">전체</option>
+              <option value="new" selected>신규</option>
+              <option value="contacted">연락 완료</option>
+              <option value="closed">완료</option>
+              <option value="canceled">취소</option>
+            </select>
+            <button type="button" onclick="loadRentalInquiriesAdmin()"
+                    style="padding:6px 12px;background:transparent;border:1px solid var(--neon-cyan,#10b981);color:var(--neon-cyan,#10b981);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
+              🔄 새로고침
+            </button>
+          </div>
+        </div>
+
+        <div id="ri-list">
+          <p class="empty-msg">신청 내역 로딩 중…</p>
+        </div>
+      </div><!-- /#up-rental-inquiries -->
 
       <!-- ══════ 배너 미리보기 모달 (이용자 시점) ══════ -->
       <div id="sb-preview-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSbPreview()">
@@ -4667,6 +4767,15 @@
         if (!window._pendingPollStarted) {
           window._pendingPollStarted = true;
           setInterval(loadPending, 60 * 1000);
+        }
+      }
+      /* v2.1.4: 렌트카 라인업 + 신청 + 신청 폴링 */
+      if (typeof loadRentalVehiclesAdmin === 'function') loadRentalVehiclesAdmin();
+      if (typeof loadRentalInquiriesAdmin === 'function') {
+        loadRentalInquiriesAdmin();
+        if (!window._rentalInqPollStarted) {
+          window._rentalInqPollStarted = true;
+          setInterval(loadRentalInquiriesAdmin, 60 * 1000);
         }
       }
     }
@@ -6831,6 +6940,233 @@
           method: 'DELETE', headers: adminHeaders()
         });
         loadHomePopups();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
+
+    /* ══════════════════════════════
+       v2.1.4: 렌트카 차량 라인업 관리
+    ══════════════════════════════ */
+    // 파일 선택 시 이름 표시 + 미리보기
+    (function() {
+      const fileInput = document.getElementById('rv-file');
+      if (!fileInput) return;
+      fileInput.addEventListener('change', function() {
+        const f = this.files[0];
+        document.getElementById('rv-file-name').textContent = f ? `${f.name} (${(f.size/1024/1024).toFixed(2)}MB)` : '없음';
+        const prev = document.getElementById('rv-image-preview');
+        const img  = document.getElementById('rv-image-preview-img');
+        if (f && img && prev) {
+          const reader = new FileReader();
+          reader.onload = (e) => { img.src = e.target.result; prev.style.display = 'block'; };
+          reader.readAsDataURL(f);
+        } else if (prev) {
+          prev.style.display = 'none';
+        }
+      });
+    })();
+
+    async function uploadRentalVehicle() {
+      const name     = document.getElementById('rv-name').value.trim();
+      const options  = document.getElementById('rv-options').value.trim();
+      const promo    = document.getElementById('rv-promo').value.trim();
+      const category = document.getElementById('rv-category').value;
+      const sortRaw  = document.getElementById('rv-sort').value;
+      const sort     = Number.isFinite(+sortRaw) ? +sortRaw : 100;
+      const fileEl   = document.getElementById('rv-file');
+      const status   = document.getElementById('rv-status');
+      const btn      = document.getElementById('rv-upload-btn');
+
+      if (!name) { alert('차종명을 입력해주세요.'); return; }
+      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; status.textContent = '';
+
+      try {
+        let image_url = null;
+        const f = fileEl.files[0];
+        if (f) {
+          const ext = (f.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+          const path = `vehicle_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const up = await fetch(`/api/files/rental/${path}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': f.type || 'image/jpeg' }),
+            body: f
+          });
+          if (!up.ok) throw new Error('이미지 업로드 실패');
+          image_url = `/api/files/rental/${path}`;
+        }
+        const res = await fetch('/api/rental-vehicles', {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({
+            name, options: options || null, promo_text: promo || null,
+            category: category || null, sort_order: sort, image_url, is_active: 1
+          })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
+        document.getElementById('rv-name').value = '';
+        document.getElementById('rv-options').value = '';
+        document.getElementById('rv-promo').value = '';
+        document.getElementById('rv-category').value = '';
+        document.getElementById('rv-sort').value = '100';
+        document.getElementById('rv-file').value = '';
+        document.getElementById('rv-file-name').textContent = '없음';
+        document.getElementById('rv-image-preview').style.display = 'none';
+        loadRentalVehiclesAdmin();
+      } catch (e) {
+        status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
+      } finally {
+        btn.disabled = false; btn.textContent = '등록';
+      }
+    }
+
+    async function loadRentalVehiclesAdmin() {
+      const el = document.getElementById('rv-list');
+      if (!el) return;
+      try {
+        const res = await fetch('/api/rental-vehicles?status=all', { headers: adminHeaders() });
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          el.innerHTML = '<p class="empty-msg">등록된 차량이 없습니다.</p>';
+          return;
+        }
+        el.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;${it.is_active?'':'opacity:0.55;'}">
+            <div style="width:72px;height:48px;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${it.image_url ? `<img src="${esc(it.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='🚗'">` : '🚗'}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)}</div>
+              <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">
+                ${it.category ? `<span style="background:rgba(79,109,240,0.16);color:#4f6df0;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.category)}</span>` : ''}
+                ${it.promo_text ? `<span style="background:rgba(219,39,119,0.16);color:#db2777;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.promo_text)}</span>` : ''}
+                ${esc(it.options || '')}
+              </div>
+              <div style="font-size:10.5px;color:var(--txt-lo);margin-top:2px;opacity:0.7;">정렬 ${it.sort_order} · ${esc(it.created_at)}</div>
+            </div>
+            <button onclick="toggleRentalVehicle(${it.id}, ${it.is_active ? 0 : 1})"
+                    style="font-size:11px;padding:5px 10px;background:${it.is_active?'rgba(245,158,11,0.16)':'rgba(16,185,129,0.16)'};color:${it.is_active?'#f59e0b':'#10b981'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">
+              ${it.is_active ? '비활성' : '활성'}
+            </button>
+            <button onclick="deleteRentalVehicle(${it.id})"
+                    style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">차량 로드 실패: ' + esc(e.message) + '</p>';
+      }
+    }
+
+    async function toggleRentalVehicle(id, newState) {
+      try {
+        const res = await fetch(`/api/rental-vehicles/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ is_active: newState })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        loadRentalVehiclesAdmin();
+      } catch (e) { alert('변경 실패: ' + e.message); }
+    }
+
+    async function deleteRentalVehicle(id) {
+      if (!confirm('이 차량을 삭제하시겠습니까?\n(연관 신청 내역은 보존됩니다.)')) return;
+      try {
+        const res = await fetch(`/api/rental-vehicles/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        if (!res.ok) throw new Error(await res.text());
+        loadRentalVehiclesAdmin();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
+
+    /* ══════════════════════════════
+       v2.1.4: 렌트카 신청 내역 관리
+    ══════════════════════════════ */
+    async function loadRentalInquiriesAdmin() {
+      const el = document.getElementById('ri-list');
+      const badge = document.getElementById('rental-inquiry-badge');
+      if (!el) return;
+      const filter = (document.getElementById('ri-filter') || {}).value || 'new';
+      try {
+        // badge용: 항상 status=new 카운트
+        const newRes = await fetch('/api/rental-inquiries?status=new&limit=500', { headers: adminHeaders() });
+        if (newRes.ok) {
+          const newRows = await newRes.json();
+          const n = Array.isArray(newRows) ? newRows.length : 0;
+          if (badge) {
+            badge.style.display = n > 0 ? 'inline-block' : 'none';
+            badge.textContent = String(n);
+          }
+        }
+        const res = await fetch(`/api/rental-inquiries?status=${encodeURIComponent(filter)}&limit=300`, { headers: adminHeaders() });
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          el.innerHTML = '<p class="empty-msg">해당 상태의 신청 내역이 없습니다.</p>';
+          return;
+        }
+        const fmtDt = (s) => { const d = new Date(s+'Z'); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+        const statusColor = (st) => ({
+          'new':       { bg:'rgba(239,68,68,0.16)',   fg:'#ef4444', label:'신규' },
+          'contacted': { bg:'rgba(79,109,240,0.16)',  fg:'#4f6df0', label:'연락완료' },
+          'closed':    { bg:'rgba(16,185,129,0.16)',  fg:'#10b981', label:'완료' },
+          'canceled':  { bg:'rgba(120,120,120,0.16)', fg:'#999',    label:'취소' }
+        }[st] || { bg:'rgba(120,120,120,0.16)', fg:'#999', label: st });
+
+        el.innerHTML = items.map(it => {
+          const sc = statusColor(it.status);
+          return `
+          <div style="padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;">
+            <div style="display:flex;align-items:flex-start;gap:12px;">
+              <div style="width:64px;height:48px;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                ${it.vehicle_image_url ? `<img src="${esc(it.vehicle_image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='🚗'">` : '🚗'}
+              </div>
+              <div style="flex:1;min-width:0;">
+                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
+                  <span style="font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:5px;background:${sc.bg};color:${sc.fg};">${sc.label}</span>
+                  <span style="font-size:11px;color:var(--txt-lo);">${fmtDt(it.created_at)}</span>
+                  <span style="font-size:11px;color:var(--txt-lo);">#${it.id}</span>
+                </div>
+                <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:2px;">${esc(it.vehicle_name_snapshot)}</div>
+                <div style="font-size:12.5px;color:var(--txt-hi);">
+                  <strong>${esc(it.customer_name)}</strong>
+                  <a href="tel:${esc((it.customer_phone||'').replace(/\D/g,''))}" style="color:#4f6df0;margin-left:6px;text-decoration:none;font-weight:700;">${esc(it.customer_phone)}</a>
+                </div>
+                <div style="font-size:11.5px;color:var(--txt-lo);margin-top:3px;">
+                  ${it.preferred_time ? `시간: <strong style="color:var(--txt-mid)">${esc(it.preferred_time)}</strong>` : ''}
+                  ${it.organization ? ` &nbsp;·&nbsp; 소속: <strong style="color:var(--txt-mid)">${esc(it.organization)}</strong>` : ''}
+                </div>
+                ${it.memo ? `<div style="font-size:12px;color:var(--txt-mid);margin-top:6px;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:2px solid rgba(79,109,240,0.5);border-radius:0 6px 6px 0;white-space:pre-wrap;line-height:1.5;">${esc(it.memo)}</div>` : ''}
+              </div>
+            </div>
+            <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
+              ${it.status !== 'contacted' ? `<button onclick="setInquiryStatus(${it.id}, 'contacted')" style="font-size:11px;padding:5px 10px;background:rgba(79,109,240,0.16);color:#4f6df0;border:none;border-radius:6px;cursor:pointer;font-weight:600;">연락완료</button>` : ''}
+              ${it.status !== 'closed' ? `<button onclick="setInquiryStatus(${it.id}, 'closed')" style="font-size:11px;padding:5px 10px;background:rgba(16,185,129,0.16);color:#10b981;border:none;border-radius:6px;cursor:pointer;font-weight:600;">완료</button>` : ''}
+              ${it.status !== 'canceled' ? `<button onclick="setInquiryStatus(${it.id}, 'canceled')" style="font-size:11px;padding:5px 10px;background:rgba(120,120,120,0.16);color:#999;border:none;border-radius:6px;cursor:pointer;font-weight:600;">취소</button>` : ''}
+              ${it.status !== 'new' ? `<button onclick="setInquiryStatus(${it.id}, 'new')" style="font-size:11px;padding:5px 10px;background:rgba(239,68,68,0.10);color:#ef4444;border:none;border-radius:6px;cursor:pointer;font-weight:600;">신규로 되돌리기</button>` : ''}
+              <button onclick="deleteInquiry(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.10);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;margin-left:auto;">삭제</button>
+            </div>
+          </div>`;
+        }).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">신청 내역 로드 실패: ' + esc(e.message) + '</p>';
+      }
+    }
+
+    async function setInquiryStatus(id, status) {
+      try {
+        const res = await fetch(`/api/rental-inquiries/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ status })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        loadRentalInquiriesAdmin();
+      } catch (e) { alert('변경 실패: ' + e.message); }
+    }
+
+    async function deleteInquiry(id) {
+      if (!confirm('이 신청 내역을 삭제하시겠습니까?')) return;
+      try {
+        const res = await fetch(`/api/rental-inquiries/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        if (!res.ok) throw new Error(await res.text());
+        loadRentalInquiriesAdmin();
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 

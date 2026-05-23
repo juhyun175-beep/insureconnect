@@ -1,22 +1,40 @@
 # Changelog
 
-## [2.1.3] - 2026-05-23
+## [2.1.4] - 2026-05-23
+### Removed
+- v2.1.3 에서 만든 "재고 조회 유도" promo strip — 사용자 피드백으로 폐기 (이용자가 재고를 파악하는 흐름이 아니라, **카드 클릭 → 해당 차량 신청**으로 전환)
+
 ### Added
-- **홈 대시보드 — 파트너 렌트카 판매 홍보 카드** (마케팅→판매 직결)
-  - PC: 「공고 직접 등록 CTA」 ↓, 「채용공고/강의 쌍」 ↑ 사이 full-width strip 배치
-  - 모바일: 「공고 직접 등록」 ↓, 「빠른 메뉴」 ↑ 사이 배치
-  - 브랜드: 롯데렌터카 Biz car × AUTO.ST · 보험설계사 전용 메시지
-  - 핵심 카피: "재고 즉시 조회 · 전략구매/일반구매 · 차종·옵션·색상 비교·견적"
-  - 신호 stats: 3,000+대 재고 / 실시간 견적 / 전략구매 1%+ 추가 혜택
-  - CTA: `https://inventory-ver0130.vercel.app/` 새 탭 오픈, `trackClick('렌트카 재고조회', ...)` 추적
-- **사용자 통제권 보장** (불편함 최소화)
-  - 카드 우상단 × 버튼으로 dismiss 가능
-  - dismiss 시 `localStorage` 7일 유지 → 같은 사용자에게 반복 노출되지 않음
-  - 7일 경과 후 자동 재노출
-  - 팝업/모달 없음, 자동 트리거 없음 — 완전 수동 카드
-- **반응형 + 다크모드 대응**
-  - ≤720px 시 세로 스택, CTA 전폭 버튼화
-  - 다크 테마 shadow 강도 조정
+- **홈 대시보드 — 추천 차량 라인업 (카드 그리드 + 신청 모달)**
+  - PC/모바일 홈에 차량 카드 그리드 노출 (관리자가 등록한 활성 차량이 있을 때만)
+  - 카드 = 차량 이미지 + 차종명 + 옵션 요약 + 프로모션 배지("1.0% 추가" 등) + "구분" 라벨(전략/일반) + 「신청하기」 CTA
+  - 카드 클릭 → 「🚗 차량 신청」 모달 오픈, 선택 차량이 박스 형태로 자동 표시되어 어떤 차를 신청하는지 명확
+  - 신청 폼: **이름(필수) + 휴대폰(필수) + 선호 연락 시간대(4개 칩: 평일오전/평일오후/주말오전/주말오후) + 소속 GA/대리점(선택) + 추가 메모(선택)**
+  - 제출 시 D1 `ic_rental_inquiries` 테이블에 저장 → 관리자 페이지로 들어옴
+  - 완료 화면: "운영자가 입력하신 시간대에 맞춰 연락 · 영업일 기준 1일 이내"
+- **백엔드 API (Pages Functions + D1 + R2)**
+  - `GET  /api/rental-vehicles` (공개) — 활성 차량 목록 (홈 카드용)
+  - `GET  /api/rental-vehicles?status=all` (관리자) — 전체 (비활성 포함)
+  - `POST /api/rental-vehicles` (관리자) — 신규 등록
+  - `GET/PATCH/DELETE /api/rental-vehicles/{id}` (조회 공개, 수정·삭제 관리자)
+  - `POST /api/rental-inquiries` (공개) — 사용자 신청 접수
+  - `GET  /api/rental-inquiries` (관리자) — 신청 목록 (status 필터링 지원)
+  - `PATCH/DELETE /api/rental-inquiries/{id}` (관리자)
+  - 이미지는 R2 (`/api/files/rental/...`) 활용
+- **관리자 페이지 (admin.html) — 2개 탭 추가**
+  - **🚗 차량 라인업**: 차종명/옵션/프로모션/구분(전략/일반)/정렬/이미지 업로드 → 등록 → 활성↔비활성 토글, 삭제
+  - **📋 렌트카 신청**: 신규/연락완료/완료/취소 status 필터, 신청 상세(차량 썸네일, 고객 정보, 시간대, 소속, 메모), 상태 변경 버튼, 탭 라벨에 신규 신청 건수 badge, 60초마다 자동 폴링
+- **DB 스키마 추가** (`migrations/d1_v2_1_4_rental.sql`)
+  - `ic_rental_vehicles` — name, options, promo_text, image_url, category, sort_order, is_active, created_at, updated_at
+  - `ic_rental_inquiries` — vehicle_id (FK), vehicle_name_snapshot, customer_name, customer_phone, preferred_time, organization, memo, status, timestamps
+
+### Tracking
+- `trackClick('렌트카 카드 클릭', 'vehicle_{id}')` — 카드 클릭 시점
+- `trackClick('렌트카 신청 완료', 'vehicle_{id}')` — 폼 제출 성공 시점
+- 두 지표를 비교하면 카드 클릭→실제 신청 전환률 측정 가능
+
+## [2.1.3] - DEPRECATED
+삭제됨. v2.1.4 로 대체.
 
 ## [2.1.2] - 2026-05-23
 ### Changed
