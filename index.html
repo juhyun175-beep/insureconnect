@@ -1739,22 +1739,39 @@
       -webkit-line-clamp: 1; -webkit-box-orient: vertical;
       overflow: hidden;
     }
+    .ic-rental-card-tags {
+      display: flex; flex-wrap: wrap; gap: 4px;
+      margin-top: 2px;
+    }
+    .ic-rental-card-tag {
+      font-size: 10.5px; font-weight: 700;
+      color: #db2777;
+      line-height: 1.3;
+    }
+    [data-theme="dark"] .ic-rental-card-tag { color: #f472b6; }
     .ic-rental-card-cta {
-      margin-top: 8px;
+      margin-top: 10px;
       align-self: stretch;
-      background: linear-gradient(135deg, #1a3de8, #4f6df0);
-      color: #fff;
-      font-size: 12.5px; font-weight: 700;
-      padding: 8px 12px;
+      background: linear-gradient(135deg, #fef2f6 0%, #fce7f3 100%);
+      color: #db2777;
+      font-size: 12.5px; font-weight: 800;
+      padding: 9px 12px;
       border-radius: 8px;
       text-align: center;
-      border: none;
+      border: 1.5px solid rgba(219,39,119,0.2);
       cursor: pointer;
-      transition: transform .12s, box-shadow .12s;
+      transition: all .15s;
+    }
+    [data-theme="dark"] .ic-rental-card-cta {
+      background: linear-gradient(135deg, rgba(219,39,119,0.18), rgba(244,114,182,0.12));
+      color: #f472b6;
+      border-color: rgba(219,39,119,0.35);
     }
     .ic-rental-card:hover .ic-rental-card-cta {
-      transform: translateY(-1px);
-      box-shadow: 0 6px 14px rgba(26,61,232,0.3);
+      background: linear-gradient(135deg, #db2777, #ec4899);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 6px 14px rgba(219,39,119,0.30);
     }
     .ic-rental-skel {
       background: linear-gradient(90deg, rgba(0,0,0,0.05), rgba(0,0,0,0.08), rgba(0,0,0,0.05));
@@ -1788,31 +1805,136 @@
     body.ic-mobile .ic-rental-section { margin: 0 0 12px; }
     body.ic-mobile .ic-rental-head { margin-bottom: 8px; }
 
-    /* 차량명 표시 박스 (신청 모달 내) */
-    .rental-modal-vehicle {
+    /* v2.1.7: 견적 모달 — 차량 박스 / 칩 / 견적 박스 / 요약 */
+    .rq-vehicle {
       display: flex; align-items: center; gap: 12px;
       padding: 12px;
       background: linear-gradient(135deg, rgba(26,61,232,0.06), rgba(159,122,234,0.06));
       border: 1.5px solid rgba(26,61,232,0.22);
       border-radius: 12px;
-      margin-bottom: 14px;
+      margin-bottom: 16px;
     }
-    .rental-modal-vehicle-thumb {
-      width: 64px; height: 48px;
+    .rq-vehicle-thumb {
+      width: 88px; height: 64px;
       border-radius: 8px;
       background: linear-gradient(135deg, #eef2ff, #e0e7ff);
       flex-shrink: 0; overflow: hidden;
       display: flex; align-items: center; justify-content: center;
-      color: #4f6df0; font-size: 22px;
+      color: #4f6df0; font-size: 28px;
     }
-    .rental-modal-vehicle-thumb img { width: 100%; height: 100%; object-fit: cover; }
-    .rental-modal-vehicle-info { flex: 1; min-width: 0; }
-    .rental-modal-vehicle-name {
-      font-size: 13.5px; font-weight: 800; color: var(--txt-hi);
+    .rq-vehicle-thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .rq-vehicle-info { flex: 1; min-width: 0; }
+    .rq-vehicle-name {
+      font-size: 14.5px; font-weight: 800; color: var(--txt-hi);
       line-height: 1.35;
     }
-    .rental-modal-vehicle-meta {
+    .rq-vehicle-meta {
       font-size: 11.5px; color: var(--txt-lo); margin-top: 2px;
+    }
+    .rq-vehicle-tags {
+      display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px;
+    }
+    .rq-vehicle-tag {
+      font-size: 10.5px; font-weight: 700;
+      padding: 2px 7px; border-radius: 4px;
+      background: rgba(79,109,240,0.10);
+      color: #4f6df0;
+    }
+
+    .rq-chip-grid {
+      display: flex; flex-wrap: wrap; gap: 6px;
+    }
+    .rq-chip {
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1.5px solid var(--border, rgba(0,0,0,0.12));
+      background: var(--bg-card, #fff);
+      color: var(--txt-mid);
+      font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+      transition: all .12s;
+    }
+    .rq-chip:hover {
+      border-color: #1a3de8; color: #1a3de8;
+    }
+    .rq-chip.active {
+      background: #1a3de8; color: #fff; border-color: #1a3de8;
+    }
+    [data-theme="dark"] .rq-chip {
+      background: #161b22;
+      color: #c9d1d9;
+      border-color: rgba(255,255,255,0.12);
+    }
+    [data-theme="dark"] .rq-chip.active {
+      background: #4f6df0; border-color: #4f6df0;
+    }
+
+    .rq-quote-box {
+      margin: 18px 0 4px;
+      padding: 18px 20px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #1a3de8 0%, #4f6df0 60%, #db2777 130%);
+      color: #fff;
+      text-align: center;
+      box-shadow: 0 10px 28px rgba(26,61,232,0.22);
+    }
+    .rq-quote-label {
+      font-size: 11.5px; font-weight: 700;
+      letter-spacing: 0.08em;
+      opacity: 0.85;
+      margin-bottom: 4px;
+    }
+    .rq-quote-amount {
+      font-size: 30px; font-weight: 900;
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+      line-height: 1.1;
+    }
+    .rq-quote-note {
+      font-size: 10.5px;
+      opacity: 0.75;
+      margin-top: 6px;
+    }
+
+    .rq-summary {
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: var(--bg-soft, #f5f7fb);
+      border: 1px solid var(--border, rgba(0,0,0,0.07));
+      margin-bottom: 16px;
+    }
+    [data-theme="dark"] .rq-summary {
+      background: #161b22;
+      border-color: rgba(255,255,255,0.07);
+    }
+    .rq-summary-name {
+      font-size: 13.5px; font-weight: 800; color: var(--txt-hi);
+      margin-bottom: 8px;
+    }
+    .rq-summary-rows {
+      display: flex; flex-wrap: wrap; gap: 4px 12px;
+      font-size: 11.5px; color: var(--txt-mid);
+      margin-bottom: 8px;
+      line-height: 1.6;
+    }
+    .rq-summary-rows > span > strong { color: var(--txt-hi); }
+    .rq-summary-price {
+      display: flex; align-items: center; justify-content: space-between;
+      padding-top: 8px;
+      border-top: 1px dashed var(--border, rgba(0,0,0,0.10));
+      font-size: 12.5px; color: var(--txt-mid); font-weight: 700;
+    }
+    .rq-summary-price strong {
+      font-size: 17px; color: #1a3de8; font-weight: 900;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .rq-modal { max-width: 580px; }
+    @media (max-width: 480px) {
+      .rq-vehicle-thumb { width: 72px; height: 54px; font-size: 24px; }
+      .rq-vehicle-name { font-size: 13.5px; }
+      .rq-chip { padding: 7px 12px; font-size: 11.5px; }
+      .rq-quote-amount { font-size: 26px; }
     }
     .sm-time-grid {
       display: grid;
@@ -6739,6 +6861,51 @@
       background: rgba(26,61,232,0.04);
     }
 
+    /* v2.1.7: 사이드바 — 내 공고 직접 등록 카드 (홈에서 이동) */
+    .side-submit {
+      margin: 4px 10px 8px;
+      padding: 10px 11px 11px;
+      background: linear-gradient(135deg, rgba(26,61,232,0.07), rgba(219,39,119,0.06));
+      border: 1.5px dashed rgba(26,61,232,0.28);
+      border-radius: 12px;
+    }
+    .side-submit-head {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.04em;
+      color: var(--txt-mid);
+      margin-bottom: 7px;
+    }
+    .side-submit-head .ssh-icon { font-size: 13px; }
+    .side-submit-btns { display: flex; gap: 6px; }
+    .side-submit-btn {
+      flex: 1;
+      display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 8px 6px;
+      border-radius: 8px;
+      border: none;
+      cursor: pointer;
+      color: #fff;
+      font-size: 11px; font-weight: 700;
+      font-family: inherit;
+      transition: transform .12s, box-shadow .12s;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+    }
+    .side-submit-btn .ssb-icon { font-size: 16px; line-height: 1; }
+    .side-submit-btn.recruit { background: linear-gradient(135deg, #1a3de8, #4f6df0); }
+    .side-submit-btn.lecture { background: linear-gradient(135deg, #db2777, #ec4899); }
+    .side-submit-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 14px rgba(0,0,0,0.16); }
+    [data-theme="dark"] .side-submit {
+      background: linear-gradient(135deg, rgba(124,158,255,0.10), rgba(236,72,153,0.08));
+      border-color: rgba(124,158,255,0.30);
+    }
+    @media (max-width: 480px) {
+      .side-submit { margin: 4px 14px 8px; padding: 11px 12px; }
+      .side-submit-btn { font-size: 12px; padding: 10px 6px; }
+    }
+    body.ic-mobile .side-submit { margin: 6px 14px 10px; padding: 12px 14px; }
+    body.ic-mobile .side-submit-head { font-size: 11px; }
+    body.ic-mobile .side-submit-btn { font-size: 12.5px; padding: 12px 6px; }
+
     /* ══════════════ 사이드바 컴팩트 시계 위젯 ══════════════ */
     .side-clock {
       margin: 6px 10px 8px;
@@ -7110,6 +7277,18 @@
       <span class="ssb-label">빠른 검색</span>
       <span class="ssb-kbd">Ctrl K</span>
     </button>
+    <!-- v2.1.7: 내 공고 직접 등록 (홈에서 이동) -->
+    <div class="side-submit">
+      <div class="side-submit-head"><span class="ssh-icon">📤</span><span>내 공고 직접 등록</span></div>
+      <div class="side-submit-btns">
+        <button type="button" class="side-submit-btn recruit" onclick="openSubmitModal('recruit')">
+          <span class="ssb-icon">💼</span><span>채용공고</span>
+        </button>
+        <button type="button" class="side-submit-btn lecture" onclick="openSubmitModal('lecture')">
+          <span class="ssb-icon">🎓</span><span>강의공고</span>
+        </button>
+      </div>
+    </div>
     <!-- 사이드바 컴팩트 시계 위젯 -->
     <aside class="side-clock" aria-label="현재 시각">
       <div class="side-clock-head">
@@ -7318,23 +7497,89 @@
     </div>
   </div>
 
-  <!-- v2.1.4: 렌트카 신청 모달 -->
+  <!-- v2.1.7: 렌트카 견적 모달 (다단계) -->
   <div class="sm-overlay" id="rental-inquiry-modal" onclick="if(event.target===this)closeRentalInquiry()">
-    <div class="sm-modal">
+    <div class="sm-modal rq-modal">
       <div class="sm-head">
-        <h3 class="sm-title">🚗 차량 신청</h3>
+        <h3 class="sm-title" id="rq-modal-title">🚗 견적 내기</h3>
         <button class="sm-close" type="button" onclick="closeRentalInquiry()" aria-label="닫기">✕</button>
       </div>
       <div class="sm-body">
 
-        <!-- Step 1: 입력 -->
-        <div class="sm-step active" id="rental-step-1">
+        <!-- Step 1: 견적 옵션 선택 -->
+        <div class="sm-step active" id="rq-step-1">
           <!-- 선택 차량 박스 -->
-          <div class="rental-modal-vehicle" id="rental-modal-vehicle">
-            <div class="rental-modal-vehicle-thumb" id="rental-modal-thumb">🚗</div>
-            <div class="rental-modal-vehicle-info">
-              <div class="rental-modal-vehicle-name" id="rental-modal-name">선택된 차량</div>
-              <div class="rental-modal-vehicle-meta" id="rental-modal-meta"></div>
+          <div class="rq-vehicle">
+            <div class="rq-vehicle-thumb" id="rq-vehicle-thumb">🚗</div>
+            <div class="rq-vehicle-info">
+              <div class="rq-vehicle-name" id="rq-vehicle-name">선택된 차량</div>
+              <div class="rq-vehicle-meta" id="rq-vehicle-meta"></div>
+              <div class="rq-vehicle-tags" id="rq-vehicle-tags"></div>
+            </div>
+          </div>
+
+          <!-- 계약기간 -->
+          <div class="sm-field">
+            <label>계약기간 <span class="req">*</span></label>
+            <div class="rq-chip-grid" id="rq-months-grid" role="group" aria-label="계약기간">
+              <button type="button" class="rq-chip" data-months="12">12개월</button>
+              <button type="button" class="rq-chip" data-months="24">24개월</button>
+              <button type="button" class="rq-chip active" data-months="36">36개월</button>
+              <button type="button" class="rq-chip" data-months="48">48개월</button>
+              <button type="button" class="rq-chip" data-months="60">60개월</button>
+            </div>
+          </div>
+
+          <!-- 연주행거리 -->
+          <div class="sm-field">
+            <label>연 주행거리 <span class="req">*</span></label>
+            <div class="rq-chip-grid" id="rq-km-grid" role="group" aria-label="연 주행거리">
+              <button type="button" class="rq-chip" data-km="10000">1만 km</button>
+              <button type="button" class="rq-chip active" data-km="20000">2만 km</button>
+              <button type="button" class="rq-chip" data-km="30000">3만 km</button>
+              <button type="button" class="rq-chip" data-km="40000">4만 km</button>
+              <button type="button" class="rq-chip" data-km="999999">무제한</button>
+            </div>
+          </div>
+
+          <!-- 색상 (admin이 colors 등록한 경우만) -->
+          <div class="sm-field" id="rq-color-field" style="display:none">
+            <label>차량 색상</label>
+            <div class="rq-chip-grid" id="rq-color-grid" role="group" aria-label="색상"></div>
+          </div>
+
+          <!-- 자차 보험 -->
+          <div class="sm-field">
+            <label>자차 보험</label>
+            <div class="rq-chip-grid" id="rq-ins-grid" role="group" aria-label="자차 보험">
+              <button type="button" class="rq-chip active" data-ins="">미선택</button>
+              <button type="button" class="rq-chip" data-ins="자차">자차</button>
+              <button type="button" class="rq-chip" data-ins="완전자차">완전자차</button>
+            </div>
+          </div>
+
+          <!-- 예상 월 대여료 -->
+          <div class="rq-quote-box">
+            <div class="rq-quote-label">예상 월 대여료</div>
+            <div class="rq-quote-amount" id="rq-quote-amount">—</div>
+            <div class="rq-quote-note">선택 조건 기준 예상 견적 · 전문매니저 확정가 별도 안내</div>
+          </div>
+
+          <div class="sm-actions">
+            <button type="button" class="sm-btn sm-btn-secondary" onclick="closeRentalInquiry()">취소</button>
+            <button type="button" class="sm-btn sm-btn-primary" onclick="rqGoToStep2()">상담 신청 →</button>
+          </div>
+        </div>
+
+        <!-- Step 2: 상담 신청 정보 -->
+        <div class="sm-step" id="rq-step-2">
+          <!-- 견적 요약 -->
+          <div class="rq-summary">
+            <div class="rq-summary-name" id="rq-summary-name"></div>
+            <div class="rq-summary-rows" id="rq-summary-rows"></div>
+            <div class="rq-summary-price">
+              <span>예상 월 대여료</span>
+              <strong id="rq-summary-amount">—</strong>
             </div>
           </div>
 
@@ -7361,22 +7606,22 @@
           </div>
           <div class="sm-field">
             <label for="rental-input-memo">추가 문의 (선택)</label>
-            <textarea id="rental-input-memo" maxlength="500" placeholder="원하시는 색상·일정·옵션 등 자유롭게 적어주세요."></textarea>
+            <textarea id="rental-input-memo" maxlength="500" placeholder="원하시는 일정·옵션 등 자유롭게 적어주세요."></textarea>
           </div>
 
           <div class="sm-actions">
-            <button type="button" class="sm-btn sm-btn-secondary" onclick="closeRentalInquiry()">취소</button>
+            <button type="button" class="sm-btn sm-btn-secondary" onclick="rqBackToStep1()">← 견적 수정</button>
             <button type="button" class="sm-btn sm-btn-primary" id="rental-submit-btn" onclick="submitRentalInquiry()">신청하기</button>
           </div>
           <div class="sm-status" id="rental-status"></div>
         </div>
 
-        <!-- Step 2: 완료 -->
-        <div class="sm-step" id="rental-step-done">
-          <div class="sm-done-icon" style="font-size:42px;text-align:center;margin:8px 0 6px">✅</div>
-          <h4 class="sm-done-title" style="text-align:center;font-size:17px;font-weight:800;color:var(--txt-hi);margin:0 0 6px;">신청이 접수되었습니다</h4>
-          <p class="sm-done-msg" style="text-align:center;font-size:13.5px;color:var(--txt-mid);line-height:1.6;">
-            운영자가 입력하신 시간대에 맞춰 연락드립니다.<br>
+        <!-- Step 3: 완료 -->
+        <div class="sm-step" id="rq-step-done">
+          <div style="font-size:42px;text-align:center;margin:8px 0 6px">✅</div>
+          <h4 style="text-align:center;font-size:17px;font-weight:800;color:var(--txt-hi);margin:0 0 6px;">상담 신청이 접수되었습니다</h4>
+          <p style="text-align:center;font-size:13.5px;color:var(--txt-mid);line-height:1.6;">
+            전문매니저가 입력하신 시간대에 맞춰 연락드립니다.<br>
             <strong>영업일 기준 1일 이내</strong> 답변 드립니다.
           </p>
           <div class="sm-actions">
@@ -7421,29 +7666,6 @@
         <span class="ic-m-search-icon">🔍</span>
         <span class="ic-m-search-text">전산·실무도구·페이지 검색…</span>
       </button>
-    </section>
-
-    <!-- v2.0.4: 홈 대시보드 — 공고 직접 등록 CTA -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>📤 내 공고 직접 등록</span></div>
-      <div class="ic-m-submit-grid">
-        <button type="button" class="ic-m-submit-card recruit" onclick="openSubmitModal('recruit')">
-          <span class="ic-m-submit-icon">💼</span>
-          <div class="ic-m-submit-body">
-            <div class="ic-m-submit-title">채용공고 등록</div>
-            <div class="ic-m-submit-sub">50,000원 · 승인 후 게시</div>
-          </div>
-          <span class="ic-m-submit-arrow">→</span>
-        </button>
-        <button type="button" class="ic-m-submit-card lecture" onclick="openSubmitModal('lecture')">
-          <span class="ic-m-submit-icon">🎓</span>
-          <div class="ic-m-submit-body">
-            <div class="ic-m-submit-title">강의공고 등록</div>
-            <div class="ic-m-submit-sub">50,000원 · 승인 후 게시</div>
-          </div>
-          <span class="ic-m-submit-arrow">→</span>
-        </button>
-      </div>
     </section>
 
     <!-- (구) 모바일 시계 — 이제 hero에 통합되어 숨김 -->
@@ -7690,27 +7912,6 @@
       <div class="ic-kakao-updated" id="home-kakao-updated"></div>
     </div>
     </div><!-- /.ic-top-row -->
-
-    <!-- v2.0.4: 홈 — 공고 직접 등록 CTA (오픈채팅방 대화순위 카드 아래, 전체 폭) -->
-    <section class="home-submit-cta" aria-label="공고 직접 등록">
-      <div class="hsc-head">
-        <span class="hsc-icon">📤</span>
-        <div>
-          <div class="hsc-title">내 공고 직접 등록하기</div>
-          <div class="hsc-sub">관리자 승인 후 즉시 게시 · 등록비 50,000원</div>
-        </div>
-      </div>
-      <div class="hsc-buttons">
-        <button type="button" class="hsc-btn recruit" onclick="openSubmitModal('recruit')">
-          <span style="font-size:18px">💼</span>
-          <span>채용공고 등록</span>
-        </button>
-        <button type="button" class="hsc-btn lecture" onclick="openSubmitModal('lecture')">
-          <span style="font-size:18px">🎓</span>
-          <span>강의공고 등록</span>
-        </button>
-      </div>
-    </section>
 
     <!-- v2.0.8: 채용공고 + 강의 가로 2열 (각 섹션 내부도 2열 → 시각적 총 4열) -->
     <div class="ic-jobs-pair">
@@ -13579,20 +13780,28 @@
   })();
   </script>
 
-  <!-- v2.1.4: 렌트카 차량 라인업 로딩 + 신청 모달 로직 -->
+  <!-- v2.1.7: 렌트카 차량 라인업 + 다단계 견적 모달 -->
   <script>
     (function() {
       const escapeHtml = (s) => String(s == null ? '' : s)
         .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
         .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+      const fmtKRW = (n) => (n == null || !Number.isFinite(+n))
+        ? '—'
+        : (+n).toLocaleString('ko-KR') + '원';
 
       let _vehicles = [];
       let _selectedVehicle = null;
       let _selectedTime = '';
+      // 견적 옵션 state
+      let _qMonths = 36;
+      let _qKm     = 20000;
+      let _qColor  = '';
+      let _qIns    = '';
 
       window.loadRentalLineup = async function loadRentalLineup() {
-        const desktopSec = document.getElementById('rental-section');
-        const mobileSec  = document.getElementById('rental-section-mobile');
+        const desktopSec  = document.getElementById('rental-section');
+        const mobileSec   = document.getElementById('rental-section-mobile');
         const desktopGrid = document.getElementById('rental-grid');
         const mobileGrid  = document.getElementById('rental-grid-mobile');
 
@@ -13611,11 +13820,14 @@
         if (!hasItems) return;
 
         const html = _vehicles.map(v => renderCard(v)).join('');
-        // 모바일은 최대 4개만 (간소화)
         const mobileHtml = _vehicles.slice(0, 4).map(v => renderCard(v)).join('');
         if (desktopGrid) desktopGrid.innerHTML = html;
         if (mobileGrid)  mobileGrid.innerHTML  = mobileHtml;
       };
+
+      function tagsArray(v) {
+        return (v.tags || '').split(',').map(s => s.trim()).filter(Boolean);
+      }
 
       function renderCard(v) {
         const promo = v.promo_text ? `<div class="ic-rental-card-promo">${escapeHtml(v.promo_text)}</div>` : '';
@@ -13624,8 +13836,12 @@
           ? `<img src="${escapeHtml(v.image_url)}" alt="${escapeHtml(v.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
              <div class="ic-rental-card-thumb-fallback" style="display:none">🚗</div>`
           : `<div class="ic-rental-card-thumb-fallback">🚗</div>`;
+        const tags = tagsArray(v);
+        const tagsHtml = tags.length
+          ? `<div class="ic-rental-card-tags">${tags.map(t => `<span class="ic-rental-card-tag">#${escapeHtml(t)}</span>`).join('')}</div>`
+          : '';
         return `
-          <button type="button" class="ic-rental-card" onclick="openRentalInquiry(${v.id})" aria-label="${escapeHtml(v.name)} 신청하기">
+          <button type="button" class="ic-rental-card" onclick="openRentalInquiry(${v.id})" aria-label="${escapeHtml(v.name)} 견적내기">
             <div class="ic-rental-card-thumb">
               ${img}
               ${promo}
@@ -13633,10 +13849,44 @@
             </div>
             <div class="ic-rental-card-body">
               <div class="ic-rental-card-name">${escapeHtml(v.name)}</div>
-              ${v.options ? `<div class="ic-rental-card-opts">${escapeHtml(v.options)}</div>` : ''}
-              <div class="ic-rental-card-cta">신청하기 →</div>
+              ${tagsHtml || (v.options ? `<div class="ic-rental-card-opts">${escapeHtml(v.options)}</div>` : '')}
+              <div class="ic-rental-card-cta">견적내기 →</div>
             </div>
           </button>`;
+      }
+
+      /* ════ 견적 계산 ════
+         base × 계약기간 multiplier × 주행거리 multiplier × 보험 multiplier
+         (전문매니저 확정가는 별도 — 화면엔 "예상" 으로 명시)
+      */
+      function calcMonthly() {
+        if (!_selectedVehicle || !Number.isFinite(+_selectedVehicle.base_monthly_price)) return null;
+        const base = +_selectedVehicle.base_monthly_price;
+        const cm = { 12: 1.18, 24: 1.08, 36: 1.00, 48: 0.95, 60: 0.92 }[_qMonths] || 1.00;
+        const km = { 10000: 1.00, 20000: 1.06, 30000: 1.12, 40000: 1.18, 999999: 1.28 }[_qKm] || 1.00;
+        let ins = 1.00;
+        if (_qIns === '완전자차') ins = 1.09;
+        else if (_qIns === '자차') ins = 1.05;
+        const amount = base * cm * km * ins;
+        return Math.round(amount / 1000) * 1000;   // 천원 단위 반올림
+      }
+
+      function updateQuoteDisplay() {
+        const amt = calcMonthly();
+        const el = document.getElementById('rq-quote-amount');
+        if (el) el.textContent = amt == null ? '차량의 기본 대여료가 미등록' : `월 ${fmtKRW(amt)}`;
+      }
+
+      function renderColorChips(colors) {
+        const field = document.getElementById('rq-color-field');
+        const grid  = document.getElementById('rq-color-grid');
+        const list = (colors || '').split(',').map(s => s.trim()).filter(Boolean);
+        if (!list.length) { field.style.display = 'none'; _qColor = ''; return; }
+        field.style.display = '';
+        grid.innerHTML = list.map((c,i) =>
+          `<button type="button" class="rq-chip${i===0?' active':''}" data-color="${escapeHtml(c)}">${escapeHtml(c)}</button>`
+        ).join('');
+        _qColor = list[0];
       }
 
       window.openRentalInquiry = function openRentalInquiry(vehicleId) {
@@ -13644,61 +13894,114 @@
         if (!v) return;
         _selectedVehicle = v;
         _selectedTime = '';
+        _qMonths = 36; _qKm = 20000; _qColor = ''; _qIns = '';
 
-        // 모달 컨텐츠 채우기
-        const nameEl = document.getElementById('rental-modal-name');
-        const metaEl = document.getElementById('rental-modal-meta');
-        const thumb  = document.getElementById('rental-modal-thumb');
-        if (nameEl) nameEl.textContent = v.name;
-        if (metaEl) {
-          const parts = [];
-          if (v.category) parts.push(v.category);
-          if (v.promo_text) parts.push(v.promo_text);
-          if (v.options) parts.push(v.options);
-          metaEl.textContent = parts.join(' · ');
-        }
-        if (thumb) {
-          thumb.innerHTML = v.image_url
-            ? `<img src="${escapeHtml(v.image_url)}" alt="" onerror="this.outerHTML='🚗'">`
-            : '🚗';
-        }
+        // 차량 박스
+        document.getElementById('rq-vehicle-name').textContent = v.name;
+        const metaParts = [];
+        if (v.category)   metaParts.push(v.category);
+        if (v.fuel_type)  metaParts.push(v.fuel_type);
+        if (v.promo_text) metaParts.push(v.promo_text);
+        if (v.options)    metaParts.push(v.options);
+        document.getElementById('rq-vehicle-meta').textContent = metaParts.join(' · ');
+        const tags = tagsArray(v);
+        document.getElementById('rq-vehicle-tags').innerHTML = tags
+          .map(t => `<span class="rq-vehicle-tag">#${escapeHtml(t)}</span>`).join('');
+        const thumb = document.getElementById('rq-vehicle-thumb');
+        thumb.innerHTML = v.image_url
+          ? `<img src="${escapeHtml(v.image_url)}" alt="" onerror="this.outerHTML='🚗'">`
+          : '🚗';
 
-        // 시간대 버튼 초기화
+        // 옵션 칩 초기화 — 기본값 다시 active
+        document.querySelectorAll('#rq-months-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', +b.dataset.months === _qMonths);
+        });
+        document.querySelectorAll('#rq-km-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', +b.dataset.km === _qKm);
+        });
+        document.querySelectorAll('#rq-ins-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', (b.dataset.ins || '') === _qIns);
+        });
+        renderColorChips(v.colors);
+
+        updateQuoteDisplay();
+
+        // 시간대 + 폼 초기화
         document.querySelectorAll('#rental-time-grid .sm-time-btn').forEach(b => b.classList.remove('active'));
-
-        // 입력란 초기화 (한 번에 깔끔)
         ['rental-input-name','rental-input-phone','rental-input-org','rental-input-memo']
           .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
 
-        document.getElementById('rental-step-1').classList.add('active');
-        document.getElementById('rental-step-done').classList.remove('active');
+        // Step1 활성
+        document.getElementById('rq-step-1').classList.add('active');
+        document.getElementById('rq-step-2').classList.remove('active');
+        document.getElementById('rq-step-done').classList.remove('active');
         document.getElementById('rental-status').textContent = '';
 
         document.getElementById('rental-inquiry-modal').classList.add('open');
 
         if (typeof trackClick === 'function') {
-          trackClick('렌트카 카드 클릭', `vehicle_${v.id}`);
+          trackClick('렌트카 견적 시작', `vehicle_${v.id}`);
         }
-
-        // 이름 input 자동 포커스 (모바일은 키보드 자동 노출 방지하려 약간 지연)
-        setTimeout(() => {
-          const nameInput = document.getElementById('rental-input-name');
-          if (nameInput && !('ontouchstart' in window)) nameInput.focus();
-        }, 100);
       };
 
       window.closeRentalInquiry = function closeRentalInquiry() {
         document.getElementById('rental-inquiry-modal').classList.remove('open');
       };
 
-      // 시간대 버튼 클릭 (이벤트 위임)
+      window.rqGoToStep2 = function rqGoToStep2() {
+        // 견적 요약 채우기
+        const amt = calcMonthly();
+        const v = _selectedVehicle;
+        document.getElementById('rq-summary-name').textContent = v ? v.name : '';
+        const rows = [];
+        rows.push(`계약 <strong>${_qMonths}개월</strong>`);
+        rows.push(`연 <strong>${_qKm >= 999999 ? '무제한' : (_qKm/10000)+'만 km'}</strong>`);
+        if (_qColor) rows.push(`색상 <strong>${escapeHtml(_qColor)}</strong>`);
+        if (_qIns)   rows.push(`보험 <strong>${escapeHtml(_qIns)}</strong>`);
+        document.getElementById('rq-summary-rows').innerHTML = rows.map(r => `<span>${r}</span>`).join('');
+        document.getElementById('rq-summary-amount').textContent = amt == null ? '— (확정 견적 안내)' : fmtKRW(amt);
+
+        document.getElementById('rq-step-1').classList.remove('active');
+        document.getElementById('rq-step-2').classList.add('active');
+
+        setTimeout(() => {
+          const nameInput = document.getElementById('rental-input-name');
+          if (nameInput && !('ontouchstart' in window)) nameInput.focus();
+        }, 100);
+      };
+
+      window.rqBackToStep1 = function rqBackToStep1() {
+        document.getElementById('rq-step-2').classList.remove('active');
+        document.getElementById('rq-step-1').classList.add('active');
+      };
+
+      // 칩 클릭 이벤트 위임 (월/km/색상/보험/시간대)
       document.addEventListener('click', (e) => {
-        const btn = e.target.closest('#rental-time-grid .sm-time-btn');
-        if (!btn) return;
-        const grid = btn.parentElement;
-        grid.querySelectorAll('.sm-time-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        _selectedTime = btn.dataset.time || '';
+        let btn;
+        if ((btn = e.target.closest('#rq-months-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _qMonths = +btn.dataset.months;
+          updateQuoteDisplay();
+        } else if ((btn = e.target.closest('#rq-km-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _qKm = +btn.dataset.km;
+          updateQuoteDisplay();
+        } else if ((btn = e.target.closest('#rq-color-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _qColor = btn.dataset.color || '';
+        } else if ((btn = e.target.closest('#rq-ins-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _qIns = btn.dataset.ins || '';
+          updateQuoteDisplay();
+        } else if ((btn = e.target.closest('#rental-time-grid .sm-time-btn'))) {
+          btn.parentElement.querySelectorAll('.sm-time-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _selectedTime = btn.dataset.time || '';
+        }
       });
 
       window.submitRentalInquiry = async function submitRentalInquiry() {
@@ -13725,6 +14028,7 @@
         status.className = 'sm-status';
         status.textContent = '전송 중…';
 
+        const amt = calcMonthly();
         try {
           const res = await fetch('/api/rental-inquiries', {
             method: 'POST',
@@ -13736,19 +14040,20 @@
               customer_phone: phone,
               preferred_time: _selectedTime || null,
               organization: org || null,
-              memo: memo || null
+              memo: memo || null,
+              contract_months: _qMonths,
+              annual_km: _qKm,
+              selected_color: _qColor || null,
+              insurance_opts: _qIns || null,
+              estimated_monthly: amt
             })
           });
           const data = await res.json().catch(() => ({}));
-          if (!res.ok || data.error) {
-            throw new Error(data.error || '신청에 실패했습니다');
-          }
-          // 성공 → 완료 step
-          document.getElementById('rental-step-1').classList.remove('active');
-          document.getElementById('rental-step-done').classList.add('active');
-
+          if (!res.ok || data.error) throw new Error(data.error || '신청에 실패했습니다');
+          document.getElementById('rq-step-2').classList.remove('active');
+          document.getElementById('rq-step-done').classList.add('active');
           if (typeof trackClick === 'function') {
-            trackClick('렌트카 신청 완료', _selectedVehicle ? `vehicle_${_selectedVehicle.id}` : 'unknown');
+            trackClick('렌트카 견적 신청 완료', _selectedVehicle ? `vehicle_${_selectedVehicle.id}` : 'unknown');
           }
         } catch (e) {
           status.className = 'sm-status error';

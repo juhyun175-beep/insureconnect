@@ -15,13 +15,16 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   if (!verifyAdmin(request, env)) return unauthorized();
   const body = await request.json();
   const allowed = ['name','options','promo_text','image_url','category',
+                   'tags','base_monthly_price','fuel_type','colors',
                    'sort_order','is_active'];
   const fields = allowed.filter(k => k in body);
   if (!fields.length) return error('No fields to update');
   const sets = fields.map(f => `${f} = ?`).join(', ');
   const values = fields.map(f => {
-    if (f === 'sort_order') return Number.isFinite(+body[f]) ? +body[f] : 100;
-    if (f === 'is_active')  return (body[f] === 0 || body[f] === false) ? 0 : 1;
+    if (f === 'sort_order' || f === 'base_monthly_price') {
+      return Number.isFinite(+body[f]) ? +body[f] : null;
+    }
+    if (f === 'is_active') return (body[f] === 0 || body[f] === false) ? 0 : 1;
     return body[f] == null ? null : String(body[f]).slice(0, 500);
   });
   await env.DB.prepare(

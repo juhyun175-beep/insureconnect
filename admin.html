@@ -3842,6 +3842,32 @@
                 <input type="number" id="rv-sort" value="100" style="width:100%;padding:8px 10px;font-size:13px;">
               </div>
             </div>
+            <!-- v2.1.7: 견적 시스템 필드 -->
+            <div class="nl-field">
+              <label>태그 (콤마로 구분, 예: 시승가능차량,페이스리프트,7일내즉시출고)</label>
+              <input type="text" id="rv-tags" maxlength="300" placeholder="시승가능차량,페이스리프트" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:160px;">
+                <label>월 기본 대여료 (KRW) <span style="color:#9aa;font-weight:500;font-size:11px;">— 견적 계산 베이스</span></label>
+                <input type="number" id="rv-baseprice" min="0" step="10000" placeholder="예: 700000" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <label>연료</label>
+                <select id="rv-fuel" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="">선택</option>
+                  <option value="가솔린">가솔린</option>
+                  <option value="하이브리드">하이브리드</option>
+                  <option value="디젤">디젤</option>
+                  <option value="전기">전기</option>
+                  <option value="LPG">LPG</option>
+                </select>
+              </div>
+            </div>
+            <div class="nl-field">
+              <label>선택 가능 색상 (콤마로 구분, 예: 화이트,블랙,그레이)</label>
+              <input type="text" id="rv-colors" maxlength="200" placeholder="화이트,블랙,그레이" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
             <div class="nl-field">
               <label>차량 이미지 (jpg/png/webp)</label>
               <label class="nl-file-label">
@@ -6972,6 +6998,11 @@
       const category = document.getElementById('rv-category').value;
       const sortRaw  = document.getElementById('rv-sort').value;
       const sort     = Number.isFinite(+sortRaw) ? +sortRaw : 100;
+      const tags     = (document.getElementById('rv-tags')||{}).value?.trim() || '';
+      const baseRaw  = (document.getElementById('rv-baseprice')||{}).value || '';
+      const basePrice = baseRaw === '' ? null : (Number.isFinite(+baseRaw) ? +baseRaw : null);
+      const fuel     = (document.getElementById('rv-fuel')||{}).value || '';
+      const colors   = (document.getElementById('rv-colors')||{}).value?.trim() || '';
       const fileEl   = document.getElementById('rv-file');
       const status   = document.getElementById('rv-status');
       const btn      = document.getElementById('rv-upload-btn');
@@ -6998,15 +7029,17 @@
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({
             name, options: options || null, promo_text: promo || null,
-            category: category || null, sort_order: sort, image_url, is_active: 1
+            category: category || null, sort_order: sort, image_url, is_active: 1,
+            tags: tags || null,
+            base_monthly_price: basePrice,
+            fuel_type: fuel || null,
+            colors: colors || null
           })
         });
         if (!res.ok) throw new Error(await res.text());
         status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
-        document.getElementById('rv-name').value = '';
-        document.getElementById('rv-options').value = '';
-        document.getElementById('rv-promo').value = '';
-        document.getElementById('rv-category').value = '';
+        ['rv-name','rv-options','rv-promo','rv-category','rv-tags','rv-baseprice','rv-fuel','rv-colors']
+          .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         document.getElementById('rv-sort').value = '100';
         document.getElementById('rv-file').value = '';
         document.getElementById('rv-file-name').textContent = '없음';
@@ -7039,9 +7072,15 @@
               <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">
                 ${it.category ? `<span style="background:rgba(79,109,240,0.16);color:#4f6df0;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.category)}</span>` : ''}
                 ${it.promo_text ? `<span style="background:rgba(219,39,119,0.16);color:#db2777;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.promo_text)}</span>` : ''}
+                ${it.fuel_type ? `<span style="background:rgba(16,185,129,0.16);color:#10b981;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.fuel_type)}</span>` : ''}
                 ${esc(it.options || '')}
               </div>
-              <div style="font-size:10.5px;color:var(--txt-lo);margin-top:2px;opacity:0.7;">정렬 ${it.sort_order} · ${esc(it.created_at)}</div>
+              ${it.tags ? `<div style="font-size:10.5px;color:#db2777;margin-top:2px;">${(it.tags||'').split(',').map(t=>t.trim()).filter(Boolean).map(t=>`#${esc(t)}`).join(' ')}</div>` : ''}
+              <div style="font-size:10.5px;color:var(--txt-lo);margin-top:2px;opacity:0.85;">
+                ${Number.isFinite(+it.base_monthly_price) ? `월기본 <strong style="color:var(--txt-mid)">${(+it.base_monthly_price).toLocaleString('ko-KR')}원</strong> · ` : ''}
+                ${it.colors ? `색상 ${esc(it.colors)} · ` : ''}
+                정렬 ${it.sort_order}
+              </div>
             </div>
             <button onclick="toggleRentalVehicle(${it.id}, ${it.is_active ? 0 : 1})"
                     style="font-size:11px;padding:5px 10px;background:${it.is_active?'rgba(245,158,11,0.16)':'rgba(16,185,129,0.16)'};color:${it.is_active?'#f59e0b':'#10b981'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">
@@ -7132,6 +7171,15 @@
                   ${it.preferred_time ? `시간: <strong style="color:var(--txt-mid)">${esc(it.preferred_time)}</strong>` : ''}
                   ${it.organization ? ` &nbsp;·&nbsp; 소속: <strong style="color:var(--txt-mid)">${esc(it.organization)}</strong>` : ''}
                 </div>
+                ${(it.contract_months || it.annual_km || it.selected_color || it.insurance_opts || it.estimated_monthly) ? `
+                <div style="font-size:11.5px;color:var(--txt-mid);margin-top:6px;padding:7px 9px;background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(219,39,119,0.04));border:1px solid rgba(26,61,232,0.16);border-radius:6px;line-height:1.6;">
+                  <strong style="color:#4f6df0;font-size:10.5px;letter-spacing:0.05em;">📐 견적 옵션</strong><br>
+                  ${it.contract_months ? `계약 <strong style="color:var(--txt-hi)">${it.contract_months}개월</strong>` : ''}
+                  ${it.annual_km ? ` &nbsp;·&nbsp; 연 <strong style="color:var(--txt-hi)">${it.annual_km >= 999999 ? '무제한' : (it.annual_km/10000)+'만 km'}</strong>` : ''}
+                  ${it.selected_color ? ` &nbsp;·&nbsp; 색상 <strong style="color:var(--txt-hi)">${esc(it.selected_color)}</strong>` : ''}
+                  ${it.insurance_opts ? ` &nbsp;·&nbsp; 보험 <strong style="color:var(--txt-hi)">${esc(it.insurance_opts)}</strong>` : ''}
+                  ${Number.isFinite(+it.estimated_monthly) ? `<br>예상 월 대여료: <strong style="color:#db2777;font-size:13px;">${(+it.estimated_monthly).toLocaleString('ko-KR')}원</strong>` : ''}
+                </div>` : ''}
                 ${it.memo ? `<div style="font-size:12px;color:var(--txt-mid);margin-top:6px;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:2px solid rgba(79,109,240,0.5);border-radius:0 6px 6px 0;white-space:pre-wrap;line-height:1.5;">${esc(it.memo)}</div>` : ''}
               </div>
             </div>

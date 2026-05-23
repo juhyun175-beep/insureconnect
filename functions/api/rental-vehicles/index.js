@@ -21,6 +21,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const where = statusParam === 'all' ? '1=1' : 'is_active = 1';
   const rs = await env.DB.prepare(
     `SELECT id, name, options, promo_text, image_url, category,
+            tags, base_monthly_price, fuel_type, colors,
             sort_order, is_active, created_at, updated_at
      FROM ic_rental_vehicles
      WHERE ${where}
@@ -38,14 +39,20 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
 
   const r = await env.DB.prepare(
     `INSERT INTO ic_rental_vehicles
-       (name, options, promo_text, image_url, category, sort_order, is_active)
-     VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`
+       (name, options, promo_text, image_url, category,
+        tags, base_monthly_price, fuel_type, colors,
+        sort_order, is_active)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     String(body.name).trim().slice(0, 200),
     body.options ? String(body.options).slice(0, 300) : null,
     body.promo_text ? String(body.promo_text).slice(0, 60) : null,
     body.image_url ? String(body.image_url).slice(0, 500) : null,
     body.category ? String(body.category).slice(0, 30) : null,
+    body.tags ? String(body.tags).slice(0, 300) : null,
+    Number.isFinite(+body.base_monthly_price) ? +body.base_monthly_price : null,
+    body.fuel_type ? String(body.fuel_type).slice(0, 30) : null,
+    body.colors ? String(body.colors).slice(0, 200) : null,
     Number.isFinite(+body.sort_order) ? +body.sort_order : 100,
     body.is_active === 0 || body.is_active === false ? 0 : 1
   ).first();

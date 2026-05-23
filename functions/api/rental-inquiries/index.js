@@ -1,5 +1,5 @@
 /**
- * 렌트카 신청
+ * 렌트카 신청 (견적 정보 포함)
  *   POST /api/rental-inquiries → 사용자 신청 (공개)
  *   GET  /api/rental-inquiries → 신청 목록 (관리자)
  */
@@ -20,6 +20,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const rs = await env.DB.prepare(
     `SELECT i.id, i.vehicle_id, i.vehicle_name_snapshot, i.customer_name, i.customer_phone,
             i.preferred_time, i.organization, i.memo, i.status, i.created_at, i.updated_at,
+            i.contract_months, i.annual_km, i.selected_color, i.insurance_opts, i.estimated_monthly,
             v.image_url AS vehicle_image_url
      FROM ic_rental_inquiries i
      LEFT JOIN ic_rental_vehicles v ON v.id = i.vehicle_id
@@ -33,7 +34,6 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
 export const onRequestPost = async ({ request, env }) => handle(async () => {
   const body = await request.json();
 
-  // 공개 엔드포인트 — 기본 필드 검증
   const name = (body.customer_name || '').trim();
   const phone = (body.customer_phone || '').trim();
   if (!name || name.length < 2) return error('이름을 입력해주세요');
@@ -56,8 +56,9 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const r = await env.DB.prepare(
     `INSERT INTO ic_rental_inquiries
        (vehicle_id, vehicle_name_snapshot, customer_name, customer_phone,
-        preferred_time, organization, memo, status)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'new') RETURNING id`
+        preferred_time, organization, memo, status,
+        contract_months, annual_km, selected_color, insurance_opts, estimated_monthly)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     vehicleId,
     vehicleNameSnapshot,
@@ -65,7 +66,12 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     phone.slice(0, 30),
     body.preferred_time ? String(body.preferred_time).slice(0, 60) : null,
     body.organization ? String(body.organization).slice(0, 100) : null,
-    body.memo ? String(body.memo).slice(0, 1000) : null
+    body.memo ? String(body.memo).slice(0, 1000) : null,
+    Number.isFinite(+body.contract_months) ? +body.contract_months : null,
+    Number.isFinite(+body.annual_km) ? +body.annual_km : null,
+    body.selected_color ? String(body.selected_color).slice(0, 50) : null,
+    body.insurance_opts ? String(body.insurance_opts).slice(0, 100) : null,
+    Number.isFinite(+body.estimated_monthly) ? +body.estimated_monthly : null
   ).first();
   return json({ id: r.id, ok: true });
 });
