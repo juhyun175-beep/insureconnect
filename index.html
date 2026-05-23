@@ -765,9 +765,14 @@
       z-index: 200;
       display: flex;
       flex-direction: column;
-      overflow: hidden;
+      /* 브라우저 줌(Ctrl +/-) 시 내부 콘텐츠가 뷰포트 높이를 넘기면 사이드바 자체가 스크롤되도록 (푸터/배너 잘림 방지) */
+      overflow-y: auto;
+      overflow-x: hidden;
+      scrollbar-width: none;            /* Firefox */
+      -ms-overflow-style: none;         /* IE/Edge legacy */
       transition: transform .28s ease;
     }
+    .side-nav::-webkit-scrollbar { width: 0; height: 0; display: none; }
     .side-nav-header {
       display: flex; align-items: center; justify-content: center;
       padding: 22px 16px 18px;
@@ -5583,7 +5588,8 @@
       padding: 8px 12px 10px;
       border-top: 1px solid rgba(12,31,184,0.07);
       flex: 1;
-      min-height: 0;
+      /* 줌 시 위쪽 요소들이 커져도 프로모션 영역이 0으로 짓눌리지 않도록 최소 높이 확보 */
+      min-height: 180px;
       display: flex;
       flex-direction: column;
     }

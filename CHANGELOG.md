@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1] - 2026-05-23
+### Fixed
+- **브라우저 줌(Ctrl +/-) 시 사이드바 잘림 해결**
+  - `.side-nav` `overflow: hidden` → `overflow-y: auto` (스크롤바는 CSS로 시각적 숨김 유지)
+  - 줌으로 헤더·메뉴·시계가 커져도 사이드바 전체가 자연스럽게 스크롤되어 푸터/파트너사 프로모션 배너가 잘리지 않음
+  - `.side-latest`에 `min-height: 180px` — 프로모션 영역이 0으로 짓눌리는 것 방지
+
 ## [2.1.0] - 2026-05-22
 ### Fixed
 - **소식지·청구서류 뷰어 로딩 실패 복구**: v2.0.3에서 도입한 Mozilla PDF.js demo viewer(`mozilla.github.io/pdf.js/web/viewer.html`)가 비공식 임베딩이라 X-Frame-Options/CORS로 차단되어 자료가 안 떴음
