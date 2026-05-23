@@ -15,7 +15,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   if (!verifyAdmin(request, env)) return unauthorized();
   const body = await request.json();
   const allowed = ['name','options','promo_text','image_url','category',
-                   'tags','base_monthly_price','fuel_type','colors',
+                   'tags','base_monthly_price','fuel_type','colors','delivery_type',
                    'sort_order','is_active'];
   const fields = allowed.filter(k => k in body);
   if (!fields.length) return error('No fields to update');

@@ -21,7 +21,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     `SELECT i.id, i.vehicle_id, i.vehicle_name_snapshot, i.customer_name, i.customer_phone,
             i.preferred_time, i.organization, i.memo, i.status, i.created_at, i.updated_at,
             i.contract_months, i.annual_km, i.selected_color, i.insurance_opts, i.estimated_monthly,
-            v.image_url AS vehicle_image_url
+            i.business_type, i.deposit_prepay, i.insurance_age,
+            v.image_url AS vehicle_image_url, v.delivery_type AS vehicle_delivery_type
      FROM ic_rental_inquiries i
      LEFT JOIN ic_rental_vehicles v ON v.id = i.vehicle_id
      WHERE ${where}
@@ -57,8 +58,9 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     `INSERT INTO ic_rental_inquiries
        (vehicle_id, vehicle_name_snapshot, customer_name, customer_phone,
         preferred_time, organization, memo, status,
-        contract_months, annual_km, selected_color, insurance_opts, estimated_monthly)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?) RETURNING id`
+        contract_months, annual_km, selected_color, insurance_opts, estimated_monthly,
+        business_type, deposit_prepay, insurance_age)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     vehicleId,
     vehicleNameSnapshot,
@@ -71,7 +73,10 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     Number.isFinite(+body.annual_km) ? +body.annual_km : null,
     body.selected_color ? String(body.selected_color).slice(0, 50) : null,
     body.insurance_opts ? String(body.insurance_opts).slice(0, 100) : null,
-    Number.isFinite(+body.estimated_monthly) ? +body.estimated_monthly : null
+    Number.isFinite(+body.estimated_monthly) ? +body.estimated_monthly : null,
+    body.business_type ? String(body.business_type).slice(0, 30) : null,
+    body.deposit_prepay ? String(body.deposit_prepay).slice(0, 200) : null,
+    body.insurance_age ? String(body.insurance_age).slice(0, 30) : null
   ).first();
   return json({ id: r.id, ok: true });
 });

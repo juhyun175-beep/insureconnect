@@ -3842,6 +3842,21 @@
                 <input type="number" id="rv-sort" value="100" style="width:100%;padding:8px 10px;font-size:13px;">
               </div>
             </div>
+            <!-- v2.1.8: 출고 구분 -->
+            <div class="nl-field">
+              <label>출고 구분 <span style="color:#9aa;font-weight:500;font-size:11px;">— 홈 카드에 ⚡ 즉시출고 배지 노출됨</span></label>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;">
+                <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="rv-delivery" value="" checked style="margin:0;"> 미지정
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="rv-delivery" value="즉시출고" style="margin:0;"> ⚡ 즉시출고
+                </label>
+                <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
+                  <input type="radio" name="rv-delivery" value="일반출고" style="margin:0;"> 일반출고
+                </label>
+              </div>
+            </div>
             <!-- v2.1.7: 견적 시스템 필드 -->
             <div class="nl-field">
               <label>태그 (콤마로 구분, 예: 시승가능차량,페이스리프트,7일내즉시출고)</label>
@@ -7003,6 +7018,8 @@
       const basePrice = baseRaw === '' ? null : (Number.isFinite(+baseRaw) ? +baseRaw : null);
       const fuel     = (document.getElementById('rv-fuel')||{}).value || '';
       const colors   = (document.getElementById('rv-colors')||{}).value?.trim() || '';
+      const deliverySel = document.querySelector('input[name="rv-delivery"]:checked');
+      const delivery = deliverySel ? deliverySel.value : '';
       const fileEl   = document.getElementById('rv-file');
       const status   = document.getElementById('rv-status');
       const btn      = document.getElementById('rv-upload-btn');
@@ -7033,7 +7050,8 @@
             tags: tags || null,
             base_monthly_price: basePrice,
             fuel_type: fuel || null,
-            colors: colors || null
+            colors: colors || null,
+            delivery_type: delivery || null
           })
         });
         if (!res.ok) throw new Error(await res.text());
@@ -7044,6 +7062,9 @@
         document.getElementById('rv-file').value = '';
         document.getElementById('rv-file-name').textContent = '없음';
         document.getElementById('rv-image-preview').style.display = 'none';
+        // 출고 구분 라디오 초기화
+        const r0 = document.querySelector('input[name="rv-delivery"][value=""]');
+        if (r0) r0.checked = true;
         loadRentalVehiclesAdmin();
       } catch (e) {
         status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
@@ -7070,6 +7091,8 @@
             <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)}</div>
               <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">
+                ${it.delivery_type === '즉시출고' ? `<span style="background:linear-gradient(135deg,#10b981,#34d399);color:#fff;padding:1px 7px;border-radius:4px;margin-right:4px;font-weight:800;">⚡ 즉시출고</span>` : ''}
+                ${it.delivery_type === '일반출고' ? `<span style="background:rgba(120,120,120,0.16);color:#999;padding:1px 6px;border-radius:4px;margin-right:4px;">일반출고</span>` : ''}
                 ${it.category ? `<span style="background:rgba(79,109,240,0.16);color:#4f6df0;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.category)}</span>` : ''}
                 ${it.promo_text ? `<span style="background:rgba(219,39,119,0.16);color:#db2777;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.promo_text)}</span>` : ''}
                 ${it.fuel_type ? `<span style="background:rgba(16,185,129,0.16);color:#10b981;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.fuel_type)}</span>` : ''}
@@ -7171,14 +7194,16 @@
                   ${it.preferred_time ? `시간: <strong style="color:var(--txt-mid)">${esc(it.preferred_time)}</strong>` : ''}
                   ${it.organization ? ` &nbsp;·&nbsp; 소속: <strong style="color:var(--txt-mid)">${esc(it.organization)}</strong>` : ''}
                 </div>
-                ${(it.contract_months || it.annual_km || it.selected_color || it.insurance_opts || it.estimated_monthly) ? `
-                <div style="font-size:11.5px;color:var(--txt-mid);margin-top:6px;padding:7px 9px;background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(219,39,119,0.04));border:1px solid rgba(26,61,232,0.16);border-radius:6px;line-height:1.6;">
+                ${(it.contract_months || it.annual_km || it.business_type || it.insurance_age || it.deposit_prepay || it.estimated_monthly || it.selected_color || it.insurance_opts) ? `
+                <div style="font-size:11.5px;color:var(--txt-mid);margin-top:6px;padding:7px 9px;background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(219,39,119,0.04));border:1px solid rgba(26,61,232,0.16);border-radius:6px;line-height:1.7;">
                   <strong style="color:#4f6df0;font-size:10.5px;letter-spacing:0.05em;">📐 견적 옵션</strong><br>
-                  ${it.contract_months ? `계약 <strong style="color:var(--txt-hi)">${it.contract_months}개월</strong>` : ''}
-                  ${it.annual_km ? ` &nbsp;·&nbsp; 연 <strong style="color:var(--txt-hi)">${it.annual_km >= 999999 ? '무제한' : (it.annual_km/10000)+'만 km'}</strong>` : ''}
-                  ${it.selected_color ? ` &nbsp;·&nbsp; 색상 <strong style="color:var(--txt-hi)">${esc(it.selected_color)}</strong>` : ''}
-                  ${it.insurance_opts ? ` &nbsp;·&nbsp; 보험 <strong style="color:var(--txt-hi)">${esc(it.insurance_opts)}</strong>` : ''}
-                  ${Number.isFinite(+it.estimated_monthly) ? `<br>예상 월 대여료: <strong style="color:#db2777;font-size:13px;">${(+it.estimated_monthly).toLocaleString('ko-KR')}원</strong>` : ''}
+                  ${it.business_type ? `<strong style="color:var(--txt-hi)">${esc(it.business_type)}</strong>` : ''}
+                  ${it.contract_months ? ` &nbsp;·&nbsp; 계약 <strong style="color:var(--txt-hi)">${it.contract_months}개월</strong>` : ''}
+                  ${it.annual_km ? ` &nbsp;·&nbsp; 주행 <strong style="color:var(--txt-hi)">${it.annual_km >= 999999 ? '무제한' : (it.annual_km/10000).toLocaleString('ko-KR')+'만 km'}</strong>` : ''}
+                  ${it.insurance_age ? ` &nbsp;·&nbsp; 보험연령 <strong style="color:var(--txt-hi)">${esc(it.insurance_age)}</strong>` : ''}
+                  ${it.deposit_prepay ? `<br>보증/선납: <strong style="color:var(--txt-hi)">${esc(it.deposit_prepay)}</strong>` : ''}
+                  ${(it.selected_color || it.insurance_opts) ? `<br><span style="opacity:0.6;font-size:10.5px;">(구) ${it.selected_color ? '색상 '+esc(it.selected_color) : ''}${it.insurance_opts ? (it.selected_color?' · ':'')+'보험 '+esc(it.insurance_opts) : ''}</span>` : ''}
+                  ${Number.isFinite(+it.estimated_monthly) ? `<br>예상 월 대여료: <strong style="color:#db2777;font-size:13.5px;">${(+it.estimated_monthly).toLocaleString('ko-KR')}원</strong>` : ''}
                 </div>` : ''}
                 ${it.memo ? `<div style="font-size:12px;color:var(--txt-mid);margin-top:6px;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:2px solid rgba(79,109,240,0.5);border-radius:0 6px 6px 0;white-space:pre-wrap;line-height:1.5;">${esc(it.memo)}</div>` : ''}
               </div>

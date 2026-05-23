@@ -1930,11 +1930,79 @@
     }
 
     .rq-modal { max-width: 580px; }
+
+    /* v2.1.8: 계약조건 헤더 + 고정 제공 블록 */
+    .rq-section-head {
+      display: flex; align-items: center; gap: 8px;
+      margin: 4px 0 10px;
+      padding: 8px 0 6px;
+      border-bottom: 1.5px solid var(--border, rgba(0,0,0,0.10));
+    }
+    .rq-section-icon { font-size: 16px; line-height: 1; }
+    .rq-section-title {
+      font-size: 14px; font-weight: 800; letter-spacing: -0.01em;
+      color: var(--txt-hi);
+    }
+    .rq-fixed-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      margin-bottom: 4px;
+    }
+    .rq-fixed-row {
+      display: flex; flex-direction: column; gap: 2px;
+      padding: 10px 12px;
+      background: linear-gradient(135deg, rgba(16,185,129,0.06), rgba(79,109,240,0.04));
+      border: 1px solid rgba(16,185,129,0.18);
+      border-radius: 10px;
+    }
+    .rq-fixed-label {
+      font-size: 10.5px; font-weight: 700;
+      color: #10b981; letter-spacing: 0.04em;
+    }
+    .rq-fixed-val {
+      font-size: 13.5px; font-weight: 800; color: var(--txt-hi);
+    }
+    [data-theme="dark"] .rq-fixed-row {
+      background: linear-gradient(135deg, rgba(16,185,129,0.10), rgba(79,109,240,0.07));
+      border-color: rgba(16,185,129,0.28);
+    }
+    @media (max-width: 480px) {
+      .rq-fixed-grid { grid-template-columns: 1fr; }
+    }
+
+    /* 보증/선납 input — sm-field 안 input 스타일 그대로 사용됨 */
+    #rq-deposit-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1.5px solid var(--border, rgba(0,0,0,0.12));
+      border-radius: 10px;
+      font-size: 13.5px; font-family: inherit;
+      background: var(--bg-card, #fff); color: var(--txt-hi);
+      box-sizing: border-box;
+    }
+    #rq-deposit-input:focus {
+      outline: none; border-color: #1a3de8;
+      box-shadow: 0 0 0 3px rgba(26,61,232,0.12);
+    }
+
     @media (max-width: 480px) {
       .rq-vehicle-thumb { width: 72px; height: 54px; font-size: 24px; }
       .rq-vehicle-name { font-size: 13.5px; }
       .rq-chip { padding: 7px 12px; font-size: 11.5px; }
       .rq-quote-amount { font-size: 26px; }
+    }
+
+    /* v2.1.8: 즉시출고 배지 (카드 썸네일 좌하단) */
+    .ic-rental-card-instant {
+      position: absolute;
+      bottom: 8px; left: 8px;
+      display: inline-flex; align-items: center; gap: 4px;
+      background: linear-gradient(135deg, #10b981, #34d399);
+      color: #fff;
+      font-size: 10.5px; font-weight: 800;
+      padding: 4px 10px;
+      border-radius: 999px;
+      box-shadow: 0 4px 10px rgba(16,185,129,0.40);
+      letter-spacing: -0.01em;
     }
     .sm-time-grid {
       display: grid;
@@ -7518,11 +7586,26 @@
             </div>
           </div>
 
+          <!-- 계약조건 헤더 -->
+          <div class="rq-section-head">
+            <span class="rq-section-icon">📋</span>
+            <span class="rq-section-title">계약조건</span>
+          </div>
+
+          <!-- 개인/법인 -->
+          <div class="sm-field">
+            <label>개인/법인 <span class="req">*</span></label>
+            <div class="rq-chip-grid" id="rq-biz-grid" role="group" aria-label="개인/법인">
+              <button type="button" class="rq-chip active" data-biz="개인">개인</button>
+              <button type="button" class="rq-chip" data-biz="개인사업자">개인사업자</button>
+              <button type="button" class="rq-chip" data-biz="법인">법인</button>
+            </div>
+          </div>
+
           <!-- 계약기간 -->
           <div class="sm-field">
             <label>계약기간 <span class="req">*</span></label>
             <div class="rq-chip-grid" id="rq-months-grid" role="group" aria-label="계약기간">
-              <button type="button" class="rq-chip" data-months="12">12개월</button>
               <button type="button" class="rq-chip" data-months="24">24개월</button>
               <button type="button" class="rq-chip active" data-months="36">36개월</button>
               <button type="button" class="rq-chip" data-months="48">48개월</button>
@@ -7530,31 +7613,51 @@
             </div>
           </div>
 
-          <!-- 연주행거리 -->
+          <!-- 주행거리 -->
           <div class="sm-field">
-            <label>연 주행거리 <span class="req">*</span></label>
+            <label>주행거리 (연간) <span class="req">*</span></label>
             <div class="rq-chip-grid" id="rq-km-grid" role="group" aria-label="연 주행거리">
               <button type="button" class="rq-chip" data-km="10000">1만 km</button>
+              <button type="button" class="rq-chip" data-km="15000">1.5만 km</button>
               <button type="button" class="rq-chip active" data-km="20000">2만 km</button>
+              <button type="button" class="rq-chip" data-km="25000">2.5만 km</button>
               <button type="button" class="rq-chip" data-km="30000">3만 km</button>
+              <button type="button" class="rq-chip" data-km="35000">3.5만 km</button>
               <button type="button" class="rq-chip" data-km="40000">4만 km</button>
-              <button type="button" class="rq-chip" data-km="999999">무제한</button>
+              <button type="button" class="rq-chip" data-km="50000">5만 km</button>
             </div>
           </div>
 
-          <!-- 색상 (admin이 colors 등록한 경우만) -->
-          <div class="sm-field" id="rq-color-field" style="display:none">
-            <label>차량 색상</label>
-            <div class="rq-chip-grid" id="rq-color-grid" role="group" aria-label="색상"></div>
+          <!-- 보증/선납 (직접입력) -->
+          <div class="sm-field">
+            <label for="rq-deposit-input">보증/선납 (직접입력)</label>
+            <input type="text" id="rq-deposit-input" maxlength="100" placeholder="예: 보증금 30% / 선납 0%">
           </div>
 
-          <!-- 자차 보험 -->
+          <!-- 보험연령 -->
           <div class="sm-field">
-            <label>자차 보험</label>
-            <div class="rq-chip-grid" id="rq-ins-grid" role="group" aria-label="자차 보험">
-              <button type="button" class="rq-chip active" data-ins="">미선택</button>
-              <button type="button" class="rq-chip" data-ins="자차">자차</button>
-              <button type="button" class="rq-chip" data-ins="완전자차">완전자차</button>
+            <label>보험연령 <span class="req">*</span></label>
+            <div class="rq-chip-grid" id="rq-age-grid" role="group" aria-label="보험연령">
+              <button type="button" class="rq-chip" data-age="만21세이상">만 21세 이상</button>
+              <button type="button" class="rq-chip" data-age="만26세이상">만 26세 이상</button>
+              <button type="button" class="rq-chip active" data-age="만30세이상">만 30세 이상</button>
+              <button type="button" class="rq-chip" data-age="만35세이상">만 35세 이상</button>
+            </div>
+          </div>
+
+          <!-- 기본 제공 (고정값) -->
+          <div class="rq-section-head" style="margin-top:18px">
+            <span class="rq-section-icon">🎁</span>
+            <span class="rq-section-title">기본 제공 (전 차량 공통)</span>
+          </div>
+          <div class="rq-fixed-grid">
+            <div class="rq-fixed-row">
+              <span class="rq-fixed-label">대물보험</span>
+              <span class="rq-fixed-val">10억</span>
+            </div>
+            <div class="rq-fixed-row">
+              <span class="rq-fixed-label">용품설정</span>
+              <span class="rq-fixed-val">블박 + 썬팅</span>
             </div>
           </div>
 
@@ -13793,11 +13896,12 @@
       let _vehicles = [];
       let _selectedVehicle = null;
       let _selectedTime = '';
-      // 견적 옵션 state
-      let _qMonths = 36;
-      let _qKm     = 20000;
-      let _qColor  = '';
-      let _qIns    = '';
+      // 견적 옵션 state (v2.1.8)
+      let _qBiz     = '개인';
+      let _qMonths  = 36;
+      let _qKm      = 20000;
+      let _qDeposit = '';
+      let _qAge     = '만30세이상';
 
       window.loadRentalLineup = async function loadRentalLineup() {
         const desktopSec  = document.getElementById('rental-section');
@@ -13832,6 +13936,9 @@
       function renderCard(v) {
         const promo = v.promo_text ? `<div class="ic-rental-card-promo">${escapeHtml(v.promo_text)}</div>` : '';
         const cat   = v.category   ? `<div class="ic-rental-card-cat">${escapeHtml(v.category)}</div>`     : '';
+        // v2.1.8: 즉시출고 배지 (썸네일 좌하단)
+        const instant = v.delivery_type === '즉시출고'
+          ? `<div class="ic-rental-card-instant">⚡ 즉시출고</div>` : '';
         const img   = v.image_url
           ? `<img src="${escapeHtml(v.image_url)}" alt="${escapeHtml(v.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
              <div class="ic-rental-card-thumb-fallback" style="display:none">🚗</div>`
@@ -13846,6 +13953,7 @@
               ${img}
               ${promo}
               ${cat}
+              ${instant}
             </div>
             <div class="ic-rental-card-body">
               <div class="ic-rental-card-name">${escapeHtml(v.name)}</div>
@@ -13855,19 +13963,20 @@
           </button>`;
       }
 
-      /* ════ 견적 계산 ════
-         base × 계약기간 multiplier × 주행거리 multiplier × 보험 multiplier
+      /* ════ 견적 계산 (v2.1.8) ════
+         base × 개인/법인 × 계약기간 × 주행거리 × 보험연령
          (전문매니저 확정가는 별도 — 화면엔 "예상" 으로 명시)
       */
       function calcMonthly() {
         if (!_selectedVehicle || !Number.isFinite(+_selectedVehicle.base_monthly_price)) return null;
         const base = +_selectedVehicle.base_monthly_price;
-        const cm = { 12: 1.18, 24: 1.08, 36: 1.00, 48: 0.95, 60: 0.92 }[_qMonths] || 1.00;
-        const km = { 10000: 1.00, 20000: 1.06, 30000: 1.12, 40000: 1.18, 999999: 1.28 }[_qKm] || 1.00;
-        let ins = 1.00;
-        if (_qIns === '완전자차') ins = 1.09;
-        else if (_qIns === '자차') ins = 1.05;
-        const amount = base * cm * km * ins;
+        const biz = { '개인': 1.00, '개인사업자': 0.98, '법인': 0.97 }[_qBiz] || 1.00;
+        const cm  = { 24: 1.10, 36: 1.00, 48: 0.95, 60: 0.92 }[_qMonths] || 1.00;
+        const km  = { 10000: 1.00, 15000: 1.03, 20000: 1.06, 25000: 1.09,
+                      30000: 1.12, 35000: 1.15, 40000: 1.18, 50000: 1.22 }[_qKm] || 1.00;
+        const age = { '만21세이상': 1.15, '만26세이상': 1.05,
+                      '만30세이상': 1.00, '만35세이상': 0.97 }[_qAge] || 1.00;
+        const amount = base * biz * cm * km * age;
         return Math.round(amount / 1000) * 1000;   // 천원 단위 반올림
       }
 
@@ -13877,28 +13986,17 @@
         if (el) el.textContent = amt == null ? '차량의 기본 대여료가 미등록' : `월 ${fmtKRW(amt)}`;
       }
 
-      function renderColorChips(colors) {
-        const field = document.getElementById('rq-color-field');
-        const grid  = document.getElementById('rq-color-grid');
-        const list = (colors || '').split(',').map(s => s.trim()).filter(Boolean);
-        if (!list.length) { field.style.display = 'none'; _qColor = ''; return; }
-        field.style.display = '';
-        grid.innerHTML = list.map((c,i) =>
-          `<button type="button" class="rq-chip${i===0?' active':''}" data-color="${escapeHtml(c)}">${escapeHtml(c)}</button>`
-        ).join('');
-        _qColor = list[0];
-      }
-
       window.openRentalInquiry = function openRentalInquiry(vehicleId) {
         const v = _vehicles.find(x => x.id === vehicleId);
         if (!v) return;
         _selectedVehicle = v;
         _selectedTime = '';
-        _qMonths = 36; _qKm = 20000; _qColor = ''; _qIns = '';
+        _qBiz = '개인'; _qMonths = 36; _qKm = 20000; _qDeposit = ''; _qAge = '만30세이상';
 
         // 차량 박스
         document.getElementById('rq-vehicle-name').textContent = v.name;
         const metaParts = [];
+        if (v.delivery_type) metaParts.push(v.delivery_type);
         if (v.category)   metaParts.push(v.category);
         if (v.fuel_type)  metaParts.push(v.fuel_type);
         if (v.promo_text) metaParts.push(v.promo_text);
@@ -13913,16 +14011,21 @@
           : '🚗';
 
         // 옵션 칩 초기화 — 기본값 다시 active
+        document.querySelectorAll('#rq-biz-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', (b.dataset.biz || '') === _qBiz);
+        });
         document.querySelectorAll('#rq-months-grid .rq-chip').forEach(b => {
           b.classList.toggle('active', +b.dataset.months === _qMonths);
         });
         document.querySelectorAll('#rq-km-grid .rq-chip').forEach(b => {
           b.classList.toggle('active', +b.dataset.km === _qKm);
         });
-        document.querySelectorAll('#rq-ins-grid .rq-chip').forEach(b => {
-          b.classList.toggle('active', (b.dataset.ins || '') === _qIns);
+        document.querySelectorAll('#rq-age-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', (b.dataset.age || '') === _qAge);
         });
-        renderColorChips(v.colors);
+        // 보증/선납 input 초기화
+        const dep = document.getElementById('rq-deposit-input');
+        if (dep) dep.value = '';
 
         updateQuoteDisplay();
 
@@ -13949,15 +14052,19 @@
       };
 
       window.rqGoToStep2 = function rqGoToStep2() {
-        // 견적 요약 채우기
+        // 보증/선납 input 값 캡처
+        _qDeposit = (document.getElementById('rq-deposit-input') || {}).value || '';
+        _qDeposit = _qDeposit.trim();
+
         const amt = calcMonthly();
         const v = _selectedVehicle;
         document.getElementById('rq-summary-name').textContent = v ? v.name : '';
         const rows = [];
+        rows.push(`<strong>${escapeHtml(_qBiz)}</strong>`);
         rows.push(`계약 <strong>${_qMonths}개월</strong>`);
-        rows.push(`연 <strong>${_qKm >= 999999 ? '무제한' : (_qKm/10000)+'만 km'}</strong>`);
-        if (_qColor) rows.push(`색상 <strong>${escapeHtml(_qColor)}</strong>`);
-        if (_qIns)   rows.push(`보험 <strong>${escapeHtml(_qIns)}</strong>`);
+        rows.push(`주행 <strong>${(_qKm/10000).toLocaleString('ko-KR')}만 km</strong>`);
+        rows.push(`보험연령 <strong>${escapeHtml(_qAge)}</strong>`);
+        if (_qDeposit) rows.push(`보증/선납 <strong>${escapeHtml(_qDeposit)}</strong>`);
         document.getElementById('rq-summary-rows').innerHTML = rows.map(r => `<span>${r}</span>`).join('');
         document.getElementById('rq-summary-amount').textContent = amt == null ? '— (확정 견적 안내)' : fmtKRW(amt);
 
@@ -13975,10 +14082,15 @@
         document.getElementById('rq-step-1').classList.add('active');
       };
 
-      // 칩 클릭 이벤트 위임 (월/km/색상/보험/시간대)
+      // 칩 클릭 이벤트 위임 (개인법인/월/km/연령/시간대)
       document.addEventListener('click', (e) => {
         let btn;
-        if ((btn = e.target.closest('#rq-months-grid .rq-chip'))) {
+        if ((btn = e.target.closest('#rq-biz-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _qBiz = btn.dataset.biz || '개인';
+          updateQuoteDisplay();
+        } else if ((btn = e.target.closest('#rq-months-grid .rq-chip'))) {
           btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           _qMonths = +btn.dataset.months;
@@ -13988,14 +14100,10 @@
           btn.classList.add('active');
           _qKm = +btn.dataset.km;
           updateQuoteDisplay();
-        } else if ((btn = e.target.closest('#rq-color-grid .rq-chip'))) {
+        } else if ((btn = e.target.closest('#rq-age-grid .rq-chip'))) {
           btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          _qColor = btn.dataset.color || '';
-        } else if ((btn = e.target.closest('#rq-ins-grid .rq-chip'))) {
-          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
-          btn.classList.add('active');
-          _qIns = btn.dataset.ins || '';
+          _qAge = btn.dataset.age || '';
           updateQuoteDisplay();
         } else if ((btn = e.target.closest('#rental-time-grid .sm-time-btn'))) {
           btn.parentElement.querySelectorAll('.sm-time-btn').forEach(b => b.classList.remove('active'));
@@ -14043,8 +14151,9 @@
               memo: memo || null,
               contract_months: _qMonths,
               annual_km: _qKm,
-              selected_color: _qColor || null,
-              insurance_opts: _qIns || null,
+              business_type: _qBiz || null,
+              deposit_prepay: _qDeposit || null,
+              insurance_age: _qAge || null,
               estimated_monthly: amt
             })
           });
