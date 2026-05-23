@@ -1590,57 +1590,113 @@
       margin: 18px 0 20px;
     }
     .ic-rental-section[hidden] { display: none; }
-    /* v2.1.5: 파트너사 혜택 배너 (추천 차량 라인업 위 헤더) */
+    /* v2.1.9: 파트너사 혜택 배너 — 강조 카피 + 글로우/샤인/펄스 모션 */
     .ic-pb-banner {
       display: flex;
       align-items: center;
-      gap: 12px;
-      padding: 12px 18px 12px 22px;
+      gap: 14px;
+      padding: 14px 20px 14px 24px;
       margin-bottom: 14px;
-      background: linear-gradient(90deg, rgba(26,61,232,0.10), rgba(219,39,119,0.08), rgba(159,122,234,0.06));
-      border: 1px solid rgba(26,61,232,0.18);
-      border-radius: 12px;
+      background: linear-gradient(90deg, rgba(26,61,232,0.10), rgba(219,39,119,0.10), rgba(245,158,11,0.06));
+      border: 1px solid rgba(26,61,232,0.22);
+      border-radius: 14px;
       position: relative;
       overflow: hidden;
+      animation: pbBannerGlow 3.2s ease-in-out infinite;
     }
     .ic-pb-banner::before {
       content: '';
       position: absolute;
       left: 0; top: 0; bottom: 0;
-      width: 4px;
-      background: linear-gradient(180deg, #1a3de8, #db2777);
+      width: 5px;
+      background: linear-gradient(180deg, #1a3de8, #db2777, #f59e0b);
+      z-index: 1;
     }
-    .ic-pb-icon { font-size: 20px; flex-shrink: 0; line-height: 1; }
-    .ic-pb-title {
-      margin: 0;
-      font-size: 15px;
-      font-weight: 800;
-      color: var(--txt-hi);
-      letter-spacing: -0.01em;
+    /* 슬라이딩 샤인 (배너 위를 가로지르는 빛) */
+    .ic-pb-banner::after {
+      content: '';
+      position: absolute;
+      top: 0; bottom: 0; left: -60%;
+      width: 50%;
+      background: linear-gradient(120deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+      animation: pbShine 5.5s ease-in-out infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .ic-pb-banner > * { position: relative; z-index: 2; }
+    @keyframes pbBannerGlow {
+      0%, 100% { box-shadow: 0 4px 12px rgba(26,61,232,0.06); }
+      50%      { box-shadow: 0 6px 28px rgba(219,39,119,0.24), 0 2px 14px rgba(26,61,232,0.18); }
+    }
+    @keyframes pbShine {
+      0%, 78%, 100% { left: -60%; }
+      88%           { left: 130%; }
+    }
+    .ic-pb-icon {
+      font-size: 24px; flex-shrink: 0; line-height: 1;
+      animation: pbIconBob 2.4s ease-in-out infinite;
+    }
+    @keyframes pbIconBob {
+      0%, 100% { transform: translateY(0) rotate(0); }
+      50%      { transform: translateY(-2px) rotate(-6deg); }
+    }
+    .ic-pb-title { margin: 0; line-height: 1.25; }
+    .ic-pb-q {
+      display: block;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: -0.02em;
+      background: linear-gradient(135deg, #1a3de8 0%, #db2777 60%, #f59e0b 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      color: transparent;
+      animation: pbTitlePulse 2.6s ease-in-out infinite;
+    }
+    .ic-pb-a {
+      display: block;
+      font-size: 12.5px;
+      font-weight: 700;
+      color: var(--txt-mid);
+      margin-top: 3px;
+    }
+    @keyframes pbTitlePulse {
+      0%, 100% { filter: brightness(1) drop-shadow(0 0 0 transparent); }
+      50%      { filter: brightness(1.08) drop-shadow(0 0 10px rgba(219,39,119,0.45)); }
     }
     .ic-pb-pill {
       margin-left: auto;
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 800;
       letter-spacing: 0.1em;
-      color: #1a3de8;
-      background: rgba(26,61,232,0.10);
-      padding: 4px 10px;
+      color: #fff;
+      background: linear-gradient(135deg, #db2777, #f59e0b);
+      padding: 5px 11px;
       border-radius: 999px;
       flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(219,39,119,0.30);
     }
     [data-theme="dark"] .ic-pb-banner {
-      background: linear-gradient(90deg, rgba(124,158,255,0.10), rgba(236,72,153,0.06), rgba(167,139,250,0.05));
-      border-color: rgba(124,158,255,0.20);
+      background: linear-gradient(90deg, rgba(124,158,255,0.12), rgba(236,72,153,0.10), rgba(245,158,11,0.06));
+      border-color: rgba(124,158,255,0.24);
     }
-    [data-theme="dark"] .ic-pb-pill {
-      background: rgba(124,158,255,0.15);
-      color: #93c5fd;
+    [data-theme="dark"] .ic-pb-q {
+      background: linear-gradient(135deg, #93c5fd 0%, #f472b6 60%, #fbbf24 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
     }
     @media (max-width: 480px) {
-      .ic-pb-banner { padding: 10px 14px 10px 18px; gap: 10px; }
-      .ic-pb-title { font-size: 13.5px; }
-      .ic-pb-pill { font-size: 9.5px; padding: 3px 8px; }
+      .ic-pb-banner { padding: 12px 14px 12px 18px; gap: 10px; }
+      .ic-pb-icon { font-size: 20px; }
+      .ic-pb-q   { font-size: 15px; }
+      .ic-pb-a   { font-size: 11.5px; }
+      .ic-pb-pill { display: none; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .ic-pb-banner, .ic-pb-banner::after, .ic-pb-icon, .ic-pb-q {
+        animation: none !important;
+      }
     }
     body.ic-mobile .ic-pb-banner { margin-bottom: 10px; }
     .ic-rental-head {
@@ -1773,6 +1829,15 @@
       border-color: transparent;
       box-shadow: 0 6px 14px rgba(219,39,119,0.30);
     }
+    .ic-rental-card-cta-note {
+      text-align: center;
+      font-size: 10.5px; font-weight: 600;
+      color: #10b981;
+      margin-top: 5px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    [data-theme="dark"] .ic-rental-card-cta-note { color: #34d399; }
     .ic-rental-skel {
       background: linear-gradient(90deg, rgba(0,0,0,0.05), rgba(0,0,0,0.08), rgba(0,0,0,0.05));
       background-size: 200% 100%;
@@ -7628,10 +7693,30 @@
             </div>
           </div>
 
-          <!-- 보증/선납 (직접입력) -->
+          <!-- 보증금 -->
           <div class="sm-field">
-            <label for="rq-deposit-input">보증/선납 (직접입력)</label>
-            <input type="text" id="rq-deposit-input" maxlength="100" placeholder="예: 보증금 30% / 선납 0%">
+            <label>보증금 <span class="req">*</span></label>
+            <div class="rq-chip-grid" id="rq-deposit-grid" role="group" aria-label="보증금">
+              <button type="button" class="rq-chip active" data-deposit="0">0%</button>
+              <button type="button" class="rq-chip" data-deposit="10">10%</button>
+              <button type="button" class="rq-chip" data-deposit="20">20%</button>
+              <button type="button" class="rq-chip" data-deposit="30">30%</button>
+              <button type="button" class="rq-chip" data-deposit="40">40%</button>
+              <button type="button" class="rq-chip" data-deposit="50">50%</button>
+            </div>
+          </div>
+
+          <!-- 선납금 -->
+          <div class="sm-field">
+            <label>선납금 <span class="req">*</span> <span style="font-weight:500;color:var(--txt-lo);font-size:11px;">— 높을수록 월 대여료가 저렴해집니다</span></label>
+            <div class="rq-chip-grid" id="rq-prepay-grid" role="group" aria-label="선납금">
+              <button type="button" class="rq-chip active" data-prepay="0">0%</button>
+              <button type="button" class="rq-chip" data-prepay="10">10%</button>
+              <button type="button" class="rq-chip" data-prepay="20">20%</button>
+              <button type="button" class="rq-chip" data-prepay="30">30%</button>
+              <button type="button" class="rq-chip" data-prepay="40">40%</button>
+              <button type="button" class="rq-chip" data-prepay="50">50%</button>
+            </div>
           </div>
 
           <!-- 보험연령 -->
@@ -7693,15 +7778,7 @@
           <div class="sm-field">
             <label for="rental-input-phone">휴대폰 <span class="req">*</span></label>
             <input type="tel" id="rental-input-phone" maxlength="20" autocomplete="tel" placeholder="예: 010-1234-5678">
-          </div>
-          <div class="sm-field">
-            <label>선호 연락 시간대 (선택)</label>
-            <div class="sm-time-grid" id="rental-time-grid" role="group" aria-label="연락 시간대">
-              <button type="button" class="sm-time-btn" data-time="평일 오전">평일 오전</button>
-              <button type="button" class="sm-time-btn" data-time="평일 오후">평일 오후</button>
-              <button type="button" class="sm-time-btn" data-time="주말 오전">주말 오전</button>
-              <button type="button" class="sm-time-btn" data-time="주말 오후">주말 오후</button>
-            </div>
+            <div style="margin-top:6px;font-size:11.5px;color:#10b981;font-weight:700;">📨 입력하신 번호로 견적서가 문자로 발송됩니다</div>
           </div>
           <div class="sm-field">
             <label for="rental-input-org">소속 GA / 대리점 (선택)</label>
@@ -7828,11 +7905,14 @@
       </div>
     </section>
 
-    <!-- v2.1.5: 모바일 — 인슈어커넥트 파트너사 혜택 (추천 차량 라인업) -->
-    <section class="ic-m-section ic-rental-section" id="rental-section-mobile" hidden aria-label="인슈어커넥트 파트너사 혜택 — 추천 차량 라인업">
+    <!-- v2.1.9: 모바일 — 보험설계사 전용 렌트카 혜택 -->
+    <section class="ic-m-section ic-rental-section" id="rental-section-mobile" hidden aria-label="보험설계사 전용 렌트카 혜택">
       <div class="ic-pb-banner">
-        <span class="ic-pb-icon">🎁</span>
-        <h2 class="ic-pb-title">인슈어커넥트 파트너사 혜택</h2>
+        <span class="ic-pb-icon">🚗</span>
+        <h2 class="ic-pb-title">
+          <span class="ic-pb-q">아직도 걸어다니세요?</span>
+          <span class="ic-pb-a">보험설계사라면 우대해드립니다</span>
+        </h2>
       </div>
       <div class="ic-rental-head">
         <div class="ic-rental-title">
@@ -8051,12 +8131,15 @@
       </section>
     </div>
 
-    <!-- v2.1.5: 인슈어커넥트 파트너사 혜택 — 추천 차량 라인업 (등록된 차량 있을 때만 노출) -->
-    <section class="ic-rental-section" id="rental-section" hidden aria-label="인슈어커넥트 파트너사 혜택 — 추천 차량 라인업">
+    <!-- v2.1.9: 인슈어커넥트 파트너사 혜택 — 추천 차량 라인업 (등록된 차량 있을 때만 노출) -->
+    <section class="ic-rental-section" id="rental-section" hidden aria-label="보험설계사 전용 렌트카 혜택">
       <div class="ic-pb-banner">
-        <span class="ic-pb-icon">🎁</span>
-        <h2 class="ic-pb-title">인슈어커넥트 파트너사 혜택</h2>
-        <span class="ic-pb-pill">PARTNER BENEFITS</span>
+        <span class="ic-pb-icon">🚗</span>
+        <h2 class="ic-pb-title">
+          <span class="ic-pb-q">아직도 걸어다니세요?</span>
+          <span class="ic-pb-a">보험설계사라면 우대해드립니다</span>
+        </h2>
+        <span class="ic-pb-pill">설계사 전용</span>
       </div>
       <div class="ic-rental-head">
         <div class="ic-rental-title">
@@ -13895,13 +13978,13 @@
 
       let _vehicles = [];
       let _selectedVehicle = null;
-      let _selectedTime = '';
-      // 견적 옵션 state (v2.1.8)
-      let _qBiz     = '개인';
-      let _qMonths  = 36;
-      let _qKm      = 20000;
-      let _qDeposit = '';
-      let _qAge     = '만30세이상';
+      // 견적 옵션 state (v2.1.9)
+      let _qBiz        = '개인';
+      let _qMonths     = 36;
+      let _qKm         = 20000;
+      let _qAge        = '만30세이상';
+      let _qDepositPct = 0;
+      let _qPrepayPct  = 0;
 
       window.loadRentalLineup = async function loadRentalLineup() {
         const desktopSec  = document.getElementById('rental-section');
@@ -13959,25 +14042,30 @@
               <div class="ic-rental-card-name">${escapeHtml(v.name)}</div>
               ${tagsHtml || (v.options ? `<div class="ic-rental-card-opts">${escapeHtml(v.options)}</div>` : '')}
               <div class="ic-rental-card-cta">견적내기 →</div>
+              <div class="ic-rental-card-cta-note">📨 문자로 견적서 발송해드립니다</div>
             </div>
           </button>`;
       }
 
-      /* ════ 견적 계산 (v2.1.8) ════
-         base × 개인/법인 × 계약기간 × 주행거리 × 보험연령
-         (전문매니저 확정가는 별도 — 화면엔 "예상" 으로 명시)
+      /* ════ 견적 계산 (v2.1.9) ════
+         base × 계약기간 × 주행거리 × 보험연령 × 보증금 × 선납금
+         — 개인/법인은 가격에 영향 없음 (운영자 응대 시 참고용)
+         — 선납금 % 가 높을수록 큰 폭으로 할인 (월 대여료 ↓)
       */
       function calcMonthly() {
         if (!_selectedVehicle || !Number.isFinite(+_selectedVehicle.base_monthly_price)) return null;
         const base = +_selectedVehicle.base_monthly_price;
-        const biz = { '개인': 1.00, '개인사업자': 0.98, '법인': 0.97 }[_qBiz] || 1.00;
         const cm  = { 24: 1.10, 36: 1.00, 48: 0.95, 60: 0.92 }[_qMonths] || 1.00;
         const km  = { 10000: 1.00, 15000: 1.03, 20000: 1.06, 25000: 1.09,
                       30000: 1.12, 35000: 1.15, 40000: 1.18, 50000: 1.22 }[_qKm] || 1.00;
         const age = { '만21세이상': 1.15, '만26세이상': 1.05,
                       '만30세이상': 1.00, '만35세이상': 0.97 }[_qAge] || 1.00;
-        const amount = base * biz * cm * km * age;
-        return Math.round(amount / 1000) * 1000;   // 천원 단위 반올림
+        // 보증금: 회수 보장 → 소폭 할인 (1~8%)
+        const dep = { 0: 1.00, 10: 0.98, 20: 0.97, 30: 0.95, 40: 0.94, 50: 0.92 }[_qDepositPct] || 1.00;
+        // 선납금: 현금 흐름 → 큰 폭 할인 (4~18%)
+        const pre = { 0: 1.00, 10: 0.96, 20: 0.92, 30: 0.88, 40: 0.85, 50: 0.82 }[_qPrepayPct] || 1.00;
+        const amount = base * cm * km * age * dep * pre;
+        return Math.round(amount / 1000) * 1000;
       }
 
       function updateQuoteDisplay() {
@@ -13990,8 +14078,8 @@
         const v = _vehicles.find(x => x.id === vehicleId);
         if (!v) return;
         _selectedVehicle = v;
-        _selectedTime = '';
-        _qBiz = '개인'; _qMonths = 36; _qKm = 20000; _qDeposit = ''; _qAge = '만30세이상';
+        _qBiz = '개인'; _qMonths = 36; _qKm = 20000; _qAge = '만30세이상';
+        _qDepositPct = 0; _qPrepayPct = 0;
 
         // 차량 박스
         document.getElementById('rq-vehicle-name').textContent = v.name;
@@ -14023,14 +14111,17 @@
         document.querySelectorAll('#rq-age-grid .rq-chip').forEach(b => {
           b.classList.toggle('active', (b.dataset.age || '') === _qAge);
         });
-        // 보증/선납 input 초기화
-        const dep = document.getElementById('rq-deposit-input');
-        if (dep) dep.value = '';
+        // 보증/선납 칩 초기화 (둘 다 0%)
+        document.querySelectorAll('#rq-deposit-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', +b.dataset.deposit === _qDepositPct);
+        });
+        document.querySelectorAll('#rq-prepay-grid .rq-chip').forEach(b => {
+          b.classList.toggle('active', +b.dataset.prepay === _qPrepayPct);
+        });
 
         updateQuoteDisplay();
 
-        // 시간대 + 폼 초기화
-        document.querySelectorAll('#rental-time-grid .sm-time-btn').forEach(b => b.classList.remove('active'));
+        // 폼 초기화 (시간대는 제거됨)
         ['rental-input-name','rental-input-phone','rental-input-org','rental-input-memo']
           .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
 
@@ -14052,10 +14143,6 @@
       };
 
       window.rqGoToStep2 = function rqGoToStep2() {
-        // 보증/선납 input 값 캡처
-        _qDeposit = (document.getElementById('rq-deposit-input') || {}).value || '';
-        _qDeposit = _qDeposit.trim();
-
         const amt = calcMonthly();
         const v = _selectedVehicle;
         document.getElementById('rq-summary-name').textContent = v ? v.name : '';
@@ -14064,7 +14151,8 @@
         rows.push(`계약 <strong>${_qMonths}개월</strong>`);
         rows.push(`주행 <strong>${(_qKm/10000).toLocaleString('ko-KR')}만 km</strong>`);
         rows.push(`보험연령 <strong>${escapeHtml(_qAge)}</strong>`);
-        if (_qDeposit) rows.push(`보증/선납 <strong>${escapeHtml(_qDeposit)}</strong>`);
+        rows.push(`보증 <strong>${_qDepositPct}%</strong>`);
+        rows.push(`선납 <strong>${_qPrepayPct}%</strong>`);
         document.getElementById('rq-summary-rows').innerHTML = rows.map(r => `<span>${r}</span>`).join('');
         document.getElementById('rq-summary-amount').textContent = amt == null ? '— (확정 견적 안내)' : fmtKRW(amt);
 
@@ -14082,14 +14170,14 @@
         document.getElementById('rq-step-1').classList.add('active');
       };
 
-      // 칩 클릭 이벤트 위임 (개인법인/월/km/연령/시간대)
+      // 칩 클릭 이벤트 위임 (개인법인 — 가격 X / 월·km·연령·보증·선납 — 가격 O)
       document.addEventListener('click', (e) => {
         let btn;
         if ((btn = e.target.closest('#rq-biz-grid .rq-chip'))) {
           btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           _qBiz = btn.dataset.biz || '개인';
-          updateQuoteDisplay();
+          // 가격 영향 없음 — updateQuoteDisplay 호출 안 함
         } else if ((btn = e.target.closest('#rq-months-grid .rq-chip'))) {
           btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
@@ -14105,10 +14193,16 @@
           btn.classList.add('active');
           _qAge = btn.dataset.age || '';
           updateQuoteDisplay();
-        } else if ((btn = e.target.closest('#rental-time-grid .sm-time-btn'))) {
-          btn.parentElement.querySelectorAll('.sm-time-btn').forEach(b => b.classList.remove('active'));
+        } else if ((btn = e.target.closest('#rq-deposit-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-          _selectedTime = btn.dataset.time || '';
+          _qDepositPct = +btn.dataset.deposit;
+          updateQuoteDisplay();
+        } else if ((btn = e.target.closest('#rq-prepay-grid .rq-chip'))) {
+          btn.parentElement.querySelectorAll('.rq-chip').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          _qPrepayPct = +btn.dataset.prepay;
+          updateQuoteDisplay();
         }
       });
 
@@ -14146,14 +14240,15 @@
               vehicle_name: _selectedVehicle ? _selectedVehicle.name : '',
               customer_name: name,
               customer_phone: phone,
-              preferred_time: _selectedTime || null,
+              preferred_time: null,
               organization: org || null,
               memo: memo || null,
               contract_months: _qMonths,
               annual_km: _qKm,
               business_type: _qBiz || null,
-              deposit_prepay: _qDeposit || null,
               insurance_age: _qAge || null,
+              deposit_pct: _qDepositPct,
+              prepay_pct:  _qPrepayPct,
               estimated_monthly: amt
             })
           });

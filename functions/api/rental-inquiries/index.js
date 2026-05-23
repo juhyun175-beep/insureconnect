@@ -22,6 +22,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
             i.preferred_time, i.organization, i.memo, i.status, i.created_at, i.updated_at,
             i.contract_months, i.annual_km, i.selected_color, i.insurance_opts, i.estimated_monthly,
             i.business_type, i.deposit_prepay, i.insurance_age,
+            i.deposit_pct, i.prepay_pct,
             v.image_url AS vehicle_image_url, v.delivery_type AS vehicle_delivery_type
      FROM ic_rental_inquiries i
      LEFT JOIN ic_rental_vehicles v ON v.id = i.vehicle_id
@@ -54,13 +55,22 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   }
   if (!vehicleNameSnapshot) vehicleNameSnapshot = '(미지정 차량)';
 
+  const depositPct = Number.isFinite(+body.deposit_pct) ? +body.deposit_pct : null;
+  const prepayPct  = Number.isFinite(+body.prepay_pct)  ? +body.prepay_pct  : null;
+  // 사람이 읽을 수 있는 보증/선납 문자열도 같이 보존 (관리자 가독성)
+  const depositPrepayStr = body.deposit_prepay
+    ? String(body.deposit_prepay).slice(0, 200)
+    : ((depositPct != null || prepayPct != null)
+        ? `보증 ${depositPct ?? 0}% / 선납 ${prepayPct ?? 0}%`
+        : null);
+
   const r = await env.DB.prepare(
     `INSERT INTO ic_rental_inquiries
        (vehicle_id, vehicle_name_snapshot, customer_name, customer_phone,
         preferred_time, organization, memo, status,
         contract_months, annual_km, selected_color, insurance_opts, estimated_monthly,
-        business_type, deposit_prepay, insurance_age)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        business_type, deposit_prepay, insurance_age, deposit_pct, prepay_pct)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     vehicleId,
     vehicleNameSnapshot,
@@ -75,8 +85,10 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     body.insurance_opts ? String(body.insurance_opts).slice(0, 100) : null,
     Number.isFinite(+body.estimated_monthly) ? +body.estimated_monthly : null,
     body.business_type ? String(body.business_type).slice(0, 30) : null,
-    body.deposit_prepay ? String(body.deposit_prepay).slice(0, 200) : null,
-    body.insurance_age ? String(body.insurance_age).slice(0, 30) : null
+    depositPrepayStr,
+    body.insurance_age ? String(body.insurance_age).slice(0, 30) : null,
+    depositPct,
+    prepayPct
   ).first();
   return json({ id: r.id, ok: true });
 });

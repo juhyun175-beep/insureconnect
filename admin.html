@@ -7194,14 +7194,14 @@
                   ${it.preferred_time ? `시간: <strong style="color:var(--txt-mid)">${esc(it.preferred_time)}</strong>` : ''}
                   ${it.organization ? ` &nbsp;·&nbsp; 소속: <strong style="color:var(--txt-mid)">${esc(it.organization)}</strong>` : ''}
                 </div>
-                ${(it.contract_months || it.annual_km || it.business_type || it.insurance_age || it.deposit_prepay || it.estimated_monthly || it.selected_color || it.insurance_opts) ? `
+                ${(it.contract_months || it.annual_km || it.business_type || it.insurance_age || it.deposit_prepay || it.estimated_monthly || it.selected_color || it.insurance_opts || it.deposit_pct != null || it.prepay_pct != null) ? `
                 <div style="font-size:11.5px;color:var(--txt-mid);margin-top:6px;padding:7px 9px;background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(219,39,119,0.04));border:1px solid rgba(26,61,232,0.16);border-radius:6px;line-height:1.7;">
                   <strong style="color:#4f6df0;font-size:10.5px;letter-spacing:0.05em;">📐 견적 옵션</strong><br>
                   ${it.business_type ? `<strong style="color:var(--txt-hi)">${esc(it.business_type)}</strong>` : ''}
                   ${it.contract_months ? ` &nbsp;·&nbsp; 계약 <strong style="color:var(--txt-hi)">${it.contract_months}개월</strong>` : ''}
                   ${it.annual_km ? ` &nbsp;·&nbsp; 주행 <strong style="color:var(--txt-hi)">${it.annual_km >= 999999 ? '무제한' : (it.annual_km/10000).toLocaleString('ko-KR')+'만 km'}</strong>` : ''}
                   ${it.insurance_age ? ` &nbsp;·&nbsp; 보험연령 <strong style="color:var(--txt-hi)">${esc(it.insurance_age)}</strong>` : ''}
-                  ${it.deposit_prepay ? `<br>보증/선납: <strong style="color:var(--txt-hi)">${esc(it.deposit_prepay)}</strong>` : ''}
+                  ${(it.deposit_pct != null || it.prepay_pct != null) ? `<br>보증 <strong style="color:var(--txt-hi)">${it.deposit_pct ?? 0}%</strong> &nbsp;·&nbsp; 선납 <strong style="color:#db2777">${it.prepay_pct ?? 0}%</strong>` : (it.deposit_prepay ? `<br>보증/선납: <strong style="color:var(--txt-hi)">${esc(it.deposit_prepay)}</strong>` : '')}
                   ${(it.selected_color || it.insurance_opts) ? `<br><span style="opacity:0.6;font-size:10.5px;">(구) ${it.selected_color ? '색상 '+esc(it.selected_color) : ''}${it.insurance_opts ? (it.selected_color?' · ':'')+'보험 '+esc(it.insurance_opts) : ''}</span>` : ''}
                   ${Number.isFinite(+it.estimated_monthly) ? `<br>예상 월 대여료: <strong style="color:#db2777;font-size:13.5px;">${(+it.estimated_monthly).toLocaleString('ko-KR')}원</strong>` : ''}
                 </div>` : ''}
