@@ -3196,9 +3196,9 @@
             <div class="stats-slide">
               <p class="slide-title">클릭 통계</p>
 
-              <!-- 카드별 7일 추이 구분선 -->
+              <!-- 카드별 7일 추이 구분선 (좌·우 버튼 모두 노출) -->
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 우측버튼 7일 클릭 추이</span>
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 메뉴 버튼 7일 클릭 추이</span>
                 <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
               </div>
 
@@ -3276,41 +3276,56 @@
               </div>
             </div>
 
-            <!-- ── Slide 4: 렌트카 카드 통계 (v2.1.13) ── -->
+            <!-- ── Slide 4: 렌트카 카드 통계 (v2.1.24 — 페이지 진입까지 funnel) ── -->
             <div class="stats-slide">
-              <p class="slide-title">렌트카 카드 클릭 통계</p>
+              <p class="slide-title">🚗 리스/렌트카 통계 (진입 → 카드 클릭 → 신청 완료)</p>
 
-              <!-- KPI -->
+              <!-- KPI funnel -->
               <div class="kpi-grid">
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ef4444,#dc2626)">
+                  <span class="kpi-icon">🚗</span>
+                  <div class="kpi-n" id="rs-kpi-total-entries">—</div>
+                  <div class="kpi-l">누적 페이지 진입 (좌측 PILL)</div>
+                </div>
                 <div class="kpi-card">
                   <span class="kpi-icon">👁</span>
-                  <div class="kpi-n" id="rs-kpi-today-clicks">—</div>
-                  <div class="kpi-l">오늘 카드 클릭</div>
-                </div>
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#00ff88,#00f0ff)">
-                  <span class="kpi-icon">📊</span>
                   <div class="kpi-n" id="rs-kpi-total-clicks">—</div>
                   <div class="kpi-l">누적 카드 클릭</div>
                 </div>
                 <div class="kpi-card" style="--accent: linear-gradient(90deg,#fff200,#ff006e)">
                   <span class="kpi-icon">📨</span>
-                  <div class="kpi-n" id="rs-kpi-today-submits">—</div>
-                  <div class="kpi-l">오늘 신청 완료</div>
-                </div>
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ff006e,#b026ff)">
-                  <span class="kpi-icon">🎯</span>
                   <div class="kpi-n" id="rs-kpi-total-submits">—</div>
                   <div class="kpi-l">누적 신청 완료</div>
                 </div>
                 <div class="kpi-card" style="--accent: linear-gradient(90deg,#b026ff,#00f0ff)">
                   <span class="kpi-icon">⚡</span>
                   <div class="kpi-n" id="rs-kpi-conversion">—</div>
-                  <div class="kpi-l">누적 전환률</div>
+                  <div class="kpi-l">클릭 → 신청 전환률</div>
                 </div>
               </div>
 
-              <!-- 차트 -->
-              <div class="chart-row" style="margin-bottom:14px;">
+              <!-- 오늘치 + 진입→클릭 (작은 보조 행) -->
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0;">
+                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
+                  <div style="font-size:18px;font-weight:800;color:var(--neon-pink);font-variant-numeric:tabular-nums;" id="rs-kpi-today-entries">—</div>
+                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 페이지 진입</div>
+                </div>
+                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
+                  <div style="font-size:18px;font-weight:800;color:var(--neon-cyan);font-variant-numeric:tabular-nums;" id="rs-kpi-today-clicks">—</div>
+                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 카드 클릭</div>
+                </div>
+                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
+                  <div style="font-size:18px;font-weight:800;color:#10b981;font-variant-numeric:tabular-nums;" id="rs-kpi-today-submits">—</div>
+                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 신청 완료</div>
+                </div>
+              </div>
+
+              <!-- 차트 — 3단계 funnel -->
+              <div class="chart-row" style="margin:14px 0;">
+                <div class="chart-card">
+                  <div class="chart-title">최근 14일 — 페이지 진입 (좌측 PILL)</div>
+                  <div class="line-chart" id="rs-chart-entries"><canvas></canvas></div>
+                </div>
                 <div class="chart-card">
                   <div class="chart-title">최근 14일 — 카드 클릭</div>
                   <div class="line-chart" id="rs-chart-clicks"><canvas></canvas></div>
@@ -4594,11 +4609,14 @@
       const k = d.kpi || {};
       const $ = id => document.getElementById(id);
       const fmt = n => (n || 0).toLocaleString('ko-KR');
-      if ($('rs-kpi-today-clicks'))  $('rs-kpi-today-clicks').textContent  = fmt(k.today_clicks);
-      if ($('rs-kpi-total-clicks'))  $('rs-kpi-total-clicks').textContent  = fmt(k.total_clicks);
-      if ($('rs-kpi-today-submits')) $('rs-kpi-today-submits').textContent = fmt(k.today_submits);
-      if ($('rs-kpi-total-submits')) $('rs-kpi-total-submits').textContent = fmt(k.total_submits);
-      if ($('rs-kpi-conversion'))    $('rs-kpi-conversion').textContent    = (k.total_conversion || 0).toFixed(1) + '%';
+      // v2.1.24: 페이지 진입 KPI (좌측 PILL 클릭)
+      if ($('rs-kpi-today-entries'))  $('rs-kpi-today-entries').textContent  = fmt(k.today_entries);
+      if ($('rs-kpi-total-entries'))  $('rs-kpi-total-entries').textContent  = fmt(k.total_entries);
+      if ($('rs-kpi-today-clicks'))   $('rs-kpi-today-clicks').textContent   = fmt(k.today_clicks);
+      if ($('rs-kpi-total-clicks'))   $('rs-kpi-total-clicks').textContent   = fmt(k.total_clicks);
+      if ($('rs-kpi-today-submits'))  $('rs-kpi-today-submits').textContent  = fmt(k.today_submits);
+      if ($('rs-kpi-total-submits'))  $('rs-kpi-total-submits').textContent  = fmt(k.total_submits);
+      if ($('rs-kpi-conversion'))     $('rs-kpi-conversion').textContent     = (k.total_conversion || 0).toFixed(1) + '%';
 
       // 차량별 표
       const wrap = $('rs-by-vehicle');
@@ -4659,6 +4677,7 @@
 
       // 차트 (현재 슬라이드가 4 일 때만 즉시 그리기 — 아니면 ssGo 가 처리)
       if (typeof _ssIdx !== 'undefined' && _ssIdx === 4) {
+        renderLineChart('rs-chart-entries', d.timeline, 'entries');
         renderLineChart('rs-chart-clicks',  d.timeline, 'clicks');
         renderLineChart('rs-chart-submits', d.timeline, 'submits');
       }
@@ -4726,7 +4745,8 @@
     /* ── 카드별 클릭 통계 렌더 ── */
     const MENU_LABEL = {
       '우측버튼':  '↗ 우측 네비 버튼',
-      // v2.0.6: 하단네비 통계 제거 (모바일에서 하단네비 자체가 삭제됨)
+      '좌측버튼':  '↖ 좌측 빨간 버튼 (리스/렌트카)',
+      // v2.0.6: 하단네비 통계 제거
     };
     async function loadCardStats() {
       const el = document.getElementById('card-stats-body');
@@ -4741,8 +4761,8 @@
           return;
         }
 
-        /* 메뉴별 그룹화 */
-        const menuOrder = ['우측버튼'];
+        /* 메뉴별 그룹화 — 좌측 빨간 버튼도 함께 노출 (v2.1.24) */
+        const menuOrder = ['우측버튼', '좌측버튼'];
         const groups = {};
         rows.forEach(r => {
           if (!groups[r.menu]) groups[r.menu] = [];
@@ -4770,7 +4790,7 @@
           </div>`;
         });
         if (!html) {
-          el.innerHTML = '<p class="cs-empty">> 우측버튼 클릭 데이터가 아직 없습니다.</p>';
+          el.innerHTML = '<p class="cs-empty">> 메뉴 버튼 클릭 데이터가 아직 없습니다.</p>';
           ssUpdateHeight();
           return;
         }
@@ -4836,6 +4856,7 @@
           });
         }
         if (_ssIdx === 4 && _cachedRentalStats) {
+          renderLineChart('rs-chart-entries', _cachedRentalStats.timeline, 'entries');
           renderLineChart('rs-chart-clicks',  _cachedRentalStats.timeline, 'clicks');
           renderLineChart('rs-chart-submits', _cachedRentalStats.timeline, 'submits');
         }

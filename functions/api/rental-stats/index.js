@@ -37,6 +37,27 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const vMap = new Map();
   for (const v of vList) vMap.set(+v.id, v);
 
+  // 페이지 진입 카운트 — 좌측 빨간 PILL 클릭 (v2.1.24)
+  const entryQ = await env.DB.prepare(
+    `SELECT
+       SUM(clicks) AS total,
+       SUM(CASE WHEN date=? THEN clicks ELSE 0 END) AS today
+     FROM ic_card_clicks_daily
+     WHERE menu='좌측버튼' AND card='리스/렌트카'`
+  ).bind(today).first() || {};
+  const totalEntries = +entryQ.total || 0;
+  const todayEntries = +entryQ.today || 0;
+
+  const entryDailyQ = await env.DB.prepare(
+    `SELECT date, clicks
+       FROM ic_card_clicks_daily
+      WHERE menu='좌측버튼' AND card='리스/렌트카'
+        AND date >= date(?, ?)
+      ORDER BY date ASC`
+  ).bind(today, `-${days} days`).all();
+  const entryDailyMap = new Map();
+  for (const r of (entryDailyQ.results || [])) entryDailyMap.set(r.date, +r.clicks || 0);
+
   // 차량이 0대면 모든 통계 빈 값으로 즉시 반환
   if (vList.length === 0) {
     const emptyTimeline = [];
@@ -44,11 +65,19 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
       const d = new Date();
       d.setUTCHours(d.getUTCHours() + 9);
       d.setUTCDate(d.getUTCDate() - i);
-      emptyTimeline.push({ date: d.toISOString().slice(0,10), clicks: 0, submits: 0 });
+      const key = d.toISOString().slice(0,10);
+      emptyTimeline.push({
+        date: key,
+        entries: entryDailyMap.get(key) || 0,
+        clicks: 0, submits: 0
+      });
     }
     return json({
-      kpi: { total_clicks:0, total_submits:0, today_clicks:0, today_submits:0,
-             total_conversion:0, today_conversion:0 },
+      kpi: {
+        total_entries: totalEntries, today_entries: todayEntries,
+        total_clicks:0, total_submits:0, today_clicks:0, today_submits:0,
+        total_conversion:0, today_conversion:0
+      },
       timeline: emptyTimeline,
       by_vehicle: [],
       generated_at: new Date().toISOString(),
@@ -100,7 +129,12 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     d.setUTCDate(d.getUTCDate() - i);
     const key = d.toISOString().slice(0, 10);
     const v = dailyMap.get(key) || { clicks: 0, submits: 0 };
-    timeline.push({ date: key, clicks: v.clicks, submits: v.submits });
+    timeline.push({
+      date: key,
+      entries: entryDailyMap.get(key) || 0,   // v2.1.24: 페이지 진입 (좌측 PILL)
+      clicks: v.clicks,
+      submits: v.submits
+    });
   }
 
   // 3) 차량별 Top 클릭 (역시 삭제된 차량 제외)
@@ -139,12 +173,15 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
 
   return json({
     kpi: {
+      total_entries: totalEntries,    // v2.1.24: 좌측 PILL → 리스/렌트카 페이지 진입
+      today_entries: todayEntries,
       total_clicks:  tc,
       total_submits: ts,
       today_clicks:  dc,
       today_submits: ds,
       total_conversion: tc > 0 ? Math.round(ts / tc * 1000) / 10 : 0,
       today_conversion: dc > 0 ? Math.round(ds / dc * 1000) / 10 : 0,
+      entry_to_click: totalEntries > 0 ? Math.round(tc / totalEntries * 1000) / 10 : 0,  // 진입→카드클릭
     },
     timeline,
     by_vehicle: byVehicle,
