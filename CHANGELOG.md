@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.18] - 2026-05-24
+### Fixed
+- **커뮤니티 오픈채팅방 링크 갱신** (기존 링크 「존재하지 않는 채팅방」 오류)
+  - **CREW 300**: `gd0a5Cjh` → `gSN4EEoh` (https://open.kakao.com/o/gSN4EEoh)
+  - **MANAGER LINK**: `gxFQUWFh` → `gka8SGqi` (https://open.kakao.com/o/gka8SGqi)
+  - 적용 위치 (총 4곳)
+    - PC 사이드바 `.side-comm-section` 의 CREW 300 / MANAGER LINK 버튼
+    - 모바일 홈 `#page-home-mobile` 의 커뮤니티 참여 섹션 두 버튼
+  - 운영자 문의 링크(`sAZWQ7pi`)는 그대로 유지
+
 ## [2.1.17] - 2026-05-24
 ### Changed
 - **홈 대시보드 — 즐겨찾기 / 오픈채팅방 대화순위 하단 여백 채우기**
