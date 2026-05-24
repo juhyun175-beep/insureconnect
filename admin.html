@@ -3140,6 +3140,7 @@
             <button class="ssn-tab" onclick="ssGo(1)">📊 클릭 통계</button>
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
             <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
+            <button class="ssn-tab" onclick="ssGo(4)">🚗 렌트카 카드</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -3272,6 +3273,61 @@
                     <ol class="pc-list" id="pc-cn-copies"><li class="ts-empty">로딩 중…</li></ol>
                   </div>
                 </div>
+              </div>
+            </div>
+
+            <!-- ── Slide 4: 렌트카 카드 통계 (v2.1.13) ── -->
+            <div class="stats-slide">
+              <p class="slide-title">렌트카 카드 클릭 통계</p>
+
+              <!-- KPI -->
+              <div class="kpi-grid">
+                <div class="kpi-card">
+                  <span class="kpi-icon">👁</span>
+                  <div class="kpi-n" id="rs-kpi-today-clicks">—</div>
+                  <div class="kpi-l">오늘 카드 클릭</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#00ff88,#00f0ff)">
+                  <span class="kpi-icon">📊</span>
+                  <div class="kpi-n" id="rs-kpi-total-clicks">—</div>
+                  <div class="kpi-l">누적 카드 클릭</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#fff200,#ff006e)">
+                  <span class="kpi-icon">📨</span>
+                  <div class="kpi-n" id="rs-kpi-today-submits">—</div>
+                  <div class="kpi-l">오늘 신청 완료</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ff006e,#b026ff)">
+                  <span class="kpi-icon">🎯</span>
+                  <div class="kpi-n" id="rs-kpi-total-submits">—</div>
+                  <div class="kpi-l">누적 신청 완료</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#b026ff,#00f0ff)">
+                  <span class="kpi-icon">⚡</span>
+                  <div class="kpi-n" id="rs-kpi-conversion">—</div>
+                  <div class="kpi-l">누적 전환률</div>
+                </div>
+              </div>
+
+              <!-- 차트 -->
+              <div class="chart-row" style="margin-bottom:14px;">
+                <div class="chart-card">
+                  <div class="chart-title">최근 14일 — 카드 클릭</div>
+                  <div class="line-chart" id="rs-chart-clicks"><canvas></canvas></div>
+                </div>
+                <div class="chart-card">
+                  <div class="chart-title">최근 14일 — 신청 완료</div>
+                  <div class="line-chart" id="rs-chart-submits"><canvas></canvas></div>
+                </div>
+              </div>
+
+              <!-- 차량별 표 -->
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 차량별 Top 클릭 (전환률)</span>
+                <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
+              </div>
+              <div id="rs-by-vehicle">
+                <p class="empty-msg">로딩 중…</p>
               </div>
             </div>
 
@@ -4520,6 +4576,96 @@
     */
 
     /* ══════════════════════════════
+       v2.1.13: 렌트카 카드 통계 (Slide 4)
+    ══════════════════════════════ */
+    async function loadRentalStats() {
+      try {
+        const res = await fetch('/api/rental-stats?days=14', { headers: adminHeaders() });
+        if (!res.ok) return;
+        const d = await res.json();
+        _cachedRentalStats = d;
+        renderRentalStats();
+      } catch (_) {}
+    }
+
+    function renderRentalStats() {
+      const d = _cachedRentalStats;
+      if (!d) return;
+      const k = d.kpi || {};
+      const $ = id => document.getElementById(id);
+      const fmt = n => (n || 0).toLocaleString('ko-KR');
+      if ($('rs-kpi-today-clicks'))  $('rs-kpi-today-clicks').textContent  = fmt(k.today_clicks);
+      if ($('rs-kpi-total-clicks'))  $('rs-kpi-total-clicks').textContent  = fmt(k.total_clicks);
+      if ($('rs-kpi-today-submits')) $('rs-kpi-today-submits').textContent = fmt(k.today_submits);
+      if ($('rs-kpi-total-submits')) $('rs-kpi-total-submits').textContent = fmt(k.total_submits);
+      if ($('rs-kpi-conversion'))    $('rs-kpi-conversion').textContent    = (k.total_conversion || 0).toFixed(1) + '%';
+
+      // 차량별 표
+      const wrap = $('rs-by-vehicle');
+      if (wrap) {
+        const rows = d.by_vehicle || [];
+        if (!rows.length) {
+          wrap.innerHTML = '<p class="empty-msg">아직 카드 클릭 기록이 없습니다.</p>';
+        } else {
+          wrap.innerHTML = `
+            <div style="overflow-x:auto;">
+              <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+                <thead>
+                  <tr style="background:rgba(0,240,255,0.06);border-bottom:1px solid var(--neon-cyan);">
+                    <th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">#</th>
+                    <th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">차종</th>
+                    <th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">👁 클릭</th>
+                    <th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">📨 신청</th>
+                    <th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">⚡ 전환</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${rows.map((r, i) => {
+                    const maxClicks = Math.max(...rows.map(x => x.clicks || 0), 1);
+                    const barW = Math.max(2, Math.round((r.clicks || 0) / maxClicks * 100));
+                    const inactiveStyle = r.is_active ? '' : 'opacity:0.55;';
+                    return `<tr style="border-bottom:1px solid var(--border);${inactiveStyle}">
+                      <td style="padding:10px 10px;font-weight:700;color:var(--txt-mid);">${i+1}</td>
+                      <td style="padding:10px 10px;">
+                        <div style="display:flex;align-items:center;gap:10px;">
+                          <div style="width:48px;height:32px;border-radius:5px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            ${r.image_url ? `<img src="${esc(r.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='🚗'">` : '🚗'}
+                          </div>
+                          <div style="min-width:0;flex:1;">
+                            <div style="font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.name)}${r.delivery_type === '즉시출고' ? ' <span style="font-size:9.5px;background:linear-gradient(135deg,#10b981,#34d399);color:#fff;padding:1px 6px;border-radius:3px;font-weight:800;">⚡</span>' : ''}</div>
+                            ${!r.is_active ? '<div style="font-size:10px;color:var(--txt-lo);">비활성</div>' : ''}
+                          </div>
+                        </div>
+                      </td>
+                      <td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;">
+                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+                          <strong style="color:var(--txt-hi);">${(r.clicks || 0).toLocaleString('ko-KR')}</strong>
+                          <div style="width:60px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
+                            <div style="width:${barW}%;height:100%;background:linear-gradient(90deg,#00f0ff,#b026ff);"></div>
+                          </div>
+                        </div>
+                      </td>
+                      <td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;color:#ff006e;font-weight:700;">${(r.submits || 0).toLocaleString('ko-KR')}</td>
+                      <td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;">
+                        <span style="font-weight:800;color:${(r.conversion||0) >= 10 ? '#10b981' : (r.conversion||0) >= 3 ? '#fbbf24' : 'var(--txt-mid)'};">${(r.conversion || 0).toFixed(1)}%</span>
+                      </td>
+                    </tr>`;
+                  }).join('')}
+                </tbody>
+              </table>
+            </div>`;
+        }
+      }
+
+      // 차트 (현재 슬라이드가 4 일 때만 즉시 그리기 — 아니면 ssGo 가 처리)
+      if (typeof _ssIdx !== 'undefined' && _ssIdx === 4) {
+        renderLineChart('rs-chart-clicks',  d.timeline, 'clicks');
+        renderLineChart('rs-chart-submits', d.timeline, 'submits');
+      }
+      if (typeof ssUpdateHeight === 'function') requestAnimationFrame(ssUpdateHeight);
+    }
+
+    /* ══════════════════════════════
        인기 콘텐츠 — 조회/공유유입/복사 (Slide 3)
     ══════════════════════════════ */
     let _pcPeriod = 'today';
@@ -4652,7 +4798,7 @@
 
     /* ── 통계 슬라이더 ── */
     let _ssIdx = 0;
-    const SS_COUNT = 4;
+    const SS_COUNT = 5;
 
     function ssUpdateHeight() {
       const outer   = document.querySelector('.stats-slides-outer');
@@ -4689,12 +4835,17 @@
             renderLineChart(id, data, 'clicks');
           });
         }
+        if (_ssIdx === 4 && _cachedRentalStats) {
+          renderLineChart('rs-chart-clicks',  _cachedRentalStats.timeline, 'clicks');
+          renderLineChart('rs-chart-submits', _cachedRentalStats.timeline, 'submits');
+        }
         ssUpdateHeight();
       });
     }
 
     function ssSlide(dir) { ssGo(_ssIdx + dir); }
 
+    let _cachedRentalStats = null;
     let _cachedMainStats  = null;
     let _cachedCardCharts = null;
 
@@ -4787,6 +4938,9 @@
 
         /* 인기 콘텐츠 (조회/공유유입/복사) */
         loadPopularContent();
+
+        /* v2.1.13: 렌트카 카드 통계 */
+        loadRentalStats();
 
         /* 차트 (현재 슬라이드 0에 표시) */
         renderLineChart('chart-visits', d.daily_visits_7d, 'visits');
