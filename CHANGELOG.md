@@ -1,5 +1,31 @@
 # Changelog
 
+## [2.1.25] - 2026-05-24
+### Removed
+- **「보험설계사를 위한 통합 정보 허브」 카드 섹션 제거** (`.ic-hero`)
+  - HTML 섹션 통째 삭제
+  - 관련 CSS 모두 삭제 — `.ic-hero{}` / `[data-theme=dark] .ic-hero{}` / `.ic-hero-title` / `.ic-hero-sub` / `.ic-hero-br` / `.ic-hero-cta` / `.ic-hero-pillgrid` (+ media queries) / `.ic-hero-pill` / `.ic-hero-pill.community` (+ dark) / `a.ic-hero-pill` / `.ic-hero-btn` (+ primary, hover) — 데드코드 일괄 정리
+  - `.ic-hero-fav` 컨테이너 제거 — 내부 자식 CSS(`.ic-hero-fav #home-fav-grid` 등) 는 `#fav-float-popup` 으로 재타겟팅
+
+### Changed
+- **「진행중인 채용공고 / 강의」 위치 이동**
+  - 이전: `.ic-top-row` 아래 단독 행
+  - 이후: `.ic-top-left` 안의 (구) `.ic-hero-fav` 자리 — live-monitor 바로 아래
+  - 결과: 좌측 컬럼이 「실시간 인기 콘텐츠 → 채용공고 / 강의」 로 자연스럽게 흘러가고, 우측 카카오 패널과 높이 자동 정렬
+- **MY FAVORITES — 드래그 가능한 floating popup 으로 변환**
+  - `#fav-float-popup` (280px, top-right 기본 위치, max-height 62vh)
+  - 헤더 (`.fav-float-handle`) 를 마우스/터치로 잡아 자유롭게 이동
+  - 화면 경계 자동 clamp — 항상 헤더 일부는 보이게
+  - 위치는 `localStorage.ic_fav_popup_pos_v1` 로 영구 저장
+  - × 버튼으로 닫으면 우상단에 작은 ⭐ FAB(`#fav-float-reopener`) 가 노출됨 → 누르면 다시 열림
+  - 숨김 상태도 `localStorage.ic_fav_popup_hidden_v1` 로 영구 저장
+  - 홈 페이지에서만 노출 — 다른 페이지 이동 시 자동 hide, 홈 복귀 시 마지막 상태 복원
+  - `body.ic-mobile` / ≤1024px 자동 hide (모바일 홈은 별도 UI)
+  - 드래그 시 box-shadow 강조 + opacity 0.96 으로 들고 있는 느낌
+
+### Backward Compat
+- 즐겨찾기 렌더링 코드는 그대로 — 동일한 `#home-fav-section` / `#home-fav-grid` / `#home-fav-count` ID 가 popup 안에서 살아있어 기존 `renderFavorites()` 가 손대지 않고 작동
+
 ## [2.1.24] - 2026-05-24
 ### Changed (관리자 통계 — 신규 구조 반영)
 - **클릭 통계 슬라이드 (Slide 1) — 좌측 빨간 PILL 추적 합류**

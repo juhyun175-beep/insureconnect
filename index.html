@@ -4900,34 +4900,127 @@
       margin: 0 0 14px;
     }
 
-    /* 히어로 + 즐겨찾기 (상단 행 좌측의 하단 영역) */
-    .ic-hero-fav {
-      display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-      gap: 14px;
-      flex: 1;
-      min-height: 0;
-    }
-    @media (max-width: 720px) {
-      .ic-hero-fav { grid-template-columns: 1fr; }
-    }
-    .ic-hero-fav > .ic-hero,
-    .ic-hero-fav > #home-fav-section { margin: 0; }
-
-    /* 컴팩트 즐겨찾기 카드 (.ic-hero-fav 내부) */
-    .ic-hero-fav #home-fav-section {
+    /* v2.1.25: 즐겨찾기 floating popup — 홈에서 마우스로 드래그 이동 가능
+       (구) .ic-hero-fav 컨테이너는 제거, #home-fav-section 이 #fav-float-popup 안으로 이동 */
+    .fav-float-popup {
+      position: fixed;
+      top: 96px;
+      right: 28px;
+      width: 280px;
+      max-height: min(62vh, 540px);
       background: var(--bg-card);
       border: 1px solid var(--border);
-      border-radius: 18px;
-      padding: 14px 14px 12px;
-      box-shadow: var(--sh-sm);
+      border-radius: 16px;
+      box-shadow: 0 16px 48px rgba(0,0,0,0.20);
+      display: flex;
+      flex-direction: column;
+      z-index: 250;
+      overflow: hidden;
+      user-select: none;
+      transition: box-shadow .2s, opacity .2s;
+    }
+    .fav-float-popup.dragging {
+      box-shadow: 0 24px 64px rgba(0,0,0,0.32);
+      opacity: 0.96;
+      transition: none;
+    }
+    .fav-float-handle {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 12px 10px 10px;
+      background: linear-gradient(135deg, rgba(26,61,232,0.10), rgba(159,122,234,0.08));
+      border-bottom: 1px solid var(--border);
+      cursor: grab;
+      touch-action: none;   /* 모바일 드래그용 — 스크롤 차단 */
+    }
+    .fav-float-handle:active,
+    .fav-float-popup.dragging .fav-float-handle { cursor: grabbing; }
+    .fav-float-grip {
+      font-size: 14px;
+      letter-spacing: -2px;
+      color: var(--txt-lo);
+      font-weight: 800;
+      line-height: 1;
+      padding: 0 2px;
+    }
+    .fav-float-title {
+      font-size: 12.5px;
+      font-weight: 800;
+      color: var(--txt-hi);
+      letter-spacing: 0.04em;
+      flex: 1;
+    }
+    .fav-float-count {
+      font-size: 10px;
+      font-weight: 800;
+      padding: 2px 7px;
+      border-radius: 10px;
+      background: rgba(26,61,232,0.12);
+      color: var(--blue-mid);
+    }
+    [data-theme="dark"] .fav-float-count {
+      background: rgba(124,158,255,0.18);
+      color: #93c5fd;
+    }
+    .fav-float-close {
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      line-height: 1;
+      color: var(--txt-lo);
+      cursor: pointer;
+      width: 26px; height: 26px;
+      border-radius: 6px;
+      padding: 0;
+      transition: background .12s, color .12s;
+    }
+    .fav-float-close:hover { background: rgba(0,0,0,0.08); color: var(--txt-hi); }
+    [data-theme="dark"] .fav-float-close:hover { background: rgba(255,255,255,0.08); }
+    .fav-float-body {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      padding: 12px;
+    }
+    /* 다시 열기용 FAB */
+    .fav-float-reopener {
+      position: fixed;
+      top: 96px;
+      right: 28px;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      border: 1px solid var(--border);
+      background: var(--bg-card);
+      font-size: 22px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+      z-index: 250;
+      transition: transform .15s, box-shadow .15s;
+    }
+    .fav-float-reopener:hover {
+      transform: scale(1.06);
+      box-shadow: 0 8px 26px rgba(0,0,0,0.24);
+    }
+    /* 모바일/태블릿 — 좁은 화면에서는 floating popup 숨김 (모바일 홈은 별도 UI) */
+    body.ic-mobile .fav-float-popup,
+    body.ic-mobile .fav-float-reopener { display: none !important; }
+    @media (max-width: 1024px) {
+      .fav-float-popup, .fav-float-reopener { display: none !important; }
+    }
+
+    /* #home-fav-section 본문 — popup 내부에 들어가는 형태 */
+    #fav-float-popup #home-fav-section {
       display: flex;
       flex-direction: column;
       min-height: 0;
-      overflow: hidden;
+      background: transparent;
+      border: none;
+      padding: 0;
+      box-shadow: none;
     }
-    .ic-hero-fav #home-fav-section .fav-section-head { margin-bottom: 10px; }
-    .ic-hero-fav #home-fav-empty {
+    #fav-float-popup #home-fav-empty {
       flex: 1;
       display: flex;
       flex-direction: column;
@@ -4935,16 +5028,17 @@
       justify-content: center;
       gap: 8px;
       text-align: center;
-      padding: 8px;
+      padding: 16px 12px;
       background: var(--bg);
       border-radius: 12px;
+      min-height: 180px;
     }
-    .ic-hero-fav .fav-onboard-icon { font-size: 28px; }
-    .ic-hero-fav .fav-onboard-title { font-size: 12.5px; font-weight: 800; color: var(--txt-hi); }
-    .ic-hero-fav .fav-onboard-desc { font-size: 11px; color: var(--txt-mid); line-height: 1.5; }
-    .ic-hero-fav .fav-onboard-btn {
-      padding: 6px 12px;
-      font-size: 11.5px;
+    #fav-float-popup .fav-onboard-icon { font-size: 32px; }
+    #fav-float-popup .fav-onboard-title { font-size: 13px; font-weight: 800; color: var(--txt-hi); }
+    #fav-float-popup .fav-onboard-desc { font-size: 11.5px; color: var(--txt-mid); line-height: 1.5; }
+    #fav-float-popup .fav-onboard-btn {
+      padding: 7px 14px;
+      font-size: 12px;
       font-weight: 700;
       background: var(--blue-mid);
       color: #fff;
@@ -4954,25 +5048,22 @@
       font-family: inherit;
       margin-top: 4px;
     }
-    /* 즐겨찾기 그리드: 좁은 컬럼에 맞춰 1열 세로 리스트 + 카드 내부 컴팩트
-       v2.1.17: max-height 제거 + flex:1 으로 hero 옆 카드와 자연스럽게 정렬 */
-    .ic-hero-fav #home-fav-grid {
+    /* 즐겨찾기 그리드 (popup 컴팩트 1열) */
+    #fav-float-popup #home-fav-grid {
       grid-template-columns: 1fr !important;
       gap: 6px !important;
       overflow-y: auto;
       overflow-x: hidden;
-      flex: 1;
-      min-height: 0;
       padding-right: 2px;
     }
-    /* v2.1.17: 추천 도구 카드 (사용자의 즐겨찾기가 적을 때 자동 패딩) */
-    .ic-hero-fav #home-fav-grid .tool-card.fav-recommended {
+    /* 추천 도구 카드 (사용자의 즐겨찾기가 적을 때 자동 패딩) */
+    #fav-float-popup #home-fav-grid .tool-card.fav-recommended {
       opacity: 0.78;
       background: linear-gradient(135deg, rgba(245,158,11,0.04), transparent) !important;
       border-color: rgba(245,158,11,0.18) !important;
       position: relative;
     }
-    .ic-hero-fav #home-fav-grid .tool-card.fav-recommended:hover {
+    #fav-float-popup #home-fav-grid .tool-card.fav-recommended:hover {
       opacity: 1;
       border-color: rgba(245,158,11,0.45) !important;
     }
@@ -5007,8 +5098,8 @@
       background: linear-gradient(90deg, transparent, rgba(245,158,11,0.30), transparent);
     }
     [data-theme="dark"] .fav-rec-divider { color: #fbbf24; }
-    .ic-hero-fav #home-fav-grid .tool-card,
-    .ic-hero-fav #home-fav-grid .portal-card {
+    #fav-float-popup #home-fav-grid .tool-card,
+    #fav-float-popup #home-fav-grid .portal-card {
       padding: 7px 10px !important;
       gap: 9px !important;
       min-height: auto !important;
@@ -5017,20 +5108,20 @@
       box-shadow: none !important;
       min-width: 0 !important;
     }
-    .ic-hero-fav #home-fav-grid .tool-card-icon,
-    .ic-hero-fav #home-fav-grid .portal-card-logo {
+    #fav-float-popup #home-fav-grid .tool-card-icon,
+    #fav-float-popup #home-fav-grid .portal-card-logo {
       width: 30px !important;
       height: 30px !important;
       font-size: 16px !important;
       border-radius: 8px !important;
       flex-shrink: 0;
     }
-    .ic-hero-fav #home-fav-grid .tool-card-body {
+    #fav-float-popup #home-fav-grid .tool-card-body {
       min-width: 0;
       overflow: hidden;
     }
-    .ic-hero-fav #home-fav-grid .tool-card-name,
-    .ic-hero-fav #home-fav-grid .portal-card-name {
+    #fav-float-popup #home-fav-grid .tool-card-name,
+    #fav-float-popup #home-fav-grid .portal-card-name {
       font-size: 12px !important;
       font-weight: 700 !important;
       margin-bottom: 0 !important;
@@ -5039,23 +5130,23 @@
       text-overflow: ellipsis;
     }
     /* 좁은 카드에서는 부가 설명·화살표·복사버튼 숨김 */
-    .ic-hero-fav #home-fav-grid .tool-card-sub,
-    .ic-hero-fav #home-fav-grid .tool-card-arrow,
-    .ic-hero-fav #home-fav-grid .tool-card-copy,
-    .ic-hero-fav #home-fav-grid .portal-card-sub,
-    .ic-hero-fav #home-fav-grid .portal-card-meta {
+    #fav-float-popup #home-fav-grid .tool-card-sub,
+    #fav-float-popup #home-fav-grid .tool-card-arrow,
+    #fav-float-popup #home-fav-grid .tool-card-copy,
+    #fav-float-popup #home-fav-grid .portal-card-sub,
+    #fav-float-popup #home-fav-grid .portal-card-meta {
       display: none !important;
     }
     /* 별 버튼(즐겨찾기 해제)은 작게 유지 */
-    .ic-hero-fav #home-fav-grid .ic-fav-star {
+    #fav-float-popup #home-fav-grid .ic-fav-star {
       width: 22px !important;
       height: 22px !important;
       font-size: 13px !important;
       flex-shrink: 0;
     }
     /* 스크롤바 슬림 */
-    .ic-hero-fav #home-fav-grid::-webkit-scrollbar { width: 4px; }
-    .ic-hero-fav #home-fav-grid::-webkit-scrollbar-thumb {
+    #fav-float-popup #home-fav-grid::-webkit-scrollbar { width: 4px; }
+    #fav-float-popup #home-fav-grid::-webkit-scrollbar-thumb {
       background: rgba(26,61,232,0.18);
       border-radius: 2px;
     }
@@ -5073,20 +5164,7 @@
     @media (max-width: 900px) {
       .ic-bottom-row { grid-template-columns: 1fr; }
     }
-    .ic-hero {
-      text-align: center;
-      padding: 32px 20px 28px;
-      margin: 0;
-      background: linear-gradient(135deg, rgba(26,61,232,0.06), rgba(0,200,238,0.05));
-      border: 1px solid var(--border);
-      border-radius: 18px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-    }
-    [data-theme="dark"] .ic-hero {
-      background: linear-gradient(135deg, rgba(74,112,245,0.10), rgba(0,200,238,0.06));
-    }
+    /* v2.1.25: .ic-hero (통합 정보 허브 카드) 섹션 제거됨 — 관련 CSS 도 함께 삭제 */
 
     /* iPhone 시계 위젯 스타일 */
     .ic-clock {
@@ -5177,128 +5255,7 @@
       font-weight: 700;
       letter-spacing: 0.04em;
     }
-    .ic-hero-title {
-      font-size: clamp(1.4rem, 3vw, 1.9rem);
-      font-weight: 800;
-      color: var(--txt-hi);
-      margin-bottom: 10px;
-      letter-spacing: -0.02em;
-      line-height: 1.3;
-    }
-    .ic-hero-sub {
-      font-size: clamp(0.93rem, 1.6vw, 1.05rem);
-      color: var(--txt-mid);
-      line-height: 1.7;
-      margin-bottom: 22px;
-    }
-    @media (max-width: 600px) { .ic-hero-br { display: none; } }
-    .ic-hero-cta {
-      display: flex;
-      gap: 10px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    /* 통합 정보 허브 카드 내 PILL 그리드 */
-    /* v2.1.20: 좁은 hero 컬럼에서 긴 라벨(예: MANAGER LINK)이 트랙을 확장시켜 카드 밖으로
-       삐져나가던 문제 — minmax(0, 1fr) 로 트랙 확장 차단 + PC 4컬럼 + 커뮤니티 pill span 2 */
-    .ic-hero-pillgrid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-      margin-top: 14px;
-    }
-    @media (max-width: 720px) {
-      .ic-hero-pillgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    }
-    @media (max-width: 380px) {
-      .ic-hero-pillgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    }
-    .ic-hero-pill {
-      padding: 9px 4px;
-      border: 1px solid var(--border);
-      background: var(--bg-card);
-      border-radius: 10px;
-      font-size: 12.5px;
-      font-weight: 700;
-      color: var(--txt-hi);
-      cursor: pointer;
-      transition: transform 0.12s, background 0.15s, border-color 0.15s, box-shadow 0.15s;
-      font-family: inherit;
-      letter-spacing: -0.01em;
-      white-space: nowrap;
-      min-width: 0;      /* 트랙 expansion 방지 (overflow 차단 핵심) */
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    /* 커뮤니티 pill 은 라벨이 더 길어서 2 셀 차지 — PC 마지막 줄이 [뉴스] + [CREW span2] = 4 셀로 자연스럽게 채워짐
-       태블릿 3col 에서는 그대로 1셀(셀이 충분히 넓음), 모바일 2col 에서는 다시 2셀로 전체 행 차지 */
-    .ic-hero-pill.community { grid-column: span 2; }
-    @media (max-width: 720px) and (min-width: 381px) {
-      .ic-hero-pill.community { grid-column: auto; }
-    }
-    .ic-hero-pill:hover {
-      background: rgba(26,61,232,0.06);
-      border-color: var(--blue-mid);
-      color: var(--blue-mid);
-      transform: translateY(-1px);
-      box-shadow: 0 3px 10px rgba(26,61,232,0.10);
-    }
-    /* v2.1.19: <a> 변형 — 외부 링크용 (커뮤니티 오픈채팅) 시각 정합성 */
-    a.ic-hero-pill {
-      text-decoration: none;
-      text-align: center;
-      display: block;
-    }
-    /* 커뮤니티(카카오 오픈채팅) 전용 — 카카오 옐로우 톤으로 "외부 링크" 시각 구분 */
-    .ic-hero-pill.community {
-      background: linear-gradient(135deg, rgba(254,229,0,0.10), rgba(254,229,0,0.03));
-      border-color: rgba(254,229,0,0.45);
-      color: #8b6500;
-    }
-    .ic-hero-pill.community:hover {
-      background: linear-gradient(135deg, #fee500, #ffd400);
-      color: #181600;
-      border-color: #fee500;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 14px rgba(254,229,0,0.40);
-    }
-    [data-theme="dark"] .ic-hero-pill.community {
-      color: #fde047;
-      background: linear-gradient(135deg, rgba(254,229,0,0.14), rgba(254,229,0,0.04));
-      border-color: rgba(254,229,0,0.40);
-    }
-    [data-theme="dark"] .ic-hero-pill.community:hover {
-      color: #181600;
-    }
-    .ic-hero-btn {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 11px 22px;
-      background: var(--bg-card);
-      color: var(--txt-hi);
-      border: 1.5px solid var(--border);
-      border-radius: 12px;
-      font-size: 0.95rem;
-      font-weight: 700;
-      text-decoration: none;
-      transition: all 0.18s;
-    }
-    .ic-hero-btn:hover {
-      border-color: var(--blue-mid);
-      color: var(--blue-mid);
-      transform: translateY(-1px);
-    }
-    .ic-hero-btn.primary {
-      background: linear-gradient(135deg, var(--blue-mid), var(--blue-light));
-      color: #fff;
-      border-color: transparent;
-      box-shadow: 0 4px 14px rgba(26,61,232,0.28);
-    }
-    .ic-hero-btn.primary:hover {
-      color: #fff;
-      box-shadow: 0 6px 20px rgba(26,61,232,0.40);
-    }
+    /* v2.1.25: .ic-hero-* (히어로 카드 타이틀/서브/PILL/CTA) 관련 CSS 일괄 제거 */
 
     .ic-section-title {
       font-size: 1.1rem;
@@ -7756,6 +7713,32 @@
     </div>
   </aside>
 
+  <!-- v2.1.25: 즐겨찾기 — 홈에서 마우스로 드래그 이동 가능한 floating popup -->
+  <div id="fav-float-popup" class="fav-float-popup" role="dialog" aria-label="MY FAVORITES">
+    <div class="fav-float-handle" id="fav-float-handle">
+      <span class="fav-float-grip" aria-hidden="true">⋮⋮</span>
+      <span class="fav-float-title">⭐ MY FAVORITES</span>
+      <span class="fav-float-count" id="home-fav-count" style="display:none;">0개</span>
+      <button class="fav-float-close" type="button" onclick="closeFavPopup()" aria-label="즐겨찾기 닫기">×</button>
+    </div>
+    <div class="fav-float-body">
+      <section id="home-fav-section" aria-label="내 즐겨찾기">
+        <div class="fav-onboard" id="home-fav-empty">
+          <div class="fav-onboard-icon">⭐</div>
+          <div class="fav-onboard-body">
+            <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
+            <div class="fav-onboard-desc">실무도구·전산의 <strong>☆</strong> 버튼을 누르면 여기에 자동 표시됩니다.</div>
+          </div>
+          <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구 →</button>
+        </div>
+        <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
+      </section>
+    </div>
+  </div>
+  <!-- 닫혔을 때 다시 열기용 작은 FAB -->
+  <button id="fav-float-reopener" class="fav-float-reopener" type="button"
+          onclick="openFavPopup()" style="display:none;" title="즐겨찾기 열기" aria-label="즐겨찾기 열기">⭐</button>
+
   <!-- 뒤로가기 바 -->
   <div class="back-bar" id="back-bar" style="display:none">
     <button class="back-btn" onclick="goToPage('home')" aria-label="홈으로 돌아가기">
@@ -8300,79 +8283,7 @@
       </div>
     </div>
 
-    <!-- 좌측 하단 (히어로 + 즐겨찾기) -->
-    <div class="ic-hero-fav">
-      <section class="ic-hero" aria-label="서비스 소개">
-        <h1 class="ic-hero-title">보험설계사를 위한 통합 정보 허브</h1>
-        <p class="ic-hero-sub">각 보험사 전산·청구서류·소식지·실무도구·보험지식을<br class="ic-hero-br">한 곳에서 빠르게 만나보세요.</p>
-        <div class="ic-hero-pillgrid" role="navigation" aria-label="빠른 메뉴">
-          <button class="ic-hero-pill" onclick="goToPage('latest')">📰 최신</button>
-          <button class="ic-hero-pill" onclick="goToPage('jeonsan')">🖥 전산</button>
-          <button class="ic-hero-pill" onclick="goToPage('ga')">🏢 GA</button>
-          <button class="ic-hero-pill" onclick="goToPage('payment')">💳 수납</button>
-          <button class="ic-hero-pill" onclick="goToPage('newsletter')">📰 소식지</button>
-          <button class="ic-hero-pill" onclick="goToPage('claimform')">📋 청구</button>
-          <button class="ic-hero-pill" onclick="goToPage('recruit')">💼 채용</button>
-          <button class="ic-hero-pill" onclick="goToPage('lecture')">🎓 강의</button>
-          <button class="ic-hero-pill" onclick="goToPage('tools')">🛠 실무도구</button>
-          <button class="ic-hero-pill" onclick="goToPage('knowledge')">📚 보험지식</button>
-          <button class="ic-hero-pill" onclick="goToPage('newsletter')">🗞 뉴스</button>
-          <!-- v2.1.19: 커뮤니티 오픈채팅 — 사이드바와 동일 링크, 카카오 옐로우 변형 -->
-          <a class="ic-hero-pill community"
-             href="https://open.kakao.com/o/gSN4EEoh"
-             target="_blank" rel="noopener noreferrer"
-             onclick="trackClick('CREW300 오픈채팅 참여','hero-pill'); armCommunityFallback('CREW 300');"
-             title="보험설계사 커뮤니티 CREW 300 오픈채팅">💬 CREW 300</a>
-          <a class="ic-hero-pill community"
-             href="https://open.kakao.com/o/gka8SGqi"
-             target="_blank" rel="noopener noreferrer"
-             onclick="trackClick('MANAGERLINK 오픈채팅 참여','hero-pill'); armCommunityFallback('MANAGER LINK');"
-             title="설계매니저 커뮤니티 MANAGER LINK 오픈채팅">💬 MANAGER LINK</a>
-        </div>
-      </section>
-
-      <section class="ic-features" id="home-fav-section" aria-label="내 즐겨찾기">
-        <div class="fav-section-head">
-          <span class="fav-pill">⭐ MY FAVORITES</span>
-          <span class="fav-line"></span>
-          <span class="sec-badge" id="home-fav-count" style="display:none;">0개</span>
-        </div>
-        <div class="fav-onboard" id="home-fav-empty">
-          <div class="fav-onboard-icon">⭐</div>
-          <div class="fav-onboard-body">
-            <div class="fav-onboard-title">즐겨찾기로 더 빠르게</div>
-            <div class="fav-onboard-desc">실무도구·전산의 <strong>☆</strong> 버튼을 누르면 여기에 자동 표시됩니다.</div>
-          </div>
-          <button class="fav-onboard-btn" onclick="goToPage('tools')">실무도구 →</button>
-        </div>
-        <div class="tools-grid" id="home-fav-grid" style="display:none;"></div>
-      </section>
-    </div>
-
-    </div><!-- /.ic-top-left -->
-
-    <!-- 우측: 오픈채팅방 대화순위 (전체 높이 채움) -->
-    <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
-      <div class="ic-kakao-head">
-        <span class="ic-kakao-title">💬 오픈채팅방 대화순위</span>
-        <span class="ic-kakao-badge">KAKAO</span>
-      </div>
-      <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
-        <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
-        <span id="home-kakao-period"></span>
-      </div>
-      <div class="ic-kakao-rank-list" id="home-kakao-list">
-        <div class="ic-kakao-skel"></div>
-        <div class="ic-kakao-skel"></div>
-        <div class="ic-kakao-skel"></div>
-        <div class="ic-kakao-skel"></div>
-        <div class="ic-kakao-skel"></div>
-      </div>
-      <div class="ic-kakao-updated" id="home-kakao-updated"></div>
-    </div>
-    </div><!-- /.ic-top-row -->
-
-    <!-- v2.0.8: 채용공고 + 강의 가로 2열 (각 섹션 내부도 2열 → 시각적 총 4열) -->
+    <!-- v2.1.25: 좌측 하단 — 「진행중인 채용공고/강의」가 (구) 허브·즐겨찾기 자리로 이동 -->
     <div class="ic-jobs-pair">
       <!-- ══ 진행중인 채용공고 ══ -->
       <section class="ic-jobs" aria-label="진행중인 채용공고">
@@ -8407,6 +8318,30 @@
       </section>
     </div>
 
+    </div><!-- /.ic-top-left -->
+
+    <!-- 우측: 오픈채팅방 대화순위 (전체 높이 채움) -->
+    <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
+      <div class="ic-kakao-head">
+        <span class="ic-kakao-title">💬 오픈채팅방 대화순위</span>
+        <span class="ic-kakao-badge">KAKAO</span>
+      </div>
+      <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
+        <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
+        <span id="home-kakao-period"></span>
+      </div>
+      <div class="ic-kakao-rank-list" id="home-kakao-list">
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+        <div class="ic-kakao-skel"></div>
+      </div>
+      <div class="ic-kakao-updated" id="home-kakao-updated"></div>
+    </div>
+    </div><!-- /.ic-top-row -->
+
+    <!-- v2.1.25: 「진행중인 채용공고/강의」는 ic-top-left 안으로 이동 (위에 위치) -->
     <!-- v2.1.22: 추천 차량 라인업 섹션은 별도 #page-rental 페이지로 이전 -->
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
@@ -9576,6 +9511,9 @@
       if (mobileHome) {
         mobileHome.style.display = (page === 'home') ? '' : 'none';
       }
+
+      /* v2.1.25: 즐겨찾기 floating popup — 홈에서만 노출 */
+      if (typeof _applyFavPopupVisibility === 'function') _applyFavPopupVisibility(page);
 
       /* 뒤로가기 바 */
       const backBar   = document.getElementById('back-bar');
@@ -14951,6 +14889,138 @@
       }
     }
     window.__favCardClick = triggerCardAction;
+
+    /* ══════════════════════════════
+       v2.1.25: 즐겨찾기 floating popup — 드래그 이동 + 토글 + 위치/숨김 상태 저장
+    ══════════════════════════════ */
+    const FAV_POPUP_POS_KEY    = 'ic_fav_popup_pos_v1';
+    const FAV_POPUP_HIDDEN_KEY = 'ic_fav_popup_hidden_v1';
+
+    function _clampFavPopup(left, top) {
+      const popup = document.getElementById('fav-float-popup');
+      if (!popup) return { left, top };
+      const w = popup.offsetWidth || 280;
+      const h = popup.offsetHeight || 200;
+      const maxX = Math.max(8, window.innerWidth  - w - 8);
+      const maxY = Math.max(8, window.innerHeight - 40);  // 헤더 일부만 보여도 OK
+      return {
+        left: Math.max(8, Math.min(maxX, left)),
+        top:  Math.max(8, Math.min(maxY, top)),
+      };
+    }
+
+    function _applyFavPopupVisibility(page) {
+      const popup = document.getElementById('fav-float-popup');
+      const opener = document.getElementById('fav-float-reopener');
+      if (!popup || !opener) return;
+      // 모바일 / 좁은 화면은 CSS 가 hide 처리하니까 JS 에선 home 페이지 여부만 체크
+      if (page !== 'home') {
+        popup.style.display = 'none';
+        opener.style.display = 'none';
+        return;
+      }
+      let hidden = false;
+      try { hidden = localStorage.getItem(FAV_POPUP_HIDDEN_KEY) === '1'; } catch (_) {}
+      popup.style.display  = hidden ? 'none' : '';
+      opener.style.display = hidden ? '' : 'none';
+    }
+
+    window.closeFavPopup = function closeFavPopup() {
+      try { localStorage.setItem(FAV_POPUP_HIDDEN_KEY, '1'); } catch (_) {}
+      const popup = document.getElementById('fav-float-popup');
+      const opener = document.getElementById('fav-float-reopener');
+      if (popup) popup.style.display = 'none';
+      if (opener) opener.style.display = '';
+    };
+    window.openFavPopup = function openFavPopup() {
+      try { localStorage.setItem(FAV_POPUP_HIDDEN_KEY, '0'); } catch (_) {}
+      const popup = document.getElementById('fav-float-popup');
+      const opener = document.getElementById('fav-float-reopener');
+      if (popup) popup.style.display = '';
+      if (opener) opener.style.display = 'none';
+    };
+
+    (function initFavPopupDrag() {
+      const popup = document.getElementById('fav-float-popup');
+      const handle = document.getElementById('fav-float-handle');
+      if (!popup || !handle) return;
+
+      // 저장된 위치 복원 (없으면 CSS 기본값 사용)
+      try {
+        const saved = JSON.parse(localStorage.getItem(FAV_POPUP_POS_KEY) || 'null');
+        if (saved && Number.isFinite(saved.left) && Number.isFinite(saved.top)) {
+          const c = _clampFavPopup(saved.left, saved.top);
+          popup.style.left   = c.left + 'px';
+          popup.style.top    = c.top  + 'px';
+          popup.style.right  = 'auto';
+          popup.style.bottom = 'auto';
+        }
+      } catch (_) {}
+
+      let dragging = false;
+      let offsetX = 0, offsetY = 0;
+
+      const onStart = (clientX, clientY, target) => {
+        if (target && target.closest && target.closest('.fav-float-close')) return false;
+        dragging = true;
+        const rect = popup.getBoundingClientRect();
+        offsetX = clientX - rect.left;
+        offsetY = clientY - rect.top;
+        popup.classList.add('dragging');
+        return true;
+      };
+      const onMove = (clientX, clientY) => {
+        if (!dragging) return;
+        const c = _clampFavPopup(clientX - offsetX, clientY - offsetY);
+        popup.style.left   = c.left + 'px';
+        popup.style.top    = c.top  + 'px';
+        popup.style.right  = 'auto';
+        popup.style.bottom = 'auto';
+      };
+      const onEnd = () => {
+        if (!dragging) return;
+        dragging = false;
+        popup.classList.remove('dragging');
+        try {
+          localStorage.setItem(FAV_POPUP_POS_KEY, JSON.stringify({
+            left: popup.offsetLeft,
+            top:  popup.offsetTop,
+          }));
+        } catch (_) {}
+      };
+
+      handle.addEventListener('mousedown', (e) => {
+        if (onStart(e.clientX, e.clientY, e.target)) e.preventDefault();
+      });
+      document.addEventListener('mousemove', (e) => onMove(e.clientX, e.clientY));
+      document.addEventListener('mouseup', onEnd);
+
+      // Touch (PC 에서도 트랙패드 / 터치스크린 대응)
+      handle.addEventListener('touchstart', (e) => {
+        if (e.touches.length !== 1) return;
+        onStart(e.touches[0].clientX, e.touches[0].clientY, e.target);
+      }, { passive: true });
+      document.addEventListener('touchmove', (e) => {
+        if (!dragging || e.touches.length !== 1) return;
+        e.preventDefault();
+        onMove(e.touches[0].clientX, e.touches[0].clientY);
+      }, { passive: false });
+      document.addEventListener('touchend', onEnd);
+      document.addEventListener('touchcancel', onEnd);
+
+      // 창 크기 변경 시 화면 밖으로 벗어나지 않게 보정
+      window.addEventListener('resize', () => {
+        const c = _clampFavPopup(popup.offsetLeft, popup.offsetTop);
+        if (c.left !== popup.offsetLeft || c.top !== popup.offsetTop) {
+          popup.style.left = c.left + 'px';
+          popup.style.top  = c.top  + 'px';
+        }
+      });
+
+      // 첫 진입 시 — 현재 페이지가 home 인지 따라 노출 결정
+      // (showPage 가 아직 호출 안 됐을 수 있으니 안전망)
+      _applyFavPopupVisibility('home');
+    })();
 
     /* ══════════════════════════════════════════════════════════
        글로벌 검색
