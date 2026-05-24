@@ -6158,9 +6158,9 @@
       justify-content: center;
       line-height: 1.1;
       box-sizing: border-box;
-      width: 34px;
-      height: 110px;
-      padding: 10px 0;
+      width: 36px;
+      height: 150px;
+      padding: 12px 0;
       white-space: nowrap;
       overflow: hidden;
       transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
@@ -13280,17 +13280,12 @@
     initHashRouting();
   </script>
 
-  <!-- v2.1.22: 좌측 고정 빨간 PILL nav — 리스/렌트카 페이지 진입 -->
+  <!-- v2.1.23: 좌측 고정 빨간 PILL nav — 리스/렌트카 통합 -->
   <div class="left-nav-group" aria-label="리스 렌트카 진입">
     <button class="left-nav-btn" type="button"
-            onclick="trackCardClick('좌측버튼','리스'); goToPage('rental');"
-            title="리스 — 인슈어커넥트 파트너사 혜택">
-      <span class="lnb-icon">🚗</span>리스
-    </button>
-    <button class="left-nav-btn" type="button"
-            onclick="trackCardClick('좌측버튼','렌트카'); goToPage('rental');"
-            title="렌트카 — 인슈어커넥트 파트너사 혜택">
-      <span class="lnb-icon">🚙</span>렌트카
+            onclick="trackCardClick('좌측버튼','리스/렌트카'); goToPage('rental');"
+            title="리스 / 렌트카 — 인슈어커넥트 파트너사 혜택">
+      <span class="lnb-icon">🚗</span>리스 / 렌트카
     </button>
   </div>
 
