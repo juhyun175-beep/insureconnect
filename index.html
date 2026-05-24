@@ -5177,14 +5177,20 @@
       flex-wrap: wrap;
     }
     /* 통합 정보 허브 카드 내 PILL 그리드 */
+    /* v2.1.20: 좁은 hero 컬럼에서 긴 라벨(예: MANAGER LINK)이 트랙을 확장시켜 카드 밖으로
+       삐져나가던 문제 — minmax(0, 1fr) 로 트랙 확장 차단 + PC 4컬럼 + 커뮤니티 pill span 2 */
     .ic-hero-pillgrid {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
+      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
       margin-top: 14px;
     }
-    @media (max-width: 720px) { .ic-hero-pillgrid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 380px) { .ic-hero-pillgrid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 720px) {
+      .ic-hero-pillgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (max-width: 380px) {
+      .ic-hero-pillgrid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
     .ic-hero-pill {
       padding: 9px 4px;
       border: 1px solid var(--border);
@@ -5198,6 +5204,15 @@
       font-family: inherit;
       letter-spacing: -0.01em;
       white-space: nowrap;
+      min-width: 0;      /* 트랙 expansion 방지 (overflow 차단 핵심) */
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* 커뮤니티 pill 은 라벨이 더 길어서 2 셀 차지 — PC 마지막 줄이 [뉴스] + [CREW span2] = 4 셀로 자연스럽게 채워짐
+       태블릿 3col 에서는 그대로 1셀(셀이 충분히 넓음), 모바일 2col 에서는 다시 2셀로 전체 행 차지 */
+    .ic-hero-pill.community { grid-column: span 2; }
+    @media (max-width: 720px) and (min-width: 381px) {
+      .ic-hero-pill.community { grid-column: auto; }
     }
     .ic-hero-pill:hover {
       background: rgba(26,61,232,0.06);

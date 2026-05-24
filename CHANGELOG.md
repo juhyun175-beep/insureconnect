@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.20] - 2026-05-24
+### Fixed
+- **홈 통합 정보 허브 카드 — 메뉴 pill 카드 밖 삐져나감 버그**
+  - 원인: `.ic-hero-pillgrid` 가 `repeat(5, 1fr)` (= `minmax(auto, 1fr)`). 「💬 MANAGER LINK」가 `nowrap`이라 한 줄 너비 ~108px → 좁은 PC hero(약 365–500px)에서 5컬럼 셀이 70–95px → 트랙이 콘텐츠 최소 너비까지 확장되면서 그리드가 카드보다 넓어져 우측이 카드 경계 밖으로 노출됨
+  - 수정:
+    1. `repeat(5, 1fr)` → **`repeat(4, minmax(0, 1fr))`** (PC) — 트랙 expansion 차단 + 4컬럼으로 셀 너비 확보
+    2. `.ic-hero-pill` 에 `min-width: 0` + `overflow: hidden` + `text-overflow: ellipsis` 보호
+    3. `.ic-hero-pill.community` (CREW 300 / MANAGER LINK) 는 `grid-column: span 2` 로 2셀 점유 → PC 마지막 줄이 `[뉴스] [CREW span2] [MANAGER span2]` 가 안 되고 `[CREW span2] [MANAGER span2]` 한 줄로 자연스럽게 정렬
+    4. 태블릿(≤720px, ≥381px) 은 3컬럼 + community `auto`(1셀) — 셀 너비가 충분
+    5. 모바일(≤380px) 은 2컬럼 + community `span 2`(전체 행)
+  - 결과: 어느 너비에서도 모든 pill 이 카드 안에 머무름
+
 ## [2.1.19] - 2026-05-24
 ### Added
 - **홈 통합 정보 허브 카드 — 커뮤니티 오픈채팅 버튼 추가**
