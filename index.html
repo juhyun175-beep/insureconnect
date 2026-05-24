@@ -5206,6 +5206,33 @@
       transform: translateY(-1px);
       box-shadow: 0 3px 10px rgba(26,61,232,0.10);
     }
+    /* v2.1.19: <a> 변형 — 외부 링크용 (커뮤니티 오픈채팅) 시각 정합성 */
+    a.ic-hero-pill {
+      text-decoration: none;
+      text-align: center;
+      display: block;
+    }
+    /* 커뮤니티(카카오 오픈채팅) 전용 — 카카오 옐로우 톤으로 "외부 링크" 시각 구분 */
+    .ic-hero-pill.community {
+      background: linear-gradient(135deg, rgba(254,229,0,0.10), rgba(254,229,0,0.03));
+      border-color: rgba(254,229,0,0.45);
+      color: #8b6500;
+    }
+    .ic-hero-pill.community:hover {
+      background: linear-gradient(135deg, #fee500, #ffd400);
+      color: #181600;
+      border-color: #fee500;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 14px rgba(254,229,0,0.40);
+    }
+    [data-theme="dark"] .ic-hero-pill.community {
+      color: #fde047;
+      background: linear-gradient(135deg, rgba(254,229,0,0.14), rgba(254,229,0,0.04));
+      border-color: rgba(254,229,0,0.40);
+    }
+    [data-theme="dark"] .ic-hero-pill.community:hover {
+      color: #181600;
+    }
     .ic-hero-btn {
       display: inline-flex;
       align-items: center;
@@ -8191,6 +8218,17 @@
           <button class="ic-hero-pill" onclick="goToPage('tools')">🛠 실무도구</button>
           <button class="ic-hero-pill" onclick="goToPage('knowledge')">📚 보험지식</button>
           <button class="ic-hero-pill" onclick="goToPage('newsletter')">🗞 뉴스</button>
+          <!-- v2.1.19: 커뮤니티 오픈채팅 — 사이드바와 동일 링크, 카카오 옐로우 변형 -->
+          <a class="ic-hero-pill community"
+             href="https://open.kakao.com/o/gSN4EEoh"
+             target="_blank" rel="noopener noreferrer"
+             onclick="trackClick('CREW300 오픈채팅 참여','hero-pill'); armCommunityFallback('CREW 300');"
+             title="보험설계사 커뮤니티 CREW 300 오픈채팅">💬 CREW 300</a>
+          <a class="ic-hero-pill community"
+             href="https://open.kakao.com/o/gka8SGqi"
+             target="_blank" rel="noopener noreferrer"
+             onclick="trackClick('MANAGERLINK 오픈채팅 참여','hero-pill'); armCommunityFallback('MANAGER LINK');"
+             title="설계매니저 커뮤니티 MANAGER LINK 오픈채팅">💬 MANAGER LINK</a>
         </div>
       </section>
 
