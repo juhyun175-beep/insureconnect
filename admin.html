@@ -1249,6 +1249,77 @@
       text-shadow: 0 0 8px rgba(255,255,255,0.4);
       box-shadow: 0 0 20px rgba(255,0,110,0.55), 0 0 40px rgba(176,38,255,0.30);
     }
+    /* v2.1.11: 탭 그룹 시각 구분자 */
+    .tab-group-sep {
+      display: inline-block;
+      width: 1px; height: 22px;
+      background: linear-gradient(180deg, transparent, var(--neon-cyan), transparent);
+      opacity: 0.35;
+      margin: 0 2px;
+      align-self: center;
+    }
+    /* v2.1.11: 사용자 신청 통합 패널 — 내부 sub-tabs */
+    .reqs-subtabs {
+      display: flex; gap: 8px; align-items: center;
+      padding: 0 0 14px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid rgba(0,240,255,0.18);
+      flex-wrap: wrap;
+    }
+    .reqs-subtab {
+      font-family: inherit;
+      padding: 9px 16px;
+      border-radius: 8px;
+      border: 1.5px solid var(--border);
+      background: var(--bg-card);
+      color: var(--txt-mid);
+      font-size: 12.5px; font-weight: 700;
+      cursor: pointer;
+      transition: all .15s;
+      display: inline-flex; align-items: center; gap: 8px;
+    }
+    .reqs-subtab:hover {
+      border-color: var(--neon-cyan, #10b981);
+      color: var(--neon-cyan, #10b981);
+    }
+    .reqs-subtab.active {
+      background: linear-gradient(135deg, #ff3355, #b026ff);
+      color: #fff;
+      border-color: transparent;
+      box-shadow: 0 4px 14px rgba(255,51,85,0.30);
+    }
+    .reqs-subbadge {
+      display: inline-flex; align-items: center; justify-content: center;
+      min-width: 18px; height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: #ff3355;
+      color: #fff;
+      font-size: 10.5px; font-weight: 800;
+      letter-spacing: 0;
+    }
+    .reqs-subtab.active .reqs-subbadge {
+      background: rgba(255,255,255,0.95); color: #ff3355;
+    }
+    .reqs-refresh {
+      margin-left: auto;
+      padding: 7px 14px;
+      background: transparent;
+      border: 1px solid var(--neon-cyan, #10b981);
+      color: var(--neon-cyan, #10b981);
+      border-radius: 6px;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      font-family: inherit;
+    }
+    .reqs-refresh:hover { background: rgba(0,240,255,0.08); }
+    .reqs-sub-pane[data-sub-pane] { animation: reqsFade 0.2s ease; }
+    @keyframes reqsFade {
+      from { opacity: 0; transform: translateY(2px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
     /* v2.0.3: 승인대기 배지 */
     .pending-badge {
       display: inline-flex;
@@ -3068,8 +3139,7 @@
             <button class="ssn-tab active" onclick="ssGo(0)">📈 방문 개요</button>
             <button class="ssn-tab" onclick="ssGo(1)">📊 클릭 통계</button>
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
-            <button class="ssn-tab" onclick="ssGo(3)">🌐 유입 경로</button>
-            <button class="ssn-tab" onclick="ssGo(4)">🔥 인기 콘텐츠</button>
+            <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -3144,79 +3214,7 @@
               </div>
             </div>
 
-            <!-- ── Slide 3: 유입 경로 ── -->
-            <div class="stats-slide">
-              <p class="slide-title">유입 경로 분석</p>
-              <div class="ts-period-bar">
-                <button class="ts-period-btn active" data-period="today" onclick="tsSetPeriod('today')" type="button">오늘</button>
-                <button class="ts-period-btn" data-period="total" onclick="tsSetPeriod('total')" type="button">누적</button>
-                <span class="ts-updated" id="ts-updated"></span>
-              </div>
-
-              <div class="traffic-grid">
-                <!-- 유입 도메인 -->
-                <div class="traffic-card">
-                  <div class="traffic-card-head">
-                    <span class="traffic-icon">🌐</span>
-                    <span class="traffic-title">유입 도메인 Top 10</span>
-                  </div>
-                  <ol class="traffic-list" id="ts-list-referrer">
-                    <li class="ts-empty">로딩 중…</li>
-                  </ol>
-                </div>
-
-                <!-- 랜딩 경로 -->
-                <div class="traffic-card">
-                  <div class="traffic-card-head">
-                    <span class="traffic-icon">🎯</span>
-                    <span class="traffic-title">랜딩 경로 Top 10</span>
-                  </div>
-                  <ol class="traffic-list" id="ts-list-landing">
-                    <li class="ts-empty">로딩 중…</li>
-                  </ol>
-                </div>
-
-                <!-- 디바이스 -->
-                <div class="traffic-card">
-                  <div class="traffic-card-head">
-                    <span class="traffic-icon">📱</span>
-                    <span class="traffic-title">디바이스</span>
-                  </div>
-                  <ol class="traffic-list" id="ts-list-device">
-                    <li class="ts-empty">로딩 중…</li>
-                  </ol>
-                </div>
-
-                <!-- UTM 캠페인 -->
-                <div class="traffic-card traffic-card-wide">
-                  <div class="traffic-card-head">
-                    <span class="traffic-icon">📌</span>
-                    <span class="traffic-title">UTM 캠페인</span>
-                    <span class="traffic-hint">utm_source / utm_medium / utm_campaign 파라미터로 유입된 트래픽</span>
-                  </div>
-                  <table class="traffic-table" id="ts-table-utm">
-                    <thead><tr><th>source</th><th>medium</th><th>campaign</th><th class="ta-right">visits</th></tr></thead>
-                    <tbody><tr><td colspan="4" class="ts-empty">로딩 중…</td></tr></tbody>
-                  </table>
-                </div>
-
-                <!-- 최근 유입 50건 -->
-                <div class="traffic-card traffic-card-wide">
-                  <div class="traffic-card-head">
-                    <span class="traffic-icon">🕒</span>
-                    <span class="traffic-title">최근 유입 (50건)</span>
-                  </div>
-                  <div class="traffic-recent-wrap">
-                    <table class="traffic-table" id="ts-table-recent">
-                      <thead><tr><th>시각</th><th>유입</th><th>랜딩</th><th>UTM</th><th>디바이스</th></tr></thead>
-                      <tbody><tr><td colspan="5" class="ts-empty">로딩 중…</td></tr></tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- ── Slide 4: 인기 콘텐츠 (조회/공유유입/복사) ── -->
+            <!-- ── Slide 3: 인기 콘텐츠 (조회/공유유입/복사) ── -->
             <div class="stats-slide">
               <p class="slide-title">콘텐츠 인기도 분석</p>
               <div class="ts-period-bar">
@@ -3282,47 +3280,89 @@
 
       </div><!-- /.stats-slider -->
 
-      <!-- 업로드 탭 -->
+      <!-- 업로드 탭 (v2.1.11: 그룹별 재정렬 + 사용자신청 통합) -->
       <p class="dash-section-title">콘텐츠 업로드 & 관리</p>
       <div class="upload-tabs">
-        <button class="upload-tab" data-panel="up-pending" id="up-pending-tab" style="position:relative;border-color:#ff3355;color:#ff3355;">
-          ⏳ 승인대기
-          <span class="pending-badge" id="pending-badge" style="display:none">0</span>
+        <!-- 🔴 우선 응대 — 사용자 신청 통합 (채용/강의 승인대기 + 렌트카 신청) -->
+        <button class="upload-tab active" data-panel="up-requests" id="up-requests-tab" style="position:relative;border-color:#ff3355;color:#ff3355;">
+          📥 사용자 신청
+          <span class="pending-badge" id="requests-badge" style="display:none">0</span>
         </button>
-        <button class="upload-tab active" data-panel="up-news">📰 보험사 소식지</button>
+
+        <span class="tab-group-sep" aria-hidden="true"></span>
+
+        <!-- 보험사 콘텐츠 -->
+        <button class="upload-tab" data-panel="up-news">📰 보험사 소식지</button>
         <button class="upload-tab" data-panel="up-claim">📋 보험사 청구서류</button>
-        <button class="upload-tab" data-panel="up-card">🗞 인슈어커넥트 뉴스</button>
-        <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
-        <button class="upload-tab" data-panel="up-knowledge">📚 보험지식</button>
-        <button class="upload-tab" data-panel="up-sidebar">🖼 사이드바 배너</button>
         <button class="upload-tab" data-panel="up-textbook">📖 보험교재</button>
         <button class="upload-tab" data-panel="up-alert">🚨 점검·장애 알림</button>
+
+        <span class="tab-group-sep" aria-hidden="true"></span>
+
+        <!-- 인슈어커넥트 콘텐츠 -->
+        <button class="upload-tab" data-panel="up-card">🗞 인슈어커넥트 뉴스</button>
+        <button class="upload-tab" data-panel="up-knowledge">📚 보험지식</button>
         <button class="upload-tab" data-panel="up-kakao">💬 대화순위</button>
+
+        <span class="tab-group-sep" aria-hidden="true"></span>
+
+        <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
+        <button class="upload-tab" data-panel="up-sidebar">🖼 사이드바 배너</button>
+
+        <span class="tab-group-sep" aria-hidden="true"></span>
+
+        <!-- 공고·판매 등록 -->
+        <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
         <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
-        <button class="upload-tab" data-panel="up-rental-inquiries" style="position:relative;">
-          📋 렌트카 신청
-          <span class="pending-badge" id="rental-inquiry-badge" style="display:none">0</span>
-        </button>
       </div>
 
-      <!-- v2.0.3: 승인대기 패널 -->
-      <div class="upload-panel" id="up-pending">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <p class="dash-section-title" style="margin:0">⏳ 사용자 승인요청</p>
-          <button type="button" onclick="loadPending()"
-                  style="padding:6px 12px;background:transparent;border:1px solid var(--neon-cyan);color:var(--neon-cyan);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
+      <!-- v2.1.11: 📥 사용자 신청 통합 (승인대기 + 렌트카 신청 sub-tabs) -->
+      <div class="upload-panel active" id="up-requests">
+        <div class="reqs-subtabs">
+          <button type="button" class="reqs-subtab active" data-sub="pending" onclick="reqsSwitchSub('pending')">
+            ✋ 채용·강의 승인대기
+            <span class="reqs-subbadge" id="pending-badge" style="display:none">0</span>
+          </button>
+          <button type="button" class="reqs-subtab" data-sub="rental" onclick="reqsSwitchSub('rental')">
+            🚗 렌트카 신청
+            <span class="reqs-subbadge" id="rental-inquiry-badge" style="display:none">0</span>
+          </button>
+          <button type="button" class="reqs-refresh"
+                  onclick="(reqsCurrentSub()==='pending'?loadPending:loadRentalInquiriesAdmin)()">
             🔄 새로고침
           </button>
         </div>
-        <div id="pending-list-container">
-          <p class="empty-msg">승인대기 로딩 중…</p>
+
+        <!-- (A) 채용·강의 승인대기 -->
+        <div class="reqs-sub-pane active" data-sub-pane="pending">
+          <p class="dash-section-title" style="margin:0 0 12px;">⏳ 사용자 승인요청</p>
+          <div id="pending-list-container">
+            <p class="empty-msg">승인대기 로딩 중…</p>
+          </div>
+        </div>
+
+        <!-- (B) 렌트카 신청 -->
+        <div class="reqs-sub-pane" data-sub-pane="rental" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px;">
+            <select id="ri-filter" onchange="loadRentalInquiriesAdmin()"
+                    style="padding:6px 10px;background:var(--bg-card,#222);color:var(--txt-hi,#fff);border:1px solid var(--border,#444);border-radius:6px;font-size:11px;">
+              <option value="all">전체</option>
+              <option value="new" selected>신규</option>
+              <option value="contacted">연락 완료</option>
+              <option value="closed">완료</option>
+              <option value="canceled">취소</option>
+            </select>
+          </div>
+          <div id="ri-list">
+            <p class="empty-msg">신청 내역 로딩 중…</p>
+          </div>
         </div>
       </div>
 
       <!-- 소식지 관리 패널 -->
-      <div class="upload-panel active" id="up-news">
+      <div class="upload-panel" id="up-news">
 
       <div class="nl-upload-box">
         <div class="nl-form" id="nl-form">
@@ -3904,30 +3944,7 @@
         </div>
       </div><!-- /#up-rental-vehicles -->
 
-      <!-- v2.1.4: 렌트카 신청 내역 패널 -->
-      <div class="upload-panel" id="up-rental-inquiries">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <p class="dash-section-title" style="margin:0">📋 렌트카 신청 내역</p>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <select id="ri-filter" onchange="loadRentalInquiriesAdmin()"
-                    style="padding:6px 10px;background:var(--bg-card,#222);color:var(--txt-hi,#fff);border:1px solid var(--border,#444);border-radius:6px;font-size:11px;">
-              <option value="all">전체</option>
-              <option value="new" selected>신규</option>
-              <option value="contacted">연락 완료</option>
-              <option value="closed">완료</option>
-              <option value="canceled">취소</option>
-            </select>
-            <button type="button" onclick="loadRentalInquiriesAdmin()"
-                    style="padding:6px 12px;background:transparent;border:1px solid var(--neon-cyan,#10b981);color:var(--neon-cyan,#10b981);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
-              🔄 새로고침
-            </button>
-          </div>
-        </div>
-
-        <div id="ri-list">
-          <p class="empty-msg">신청 내역 로딩 중…</p>
-        </div>
-      </div><!-- /#up-rental-inquiries -->
+      <!-- v2.1.11: 기존 #up-rental-inquiries 패널은 #up-requests 안의 sub-pane 으로 흡수됨 -->
 
       <!-- ══════ 배너 미리보기 모달 (이용자 시점) ══════ -->
       <div id="sb-preview-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSbPreview()">
@@ -4409,11 +4426,10 @@
     }
 
     /* ══════════════════════════════
-       유입 경로 (Slide 3)
+       유입 경로 — v2.1.11 에서 제거됨
+       (이용자 행동 추적은 인기 콘텐츠 슬라이드로 단일화)
     ══════════════════════════════ */
-    let _tsPeriod = 'today';
-    let _tsCache  = null;
-
+    /*
     async function loadTrafficSources() {
       try {
         const res = await fetch(`/api/stats/traffic`);
@@ -4501,9 +4517,10 @@
       const updEl = document.getElementById('ts-updated');
       if (updEl) updEl.textContent = `· 업데이트 ${hh}:${mm}`;
     }
+    */
 
     /* ══════════════════════════════
-       인기 콘텐츠 — 조회/공유유입/복사 (Slide 4)
+       인기 콘텐츠 — 조회/공유유입/복사 (Slide 3)
     ══════════════════════════════ */
     let _pcPeriod = 'today';
     let _pcCache  = null;
@@ -4635,7 +4652,7 @@
 
     /* ── 통계 슬라이더 ── */
     let _ssIdx = 0;
-    const SS_COUNT = 5;
+    const SS_COUNT = 4;
 
     function ssUpdateHeight() {
       const outer   = document.querySelector('.stats-slides-outer');
@@ -4767,9 +4784,6 @@
 
         /* 카드별 클릭 7일 추이 */
         loadCardStats();
-
-        /* 유입 경로 */
-        loadTrafficSources();
 
         /* 인기 콘텐츠 (조회/공유유입/복사) */
         loadPopularContent();
@@ -4975,13 +4989,41 @@
 
     function updatePendingBadge(n) {
       const badge = document.getElementById('pending-badge');
-      if (!badge) return;
-      if (n > 0) {
-        badge.textContent = n > 99 ? '99+' : String(n);
-        badge.style.display = 'inline-flex';
-      } else {
-        badge.style.display = 'none';
+      if (badge) {
+        if (n > 0) {
+          badge.textContent = n > 99 ? '99+' : String(n);
+          badge.style.display = 'inline-flex';
+        } else {
+          badge.style.display = 'none';
+        }
       }
+      _updateRequestsBadge();
+    }
+
+    /* v2.1.11: 통합 「📥 사용자 신청」 탭 — 외부 합산 배지 + sub-tab 전환 */
+    function _updateRequestsBadge() {
+      const pBadge = document.getElementById('pending-badge');
+      const rBadge = document.getElementById('rental-inquiry-badge');
+      const p = (pBadge && pBadge.style.display !== 'none') ? (parseInt(pBadge.textContent, 10) || 0) : 0;
+      const r = (rBadge && rBadge.style.display !== 'none') ? (parseInt(rBadge.textContent, 10) || 0) : 0;
+      const total = p + r;
+      const outer = document.getElementById('requests-badge');
+      if (outer) {
+        outer.textContent = total > 99 ? '99+' : String(total);
+        outer.style.display = total > 0 ? 'inline-flex' : 'none';
+      }
+    }
+    function reqsCurrentSub() {
+      const active = document.querySelector('.reqs-subtab.active');
+      return active ? active.dataset.sub : 'pending';
+    }
+    function reqsSwitchSub(sub) {
+      document.querySelectorAll('.reqs-subtab').forEach(b => {
+        b.classList.toggle('active', b.dataset.sub === sub);
+      });
+      document.querySelectorAll('.reqs-sub-pane').forEach(p => {
+        p.style.display = p.dataset.subPane === sub ? '' : 'none';
+      });
     }
 
     async function approveItem(table, id) {
@@ -5047,8 +5089,9 @@
     }
     function openPendingTab() {
       dismissPendingPopup();
-      const tab = document.getElementById('up-pending-tab');
+      const tab = document.getElementById('up-requests-tab');
       if (tab) tab.click();
+      if (typeof reqsSwitchSub === 'function') reqsSwitchSub('pending');
     }
 
     /* ── 파일 선택 표시 ── */
@@ -7157,9 +7200,10 @@
           const newRows = await newRes.json();
           const n = Array.isArray(newRows) ? newRows.length : 0;
           if (badge) {
-            badge.style.display = n > 0 ? 'inline-block' : 'none';
+            badge.style.display = n > 0 ? 'inline-flex' : 'none';
             badge.textContent = String(n);
           }
+          if (typeof _updateRequestsBadge === 'function') _updateRequestsBadge();
         }
         const res = await fetch(`/api/rental-inquiries?status=${encodeURIComponent(filter)}&limit=300`, { headers: adminHeaders() });
         const items = await res.json();
