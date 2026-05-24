@@ -22,7 +22,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
             i.preferred_time, i.organization, i.memo, i.status, i.created_at, i.updated_at,
             i.contract_months, i.annual_km, i.selected_color, i.insurance_opts, i.estimated_monthly,
             i.business_type, i.deposit_prepay, i.insurance_age,
-            i.deposit_pct, i.prepay_pct,
+            i.deposit_pct, i.prepay_pct, i.business_card_url,
             v.image_url AS vehicle_image_url, v.delivery_type AS vehicle_delivery_type
      FROM ic_rental_inquiries i
      LEFT JOIN ic_rental_vehicles v ON v.id = i.vehicle_id
@@ -69,8 +69,9 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
        (vehicle_id, vehicle_name_snapshot, customer_name, customer_phone,
         preferred_time, organization, memo, status,
         contract_months, annual_km, selected_color, insurance_opts, estimated_monthly,
-        business_type, deposit_prepay, insurance_age, deposit_pct, prepay_pct)
-     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        business_type, deposit_prepay, insurance_age, deposit_pct, prepay_pct,
+        business_card_url)
+     VALUES (?, ?, ?, ?, ?, ?, ?, 'new', ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     vehicleId,
     vehicleNameSnapshot,
@@ -88,7 +89,8 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     depositPrepayStr,
     body.insurance_age ? String(body.insurance_age).slice(0, 30) : null,
     depositPct,
-    prepayPct
+    prepayPct,
+    body.business_card_url ? String(body.business_card_url).slice(0, 500) : null
   ).first();
   return json({ id: r.id, ok: true });
 });

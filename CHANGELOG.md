@@ -1,5 +1,30 @@
 # Changelog
 
+## [2.1.10] - 2026-05-23
+### Fixed
+- **관리자 사이드바 배너 — 삭제 버튼이 동작하지 않던 버그**
+  - 원인: 프론트가 `DELETE /api/sidebar-banner?set_id=xxx` 로 호출하지만, DELETE 핸들러는 `/api/sidebar-banner/[id].js` 에만 있어 라우팅이 안 맞았음 (path id 없는 요청은 `index.js` 로 가는데 거기엔 DELETE가 없었음 → 405 silently 무시)
+  - `index.js` 에 `onRequestDelete` 추가 — `?set_id=xxx` query param 으로 세트 전체 삭제
+  - 프론트도 응답 status 검사 + 실패 시 명확한 alert 표시하도록 강화
+
+### Added
+- **견적내기 팝업 (Step 2) — 명함 업로드 기능**
+  - 「명함 사진 선택 또는 촬영」 점선 박스 (📇 아이콘 + 안내)
+  - JPG / PNG / WebP / HEIC / GIF 지원, 최대 10MB
+  - 모바일은 `capture="environment"` 로 후면 카메라 즉시 촬영 가능
+  - 선택 시 즉시 미리보기(축소 썸네일) + 우상단 ✕ 제거 버튼 + 파일명·용량 표시
+  - 「신청하기」 누르면 R2 의 `rental-cards/` 폴더에 자동 업로드(랜덤 파일명) → 반환된 URL 을 신청 데이터에 첨부
+  - 업로드 실패 시 inquiry 제출 중단하고 에러 메시지 표시 (데이터 불일치 방지)
+- **관리자 신청 내역 — 명함 썸네일 + 원본 열기 링크**
+  - 신청 카드 안에 「📇 명함」 라벨 + 썸네일 이미지 (클릭 시 새 탭에서 원본)
+  - 「원본 열기 ↗」 텍스트 링크 별도
+
+### Backend
+- DB Migration (`migrations/d1_v2_1_10_card.sql`)
+  - `ic_rental_inquiries`: + `business_card_url TEXT`
+- `functions/api/user-upload/[[path]].js`: ALLOWED_FOLDERS 에 `rental-cards` 추가, ALLOWED_MIME 에 HEIC/HEIF 추가
+- `functions/api/rental-inquiries/index.js`: GET/POST 모두 `business_card_url` read/write
+
 ## [2.1.9] - 2026-05-23
 ### Changed
 - **개인/법인 선택은 월 대여료 계산에 영향 X**

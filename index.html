@@ -2056,6 +2056,56 @@
       .rq-quote-amount { font-size: 26px; }
     }
 
+    /* v2.1.10: 명함 업로드 (견적 모달 Step 2) */
+    .rq-card-upload {
+      display: flex; align-items: center; gap: 12px;
+      padding: 14px 16px;
+      border: 1.5px dashed rgba(26,61,232,0.30);
+      border-radius: 12px;
+      background: linear-gradient(135deg, rgba(26,61,232,0.04), rgba(159,122,234,0.04));
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .rq-card-upload:hover {
+      border-color: #1a3de8;
+      background: linear-gradient(135deg, rgba(26,61,232,0.08), rgba(159,122,234,0.08));
+    }
+    .rq-card-upload-icon { font-size: 28px; flex-shrink: 0; }
+    .rq-card-upload-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+    .rq-card-upload-main { font-size: 13px; font-weight: 700; color: var(--txt-hi); }
+    .rq-card-upload-sub { font-size: 11px; color: var(--txt-lo); }
+    .rq-card-preview-box {
+      position: relative;
+      display: inline-block;
+      border-radius: 10px;
+      border: 1px solid var(--border, rgba(0,0,0,0.10));
+      overflow: hidden;
+      background: var(--bg-soft, #f5f7fb);
+    }
+    .rq-card-preview-clear {
+      position: absolute;
+      top: 6px; right: 6px;
+      width: 24px; height: 24px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(220,38,38,0.92);
+      color: #fff;
+      font-size: 13px; font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+      display: flex; align-items: center; justify-content: center;
+      line-height: 1;
+    }
+    .rq-card-preview-clear:hover { background: #dc2626; }
+    .rq-card-preview-name {
+      font-size: 11.5px; color: var(--txt-mid);
+      margin-top: 4px;
+    }
+    [data-theme="dark"] .rq-card-upload {
+      background: linear-gradient(135deg, rgba(124,158,255,0.06), rgba(167,139,250,0.06));
+      border-color: rgba(124,158,255,0.30);
+    }
+
     /* v2.1.8: 즉시출고 배지 (카드 썸네일 좌하단) */
     .ic-rental-card-instant {
       position: absolute;
@@ -7787,6 +7837,26 @@
           <div class="sm-field">
             <label for="rental-input-memo">추가 문의 (선택)</label>
             <textarea id="rental-input-memo" maxlength="500" placeholder="원하시는 일정·옵션 등 자유롭게 적어주세요."></textarea>
+          </div>
+
+          <!-- v2.1.10: 명함 업로드 -->
+          <div class="sm-field">
+            <label>명함 업로드 (선택) <span style="font-weight:500;color:var(--txt-lo);font-size:11px;">— 소속 확인 시 우선 응대</span></label>
+            <label class="rq-card-upload" for="rental-card-file">
+              <input type="file" id="rental-card-file" accept="image/*" capture="environment" style="display:none;">
+              <span class="rq-card-upload-icon">📇</span>
+              <span class="rq-card-upload-text">
+                <span class="rq-card-upload-main">명함 사진 선택 또는 촬영</span>
+                <span class="rq-card-upload-sub">JPG / PNG / WebP · 최대 10MB</span>
+              </span>
+            </label>
+            <div id="rental-card-preview" style="display:none;margin-top:8px;">
+              <div class="rq-card-preview-box">
+                <img id="rental-card-preview-img" alt="명함 미리보기" style="max-width:200px;max-height:130px;border-radius:8px;display:block;">
+                <button type="button" class="rq-card-preview-clear" onclick="clearRentalCard()" aria-label="명함 제거">✕</button>
+              </div>
+              <div class="rq-card-preview-name" id="rental-card-preview-name"></div>
+            </div>
           </div>
 
           <div class="sm-actions">
@@ -13985,6 +14055,9 @@
       let _qAge        = '만30세이상';
       let _qDepositPct = 0;
       let _qPrepayPct  = 0;
+      // v2.1.10: 명함 (file → 업로드된 url 캐시)
+      let _qCardFile   = null;
+      let _qCardUrl    = '';
 
       window.loadRentalLineup = async function loadRentalLineup() {
         const desktopSec  = document.getElementById('rental-section');
@@ -14080,6 +14153,9 @@
         _selectedVehicle = v;
         _qBiz = '개인'; _qMonths = 36; _qKm = 20000; _qAge = '만30세이상';
         _qDepositPct = 0; _qPrepayPct = 0;
+        _qCardFile = null; _qCardUrl = '';
+        clearRentalCard();
+        _bindRentalCardInput();
 
         // 차량 박스
         document.getElementById('rq-vehicle-name').textContent = v.name;
@@ -14140,6 +14216,45 @@
 
       window.closeRentalInquiry = function closeRentalInquiry() {
         document.getElementById('rental-inquiry-modal').classList.remove('open');
+      };
+
+      // v2.1.10: 명함 파일 선택 → 미리보기
+      function _bindRentalCardInput() {
+        const inp = document.getElementById('rental-card-file');
+        if (!inp || inp._bound) return;
+        inp._bound = true;
+        inp.addEventListener('change', () => {
+          const f = inp.files && inp.files[0];
+          if (!f) { clearRentalCard(); return; }
+          if (f.size > 10 * 1024 * 1024) {
+            alert('파일은 10MB 이하만 가능합니다.');
+            inp.value = '';
+            return;
+          }
+          _qCardFile = f;
+          _qCardUrl  = '';   // 새 파일 선택 시 기존 url 초기화 (재업로드 유도)
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const img = document.getElementById('rental-card-preview-img');
+            if (img) img.src = e.target.result;
+            const wrap = document.getElementById('rental-card-preview');
+            if (wrap) wrap.style.display = 'block';
+            const nameEl = document.getElementById('rental-card-preview-name');
+            if (nameEl) nameEl.textContent = `${f.name} (${(f.size/1024/1024).toFixed(2)}MB)`;
+          };
+          reader.readAsDataURL(f);
+        });
+      }
+
+      window.clearRentalCard = function clearRentalCard() {
+        _qCardFile = null;
+        _qCardUrl  = '';
+        const inp = document.getElementById('rental-card-file');
+        if (inp) inp.value = '';
+        const wrap = document.getElementById('rental-card-preview');
+        if (wrap) wrap.style.display = 'none';
+        const img = document.getElementById('rental-card-preview-img');
+        if (img) img.src = '';
       };
 
       window.rqGoToStep2 = function rqGoToStep2() {
@@ -14230,6 +14345,32 @@
         status.className = 'sm-status';
         status.textContent = '전송 중…';
 
+        // 1) 명함 업로드 (선택된 경우만)
+        if (_qCardFile && !_qCardUrl) {
+          status.textContent = '명함 업로드 중…';
+          try {
+            const ext = (_qCardFile.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5) || 'jpg';
+            const path = `card_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+            const up = await fetch(`/api/user-upload/rental-cards/${path}`, {
+              method: 'POST',
+              headers: { 'Content-Type': _qCardFile.type || 'image/jpeg' },
+              body: _qCardFile
+            });
+            const upData = await up.json().catch(() => ({}));
+            if (!up.ok || upData.error || !upData.file_url) {
+              throw new Error(upData.error || '명함 업로드에 실패했습니다');
+            }
+            _qCardUrl = upData.file_url;
+          } catch (e) {
+            status.className = 'sm-status error';
+            status.textContent = e.message || '명함 업로드 실패';
+            submitBtn.disabled = false;
+            return;
+          }
+        }
+
+        // 2) inquiry 제출
+        status.textContent = '전송 중…';
         const amt = calcMonthly();
         try {
           const res = await fetch('/api/rental-inquiries', {
@@ -14249,7 +14390,8 @@
               insurance_age: _qAge || null,
               deposit_pct: _qDepositPct,
               prepay_pct:  _qPrepayPct,
-              estimated_monthly: amt
+              estimated_monthly: amt,
+              business_card_url: _qCardUrl || null
             })
           });
           const data = await res.json().catch(() => ({}));
