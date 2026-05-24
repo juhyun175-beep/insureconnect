@@ -6,7 +6,8 @@
  *   - 카드 클릭:  company_name='렌트카 견적 시작',     company_type='vehicle_{id}'
  *   - 신청 완료:  company_name='렌트카 견적 신청 완료', company_type='vehicle_{id}'
  *
- * 차량별 표시명·이미지는 ic_rental_vehicles 와 JOIN (vehicle_id 추출)
+ * v2.1.14: 삭제된 차량(ic_rental_vehicles 에 없는 vehicle_id)의 기록은
+ *           KPI · 타임라인 · 차량별 표 전체에서 SQL 레벨로 제외.
  */
 import { json, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
@@ -15,7 +16,6 @@ export const onRequestOptions = () => corsPreflight();
 
 const CLICK_NAME  = '렌트카 견적 시작';
 const SUBMIT_NAME = '렌트카 견적 신청 완료';
-const TRACK_NAMES = [CLICK_NAME, SUBMIT_NAME];
 
 function kstDateKey() {
   const d = new Date();
@@ -29,6 +29,35 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const url = new URL(request.url);
   const days = Math.min(parseInt(url.searchParams.get('days') || '14', 10), 60);
 
+  // 차량 메타데이터 — 현재 존재하는(삭제 안 된) 차량들
+  const vehiclesQ = await env.DB.prepare(
+    `SELECT id, name, image_url, is_active, delivery_type FROM ic_rental_vehicles`
+  ).all();
+  const vList = vehiclesQ.results || [];
+  const vMap = new Map();
+  for (const v of vList) vMap.set(+v.id, v);
+
+  // 차량이 0대면 모든 통계 빈 값으로 즉시 반환
+  if (vList.length === 0) {
+    const emptyTimeline = [];
+    for (let i = days - 1; i >= 0; i--) {
+      const d = new Date();
+      d.setUTCHours(d.getUTCHours() + 9);
+      d.setUTCDate(d.getUTCDate() - i);
+      emptyTimeline.push({ date: d.toISOString().slice(0,10), clicks: 0, submits: 0 });
+    }
+    return json({
+      kpi: { total_clicks:0, total_submits:0, today_clicks:0, today_submits:0,
+             total_conversion:0, today_conversion:0 },
+      timeline: emptyTimeline,
+      by_vehicle: [],
+      generated_at: new Date().toISOString(),
+    });
+  }
+
+  // 공통 필터: 현재 존재하는 차량의 vehicle_{id} 만 (삭제된 차량 제외)
+  const VALID_TYPES_SUBQ = `(SELECT 'vehicle_' || id FROM ic_rental_vehicles)`;
+
   // 1) KPI
   const kpiQ = await env.DB.prepare(
     `SELECT
@@ -38,7 +67,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
        SUM(CASE WHEN company_name=? AND date=? THEN clicks ELSE 0 END) AS today_submits
      FROM ic_link_clicks_daily
      WHERE company_name IN (?, ?)
-       AND company_type LIKE 'vehicle_%'`
+       AND company_type IN ${VALID_TYPES_SUBQ}`
   ).bind(CLICK_NAME, SUBMIT_NAME, CLICK_NAME, today, SUBMIT_NAME, today, CLICK_NAME, SUBMIT_NAME).first() || {};
 
   const tc = +kpiQ.total_clicks  || 0;
@@ -53,7 +82,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
        SUM(CASE WHEN company_name=? THEN clicks ELSE 0 END) AS submits
      FROM ic_link_clicks_daily
      WHERE company_name IN (?, ?)
-       AND company_type LIKE 'vehicle_%'
+       AND company_type IN ${VALID_TYPES_SUBQ}
        AND date >= date(?, ?)
      GROUP BY date
      ORDER BY date ASC`
@@ -74,45 +103,39 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     timeline.push({ date: key, clicks: v.clicks, submits: v.submits });
   }
 
-  // 3) 차량별 Top 클릭
+  // 3) 차량별 Top 클릭 (역시 삭제된 차량 제외)
   const perVehicleQ = await env.DB.prepare(
     `SELECT company_type,
        SUM(CASE WHEN company_name=? THEN clicks ELSE 0 END) AS clicks,
        SUM(CASE WHEN company_name=? THEN clicks ELSE 0 END) AS submits
      FROM ic_link_clicks_daily
      WHERE company_name IN (?, ?)
-       AND company_type LIKE 'vehicle_%'
+       AND company_type IN ${VALID_TYPES_SUBQ}
      GROUP BY company_type
      ORDER BY clicks DESC
      LIMIT 30`
   ).bind(CLICK_NAME, SUBMIT_NAME, CLICK_NAME, SUBMIT_NAME).all();
 
-  // 차량 메타데이터 (전체)
-  const vehiclesQ = await env.DB.prepare(
-    `SELECT id, name, image_url, is_active, delivery_type FROM ic_rental_vehicles`
-  ).all();
-  const vMap = new Map();
-  for (const v of (vehiclesQ.results || [])) {
-    vMap.set(+v.id, v);
-  }
-
-  const byVehicle = (perVehicleQ.results || []).map(r => {
-    const idStr = String(r.company_type).replace(/^vehicle_/, '');
-    const id = parseInt(idStr, 10);
-    const v = vMap.get(id);
-    const clicks  = +r.clicks  || 0;
-    const submits = +r.submits || 0;
-    return {
-      vehicle_id: Number.isFinite(id) ? id : null,
-      company_type: r.company_type,
-      name: v ? v.name : `(삭제됨 #${idStr})`,
-      image_url: v ? v.image_url : null,
-      is_active: v ? v.is_active : 0,
-      delivery_type: v ? v.delivery_type : null,
-      clicks, submits,
-      conversion: clicks > 0 ? Math.round(submits / clicks * 1000) / 10 : 0,   // 1자리 소수
-    };
-  });
+  const byVehicle = (perVehicleQ.results || [])
+    .map(r => {
+      const idStr = String(r.company_type).replace(/^vehicle_/, '');
+      const id = parseInt(idStr, 10);
+      const v = vMap.get(id);
+      if (!v) return null;            // 이중 안전망 (SQL 필터로 이미 걸러짐)
+      const clicks  = +r.clicks  || 0;
+      const submits = +r.submits || 0;
+      return {
+        vehicle_id: id,
+        company_type: r.company_type,
+        name: v.name,
+        image_url: v.image_url,
+        is_active: v.is_active,
+        delivery_type: v.delivery_type,
+        clicks, submits,
+        conversion: clicks > 0 ? Math.round(submits / clicks * 1000) / 10 : 0,
+      };
+    })
+    .filter(Boolean);
 
   return json({
     kpi: {
@@ -123,8 +146,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
       total_conversion: tc > 0 ? Math.round(ts / tc * 1000) / 10 : 0,
       today_conversion: dc > 0 ? Math.round(ds / dc * 1000) / 10 : 0,
     },
-    timeline,                    // [{date, clicks, submits}, ...]
-    by_vehicle: byVehicle,       // [{vehicle_id, name, image_url, clicks, submits, conversion}, ...]
+    timeline,
+    by_vehicle: byVehicle,
     generated_at: new Date().toISOString(),
   });
 });
