@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.12] - 2026-05-23
+### Fixed
+- **홈 대시보드 — 오픈채팅방 대화순위 카드 높이 정렬**
+  - 기존: `.ic-kakao-panel { align-self: start }` 로 컨텐츠만큼만 차지 → 왼쪽 컬럼(실시간 인기 + 통합 정보 허브 / 즐겨찾기)이 더 길 때 카드 하단이 즐겨찾기 하단보다 위에서 끊겨 미관 불량
+  - 수정: `align-self: stretch` 로 그리드 컬럼 전체 높이 사용 → 카드 하단이 즐겨찾기 하단과 정확히 일치
+  - 내부 동작:
+    - `.ic-kakao-rank-list` 가 `flex: 1; min-height: 0; overflow-y: auto` 로 남는 세로 공간을 자연스럽게 채우고 항목이 많을 때만 얇은(4px) 스크롤바 노출
+    - `.ic-kakao-updated` 는 `margin-top: auto` 로 카드 하단에 고정
+
 ## [2.1.11] - 2026-05-23
 ### Removed
 - **관리자 통계 — 🌐 유입 경로 슬라이드 전체 제거**

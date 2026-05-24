@@ -5431,8 +5431,10 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      /* v2.0.4: 컨텐츠 만큼만 차지 (왼쪽 컬럼이 더 길어도 늘어나지 않음) */
-      align-self: start;
+      /* v2.1.12: 왼쪽 컬럼(실시간 인기 + 히어로/즐겨찾기) 하단까지 정확히 늘어나도록
+         stretch (grid 기본값이지만 명시) — 내부 rank-list 가 남는 높이를 채움 */
+      align-self: stretch;
+      min-height: 0;
     }
     .ic-kakao-head {
       display: flex;
@@ -5479,7 +5481,21 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
-    .ic-kakao-rank-list { display: flex; flex-direction: column; gap: 5px; }
+    .ic-kakao-rank-list {
+      display: flex; flex-direction: column; gap: 5px;
+      /* v2.1.12: 남는 세로 공간을 차지 (즐겨찾기 하단과 카드 하단 일치) */
+      flex: 1 1 auto;
+      min-height: 0;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .ic-kakao-rank-list::-webkit-scrollbar { width: 4px; }
+    .ic-kakao-rank-list::-webkit-scrollbar-thumb {
+      background: rgba(120,120,120,0.25);
+      border-radius: 4px;
+    }
+    /* 업데이트 시각은 카드 하단에 고정 */
+    .ic-kakao-updated { margin-top: auto; }
     .ic-kakao-rank-item {
       display: flex;
       align-items: center;
@@ -5540,6 +5556,7 @@
       display: flex;
       flex-direction: column;
       gap: 1px;
+      margin-top: auto;  /* v2.1.12: 카드 하단에 고정 */
     }
     .ic-kakao-updated > span { display: block; }
 
