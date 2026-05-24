@@ -3,6 +3,7 @@
  *
  *   /og/news/{set_id}      → 카드뉴스 첫 슬라이드 이미지
  *   /og/recruit/{id}       → 채용공고 첨부 이미지
+ *   /og/lecture/{id}       → 강의공고 첨부 이미지 (v2.1.21)
  *   /og/knowledge/{id}     → 보험지식 image_url
  *
  * 응답 = 빈 HTML + OG meta + 메타 refresh로 실제 페이지로 즉시 이동.
@@ -81,6 +82,17 @@ export const onRequestGet = async ({ params, env, request }) => {
         desc = r.company_name ? `[${r.company_name}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
         if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
         target = `${SITE}/?recruit=${encodeURIComponent(id)}`;
+      }
+    } else if (type === 'lecture') {
+      // v2.1.21: 강의 공고 공유 미리보기
+      const r = await env.DB.prepare(
+        `SELECT title, instructor, description, file_url, file_type FROM ic_lectures WHERE id = ?`
+      ).bind(id).first();
+      if (r) {
+        title = r.title || title;
+        desc = r.instructor ? `[${r.instructor}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
+        if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
+        target = `${SITE}/?lecture=${encodeURIComponent(id)}`;
       }
     } else if (type === 'knowledge') {
       const r = await env.DB.prepare(

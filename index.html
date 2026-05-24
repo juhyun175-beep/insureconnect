@@ -3095,6 +3095,28 @@
       gap: 14px;
     }
 
+    /* v2.1.21: 모바일 홈 list-item 링크 복사 버튼 (채용/강의 공통) */
+    .ic-m-list-item { position: relative; }
+    .ic-m-list-copy {
+      position: absolute;
+      top: 8px; right: 8px;
+      width: 32px; height: 32px;
+      border: none; border-radius: 50%;
+      background: rgba(0,0,0,0.06);
+      color: var(--txt-mid);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer;
+      z-index: 3;
+      transition: background .15s, color .15s, transform .15s;
+    }
+    .ic-m-list-copy svg { width: 14px; height: 14px; }
+    .ic-m-list-copy:hover,
+    .ic-m-list-copy:active { background: rgba(0,0,0,0.12); color: var(--txt-hi); transform: scale(1.06); }
+    .ic-m-list-copy.copied { background: #10b981; color: #fff; }
+    [data-theme="dark"] .ic-m-list-copy { background: rgba(255,255,255,0.07); }
+    [data-theme="dark"] .ic-m-list-copy:hover { background: rgba(255,255,255,0.14); }
+    .ic-m-list-item.has-copy .ic-m-list-body { padding-right: 38px; }
+
     /* 채용공고 카드 링크복사 버튼 (rc-card + ic-job-card 공통) */
     .rc-card-copy,
     .ic-job-copy {
@@ -9808,6 +9830,9 @@
             typeBadge = '<span class="rc-card-type-badge">📝 일반</span>';
           }
           return `<button class="rc-card" type="button" onclick="openLectureViewer(${i})">
+            <span class="rc-card-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+            </span>
             <div class="rc-card-thumb">${thumb}${typeBadge}</div>
             <div class="rc-card-body">
               ${instr ? `<span class="rc-card-company">${instr}</span>` : ''}
@@ -9881,6 +9906,31 @@
     }
     window.shareRecruit = shareRecruit;
 
+    /* v2.1.21: 강의공고 링크 복사 (오픈채팅방 공유용) */
+    async function shareLecture(lectureId, evt) {
+      if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+      const btn = evt && evt.currentTarget;
+      const url = `${location.origin}/og/lecture/${encodeURIComponent(lectureId)}`;
+      let ok = false;
+      if (navigator.clipboard && window.isSecureContext) {
+        try { await navigator.clipboard.writeText(url); ok = true; }
+        catch (_) { ok = false; }
+      }
+      if (!ok) ok = copyTextFallback(url);
+
+      if (ok) {
+        if (btn) {
+          btn.classList.add('copied');
+          setTimeout(() => btn.classList.remove('copied'), 1400);
+        }
+        try { cnShareToast('강의공고 링크가 복사되었습니다'); } catch (_) {}
+        try { trackClick(`lecture_${lectureId}`, 'lecture_copy'); } catch (_) {}
+      } else {
+        try { cnShareToast('복사 실패 — 직접 URL을 복사해주세요'); } catch (_) {}
+      }
+    }
+    window.shareLecture = shareLecture;
+
     /* 진입 시 ?recruit=<id> 파라미터 있으면 채용공고 페이지로 이동 + 자동 오픈 */
     function openRecruitFromURL() {
       const qs = new URLSearchParams(location.search);
@@ -9898,11 +9948,29 @@
       };
       setTimeout(() => tryOpen(20), 300);
     }
+    /* v2.1.21: 진입 시 ?lecture=<id> 파라미터 처리 */
+    function openLectureFromURL() {
+      const qs = new URLSearchParams(location.search);
+      const lid = qs.get('lecture');
+      if (!lid) return;
+      const id = parseInt(lid, 10);
+      if (!id) return;
+      if (typeof goToPage === 'function') goToPage('lecture');
+      const tryOpen = (attempts) => {
+        if (typeof lectureState !== 'undefined' && lectureState.items && lectureState.items.length) {
+          const idx = lectureState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openLectureViewer === 'function') { openLectureViewer(idx); return; }
+        }
+        if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 250);
+      };
+      setTimeout(() => tryOpen(20), 300);
+    }
     // 페이지 로드 시 실행
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', openRecruitFromURL);
+      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); });
     } else {
       openRecruitFromURL();
+      openLectureFromURL();
     }
 
     function openRecruitViewer(idx) {
@@ -13829,6 +13897,9 @@
           }
           const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
           return `<button class="ic-job-card" type="button" onclick="window.__openHomeLecture(${it.id})">
+            <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+            </span>
             <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}</div>
             <div class="ic-job-body">
               ${it.instructor ? `<div class="ic-job-company">${esc(it.instructor)}</div>` : ''}
@@ -14094,12 +14165,16 @@
           el.innerHTML = items.map(it => {
             const thumb = (it.file_url && it.file_type === 'image')
               ? `<img src="${escH(it.file_url)}" alt="">` : '🔥';
-            return `<div class="ic-m-list-item" onclick="window.__openHomeJob(${it.id})">
+            return `<div class="ic-m-list-item has-copy" onclick="window.__openHomeJob(${it.id})">
               <div class="ic-m-list-thumb">${thumb}</div>
               <div class="ic-m-list-body">
                 <div class="ic-m-list-title">${escH(it.title)}</div>
                 <div class="ic-m-list-meta">${escH(it.company_name||'')}</div>
-              </div></div>`;
+              </div>
+              <span class="ic-m-list-copy" role="button" aria-label="링크 복사" onclick="shareRecruit(${it.id}, event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+              </span>
+            </div>`;
           }).join('');
         }
       } catch (_) {}
@@ -14115,12 +14190,16 @@
           el.innerHTML = items.map(it => {
             const thumb = (it.file_url && it.file_type === 'image')
               ? `<img src="${escH(it.file_url)}" alt="">` : '🎓';
-            return `<div class="ic-m-list-item" onclick="window.__openHomeLecture(${it.id})">
+            return `<div class="ic-m-list-item has-copy" onclick="window.__openHomeLecture(${it.id})">
               <div class="ic-m-list-thumb">${thumb}</div>
               <div class="ic-m-list-body">
                 <div class="ic-m-list-title">${escH(it.title)}</div>
                 <div class="ic-m-list-meta">${escH(it.instructor||'')}</div>
-              </div></div>`;
+              </div>
+              <span class="ic-m-list-copy" role="button" aria-label="링크 복사" onclick="shareLecture(${it.id}, event)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+              </span>
+            </div>`;
           }).join('');
         }
       } catch (_) {}

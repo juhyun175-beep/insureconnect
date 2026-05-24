@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.21] - 2026-05-24
+### Added
+- **강의공고 카드 — 「링크 복사」 버튼 추가** (오픈채팅방 공유용)
+  - 홈 대시보드 + 강의 페이지 + 모바일 홈 강의 리스트 모두 적용
+  - 채용공고는 이전부터 있었음 → 이제 두 종류 모두 패리티 확보
+- **`/og/lecture/{id}` OG 미리보기 엔드포인트 신설**
+  - `ic_lectures` 에서 title/instructor/description/file_url 읽어와 카카오톡·SNS 공유 시 강사명·이미지·요약이 풍부한 미리보기 카드 노출
+  - 봇/크롤러 카운트 제외, 5분 캐시, 실제 사용자는 즉시 `/?lecture=<id>` 로 redirect
+- **`shareLecture(id, evt)` JS 함수**
+  - `/og/lecture/<id>` URL 을 clipboard 에 복사 + 「강의공고 링크가 복사되었습니다」 토스트
+  - `trackClick('lecture_<id>', 'lecture_copy')` 로 강의별 복사 카운트 추적
+- **`?lecture=<id>` 진입 핸들러** — 공유 링크로 들어온 사람은 강의 페이지로 자동 이동 + 해당 강의 뷰어 자동 오픈
+- **모바일 list-item 공통 copy 버튼 (`.ic-m-list-copy`)**
+  - 32×32 둥근 버튼, `has-copy` 클래스 적용 시 body 우측 패딩 38px 로 텍스트 안 가림
+  - 복사 성공 시 0.9초간 녹색 강조
+  - 다크모드 대응
+
 ## [2.1.20] - 2026-05-24
 ### Fixed
 - **홈 통합 정보 허브 카드 — 메뉴 pill 카드 밖 삐져나감 버그**
