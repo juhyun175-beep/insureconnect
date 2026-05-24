@@ -6127,6 +6127,73 @@
       gap: 5px;
       pointer-events: none;
     }
+    /* v2.1.22: 좌측 빨간 PILL nav — 사이드바 오른쪽 / 홈 콘텐츠 왼쪽 */
+    .left-nav-group {
+      position: fixed;
+      left: var(--side-w);
+      top: 0;
+      bottom: 0;
+      z-index: 1100;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 5px;
+      pointer-events: none;
+    }
+    .left-nav-btn {
+      pointer-events: auto;
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #fff;
+      border: none;
+      border-radius: 0 12px 12px 0;
+      cursor: pointer;
+      writing-mode: vertical-rl;
+      text-orientation: mixed;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      line-height: 1.1;
+      box-sizing: border-box;
+      width: 34px;
+      height: 110px;
+      padding: 10px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.15s;
+      box-shadow: 3px 0 14px rgba(220,38,38,0.30);
+      position: relative;
+    }
+    .left-nav-btn::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 0 12px 12px 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+      opacity: 0;
+      transition: opacity 0.15s;
+      pointer-events: none;
+    }
+    .left-nav-btn:hover {
+      background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+      box-shadow: 5px 0 22px rgba(220,38,38,0.45);
+      transform: translateX(2px);
+    }
+    .left-nav-btn:hover::before { opacity: 1; }
+    .left-nav-btn .lnb-icon {
+      writing-mode: horizontal-tb;
+      font-size: 16px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+    body.ic-mobile .left-nav-group { display: none !important; }
+    @media (max-width: 1024px) {
+      /* 1024px 이하에서 사이드바가 슬라이드 메뉴로 바뀌므로 좌측 nav 도 숨김 */
+      .left-nav-group { display: none; }
+    }
     .right-nav-btn {
       pointer-events: auto;
       background: var(--blue-mid);
@@ -8108,25 +8175,20 @@
       </div>
     </section>
 
-    <!-- v2.1.9: 모바일 — 보험설계사 전용 렌트카 혜택 -->
-    <section class="ic-m-section ic-rental-section" id="rental-section-mobile" hidden aria-label="보험설계사 전용 렌트카 혜택">
-      <div class="ic-pb-banner">
-        <span class="ic-pb-icon">🚗</span>
-        <h2 class="ic-pb-title">
-          <span class="ic-pb-q">아직도 걸어다니세요?</span>
-          <span class="ic-pb-a">보험설계사라면 우대해드립니다</span>
-        </h2>
-      </div>
-      <div class="ic-rental-head">
-        <div class="ic-rental-title">
-          🚗 추천 차량 라인업
-          <span class="ic-rental-pill">PARTNER</span>
-        </div>
-      </div>
-      <div class="ic-rental-grid" id="rental-grid-mobile">
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-      </div>
+    <!-- v2.1.22: 모바일 추천 차량 라인업도 별도 #page-rental 페이지로 이전 -->
+
+    <!-- 모바일에서 리스/렌트카 진입 빠른메뉴 카드 -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>🚗 인슈어커넥트 파트너사 혜택</span></div>
+      <button type="button"
+              onclick="goToPage('rental')"
+              style="width:100%;padding:16px 18px;border-radius:14px;border:none;cursor:pointer;font-family:inherit;background:linear-gradient(135deg,#ef4444,#dc2626);color:#fff;display:flex;align-items:center;gap:14px;text-align:left;box-shadow:0 6px 20px rgba(220,38,38,0.30);">
+        <span style="font-size:32px;line-height:1;">🚗</span>
+        <span style="flex:1;min-width:0;">
+          <span style="display:block;font-size:14.5px;font-weight:900;letter-spacing:-0.01em;margin-bottom:3px;">아직도 걸어다니세요?</span>
+          <span style="display:block;font-size:11.5px;opacity:0.92;font-weight:700;">보험설계사라면 우대해드립니다 · 견적내기 →</span>
+        </span>
+      </button>
     </section>
 
     <!-- 모바일 오픈채팅방 대화순위 (compact) -->
@@ -8345,29 +8407,7 @@
       </section>
     </div>
 
-    <!-- v2.1.9: 인슈어커넥트 파트너사 혜택 — 추천 차량 라인업 (등록된 차량 있을 때만 노출) -->
-    <section class="ic-rental-section" id="rental-section" hidden aria-label="보험설계사 전용 렌트카 혜택">
-      <div class="ic-pb-banner">
-        <span class="ic-pb-icon">🚗</span>
-        <h2 class="ic-pb-title">
-          <span class="ic-pb-q">아직도 걸어다니세요?</span>
-          <span class="ic-pb-a">보험설계사라면 우대해드립니다</span>
-        </h2>
-        <span class="ic-pb-pill">설계사 전용</span>
-      </div>
-      <div class="ic-rental-head">
-        <div class="ic-rental-title">
-          🚗 추천 차량 라인업
-          <span class="ic-rental-pill">PARTNER</span>
-        </div>
-      </div>
-      <div class="ic-rental-grid" id="rental-grid">
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-        <div class="ic-rental-skel"></div>
-      </div>
-    </section>
+    <!-- v2.1.22: 추천 차량 라인업 섹션은 별도 #page-rental 페이지로 이전 -->
 
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
@@ -8563,6 +8603,39 @@
         <p class="nl-empty">채용공고를 불러오는 중…</p>
       </div>
     </div>
+  </div>
+
+  <!-- ══════ PAGE: 리스/렌트카 (v2.1.22 신설) ══════ -->
+  <div class="content" id="page-rental" style="display:none">
+    <section class="ic-rental-section" id="rental-section" aria-label="보험설계사 전용 렌트카 혜택">
+      <div class="ic-pb-banner">
+        <span class="ic-pb-icon">🚗</span>
+        <h2 class="ic-pb-title">
+          <span class="ic-pb-q">아직도 걸어다니세요?</span>
+          <span class="ic-pb-a">보험설계사라면 우대해드립니다</span>
+        </h2>
+        <span class="ic-pb-pill">설계사 전용</span>
+      </div>
+      <div class="ic-rental-head">
+        <div class="ic-rental-title">
+          🚗 추천 차량 라인업
+          <span class="ic-rental-pill">PARTNER</span>
+        </div>
+      </div>
+      <div class="ic-rental-grid" id="rental-grid">
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+      </div>
+      <!-- 등록된 차량 없을 때 노출 (loadRentalLineup 에서 자동 토글) -->
+      <div id="rental-empty"
+           style="display:none;padding:36px 18px;text-align:center;color:var(--txt-mid);background:var(--bg-card);border:1px solid var(--border);border-radius:14px;margin-top:6px;">
+        <div style="font-size:36px;margin-bottom:10px;">🚗</div>
+        <div style="font-size:13.5px;font-weight:700;color:var(--txt-hi);margin-bottom:4px;">현재 등록된 차량이 없습니다</div>
+        <div style="font-size:11.5px;opacity:0.8;">곧 새로운 차종이 업데이트될 예정입니다.</div>
+      </div>
+    </section>
   </div>
 
   <!-- ══════ PAGE: 강의 ══════ -->
@@ -9472,6 +9545,7 @@
       recruit:          '채용공고',
       lecture:          '🎓 강의',
       tools:            '실무 도구',
+      rental:           '🚗 리스/렌트카',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
@@ -13206,6 +13280,20 @@
     initHashRouting();
   </script>
 
+  <!-- v2.1.22: 좌측 고정 빨간 PILL nav — 리스/렌트카 페이지 진입 -->
+  <div class="left-nav-group" aria-label="리스 렌트카 진입">
+    <button class="left-nav-btn" type="button"
+            onclick="trackCardClick('좌측버튼','리스'); goToPage('rental');"
+            title="리스 — 인슈어커넥트 파트너사 혜택">
+      <span class="lnb-icon">🚗</span>리스
+    </button>
+    <button class="left-nav-btn" type="button"
+            onclick="trackCardClick('좌측버튼','렌트카'); goToPage('rental');"
+            title="렌트카 — 인슈어커넥트 파트너사 혜택">
+      <span class="lnb-icon">🚙</span>렌트카
+    </button>
+  </div>
+
   <!-- ══ 우측 고정 네비게이션 필버튼 그룹 ══ -->
   <div class="right-nav-group">
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','최신콘텐츠'); goToPage('latest');" title="최신 콘텐츠" type="button">최신</button>
@@ -14262,10 +14350,9 @@
       let _qCardUrl    = '';
 
       window.loadRentalLineup = async function loadRentalLineup() {
-        const desktopSec  = document.getElementById('rental-section');
-        const mobileSec   = document.getElementById('rental-section-mobile');
         const desktopGrid = document.getElementById('rental-grid');
         const mobileGrid  = document.getElementById('rental-grid-mobile');
+        const emptyEl     = document.getElementById('rental-empty');
 
         try {
           const res = await fetch('/api/rental-vehicles?limit=12', { cache: 'no-store' });
@@ -14277,8 +14364,10 @@
         }
 
         const hasItems = _vehicles.length > 0;
-        if (desktopSec) desktopSec.hidden = !hasItems;
-        if (mobileSec)  mobileSec.hidden  = !hasItems;
+        // v2.1.22: #page-rental 페이지 자체는 항상 보이고, 빈 상태일 때만 grid 숨김 + 빈상태 메시지
+        if (desktopGrid) desktopGrid.style.display = hasItems ? '' : 'none';
+        if (mobileGrid)  mobileGrid.style.display  = hasItems ? '' : 'none';
+        if (emptyEl)     emptyEl.style.display     = hasItems ? 'none' : '';
         if (!hasItems) return;
 
         const html = _vehicles.map(v => renderCard(v)).join('');
