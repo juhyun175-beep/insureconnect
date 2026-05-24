@@ -4932,15 +4932,59 @@
       font-family: inherit;
       margin-top: 4px;
     }
-    /* 즐겨찾기 그리드: 좁은 컬럼에 맞춰 1열 세로 리스트 + 카드 내부 컴팩트 */
+    /* 즐겨찾기 그리드: 좁은 컬럼에 맞춰 1열 세로 리스트 + 카드 내부 컴팩트
+       v2.1.17: max-height 제거 + flex:1 으로 hero 옆 카드와 자연스럽게 정렬 */
     .ic-hero-fav #home-fav-grid {
       grid-template-columns: 1fr !important;
       gap: 6px !important;
       overflow-y: auto;
       overflow-x: hidden;
-      max-height: 240px;
-      padding-right: 2px; /* 스크롤바 여유 */
+      flex: 1;
+      min-height: 0;
+      padding-right: 2px;
     }
+    /* v2.1.17: 추천 도구 카드 (사용자의 즐겨찾기가 적을 때 자동 패딩) */
+    .ic-hero-fav #home-fav-grid .tool-card.fav-recommended {
+      opacity: 0.78;
+      background: linear-gradient(135deg, rgba(245,158,11,0.04), transparent) !important;
+      border-color: rgba(245,158,11,0.18) !important;
+      position: relative;
+    }
+    .ic-hero-fav #home-fav-grid .tool-card.fav-recommended:hover {
+      opacity: 1;
+      border-color: rgba(245,158,11,0.45) !important;
+    }
+    .fav-rec-badge {
+      flex-shrink: 0;
+      font-size: 9px; font-weight: 800;
+      color: #f59e0b;
+      background: rgba(245,158,11,0.14);
+      padding: 2px 6px;
+      border-radius: 4px;
+      letter-spacing: -0.01em;
+      line-height: 1.3;
+    }
+    [data-theme="dark"] .fav-rec-badge {
+      color: #fbbf24;
+      background: rgba(251,191,36,0.16);
+    }
+    .fav-rec-divider {
+      grid-column: 1 / -1;
+      display: flex; align-items: center; gap: 8px;
+      font-size: 10px; font-weight: 700;
+      letter-spacing: 0.03em;
+      color: #f59e0b;
+      padding: 6px 2px 2px;
+      margin-top: 4px;
+    }
+    .fav-rec-divider::before,
+    .fav-rec-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(245,158,11,0.30), transparent);
+    }
+    [data-theme="dark"] .fav-rec-divider { color: #fbbf24; }
     .ic-hero-fav #home-fav-grid .tool-card,
     .ic-hero-fav #home-fav-grid .portal-card {
       padding: 7px 10px !important;
@@ -13673,7 +13717,8 @@
 
         const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const medals = ['🥇','🥈','🥉'];
-        listEl.innerHTML = rankings.slice(0, 10).map((it, i) => {
+        // v2.1.17: Top 10 → Top 20 (rank-list 가 flex:1 + overflow:auto 이므로 항목 늘려도 카드 높이 안정)
+        listEl.innerHTML = rankings.slice(0, 20).map((it, i) => {
           const rank = i + 1;
           const medalCls = rank <= 3 ? `r${rank}` : 'rn';
           const medalContent = rank <= 3 ? medals[i] : rank;
@@ -14615,25 +14660,30 @@
     }
 
     /* ── 내 즐겨찾기 섹션 렌더 (실무도구 페이지 + 홈 대시보드 동시 갱신) ── */
+    const HOME_FAV_TARGET = 8;   // v2.1.17: 홈 카드에 노출할 최소 카드 수 (부족하면 추천 도구로 패딩)
+
     function renderFavorites() {
       const favs = getFavorites();
       const cards = favs
         .map(id => document.querySelector(`.tool-card[data-tool-id="${id}"]`))
         .filter(Boolean);
 
-      const gridHTML = cards.map(card => {
+      const buildCard = (card, opts = {}) => {
         const m = getCardMeta(card);
-        return `<div class="tool-card" data-fav-link="${m.id}" style="cursor:pointer;" onclick="window.__favCardClick('${m.id}')">
+        const rec = opts.recommended;
+        return `<div class="tool-card${rec ? ' fav-recommended' : ''}" data-fav-link="${m.id}" style="cursor:pointer;" onclick="window.__favCardClick('${m.id}')">
           <div class="tool-card-icon">${m.icon}</div>
           <div class="tool-card-body">
             <div class="tool-card-name">${m.name}</div>
             <div class="tool-card-sub">${m.sub}</div>
           </div>
-          <div class="tool-card-arrow">→</div>
+          ${rec ? '<span class="fav-rec-badge">💡 추천</span>' : '<div class="tool-card-arrow">→</div>'}
         </div>`;
-      }).join('');
+      };
 
-      /* 실무도구 페이지: 빈 상태면 섹션 숨김 */
+      const gridHTML = cards.map(c => buildCard(c)).join('');
+
+      /* 실무도구 페이지: 빈 상태면 섹션 숨김 (페이지에서는 추천 패딩 없이 순수 사용자 즐겨찾기만) */
       const section = document.getElementById('favorites-section');
       const grid    = document.getElementById('favorites-grid');
       const count   = document.getElementById('fav-count');
@@ -14661,7 +14711,22 @@
         } else {
           homeEmpty.style.display = 'none';
           homeGrid.style.display = '';
-          homeGrid.innerHTML = gridHTML;
+          // v2.1.17: 사용자 즐겨찾기가 적으면 추천 도구로 패딩 (총 HOME_FAV_TARGET 개)
+          const needed = Math.max(0, HOME_FAV_TARGET - cards.length);
+          let recHTML = '';
+          if (needed > 0) {
+            const allTools = Array.from(document.querySelectorAll('.tool-card[data-tool-id]'))
+              .filter(c => !favs.includes(c.dataset.toolId));
+            // 가능하면 실무도구(계산기 등)를 우선 — id 가 'portal-' 로 시작하지 않는 것
+            const calcs   = allTools.filter(c => !c.dataset.toolId.startsWith('portal-'));
+            const portals = allTools.filter(c =>  c.dataset.toolId.startsWith('portal-'));
+            const candidates = [...calcs, ...portals].slice(0, needed);
+            if (candidates.length) {
+              recHTML = '<div class="fav-rec-divider">이런 도구도 자주 쓰여요</div>'
+                + candidates.map(c => buildCard(c, { recommended: true })).join('');
+            }
+          }
+          homeGrid.innerHTML = gridHTML + recHTML;
           if (homeCount) {
             homeCount.textContent = `${cards.length}개`;
             homeCount.style.display = '';
