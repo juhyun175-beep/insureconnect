@@ -39,22 +39,43 @@ function inferContentType(key) {
 
 export const onRequestOptions = () => corsPreflight();
 
-/** GET — R2에서 파일 서빙 */
-export const onRequestGet = async ({ params, env }) => {
+/** v2.1.16: GET/HEAD 공통 핸들러
+ *   - 확장자가 알려진 타입(png/jpg/webp/pdf 등)이면 R2 stored metadata 무시하고 inferred MIME 사용
+ *     → 과거 업로드 시 잘못 저장된 contentType(text/html 등) 이슈 자동 보정
+ *   - HEAD 요청도 같은 헤더로 응답 (body 만 비움) — 카카오톡 스크래퍼의 og:image preflight 통과
+ */
+async function serveFile({ params, env }, isHead) {
   const key = pathFromParams(params);
   if (!key) return new Response('Bad key', { status: 400 });
   try {
-    const obj = await env.STORAGE.get(key);
-    if (!obj) return new Response('Not found', { status: 404 });
+    const obj = isHead
+      ? await env.STORAGE.head(key)
+      : await env.STORAGE.get(key);
+    if (!obj) return new Response(isHead ? null : 'Not found', { status: 404 });
+
+    const inferred = inferContentType(key);
+    const stored   = obj.httpMetadata?.contentType;
+    // 확장자에서 알려진 타입을 얻을 수 있으면 그것을 우선 (octet-stream 은 알 수 없음 의미)
+    const finalCT = (inferred && inferred !== 'application/octet-stream')
+      ? inferred
+      : (stored || inferred);
+
     const headers = new Headers(PUBLIC_HEADERS);
-    headers.set('Content-Type', obj.httpMetadata?.contentType || inferContentType(key));
-    headers.set('Content-Length', String(obj.size));
+    headers.set('Content-Type', finalCT);
+    if (typeof obj.size === 'number') headers.set('Content-Length', String(obj.size));
     if (obj.httpEtag) headers.set('ETag', obj.httpEtag);
-    return new Response(obj.body, { headers });
+
+    return new Response(isHead ? null : obj.body, { headers });
   } catch (e) {
-    return new Response('Error: ' + e.message, { status: 500 });
+    return new Response(isHead ? null : ('Error: ' + e.message), { status: 500 });
   }
-};
+}
+
+/** GET — R2에서 파일 서빙 */
+export const onRequestGet  = (ctx) => serveFile(ctx, false);
+
+/** HEAD — 카카오/슬랙/라인 등 스크래퍼가 og:image preflight 로 보냄 */
+export const onRequestHead = (ctx) => serveFile(ctx, true);
 
 /** POST — 업로드 (관리자) */
 export const onRequestPost = async ({ params, request, env }) => {

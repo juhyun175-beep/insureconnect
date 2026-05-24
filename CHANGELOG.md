@@ -1,5 +1,22 @@
 # Changelog
 
+## [2.1.16] - 2026-05-24
+### Fixed
+- **카카오톡/슬랙 공유 시 OG 첫 이미지 미노출 버그**
+  - 원인 1: `/api/files/[[path]].js` 에 `onRequestHead` 가 없어서 HEAD 요청이 Cloudflare Pages 정적 자산 폴백(SPA index.html) 으로 떨어짐 → 카카오 스크래퍼가 og:image 의 Content-Type 을 HEAD 로 사전 검증할 때 `text/html` 받고 이미지로 인정 안 함
+  - 원인 2: 일부 파일이 R2 에 잘못된 Content-Type(`text/html`) 메타데이터로 저장되어 있었음
+  - 원인 3: OG 메타에 하드코딩된 `og:image:width=1200, height=630` 가 실제 카드뉴스 첫 슬라이드(예: 2100×3000) 와 안 맞아서 일부 스크래퍼가 이미지 매칭에 실패
+  - 수정 (`/api/files/[[path]].js`)
+    - `onRequestHead` 추가 — `env.STORAGE.head(key)` 로 정확한 헤더만 응답
+    - GET/HEAD 공통 로직: 확장자가 알려진 타입(png/jpg/webp/pdf 등) 이면 R2 stored metadata 보다 **확장자 기반 inferred MIME 우선 사용** → 잘못 저장된 contentType 자동 보정 (기존 파일 재업로드 불필요)
+  - 수정 (`/og/[type]/[id].js`)
+    - `og:image:width` / `og:image:height` 하드코딩 제거 — 실제 이미지 크기와 mismatch 시 스크래퍼 거부 방지
+    - `og:image:alt` / `twitter:image:alt` 추가 (접근성·검색 노출 ↑)
+
+### Notes
+- 카카오톡은 OG 응답을 약 5분 캐싱 — 수정 직후 같은 링크를 다시 공유해도 옛 미리보기가 잠시 보일 수 있음
+- 카카오 OG 캐시 강제 갱신은 카카오 디벨로퍼스(https://developers.kakao.com/tool/clear/og) 에서 URL 넣고 「캐시 갱신」 가능
+
 ## [2.1.15] - 2026-05-24
 ### Fixed
 - **관리자 방문 개요 — 「이번 주 방문자」 주 경계 보정**

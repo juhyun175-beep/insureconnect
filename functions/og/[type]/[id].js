@@ -113,16 +113,18 @@ export const onRequestGet = async ({ params, env, request }) => {
 <meta property="og:title" content="${esc(title)}">
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="${esc(image)}">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="${esc(title)}">
 <meta property="og:url" content="${esc(target)}">
 <meta property="og:site_name" content="InsureConnect">
 <meta property="og:locale" content="ko_KR">
 
+<!-- v2.1.16: width/height 하드코딩 제거 — 실제 카드뉴스 첫 슬라이드 (예: 2100×3000) 와 안 맞으면
+     일부 스크래퍼(카카오/슬랙)가 OG 이미지로 거부하는 케이스 방지 -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(image)}">
+<meta name="twitter:image:alt" content="${esc(title)}">
 
 <meta http-equiv="refresh" content="0;url=${esc(target)}">
 <style>body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;background:#f0f5ff;color:#3d5080;text-align:center;padding:48px 16px}a{color:#1a3de8;text-decoration:none;font-weight:700}</style>
