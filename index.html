@@ -1264,17 +1264,8 @@
       .menu-tab  { padding: 7px 10px; font-size: 12px; }
       .sub-menu-item { padding: 5px 10px 5px 26px; font-size: 11px; }
 
-      /* 파트너사 프로모션 배너 (flex 동작은 뒤쪽 override 블록에서 처리) */
-      .side-latest { padding: 5px 10px 6px; }
+      /* v2.1.26: 파트너사 프로모션 배너 CSS 제거 */
       .side-comm-label { padding: 2px 4px 3px; font-size: 9px; }
-
-      .side-cn-fallback { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
-      .side-cn-badge { position: absolute; top: 6px; right: 6px; }
-      .side-cn-body  { padding: 6px 8px 8px; }
-      .side-cn-label { font-size: 8px; margin-bottom: 1px; }
-      .side-cn-title { font-size: 11px; -webkit-line-clamp: 1; }
-      .side-cn-date  { font-size: 9px; margin-top: 2px; }
-      .side-cn-badge { font-size: 9px; padding: 1px 5px; }
 
       /* 커뮤니티 참여 */
       .side-comm-section { padding: 4px 10px; flex-shrink: 0; }
@@ -4473,8 +4464,7 @@
       display: block;
     }
     [data-theme="dark"] .ic-m-banner-thumb { background: rgba(74,112,245,0.10); }
-    /* PC sidebar의 .side-cn-card 글로벌 애니메이션이 모바일 카드에서 중복되지 않게 (사이드바 자체 hidden) */
-    body.ic-mobile .side-cn-card:not(.ic-m-banner-card) { animation: none !important; }
+    /* v2.1.26: .side-cn-card 모바일 애니메이션 오버라이드 제거 */
     .ic-m-banner-meta {
       display: flex;
       align-items: center;
@@ -4664,28 +4654,7 @@
     }
     body.ic-mobile .side-clock-time { font-size: 30px !important; }
     body.ic-mobile .side-clock-time .ic-clock-seconds { font-size: 14px !important; }
-    /* 사이드바 배너 카드 — 모바일에서 더 크게 */
-    body.ic-mobile .side-latest {
-      padding: 12px 14px !important;
-    }
-    body.ic-mobile .side-latest > .side-comm-label {
-      font-size: 11px !important;
-      margin-bottom: 8px !important;
-      letter-spacing: 0.08em !important;
-    }
-    body.ic-mobile .side-cn-card {
-      border-radius: 14px !important;
-    }
-    body.ic-mobile .side-cn-thumb {
-      /* 모바일에서 thumb 영역 배경을 그라데이션으로 (letterbox 자연스럽게) */
-      background: linear-gradient(135deg, #f0f5ff 0%, #e0e9ff 100%) !important;
-    }
-    [data-theme="dark"] body.ic-mobile .side-cn-thumb {
-      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%) !important;
-    }
-    body.ic-mobile .side-cn-title { font-size: 13.5px !important; }
-    body.ic-mobile .side-cn-body  { padding: 10px 12px !important; }
-    body.ic-mobile .side-cn-date  { font-size: 11px !important; }
+    /* v2.1.26: 모바일 사이드바 배너 카드 CSS 제거 (배너 기능 폐지) */
     /* 커뮤니티 섹션 */
     body.ic-mobile .side-comm-section { padding: 10px 12px !important; }
     body.ic-mobile .side-comm-btn {
@@ -4805,52 +4774,22 @@
       padding: 12px 16px 12px 42px;
     }
 
-    /* 모바일에서 모달 — 풀 화면 */
+    /* 모바일에서 모달 — 풀 화면 (sb-modal / promo-popup 제거됨) */
     body.ic-mobile .cn-modal,
     body.ic-mobile #rc-viewer,
     body.ic-mobile .kn-modal,
-    body.ic-mobile #sb-modal-overlay,
-    body.ic-mobile #promo-popup-overlay,
     body.ic-mobile #home-popup-overlay {
       padding: 0 !important;
     }
     body.ic-mobile .cn-modal-body,
     body.ic-mobile #rc-viewer .rc-viewer-card,
     body.ic-mobile .kn-modal-card,
-    body.ic-mobile #sb-modal-overlay > div,
-    body.ic-mobile #promo-popup-overlay > div,
     body.ic-mobile #home-popup-overlay > .hp-modal {
       max-width: 100% !important;
       max-height: 100dvh !important;
       border-radius: 0 !important;
       width: 100% !important;
       height: 100dvh !important;
-    }
-    /* sb-modal: 헤더 / 콘텐츠 / nav 비율 보장 (헤더·nav 잘림 방지) */
-    body.ic-mobile #sb-modal-overlay > div {
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    body.ic-mobile #sb-modal-overlay > div > div:first-child {
-      /* 헤더 */
-      position: sticky !important;
-      top: 0 !important;
-      z-index: 10 !important;
-      flex-shrink: 0 !important;
-      background: var(--bg-card, #0e1a3a) !important;
-    }
-    body.ic-mobile #sb-modal-content {
-      flex: 1 1 0 !important;
-      overflow-y: auto !important;
-      -webkit-overflow-scrolling: touch !important;
-    }
-    body.ic-mobile #sb-modal-overlay > div > div:last-child {
-      /* nav */
-      position: sticky !important;
-      bottom: 0 !important;
-      z-index: 10 !important;
-      flex-shrink: 0 !important;
-      background: var(--bg-card, #0e1a3a) !important;
     }
 
     /* 모바일에서 sidebar는 햄버거로 열고 닫는 기존 동작 유지하되,
@@ -6302,312 +6241,7 @@
       }
     }
 
-    /* ══════════════════════════════
-       사이드바 파트너사 프로모션
-    ══════════════════════════════ */
-    .side-latest {
-      padding: 8px 12px 10px;
-      border-top: 1px solid rgba(12,31,184,0.07);
-      flex: 1;
-      /* 줌 시 위쪽 요소들이 커져도 프로모션 영역이 0으로 짓눌리지 않도록 최소 높이 확보 */
-      min-height: 180px;
-      display: flex;
-      flex-direction: column;
-    }
-    .side-latest-list {
-      display: flex;
-      flex-direction: column;
-      flex: 1;
-      min-height: 0;
-      overflow-y: auto;
-      gap: 3px;
-    }
-    /* 통합 최신 업로드 row */
-    .side-latest-row {
-      display: grid;
-      grid-template-columns: 18px 1fr auto;
-      gap: 7px;
-      align-items: center;
-      padding: 6px 6px;
-      border-radius: 7px;
-      cursor: pointer;
-      border: none;
-      background: transparent;
-      width: 100%;
-      text-align: left;
-      transition: background 0.12s;
-    }
-    .side-latest-row:hover { background: rgba(26,61,232,0.07); }
-    .slr-icon { font-size: 14px; line-height: 1; text-align: center; }
-    .slr-text {
-      display: flex;
-      flex-direction: column;
-      gap: 1px;
-      min-width: 0;
-      overflow: hidden;
-    }
-    .slr-tag {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.04em;
-      color: var(--blue-mid);
-      line-height: 1.1;
-    }
-    .slr-title {
-      font-size: 11px;
-      color: var(--txt-hi);
-      line-height: 1.3;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .slr-time {
-      font-size: 9.5px;
-      color: var(--txt-lo);
-      flex-shrink: 0;
-      white-space: nowrap;
-    }
-    /* 사이드바 카드뉴스 썸네일 카드 */
-    @keyframes promo-glow {
-      0%   { box-shadow: 0 0 6px 1px rgba(99,179,237,0.25), 0 0 0px rgba(159,122,234,0); border-color: rgba(99,179,237,0.35); }
-      40%  { box-shadow: 0 0 18px 4px rgba(159,122,234,0.55), 0 0 32px 8px rgba(99,179,237,0.2); border-color: rgba(159,122,234,0.7); }
-      70%  { box-shadow: 0 0 22px 6px rgba(99,179,237,0.5), 0 0 40px 10px rgba(159,122,234,0.25); border-color: rgba(99,179,237,0.75); }
-      100% { box-shadow: 0 0 6px 1px rgba(99,179,237,0.25), 0 0 0px rgba(159,122,234,0); border-color: rgba(99,179,237,0.35); }
-    }
-    @keyframes promo-shine {
-      0%   { transform: translateX(-100%) skewX(-18deg); }
-      100% { transform: translateX(300%) skewX(-18deg); }
-    }
-    .side-cn-card {
-      flex: 0 0 auto;       /* 자체 콘텐츠 크기로만 (하단 빈 여백 방지) */
-      align-self: stretch;   /* 가로는 부모 너비 채움 */
-      display: flex;
-      flex-direction: column;
-      width: 100%;
-      border: 1.5px solid rgba(99,179,237,0.35);
-      border-radius: 10px;
-      overflow: hidden;
-      background: var(--bg-card);
-      cursor: pointer;
-      text-align: left;
-      padding: 0;
-      position: relative;
-      animation: promo-glow 3s ease-in-out infinite;
-      transition: transform 0.18s;
-    }
-    .side-cn-card::before {
-      content: '';
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(105deg, transparent 40%, rgba(255,255,255,0.13) 50%, transparent 60%);
-      transform: translateX(-100%) skewX(-18deg);
-      animation: promo-shine 3.5s ease-in-out infinite;
-      pointer-events: none;
-      z-index: 1;
-    }
-    .side-cn-card:hover {
-      transform: translateY(-2px);
-      animation-play-state: paused;
-      box-shadow: 0 0 28px 8px rgba(99,179,237,0.5), 0 6px 20px rgba(0,0,0,0.3);
-      border-color: rgba(99,179,237,0.9);
-    }
-    .side-cn-thumb {
-      position: relative;
-      width: 100%;
-      /* 이미지 실제 비율에 맞춰 JS에서 aspect-ratio 동적 설정 (fallback 16/10) */
-      aspect-ratio: 16 / 10;
-      overflow: hidden;
-      background: rgba(26,61,232,0.06);
-      display: block;
-    }
-    [data-theme="dark"] .side-cn-thumb {
-      background: rgba(74,112,245,0.10);
-    }
-    /* 컨테이너 비율을 이미지에 맞춰 설정하므로 cover로 사용해도 잘림 없음 */
-    .side-cn-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-    .side-cn-fallback { font-size: 32px; }
-
-    /* 슬라이드 자동 전환 (페이드) */
-    .side-cn-slide {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      opacity: 0;
-      transition: opacity 0.7s ease-in-out;
-      display: block;
-      pointer-events: none;
-    }
-    .side-cn-slide.active { opacity: 1; }
-    .side-cn-slide-fb {
-      position: absolute;
-      inset: 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 32px;
-      opacity: 0;
-      transition: opacity 0.7s ease-in-out;
-      background: rgba(26,61,232,0.06);
-    }
-    .side-cn-slide-fb.active { opacity: 1; }
-
-    /* 슬라이드 인디케이터 (점) */
-    .side-cn-dots {
-      position: absolute;
-      bottom: 7px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      gap: 4px;
-      z-index: 3;
-      padding: 3px 7px;
-      background: rgba(0,0,0,0.38);
-      backdrop-filter: blur(4px);
-      border-radius: 10px;
-    }
-    .side-cn-dot {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: rgba(255,255,255,0.45);
-      transition: background 0.3s, transform 0.3s;
-    }
-    .side-cn-dot.active {
-      background: #fff;
-      transform: scale(1.35);
-      box-shadow: 0 0 4px rgba(255,255,255,0.7);
-    }
-    .side-cn-badge {
-      position: absolute;
-      bottom: 6px; right: 6px;
-      background: rgba(0,0,0,0.55);
-      backdrop-filter: blur(4px);
-      color: #fff;
-      font-size: 10px;
-      font-weight: 600;
-      padding: 3px 8px;
-      border-radius: 10px;
-      display: inline-flex;
-      align-items: center;
-      gap: 4px;
-      white-space: nowrap;
-      max-width: calc(100% - 12px);
-      z-index: 5;
-      line-height: 1.2;
-    }
-    .side-cn-body { padding: 8px 10px 10px; flex-shrink: 0; position: relative; z-index: 2; }
-    .side-cn-label {
-      font-size: 9px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      color: #a78bfa;
-      margin-bottom: 3px;
-    }
-    .side-cn-title {
-      font-size: 12px;
-      font-weight: 600;
-      color: var(--txt-hi);
-      line-height: 1.4;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-      overflow: hidden;
-    }
-    .side-cn-date { font-size: 10px; color: var(--txt-lo); margin-top: 4px; }
-    .side-latest-item {
-      display: flex;
-      align-items: center;
-      gap: 7px;
-      padding: 5px 6px;
-      border-radius: 7px;
-      text-decoration: none;
-      color: var(--txt-hi);
-      font-size: 11.5px;
-      line-height: 1.3;
-      transition: background 0.12s;
-      cursor: pointer;
-      border: none;
-      background: none;
-      width: 100%;
-      text-align: left;
-    }
-    .side-latest-item:hover { background: rgba(26,61,232,0.07); }
-    .sli-dot {
-      width: 5px; height: 5px; border-radius: 50%;
-      background: var(--blue-light); flex-shrink: 0;
-    }
-    .sli-text {
-      flex: 1; overflow: hidden;
-      text-overflow: ellipsis; white-space: nowrap;
-    }
-    .sli-date { font-size: 10px; color: var(--txt-lo); flex-shrink: 0; }
-    .side-latest-skeleton {
-      height: 26px;
-      background: rgba(12,31,184,0.06);
-      border-radius: 6px;
-      margin-bottom: 3px;
-      animation: sk-pulse 1.4s ease infinite;
-    }
-    @keyframes sk-pulse { 0%,100%{opacity:1} 50%{opacity:0.35} }
-
-    /* ══════════════════════════════
-       사이드바 모바일 flex 재정의 (기본 CSS 뒤에 와야 override 가능)
-       전략: side-latest가 남은 공간 차지 → 카드 → 썸네일 순으로 flex:1 체인
-       → 두 번째 이미지처럼 배너가 자연스럽게 사이드바를 채움
-    ══════════════════════════════ */
-    @media (max-width: 480px) {
-      /* 1) side-latest: 남은 세로 공간 모두 차지 */
-      .side-latest {
-        flex: 1 1 0 !important;
-        min-height: 140px !important;
-        overflow: hidden !important;
-        display: flex !important;
-        flex-direction: column !important;
-      }
-      /* 2) side-latest-list: side-latest 안에서 라벨 빼고 다 차지 */
-      .side-latest-list {
-        flex: 1 1 0 !important;
-        min-height: 0 !important;
-        overflow: hidden !important;
-        display: flex !important;
-        flex-direction: column !important;
-      }
-      /* 3) 카드: 콘텐츠 크기로만 (하단 빈 여백 방지) */
-      .side-cn-card {
-        flex: 0 0 auto !important;
-        align-self: stretch !important;
-        max-height: none !important;
-        display: flex !important;
-        flex-direction: column !important;
-      }
-      /* 4) 썸네일: aspect-ratio 기반 (JS가 이미지 비율로 동적 설정) */
-      .side-cn-thumb {
-        flex: none !important;
-        width: 100% !important;
-        height: auto !important;
-        max-height: none !important;
-        display: block !important;
-        position: relative !important;
-        overflow: hidden !important;
-      }
-      .side-cn-thumb img {
-        position: absolute !important;
-        inset: 0 !important;
-        width: 100% !important;
-        height: 100% !important;
-        /* 모바일에선 contain — 이미지 원본 비율 유지, 잘림 없음 */
-        object-fit: contain !important;
-        display: block !important;
-      }
-      .side-cn-thumb .side-cn-slide { object-fit: contain !important; }
-      /* 5) body: 자연 높이 (텍스트만큼) */
-      .side-cn-body { flex: none !important; }
-      /* 6) 푸터: margin-top:auto 제거 → 커뮤니티 바로 아래 붙음 */
-      .side-footer { margin-top: 0 !important; }
-    }
+    /* v2.1.26: 사이드바 파트너사 프로모션 + 모바일 banner override CSS 전체 제거 */
 
     /* ══════════════════════════════
        우측 실무도구 패널
@@ -6853,9 +6487,7 @@
 
     .tools-panel,
     .tools-panel-backdrop,
-    #promo-popup-overlay,
-    #home-popup-overlay,
-    #sb-modal-overlay {
+    #home-popup-overlay {
       content-visibility: auto;
       contain-intrinsic-size: 0 600px;
     }
@@ -6877,16 +6509,9 @@
       .promo-glow, .lm-live-dot, .glow-shine { animation: none !important; }
     }
 
-    /* 2) 모바일에서는 무거운 무한 애니메이션 비활성화 (저사양 기기 렉 방지) */
-    @media (max-width: 480px) {
-      .side-cn-card { animation: none !important; }
-      .side-cn-card::before { animation: none !important; }
-    }
-
-    /* 3) GPU 가속 권장 (transform/opacity만 변경하는 애니메이션은 GPU에서 처리) */
-    .lm-live-dot, .side-cn-card, .lm-skel {
-      will-change: auto; /* 명시적으로 will-change는 필요할 때만 */
-    }
+    /* v2.1.26: .side-cn-card 모바일 애니메이션 제어 제거 (배너 기능 폐지) */
+    /* 3) GPU 가속 권장 */
+    .lm-live-dot, .lm-skel { will-change: auto; }
 
     /* ══════ 보험교재 모달 ══════ */
     #tb-overlay {
@@ -7643,15 +7268,7 @@
         <span id="ic-clock-date">—월 —일</span>
       </div>
     </aside>
-    <!-- 사이드바 파트너사 프로모션 -->
-    <div class="side-latest">
-      <span class="side-comm-label">파트너사 프로모션</span>
-      <div class="side-latest-list" id="side-latest-list">
-        <div class="side-latest-skeleton"></div>
-        <div class="side-latest-skeleton"></div>
-        <div class="side-latest-skeleton"></div>
-      </div>
-    </div>
+    <!-- v2.1.26: 사이드바 파트너사 프로모션 배너 기능 제거 -->
     <!-- 커뮤니티 참여 버튼 -->
     <div class="side-comm-section">
       <span class="side-comm-label">커뮤니티 참여</span>
@@ -8182,11 +7799,7 @@
       </div>
     </section>
 
-    <!-- 파트너사 프로모션 배너 -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>✨ 파트너사 프로모션</span></div>
-      <div id="m-home-banner"><div class="ic-m-list-skel" style="height:140px;"></div></div>
-    </section>
+    <!-- v2.1.26: 모바일 파트너사 프로모션 배너 기능 제거 -->
 
     <!-- 커뮤니티 참여 -->
     <section class="ic-m-section">
@@ -8856,26 +8469,7 @@
 
   </div>
 
-  <!-- ══════ 사이드바 배너 뷰어 모달 ══════ -->
-  <div id="sb-modal-overlay" style="display:none;position:fixed;inset:0;z-index:9000;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSidebannerModal()">
-    <div style="position:relative;width:100%;max-width:720px;max-height:90vh;display:flex;flex-direction:column;background:var(--bg-card,#0e1a3a);border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.6);">
-      <!-- 헤더 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
-        <div style="display:flex;align-items:center;gap:10px;">
-          <span id="sb-modal-title" style="font-size:14px;font-weight:700;color:#fff;"></span>
-          <span id="sb-modal-counter" style="font-size:12px;color:rgba(255,255,255,0.45);"></span>
-        </div>
-        <button onclick="closeSidebannerModal()" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:20px;cursor:pointer;line-height:1;padding:4px 8px;" aria-label="닫기">✕</button>
-      </div>
-      <!-- 콘텐츠: 가로폭 기준 자연 크기, 세로 길면 스크롤 → 잘림 방지 -->
-      <div id="sb-modal-content" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:14px;overflow-y:auto;overflow-x:hidden;"></div>
-      <!-- 내비게이션 -->
-      <div style="display:flex;align-items:center;justify-content:center;gap:16px;padding:12px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
-        <button id="sb-modal-prev" onclick="sbModalPrev()" style="padding:8px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">◀ 이전</button>
-        <button id="sb-modal-next" onclick="sbModalNext()" style="padding:8px 24px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;transition:background .15s;" onmouseover="this.style.background='rgba(255,255,255,0.08)'" onmouseout="this.style.background='transparent'">다음 ▶</button>
-      </div>
-    </div>
-  </div>
+  <!-- v2.1.26: 사이드바 배너 뷰어 모달 제거 -->
 
   <!-- ══════ 홈 진입 자동 팝업 (관리자 공지) ══════ -->
   <div id="home-popup-overlay">
@@ -8896,34 +8490,7 @@
     </div>
   </div>
 
-  <!-- ══════ 첫 접속 자동 팝업 (배너 광고) ══════ -->
-  <div id="promo-popup-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.85);align-items:center;justify-content:center;padding:16px;">
-    <div style="position:relative;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--bg-card,#0e1a3a);border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.7);">
-      <!-- 헤더 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:1px solid rgba(255,255,255,0.07);flex-shrink:0;background:linear-gradient(90deg,rgba(99,179,237,0.12),rgba(159,122,234,0.12));">
-        <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-          <span style="font-size:11px;font-weight:700;color:#9f7aea;background:rgba(159,122,234,0.15);padding:2px 8px;border-radius:10px;flex-shrink:0;">📢 파트너사 프로모션</span>
-          <span id="promo-popup-counter" style="font-size:12px;color:rgba(255,255,255,0.5);flex-shrink:0;"></span>
-        </div>
-        <button onclick="closePromoPopup(false)" style="background:transparent;border:none;color:rgba(255,255,255,0.6);font-size:22px;cursor:pointer;line-height:1;padding:2px 8px;" aria-label="닫기">✕</button>
-      </div>
-      <!-- 콘텐츠: 가로폭 기준 자연 크기, 세로 길면 스크롤 → 잘림 방지 -->
-      <div id="promo-popup-content" style="flex:1 1 auto;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0;overflow-y:auto;overflow-x:hidden;background:#000;"></div>
-      <!-- 내비게이션 -->
-      <div id="promo-popup-nav" style="display:none;align-items:center;justify-content:center;gap:12px;padding:10px 16px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;">
-        <button id="promo-popup-prev" onclick="promoPopupPrev()" style="padding:7px 18px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">◀ 이전</button>
-        <button id="promo-popup-next" onclick="promoPopupNext()" style="padding:7px 18px;border-radius:8px;border:1.5px solid rgba(255,255,255,0.2);background:transparent;color:#fff;font-size:13px;font-weight:600;cursor:pointer;">다음 ▶</button>
-      </div>
-      <!-- 푸터: '오늘 하루 보지않기' + 닫기 -->
-      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 14px;border-top:1px solid rgba(255,255,255,0.07);flex-shrink:0;background:rgba(0,0,0,0.25);">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;color:rgba(255,255,255,0.85);font-size:13px;user-select:none;">
-          <input type="checkbox" id="promo-popup-hide-today" style="width:16px;height:16px;cursor:pointer;accent-color:#9f7aea;">
-          오늘 하루 보지않기
-        </label>
-        <button onclick="closePromoPopup(true)" style="padding:7px 18px;border-radius:8px;border:none;background:linear-gradient(135deg,#9f7aea,#63b3ed);color:#fff;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 2px 8px rgba(99,179,237,0.3);">닫기</button>
-      </div>
-    </div>
-  </div>
+  <!-- v2.1.26: 첫 접속 자동 파트너사 프로모션 팝업 제거 (사이드바 배너 기능 폐지) -->
 
   <!-- ══════ 보험지식 포스트 모달 ══════ -->
   <div class="kn-modal-overlay" id="kn-modal" onclick="knModalBackdropClick(event)">
@@ -12447,13 +12014,9 @@
         }
       } catch(e) {}
     })();
+    // v2.1.26: 사이드바 배너 모달 ESC/ArrowKey 핸들러 제거
     document.addEventListener('keydown', function(e) {
-      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); closeSidebannerModal(); closePromoPopup(false); }
-      const sbOpen = document.getElementById('sb-modal-overlay') && document.getElementById('sb-modal-overlay').style.display !== 'none';
-      if (sbOpen) {
-        if (e.key === 'ArrowLeft')  sbModalPrev();
-        if (e.key === 'ArrowRight') sbModalNext();
-      }
+      if (e.key === 'Escape') { closeToolsPanel(); closeShortcutsPanel(); }
     });
 
     /* ══════════════════════════════
@@ -12606,280 +12169,7 @@
       if (typeof openKnPost === 'function') openKnPost(id, false);
     }
 
-    /* ══════════════════════════════
-       사이드바 최신 카드뉴스 썸네일 카드
-    ══════════════════════════════ */
-    async function loadSideLatest() {
-      const el = document.getElementById('side-latest-list');
-      if (!el) return;
-      const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
-
-      try {
-        // 전체 슬라이드 가져오기 (최신 세트 추출용)
-        const r = await fetch(
-          `/api/sidebar-banner?limit=200`,
-          { headers: hdr }
-        );
-        if (!r.ok) { el.innerHTML = ''; return; }
-        const arr = await r.json();
-
-        if (!arr.length) {
-          el.innerHTML = '<p style="font-size:11px;color:var(--txt-lo);padding:8px 4px">등록된 자료가 없습니다</p>';
-          return;
-        }
-
-        // set_id 기준 그룹핑 → 최신 세트 1개만
-        const setsMap = new Map();
-        for (const item of arr) {
-          if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
-          setsMap.get(item.set_id).push(item);
-        }
-        // 세트 내부는 sort_order(파일 이름순) 기준으로 정렬
-        for (const slides of setsMap.values()) {
-          slides.sort((a, b) => a.sort_order - b.sort_order);
-        }
-        const latestSlides = Array.from(setsMap.values())[0]; // created_at.desc 순이므로 첫 번째가 최신
-        const cover = latestSlides[0];
-
-        const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        const title = esc(cover.title || '공지 / 자료');
-        const d = new Date(cover.created_at);
-        const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-        const slideCount = latestSlides.length;
-        const countBadge = slideCount > 1 ? ` · ${slideCount}장` : '';
-
-        // 모든 슬라이드를 스택으로 렌더 (자동 페이드 전환용)
-        const slideHtml = latestSlides.map((slide, idx) => {
-          const isPdf = slide.file_type === 'pdf';
-          const isImg = !isPdf && slide.file_url;
-          const cls = idx === 0 ? 'side-cn-slide active' : 'side-cn-slide';
-          const fbCls = idx === 0 ? 'side-cn-slide-fb active' : 'side-cn-slide-fb';
-          if (isImg) {
-            return `<img class="${cls}" src="${slide.file_url}" alt="${esc(slide.title || title)}" loading="lazy" onerror="this.outerHTML='<div class=\\'${fbCls}\\'>📄</div>'">`;
-          }
-          return `<div class="${fbCls}">${isPdf ? '📄' : '🖼'}</div>`;
-        }).join('');
-
-        // 인디케이터 점 (2장 이상일 때만)
-        const dotsHtml = slideCount > 1
-          ? `<div class="side-cn-dots">${latestSlides.map((_, i) =>
-              `<span class="side-cn-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
-          : '';
-
-        window._sideLatestSlides = latestSlides;
-        el.innerHTML = `<button class="side-cn-card" type="button" onclick="openSidebannerModal()" title="${title}">
-          <div class="side-cn-thumb">${slideHtml}<span class="side-cn-badge">최신${countBadge}</span>${dotsHtml}</div>
-          <div class="side-cn-body">
-            <div class="side-cn-label">파트너사 프로모션</div>
-            <div class="side-cn-title">${title}</div>
-            <div class="side-cn-date">${dateStr}</div>
-          </div>
-        </button>`;
-
-        // 첫 슬라이드의 실제 비율로 썸네일 컨테이너 aspect-ratio 동적 설정 (letterbox 제거)
-        const thumb = el.querySelector('.side-cn-thumb');
-        const firstImg = el.querySelector('.side-cn-thumb img');
-        if (thumb && firstImg) {
-          const applyAspect = (img) => {
-            if (img.naturalWidth && img.naturalHeight) {
-              thumb.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
-            }
-          };
-          if (firstImg.complete) applyAspect(firstImg);
-          else firstImg.addEventListener('load', () => applyAspect(firstImg), { once: true });
-        }
-
-        // 자동 슬라이드 회전 시작
-        startSideBannerRotation(slideCount, latestSlides);
-      } catch(e) {
-        console.error('[loadSideLatest]', e);
-        el.innerHTML = '';
-      }
-    }
-
-    /* 사이드바 배너 자동 슬라이드 (4초 간격, 탭 비활성 시 일시정지) */
-    let _sideBannerInterval = null;
-    let _sideBannerIdx = 0;
-    function startSideBannerRotation(slideCount) {
-      stopSideBannerRotation();
-      if (!slideCount || slideCount < 2) return;
-      _sideBannerIdx = 0;
-      _sideBannerInterval = setInterval(() => {
-        const slides = document.querySelectorAll('.side-cn-thumb > .side-cn-slide, .side-cn-thumb > .side-cn-slide-fb');
-        const dots = document.querySelectorAll('.side-cn-dots .side-cn-dot');
-        const thumb = document.querySelector('.side-cn-thumb');
-        if (!slides.length) { stopSideBannerRotation(); return; }
-        slides[_sideBannerIdx]?.classList.remove('active');
-        dots[_sideBannerIdx]?.classList.remove('active');
-        _sideBannerIdx = (_sideBannerIdx + 1) % slides.length;
-        const next = slides[_sideBannerIdx];
-        next?.classList.add('active');
-        dots[_sideBannerIdx]?.classList.add('active');
-        // 슬라이드별 실제 비율로 컨테이너 aspect-ratio 갱신 (letterbox 없이 부드럽게)
-        if (thumb && next && next.tagName === 'IMG' && next.naturalWidth && next.naturalHeight) {
-          thumb.style.aspectRatio = `${next.naturalWidth} / ${next.naturalHeight}`;
-        }
-      }, 4000);
-    }
-    function stopSideBannerRotation() {
-      if (_sideBannerInterval) {
-        clearInterval(_sideBannerInterval);
-        _sideBannerInterval = null;
-      }
-    }
-    document.addEventListener('visibilitychange', () => {
-      if (document.hidden) {
-        stopSideBannerRotation();
-      } else {
-        const count = document.querySelectorAll('.side-cn-thumb > .side-cn-slide, .side-cn-thumb > .side-cn-slide-fb').length;
-        if (count >= 2) startSideBannerRotation(count);
-      }
-    });
-
-    /* ── 사이드바 배너 슬라이드 뷰어 모달 ── */
-    let _sbModalSlides = [], _sbModalIdx = 0;
-
-    function openSidebannerModal() {
-      const slides = window._sideLatestSlides;
-      if (!slides || !slides.length) return;
-      _sbModalSlides = slides;
-      _sbModalIdx = 0;
-      renderSbModal();
-      document.getElementById('sb-modal-overlay').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSidebannerModal() {
-      document.getElementById('sb-modal-overlay').style.display = 'none';
-      document.body.style.overflow = '';
-    }
-
-    function sbModalPrev() { if (_sbModalIdx > 0) { _sbModalIdx--; renderSbModal(); } }
-    function sbModalNext() { if (_sbModalIdx < _sbModalSlides.length - 1) { _sbModalIdx++; renderSbModal(); } }
-
-    function renderSbModal() {
-      const slide = _sbModalSlides[_sbModalIdx];
-      const total = _sbModalSlides.length;
-      const isPdf = slide.file_type === 'pdf';
-      const title = slide.title || '자료';
-
-      document.getElementById('sb-modal-counter').textContent = `${_sbModalIdx + 1} / ${total}`;
-      document.getElementById('sb-modal-title').textContent = title;
-      document.getElementById('sb-modal-prev').disabled = _sbModalIdx === 0;
-      document.getElementById('sb-modal-next').disabled = _sbModalIdx === total - 1;
-
-      const content = document.getElementById('sb-modal-content');
-      if (isPdf) {
-        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:75vh;min-height:420px;border:none;border-radius:8px;flex-shrink:0;" title="${title}"></iframe>`;
-      } else {
-        /* 배너는 가로폭 100% 채움 + 세로는 자연비율 → 콘텐츠 잘림 없음 */
-        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="width:100%;height:auto;display:block;border-radius:8px;flex-shrink:0;">`;
-      }
-    }
-
-    function openSideLatestItem(type, id) {
-      if (type === 'cardnews') {
-        const tryOpen = (n) => {
-          const idx = cardNewsState.sets.findIndex(s => s && s.set_id === id);
-          if (idx >= 0) { openCardNewsModal(idx); }
-          else if (n > 0) { setTimeout(() => tryOpen(n - 1), 150); }
-        };
-        tryOpen(20);
-      } else if (type === 'knowledge') {
-        if (typeof openKnPost === 'function') openKnPost(id, false);
-      } else {
-        goToPage(type);
-      }
-    }
-    function openSideLatestCard() { openSidebannerModal(); }
-
-    /* ══════════════════════════════
-       첫 접속 자동 팝업 (배너 광고)
-       - 페이지 로드 시 자동 표시
-       - "오늘 하루 보지않기" 체크 시 localStorage에 오늘 날짜 저장
-    ══════════════════════════════ */
-    let _promoSlides = [], _promoIdx = 0;
-
-    function _getTodayStr() {
-      const d = new Date();
-      return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-    }
-
-    async function showPromoPopupIfNeeded() {
-      // 오늘 dismiss 했는지 확인
-      try {
-        if (localStorage.getItem('promo_popup_hide_date') === _getTodayStr()) return;
-      } catch(e) {}
-
-      // 슬라이드 데이터 준비 (loadSideLatest이 이미 채워뒀으면 재사용, 아니면 직접 fetch)
-      let slides = window._sideLatestSlides;
-      if (!slides || !slides.length) {
-        try {
-          const hdr = { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` };
-          const r = await fetch(
-            `/api/sidebar-banner?limit=200`,
-            { headers: hdr }
-          );
-          if (!r.ok) return;
-          const arr = await r.json();
-          if (!arr.length) return;
-          const setsMap = new Map();
-          for (const item of arr) {
-            if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
-            setsMap.get(item.set_id).push(item);
-          }
-          for (const v of setsMap.values()) v.sort((a,b) => a.sort_order - b.sort_order);
-          slides = Array.from(setsMap.values())[0];
-          window._sideLatestSlides = slides;
-        } catch(e) { return; }
-      }
-      if (!slides || !slides.length) return;
-
-      _promoSlides = slides;
-      _promoIdx = 0;
-      renderPromoPopup();
-      document.getElementById('promo-popup-overlay').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function renderPromoPopup() {
-      const slide = _promoSlides[_promoIdx];
-      const total = _promoSlides.length;
-      const isPdf = slide.file_type === 'pdf';
-      const title = slide.title || '프로모션';
-
-      document.getElementById('promo-popup-counter').textContent = total > 1 ? `${_promoIdx + 1} / ${total}` : '';
-      const navEl = document.getElementById('promo-popup-nav');
-      if (total > 1) {
-        navEl.style.display = 'flex';
-        document.getElementById('promo-popup-prev').disabled = _promoIdx === 0;
-        document.getElementById('promo-popup-next').disabled = _promoIdx === total - 1;
-        document.getElementById('promo-popup-prev').style.opacity = _promoIdx === 0 ? '0.4' : '1';
-        document.getElementById('promo-popup-next').style.opacity = _promoIdx === total - 1 ? '0.4' : '1';
-      } else {
-        navEl.style.display = 'none';
-      }
-
-      const content = document.getElementById('promo-popup-content');
-      if (isPdf) {
-        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:70vh;min-height:420px;border:none;background:#fff;flex-shrink:0;" title="${title}"></iframe>`;
-      } else {
-        /* 배너는 가로폭 100% 채움 + 세로는 자연비율 → 콘텐츠 잘림 없음 */
-        content.innerHTML = `<img src="${slide.file_url}" alt="${title}" style="width:100%;height:auto;display:block;flex-shrink:0;">`;
-      }
-    }
-
-    function promoPopupPrev() { if (_promoIdx > 0) { _promoIdx--; renderPromoPopup(); } }
-    function promoPopupNext() { if (_promoIdx < _promoSlides.length - 1) { _promoIdx++; renderPromoPopup(); } }
-
-    function closePromoPopup(viaButton) {
-      const hideToday = document.getElementById('promo-popup-hide-today')?.checked;
-      if (hideToday) {
-        try { localStorage.setItem('promo_popup_hide_date', _getTodayStr()); } catch(e) {}
-      }
-      document.getElementById('promo-popup-overlay').style.display = 'none';
-      document.body.style.overflow = '';
-    }
+    /* v2.1.26: 사이드바 배너 + 자동 프로모션 팝업 JS 일괄 삭제 */
 
     /* ══════════════════════════════
        홈 진입 자동 팝업 (관리자 공지)
@@ -12985,7 +12275,7 @@
         const homePage = document.getElementById('page-home');
         const isHomeVisible = homePage && homePage.style.display !== 'none';
         if (isHomeVisible) {
-          showHomePopupIfNeeded(showPromoPopupIfNeeded);
+          showHomePopupIfNeeded();
         }
         // 이후 홈 진입 시(goToPage('home')) 자동 트리거
         window._homePopupInitDone = true;
@@ -13052,8 +12342,7 @@
     // 1) 즉시 로드 (Above the fold - 콘텐츠 표시에 필수)
     loadHomeFeed();
 
-    // 2) 짧은 지연 (사이드바 — 펼치면 보임)
-    _ric(() => loadSideLatest(), { timeout: 800 });
+    // v2.1.26: loadSideLatest() 사이드바 배너 기능 폐지
 
     // 3) idle 타이밍에 통계성 데이터 로드 (UI 차단 안 함)
     _ric(() => loadLiveMonitor(), { timeout: 1500 });
@@ -14106,75 +13395,8 @@
       loadMobileStats();
       _mApplyThemeActive();
 
-      // 파트너 프로모션 배너 — PC 사이드바 카드와 동일한 글로우·페이드 슬라이드
-      try {
-        const r = await fetch('/api/sidebar-banner?limit=200');
-        const arr = await r.json();
-        const el = document.getElementById('m-home-banner');
-        if (el) {
-          if (!arr.length) {
-            el.innerHTML = '<div class="ic-m-list-empty">등록된 배너가 없습니다</div>';
-          } else {
-            const setsMap = new Map();
-            for (const item of arr) {
-              if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
-              setsMap.get(item.set_id).push(item);
-            }
-            for (const v of setsMap.values()) v.sort((a,b) => (a.sort_order||0) - (b.sort_order||0));
-            const latest = Array.from(setsMap.values())[0];
-            if (latest && latest.length) {
-              window._sideLatestSlides = latest;
-              const cover = latest[0];
-              const slideCount = latest.length;
-              // 모든 슬라이드를 stack 으로 (PC와 동일 클래스 사용 → 글로벌 회전 함수가 인식)
-              const slideHtml = latest.map((s, idx) => {
-                const cls = idx === 0 ? 'side-cn-slide active' : 'side-cn-slide';
-                const fbCls = idx === 0 ? 'side-cn-slide-fb active' : 'side-cn-slide-fb';
-                const isPdf = s.file_type === 'pdf';
-                const isImg = !isPdf && s.file_url;
-                if (isImg) {
-                  return `<img class="${cls}" src="${escH(s.file_url)}" alt="${escH(s.title||'')}" loading="lazy" onerror="this.outerHTML='<div class=\\'${fbCls}\\'>📄</div>'">`;
-                }
-                return `<div class="${fbCls}">${isPdf ? '📄' : '🖼'}</div>`;
-              }).join('');
-              const dotsHtml = slideCount > 1
-                ? `<div class="side-cn-dots">${latest.map((_, i) =>
-                    `<span class="side-cn-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>`
-                : '';
-              const countBadge = slideCount > 1 ? ` · ${slideCount}장` : '';
+      // v2.1.26: 모바일 파트너 프로모션 배너 기능 제거 (사이드바 배너 시스템 폐지)
 
-              el.innerHTML = `<button class="ic-m-banner-card side-cn-card" type="button" onclick="openSidebannerModal()">
-                <div class="ic-m-banner-thumb side-cn-thumb">
-                  ${slideHtml}
-                  <span class="side-cn-badge">최신${countBadge}</span>
-                  ${dotsHtml}
-                </div>
-                <div class="ic-m-banner-meta">
-                  <span class="ic-m-banner-label">PROMOTION</span>
-                  <span class="ic-m-banner-title">${escH(cover.title || '공지 / 자료')}</span>
-                </div>
-              </button>`;
-
-              // 첫 슬라이드 비율로 thumb aspect-ratio 동적 설정 (잘림 제거)
-              const thumbEl = el.querySelector('.side-cn-thumb');
-              const firstImg = el.querySelector('.side-cn-thumb img.side-cn-slide');
-              if (thumbEl && firstImg) {
-                const apply = (img) => {
-                  if (img.naturalWidth && img.naturalHeight) {
-                    thumbEl.style.aspectRatio = `${img.naturalWidth} / ${img.naturalHeight}`;
-                  }
-                };
-                if (firstImg.complete) apply(firstImg);
-                else firstImg.addEventListener('load', () => apply(firstImg), { once: true });
-              }
-              // 자동 슬라이드 회전 시작 (PC와 동일 함수 재사용)
-              if (typeof startSideBannerRotation === 'function') {
-                startSideBannerRotation(slideCount);
-              }
-            }
-          }
-        }
-      } catch (_) {}
       // 채용공고
       try {
         const r = await fetch('/api/recruitments?limit=3');

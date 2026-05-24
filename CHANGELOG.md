@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.1.26] - 2026-05-24
+### Removed (사이드바 배너 기능 완전 폐지)
+- **HTML 제거**
+  - PC 사이드바 `.side-latest` 파트너사 프로모션 섹션
+  - 모바일 홈 `#m-home-banner` 파트너사 프로모션 섹션
+  - `#sb-modal-overlay` 사이드바 배너 뷰어 모달
+  - `#promo-popup-overlay` 첫 접속 자동 프로모션 팝업
+- **JS 제거** (총 약 320 줄)
+  - `loadSideLatest()`, `startSideBannerRotation()`, `stopSideBannerRotation()`, `visibilitychange` 핸들러
+  - `openSidebannerModal()`, `closeSidebannerModal()`, `sbModalPrev/Next`, `renderSbModal()`
+  - `openSideLatestItem`, `openSideLatestCard`
+  - `_promoSlides`, `showPromoPopupIfNeeded`, `renderPromoPopup`, `promoPopupPrev/Next`, `closePromoPopup`
+  - 모바일 `loadMobileHome` 안의 banner 로딩 블록
+  - `showHomePopupIfNeeded(showPromoPopupIfNeeded)` 체인 → 단순 `showHomePopupIfNeeded()` 로 정리
+  - keydown ESC/Arrow 핸들러에서 sb-modal/promo-popup 분기 제거
+- **CSS 제거**
+  - `.side-latest`, `.side-latest-list`, `.side-latest-row`, `.side-latest-skeleton`
+  - `.side-cn-card`, `.side-cn-thumb`, `.side-cn-body`, `.side-cn-label`, `.side-cn-title`, `.side-cn-date`, `.side-cn-badge`, `.side-cn-fallback`, `.side-cn-slide`, `.side-cn-slide-fb`, `.side-cn-dots`, `.side-cn-dot`
+  - 모바일 override (`body.ic-mobile .side-latest`, `body.ic-mobile .side-cn-*` 등)
+  - 모바일 모달 전체화면 룰 (`#sb-modal-overlay`, `#promo-popup-overlay`)
+  - 성능 힌트 (`@media reduce-motion` 의 .side-cn-card 비활성 + GPU will-change)
+- **관리자 페이지 제거**
+  - `#up-sidebar` 탭 + 패널 (총 14 → 11 탭)
+  - `#sb-preview-overlay` 미리보기 모달 + ESC/방향키 핸들러
+  - `uploadSidebarBanner()`, `loadSidebarBanners()`, `deleteSidebarSet()`, `openSbPreview()`, `closeSbPreview()`, `sbPreviewPrev/Next`, `renderSbPreview()` 함수 일괄 삭제
+  - `loadSidebarBanners()` init 호출 제거
+- **API 엔드포인트 삭제**: `functions/api/sidebar-banner/index.js` + `[id].js` + 폴더
+- **D1 테이블 DROP** (`migrations/d1_v2_1_26_drop_sidebar_banner.sql`)
+  - `DROP TABLE IF EXISTS ic_sidebar_banner` 실행 완료 (적용 검증됨)
+
+### Verified (전체 점검 결과)
+- 관리자 탭 — `📥 사용자 신청 / 📰 보험사 소식지 / 📋 청구서류 / 📖 보험교재 / 🚨 점검·장애 / 🗞 인슈어커넥트 뉴스 / 📚 보험지식 / 💬 대화순위 / 📢 홈 팝업 / 💼 채용공고 / 🎓 강의 / 🚗 차량 라인업` (12개) 모두 정상
+- 통계 슬라이드 — `방문 개요 / 클릭 통계 / 체류 시간 / 인기 콘텐츠 / 렌트카 카드` (5개) 모두 작동
+- 홈 대시보드 — 실시간 인기 + 채용/강의 (left) + 카카오 (right) + 즐겨찾기 floating popup
+- 좌측 빨간 「🚗 리스/렌트카」 PILL, 우측 vertical nav — 모두 작동
+- 공유 링크 (`/og/news/...`, `/og/recruit/...`, `/og/lecture/...`) — 정상
+- 카드 링크 복사 (채용/강의) — 정상
+- 견적내기 모달 (3단계 funnel + 명함 업로드) — 정상
+
 ## [2.1.25] - 2026-05-24
 ### Removed
 - **「보험설계사를 위한 통합 정보 허브」 카드 섹션 제거** (`.ic-hero`)

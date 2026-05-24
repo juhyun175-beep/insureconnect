@@ -3379,7 +3379,6 @@
 
         <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
-        <button class="upload-tab" data-panel="up-sidebar">🖼 사이드바 배너</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
@@ -3641,44 +3640,7 @@
         </div>
       </div><!-- /#up-knowledge -->
 
-      <!-- 사이드바 배너 관리 패널 -->
-      <div class="upload-panel" id="up-sidebar">
-        <!-- 노출 정책 안내 박스 -->
-        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(255,0,110,0.30);border-left:3px solid var(--neon-pink);border-radius:8px;background:linear-gradient(90deg,rgba(255,0,110,0.10),rgba(255,0,110,0.02));">
-          <div style="font-size:12px;font-weight:700;color:var(--neon-pink);margin-bottom:6px;letter-spacing:0.05em;">📢 배너 노출 정책</div>
-          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
-            <li><strong style="color:var(--neon-cyan)">가장 최근 업로드한 1개 세트</strong>만 사이드바 + 첫 접속 자동 팝업 양쪽에 노출됩니다</li>
-            <li>이전 세트는 자동으로 비활성화 (삭제 안 해도 됨, 새 세트가 덮어씀)</li>
-            <li>이용자가 '오늘 하루 보지않기'를 체크하면 그날은 팝업 미표시 (다음날 다시 표시)</li>
-          </ul>
-        </div>
-
-        <div class="nl-upload-box">
-          <h4 style="margin:0 0 14px;font-size:14px;color:var(--neon-cyan);font-weight:700;letter-spacing:0.08em;">🖼 사이드바 배너 업로드</h4>
-          <div class="nl-form" id="sb-form">
-            <div class="nl-field" style="width:100%;">
-              <label>제목</label>
-              <input type="text" id="sb-title" placeholder="예: 5월 주요 공지사항" maxlength="100">
-            </div>
-            <div class="nl-field" style="width:100%;">
-              <label>파일 (이미지/PDF 여러 장 가능)</label>
-              <label class="nl-file-label">
-                📎 파일 선택 (복수 선택 가능)
-                <input type="file" id="sb-file" accept="image/*,.pdf" multiple>
-                <span class="nl-file-name" id="sb-file-name">없음</span>
-              </label>
-              <p style="margin:5px 0 0;font-size:11px;color:var(--txt-lo);">· 여러 장을 선택하면 파일 이름순으로 정렬되어 하나의 세트로 묶입니다</p>
-              <!-- 이름순 정렬 미리보기 -->
-              <div id="sb-file-preview" style="display:none;margin-top:10px;display:none;flex-direction:column;gap:4px;max-height:200px;overflow-y:auto;border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:8px;background:rgba(0,0,0,0.2);"></div>
-            </div>
-            <button class="nl-upload-btn" id="sb-upload-btn" onclick="uploadSidebarBanner()">업로드</button>
-          </div>
-          <p class="nl-status" id="sb-status"></p>
-        </div>
-        <div class="nl-list" id="sb-list">
-          <p class="empty-msg">배너 로딩 중…</p>
-        </div>
-      </div><!-- /#up-sidebar -->
+      <!-- v2.1.26: 사이드바 배너 관리 패널 제거 (배너 기능 폐지) -->
 
       <!-- ══════════════════ 보험교재 관리 패널 ══════════════════ -->
       <div class="upload-panel" id="up-textbook">
@@ -4017,24 +3979,7 @@
 
       <!-- v2.1.11: 기존 #up-rental-inquiries 패널은 #up-requests 안의 sub-pane 으로 흡수됨 -->
 
-      <!-- ══════ 배너 미리보기 모달 (이용자 시점) ══════ -->
-      <div id="sb-preview-overlay" style="display:none;position:fixed;inset:0;z-index:9500;background:rgba(0,0,0,0.88);align-items:center;justify-content:center;padding:16px;" onclick="if(event.target===this)closeSbPreview()">
-        <div style="position:relative;width:100%;max-width:560px;max-height:92vh;display:flex;flex-direction:column;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;overflow:hidden;box-shadow:0 0 40px rgba(0,240,255,0.25);">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--border);background:linear-gradient(90deg,rgba(0,240,255,0.10),rgba(176,38,255,0.10));">
-            <div style="display:flex;align-items:center;gap:10px;min-width:0;">
-              <span style="font-size:10px;font-weight:700;color:var(--neon-cyan);background:rgba(0,240,255,0.12);padding:2px 8px;border-radius:10px;flex-shrink:0;letter-spacing:0.06em;">👁 PREVIEW</span>
-              <span id="sb-preview-title" style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>
-              <span id="sb-preview-counter" style="font-size:11px;color:var(--txt-lo);flex-shrink:0;"></span>
-            </div>
-            <button onclick="closeSbPreview()" style="background:transparent;border:none;color:var(--txt-mid);font-size:20px;cursor:pointer;line-height:1;padding:2px 6px;" aria-label="닫기">✕</button>
-          </div>
-          <div id="sb-preview-content" style="flex:1;min-height:0;max-height:70vh;display:flex;align-items:center;justify-content:center;padding:14px;overflow:auto;background:#000;"></div>
-          <div id="sb-preview-nav" style="display:none;align-items:center;justify-content:center;gap:10px;padding:8px 14px;border-top:1px solid var(--border);">
-            <button id="sb-preview-prev" onclick="sbPreviewPrev()" style="padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt-hi);font-size:12px;font-weight:600;cursor:pointer;">◀ 이전</button>
-            <button id="sb-preview-next" onclick="sbPreviewNext()" style="padding:6px 16px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--txt-hi);font-size:12px;font-weight:600;cursor:pointer;">다음 ▶</button>
-          </div>
-        </div>
-      </div>
+      <!-- v2.1.26: 배너 미리보기 모달 제거 -->
 
 
     </div>
@@ -4986,7 +4931,7 @@
       loadCardNews();
       loadRecruitList();
       loadKnowledgeList();
-      loadSidebarBanners();
+      // v2.1.26: loadSidebarBanners 제거
       loadTextbooks();
       loadAlerts();
       loadKakaoStats();
@@ -6298,228 +6243,7 @@
       }
     }
 
-    /* ══════════════════════════════
-       사이드바 배너
-    ══════════════════════════════ */
-    document.getElementById('sb-file').addEventListener('change', function() {
-      const preview = document.getElementById('sb-file-preview');
-      if (!this.files || !this.files.length) {
-        document.getElementById('sb-file-name').textContent = '없음';
-        preview.style.display = 'none';
-        return;
-      }
-      // 파일명 자연정렬
-      const sorted = Array.from(this.files).sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
-      );
-      document.getElementById('sb-file-name').textContent = `${sorted.length}개 선택됨`;
-      preview.style.display = 'flex';
-      preview.innerHTML = sorted.map((f, i) => {
-        const isPdf = f.type === 'application/pdf';
-        const icon  = isPdf ? '📄' : '🖼';
-        const kb    = (f.size / 1024).toFixed(0);
-        return `<div style="display:flex;align-items:center;gap:8px;padding:4px 6px;border-radius:6px;background:rgba(255,255,255,0.04);">
-          <span style="font-size:11px;color:var(--txt-lo);flex-shrink:0;width:18px;text-align:right;">${i+1}.</span>
-          <span style="font-size:13px;flex-shrink:0;">${icon}</span>
-          <span style="font-size:11.5px;color:var(--txt-hi);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${f.name}</span>
-          <span style="font-size:10px;color:var(--txt-lo);flex-shrink:0;">${kb}KB</span>
-        </div>`;
-      }).join('');
-    });
-
-    async function uploadSidebarBanner() {
-      const fileEl = document.getElementById('sb-file');
-      const title  = document.getElementById('sb-title').value.trim();
-      const status = document.getElementById('sb-status');
-      const btn    = document.getElementById('sb-upload-btn');
-
-      if (!fileEl.files || !fileEl.files.length) { status.textContent = '⚠ 파일을 선택해주세요.'; return; }
-      if (!title) { status.textContent = '⚠ 제목을 입력해주세요.'; return; }
-
-      // 파일명 자연정렬 (1,2,...,9,10 순서)
-      const files = Array.from(fileEl.files).sort((a, b) =>
-        a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' })
-      );
-
-      // 같은 세트로 묶을 UUID 생성
-      const setId = crypto.randomUUID ? crypto.randomUUID()
-        : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
-            const r = Math.random()*16|0, v = c==='x'?r:(r&0x3|0x8); return v.toString(16);
-          });
-
-      btn.disabled = true;
-
-      try {
-        for (let i = 0; i < files.length; i++) {
-          const file   = files[i];
-          status.textContent = `업로드 중… (${i+1}/${files.length})`;
-          const isPdf  = file.type === 'application/pdf';
-          const ext    = isPdf ? 'pdf' : (file.name.split('.').pop() || 'jpg');
-          const fileName = `${setId}/${String(i+1).padStart(3,'0')}_${Date.now()}.${ext}`;
-
-          /* 1. Storage 업로드 */
-          const uploadRes = await fetch(`/api/files/sidebar-banner/${fileName}`, {
-            method: 'POST',
-            headers: adminHeaders({ 'Content-Type': file.type, 'x-upsert': 'true' }),
-            body: file
-          });
-          if (!uploadRes.ok) throw new Error(`스토리지 오류 (${uploadRes.status}): ${await uploadRes.text()}`);
-
-          /* 2. 공개 URL */
-          const fileUrl = `/api/files/sidebar-banner/${fileName}`;
-
-          /* 3. DB 삽입 */
-          const dbRes = await fetch(`/api/sidebar-banner`, {
-            method: 'POST',
-            headers: adminHeaders({ 'Content-Type': 'application/json', 'Prefer': 'return=minimal' }),
-            body: JSON.stringify({
-              set_id: setId,
-              sort_order: i,
-              title: i === 0 ? title : title,   // 전체 세트 동일 제목
-              file_url: fileUrl,
-              file_type: isPdf ? 'pdf' : 'image'
-            })
-          });
-          if (!dbRes.ok) throw new Error(`DB 오류 (${dbRes.status}): ${await dbRes.text()}`);
-        }
-
-        status.textContent = `✅ ${files.length}개 업로드 완료!`;
-        fileEl.value = '';
-        document.getElementById('sb-file-name').textContent = '없음';
-        document.getElementById('sb-title').value = '';
-        loadSidebarBanners();
-      } catch (e) {
-        status.textContent = '❌ 업로드 실패: ' + e.message;
-      } finally {
-        btn.disabled = false;
-      }
-    }
-
-    async function loadSidebarBanners() {
-      const el = document.getElementById('sb-list');
-      try {
-        const res = await fetch(
-          `/api/sidebar-banner?select=id,set_id,title,file_url,file_type,sort_order,created_at&order=created_at.desc,sort_order.asc&limit=200`,
-          { headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` } }
-        );
-        const items = await res.json();
-        if (!items.length) { el.innerHTML = '<p class="empty-msg">등록된 배너가 없습니다</p>'; return; }
-
-        // set_id 기준으로 그룹핑 후 sort_order(파일 이름순) 정렬
-        const setsMap = new Map();
-        for (const item of items) {
-          if (!setsMap.has(item.set_id)) setsMap.set(item.set_id, []);
-          setsMap.get(item.set_id).push(item);
-        }
-        for (const slides of setsMap.values()) {
-          slides.sort((a, b) => a.sort_order - b.sort_order);
-        }
-
-        // 캐시 (미리보기용)
-        window._sbAdminSets = setsMap;
-
-        const setsEntries = Array.from(setsMap.entries());
-        el.innerHTML = setsEntries.map(([setId, slides], setIdx) => {
-          const cover = slides[0];
-          const d = new Date(cover.created_at);
-          const date = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
-          const isPdf = cover.file_type === 'pdf';
-          const thumb = isPdf
-            ? `<span style="font-size:28px;display:flex;align-items:center;justify-content:center;width:72px;height:56px;flex-shrink:0;">📄</span>`
-            : `<img src="${cover.file_url}" alt="" style="width:72px;height:56px;object-fit:cover;border-radius:6px;border:1px solid rgba(255,255,255,0.08);flex-shrink:0;" onerror="this.style.display='none'">`;
-          const count = slides.length > 1 ? `<span style="font-size:10px;color:var(--neon-cyan);margin-left:4px;">${slides.length}장</span>` : '';
-          const isActive = setIdx === 0;
-          const activeBadge = isActive
-            ? `<span style="display:inline-block;font-size:9.5px;font-weight:700;color:var(--neon-green);background:rgba(0,255,136,0.12);border:1px solid rgba(0,255,136,0.35);padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:0.04em;animation:flicker 3s infinite;">● LIVE</span>`
-            : `<span style="display:inline-block;font-size:9.5px;font-weight:700;color:var(--txt-lo);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.10);padding:2px 7px;border-radius:10px;margin-left:6px;letter-spacing:0.04em;">대기</span>`;
-          const itemStyle = isActive
-            ? 'display:flex;align-items:center;gap:12px;border:1px solid rgba(0,255,136,0.30);background:linear-gradient(90deg,rgba(0,255,136,0.06),transparent 60%);'
-            : 'display:flex;align-items:center;gap:12px;opacity:0.78;';
-          return `<div class="nl-item" style="${itemStyle}">
-            ${thumb}
-            <div style="flex:1;min-width:0;">
-              <div style="font-weight:700;font-size:13px;color:var(--txt-hi);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(cover.title||'(제목 없음)')}${count}${activeBadge}</div>
-              <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">${date}${isActive ? ' · 사이드바 + 자동 팝업 노출 중' : ''}</div>
-            </div>
-            <button onclick="openSbPreview('${setId}')" style="padding:6px 12px;border-radius:6px;border:1px solid var(--border);background:transparent;color:var(--neon-cyan);font-size:11.5px;font-weight:700;cursor:pointer;letter-spacing:0.03em;">👁 미리보기</button>
-            <button class="nl-del-btn" onclick="deleteSidebarSet('${setId}')">삭제</button>
-          </div>`;
-        }).join('');
-      } catch (e) {
-        el.innerHTML = '<p class="empty-msg">로딩 실패</p>';
-      }
-    }
-
-    async function deleteSidebarSet(setId) {
-      if (!confirm('이 세트 전체를 삭제하시겠습니까?')) return;
-      try {
-        // DB에서 set_id 전체 삭제 (스토리지는 고아 파일로 남지만 무시)
-        const res = await fetch(`/api/sidebar-banner?set_id=${encodeURIComponent(setId)}`, {
-          method: 'DELETE', headers: adminHeaders()
-        });
-        if (!res.ok) {
-          const txt = await res.text().catch(()=>'');
-          throw new Error(`${res.status} ${res.statusText} ${txt}`);
-        }
-        loadSidebarBanners();
-      } catch (e) {
-        alert('삭제 실패: ' + e.message);
-      }
-    }
-
-    /* ══════════════════════════════
-       배너 미리보기 모달 (이용자 시점 슬라이드 뷰어)
-    ══════════════════════════════ */
-    let _sbPreviewSlides = [], _sbPreviewIdx = 0;
-
-    function openSbPreview(setId) {
-      const setsMap = window._sbAdminSets;
-      if (!setsMap) return;
-      const slides = setsMap.get(setId);
-      if (!slides || !slides.length) return;
-      _sbPreviewSlides = slides;
-      _sbPreviewIdx = 0;
-      renderSbPreview();
-      document.getElementById('sb-preview-overlay').style.display = 'flex';
-      document.body.style.overflow = 'hidden';
-    }
-
-    function closeSbPreview() {
-      document.getElementById('sb-preview-overlay').style.display = 'none';
-      document.body.style.overflow = '';
-    }
-
-    function sbPreviewPrev() { if (_sbPreviewIdx > 0) { _sbPreviewIdx--; renderSbPreview(); } }
-    function sbPreviewNext() { if (_sbPreviewIdx < _sbPreviewSlides.length - 1) { _sbPreviewIdx++; renderSbPreview(); } }
-
-    function renderSbPreview() {
-      const slide = _sbPreviewSlides[_sbPreviewIdx];
-      const total = _sbPreviewSlides.length;
-      const isPdf = slide.file_type === 'pdf';
-      const title = slide.title || '배너';
-
-      document.getElementById('sb-preview-title').textContent = title;
-      document.getElementById('sb-preview-counter').textContent = total > 1 ? `${_sbPreviewIdx + 1} / ${total}` : '';
-      const navEl = document.getElementById('sb-preview-nav');
-      if (total > 1) {
-        navEl.style.display = 'flex';
-        const prevBtn = document.getElementById('sb-preview-prev');
-        const nextBtn = document.getElementById('sb-preview-next');
-        prevBtn.disabled = _sbPreviewIdx === 0;
-        nextBtn.disabled = _sbPreviewIdx === total - 1;
-        prevBtn.style.opacity = _sbPreviewIdx === 0 ? '0.35' : '1';
-        nextBtn.style.opacity = _sbPreviewIdx === total - 1 ? '0.35' : '1';
-      } else {
-        navEl.style.display = 'none';
-      }
-
-      const content = document.getElementById('sb-preview-content');
-      if (isPdf) {
-        content.innerHTML = `<iframe src="${slide.file_url}" style="width:100%;height:65vh;border:none;border-radius:8px;background:#fff;" title="${esc(title)}"></iframe>`;
-      } else {
-        content.innerHTML = `<img src="${slide.file_url}" alt="${esc(title)}" style="max-width:100%;max-height:70vh;object-fit:contain;border-radius:8px;display:block;margin:auto;">`;
-      }
-    }
+    /* v2.1.26: 사이드바 배너 admin JS 전체 제거 (배너 기능 폐지) */
 
     /* ── 보험교재: 파일 선택 시 행 렌더링 ── */
     function tbClearRows() {
@@ -7475,15 +7199,7 @@
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
-    // 미리보기 모달: ESC 닫기 + 좌우 방향키 슬라이드 탐색
-    document.addEventListener('keydown', function(e) {
-      const ov = document.getElementById('sb-preview-overlay');
-      const isOpen = ov && ov.style.display !== 'none';
-      if (!isOpen) return;
-      if (e.key === 'Escape')     closeSbPreview();
-      if (e.key === 'ArrowLeft')  sbPreviewPrev();
-      if (e.key === 'ArrowRight') sbPreviewNext();
-    });
+    // v2.1.26: 사이드바 배너 미리보기 모달 ESC 키 핸들러 제거 (배너 기능 폐지)
   </script>
 
 <!-- ── 표 빌더 팝업 ── -->
