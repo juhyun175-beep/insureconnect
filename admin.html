@@ -4925,7 +4925,8 @@
           };
           const ws = d.week_start_date ? fmtDate(d.week_start_date) : '?';
           const we = d.week_end_date   ? fmtDate(d.week_end_date)   : '?';
-          bar.textContent = `오늘: ${todayStr}  |  이번 주: ${ws} ~ ${we}`;
+          // v2.1.15: 일요일 시작 주 + 데이터는 오늘까지만 누적이라는 의미 명시
+          bar.textContent = `오늘: ${todayStr}  |  이번 주(일~토): ${ws} ~ ${we} · 오늘까지 누적`;
         })();
 
         /* 메뉴 클릭 요약은 제거됨 (우측버튼·하단네비만 추적) */

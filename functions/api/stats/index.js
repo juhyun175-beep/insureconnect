@@ -12,13 +12,19 @@ function kstDateKey(d = new Date()) {
 
 export const onRequestGet = async ({ env }) => handle(async () => {
   const today = kstDateKey();
-  // 이번 주 (월~일) KST
+  // v2.1.15: 이번 주를 「일요일 시작 ~ 토요일 끝」(국내 달력 관례) 으로 계산
+  //   → 일요일에 카운터가 0으로 리셋되어 그 날 방문만 잡힘 (이전: 월요일 시작이라 일요일에 6일치가 누적되어 "이번 주" 수치가 비정상적으로 커보였음)
   const nowKst = new Date(Date.now() + 9*3600*1000);
-  const day = nowKst.getUTCDay() || 7;
-  const monday = new Date(nowKst); monday.setUTCDate(nowKst.getUTCDate() - day + 1);
-  const mondayStr = monday.toISOString().slice(0, 10);
+  const dow = nowKst.getUTCDay();   // 0=일, 1=월 … 6=토
+  const weekStart = new Date(nowKst);
+  weekStart.setUTCDate(nowKst.getUTCDate() - dow);
+  const weekStartStr = weekStart.toISOString().slice(0, 10);
+  // 토요일(이번 주 마지막) — 표시용
+  const weekEnd = new Date(weekStart);
+  weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+  const weekEndStr = weekEnd.toISOString().slice(0, 10);
 
-  // 7일 날짜 배열 (오늘부터 거꾸로 7일, 오래된 순)
+  // 7일 날짜 배열 (오늘부터 거꾸로 7일, 오래된 순) — 차트 X축
   const last7 = [];
   for (let i = 6; i >= 0; i--) {
     const d = new Date(Date.now() + 9*3600*1000 - i*86400*1000);
@@ -27,7 +33,8 @@ export const onRequestGet = async ({ env }) => handle(async () => {
 
   const [todayV, weekV, totalV, todayC, totalC, visitsRows, clicksRows] = await Promise.all([
     env.DB.prepare(`SELECT COALESCE(visits, 0) AS n FROM ic_visits_daily WHERE date = ?`).bind(today).first(),
-    env.DB.prepare(`SELECT COALESCE(SUM(visits), 0) AS n FROM ic_visits_daily WHERE date >= ?`).bind(mondayStr).first(),
+    // 이번 주 (일요일 ~ 오늘) 합산 — 미래 날짜는 데이터가 없으니 자동 0
+    env.DB.prepare(`SELECT COALESCE(SUM(visits), 0) AS n FROM ic_visits_daily WHERE date >= ? AND date <= ?`).bind(weekStartStr, today).first(),
     env.DB.prepare(`SELECT COALESCE(SUM(visits), 0) AS n FROM ic_visits_daily`).first(),
     env.DB.prepare(`SELECT COALESCE(SUM(clicks), 0) AS n FROM ic_card_clicks_daily WHERE date = ?`).bind(today).first(),
     env.DB.prepare(`SELECT COALESCE(SUM(clicks), 0) AS n FROM ic_card_clicks_daily`).first(),
@@ -48,8 +55,9 @@ export const onRequestGet = async ({ env }) => handle(async () => {
     total_visits: totalV?.n || 0,
     today_clicks: todayC?.n || 0,
     total_clicks: totalC?.n || 0,
-    week_start_date: mondayStr,
-    week_end_date: today,
+    week_start_date: weekStartStr,   // 일요일
+    week_end_date:   weekEndStr,     // 토요일 (UI 노출 — 데이터는 오늘까지만 집계)
+    today_date:      today,          // 오늘까지 누적이라는 의미를 admin UI 에서 표시할 수 있도록
     daily_visits_7d: fill(visitsRows, 'visits'),
     daily_clicks_7d: fill(clicksRows, 'clicks'),
   });
