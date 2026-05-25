@@ -1,5 +1,40 @@
 # Changelog
 
+## [2.1.28] - 2026-05-24
+### Fixed (홈 팝업 「오늘 그만보기」 작동 안 함)
+- 원인: v2.1.26 사이드바 배너 삭제 시 `_getTodayStr()` 헬퍼 함수가 같은 블록에서 함께 사라졌는데, home popup 의 「오늘 그만보기」 로직이 그 함수에 의존 중이었음. `ReferenceError` 가 try/catch 로 silently 흡수되면서 `localStorage.setItem(...)` 이 실행되지 않아 다음 진입 때 또 팝업이 뜸.
+- 수정: `_getTodayStr()` 함수 복원 + **KST 기준** 으로 명시 (이전엔 로컬 타임존 — 한국 사용자가 자정 직전 체크하면 시간대에 따라 즉시 만료될 수 있던 미세 버그도 함께 해결)
+- 검증: `localStorage.getItem('home_popup_hide_<id>')` 가 `<YYYY-MM-DD>|<stamp>` 형식으로 저장되어 같은 날 다시 진입 시 팝업 미노출
+
+### Security (랜딩 + 관리자 페이지 전체 보안 점검)
+- **HTTP 보안 헤더 강화 (`_headers`)**
+  - `Strict-Transport-Security: max-age=63072000` 추가 (HSTS 2년) — HTTP downgrade 공격 방지
+  - `Permissions-Policy` 확장: `payment=(), usb=(), interest-cohort=()` 까지 명시 차단
+  - `X-XSS-Protection: 0` (현대 브라우저 권장값, OWASP)
+  - **admin.html 전용 강화**:
+    - `Cache-Control: private, no-cache, no-store, must-revalidate` (이전엔 no-cache 만)
+    - `Pragma: no-cache`
+    - `Cross-Origin-Opener-Policy: same-origin` — popup window.opener 공격 차단
+    - `X-Robots-Tag: noindex, nofollow, noarchive, nosnippet` (검색 노출 + 캐싱 모두 차단)
+- **관리자 인증 강화**
+  - `functions/_lib/admin.js` — 시크릿 비교를 **constant-time** (XOR + 누적 mismatch) 로 변경 → timing-attack 표면 제거
+  - `functions/api/admin/verify.js` — 실패 시 일관된 400ms 지연 → brute-force 시 분당 ~150회 시도 한도 (합리적 길이 SECRET 이면 사실상 무력화)
+- **XSS 방어적 escape 추가**
+  - `admin.html` 인기 콘텐츠 표의 `${l.company_name}` → `${esc(l.company_name)}` (현재 데이터는 안전한 하드코딩 값이지만 defense-in-depth)
+
+### 보안 점검 결과 — 양호 (별도 조치 불요)
+- **SQL injection**: 모든 D1 쿼리가 `.prepare(...).bind(...)` 의 parameterized 방식 사용 ✓
+- **시크릿 노출**: `wrangler.toml` `[vars]` 안에 평문 시크릿 없음 (모두 `wrangler pages secret put` 으로 관리) ✓
+- **HTTPS 강제**: Cloudflare Pages 기본 + 위 HSTS 보강 ✓
+- **CORS**: 공개 read 엔드포인트는 `*` 허용 (정상), 관리자 endpoint 는 `x-admin-secret` 헤더 검증으로 보호 ✓
+- **파일 업로드** (`/api/user-upload/*`): 폴더 화이트리스트(recruitments/lectures/rental-cards) + MIME 화이트리스트(image/*, pdf, heic) + 10MB 제한 + 확장자 정제 + 서버 생성 랜덤 파일명 (path traversal 차단) ✓
+- **OG meta**: 모든 사용자 입력 값에 `esc()` 적용 + image URL 도 절대 URL 강제 ✓
+- **클립보드 (링크 복사)**: 안전한 origin 기반 URL 생성, 사용자 입력 직접 포함 X ✓
+
+### 미해결 (개선 권고)
+- **사용자 신청 endpoint (`/api/recruitments`, `/api/lectures`, `/api/rental-inquiries`, `/api/user-upload`)** — 서버측 IP 기반 rate-limit 없음. 봇 스팸 가능성. 현재 클라이언트 localStorage 쿨다운만 존재 (우회 가능). 후속 작업으로 D1 기반 IP-카운터 또는 Cloudflare Turnstile 도입 권고.
+- **CSP**: 인라인 스크립트가 많아 strict CSP 적용 시 광범위 리팩토링 필요 → 별도 진행 권고.
+
 ## [2.1.27] - 2026-05-24
 ### Changed
 - **사이드바 「내 공고 직접 등록」 — 채용/강의 2버튼을 1버튼으로 통합**

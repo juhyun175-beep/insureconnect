@@ -4330,7 +4330,7 @@
       const rows = links.map((l, i) => `
         <tr>
           <td class="rank-num">${i + 1}</td>
-          <td><strong>${l.company_name}</strong></td>
+          <td><strong>${esc(l.company_name)}</strong></td>
           <td>
             <span class="rank-type-badge ${l.company_type === 'life' ? 'badge-life' : 'badge-nonlife'}">
               ${l.company_type === 'life' ? '생명보험' : '손해보험'}

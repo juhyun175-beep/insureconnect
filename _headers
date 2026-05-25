@@ -11,15 +11,19 @@
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Permissions-Policy: geolocation=(), microphone=(), camera=()
+  Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), interest-cohort=()
+  Strict-Transport-Security: max-age=63072000
+  X-XSS-Protection: 0
 
 # HTML은 매번 새로 가져오되 stale-while-revalidate로 체감속도 ↑ (1분 fresh + 10분 background revalidate)
 /index.html
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /admin.html
   X-Frame-Options: DENY
-  X-Robots-Tag: noindex, nofollow
-  Cache-Control: private, no-cache
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet
+  Cache-Control: private, no-cache, no-store, must-revalidate
+  Pragma: no-cache
+  Cross-Origin-Opener-Policy: same-origin
 
 # Service Worker는 절대 캐시 금지 — 옛 SW가 영구히 박히는 문제 방지
 /sw.js

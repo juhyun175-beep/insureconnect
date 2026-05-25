@@ -12228,6 +12228,19 @@
     /* ══════════════════════════════
        홈 진입 자동 팝업 (관리자 공지)
     ══════════════════════════════ */
+    /* v2.1.28: _getTodayStr 함수 복원 — v2.1.26 사이드바 배너 삭제 시 함께 사라져서
+       "오늘 그만보기" 체크박스가 silent 실패 (ReferenceError → catch 로 무시) 했었음.
+       KST 기준 오늘 날짜 YYYY-MM-DD 반환. */
+    function _getTodayStr() {
+      const d = new Date();
+      // KST = UTC+9 — 한국 사용자 자정 기준으로 "오늘"이 일관되게 동작
+      const kst = new Date(d.getTime() + 9 * 3600 * 1000);
+      const y = kst.getUTCFullYear();
+      const m = String(kst.getUTCMonth() + 1).padStart(2, '0');
+      const dd = String(kst.getUTCDate()).padStart(2, '0');
+      return `${y}-${m}-${dd}`;
+    }
+
     let _hpCurrent = null;       // 현재 표시중인 공지 객체
     let _hpAfterCloseFn = null;  // 닫힌 후 실행할 콜백 (프로모션 팝업 등)
 
