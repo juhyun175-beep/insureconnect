@@ -9037,11 +9037,21 @@
       });
     }
 
-    /* ── 메뉴 탭 전환 ── */
-    let nlLoaded = false;
-    let cfLoaded = false;
-    let rcLoaded = false;
-    let lecLoaded = false;
+    /* ── 메뉴 탭 전환 ──
+       v2.1.34: 「한 번 로드되면 영영 재로드 안 됨」 버그 수정
+                 - 관리자가 새 공고 승인 → 홈엔 즉시 반영되지만 페이지엔 stale 노출
+                 - 해결: 마지막 로드 시각 기록 후 60초 이상 경과 시 재호출
+                 - 60초 내 재진입은 캐시 유지 (불필요한 트래픽 방지) */
+    const PAGE_RELOAD_TTL_MS = 60 * 1000;
+    const _pageLastLoadedAt = { newsletter: 0, claimform: 0, recruit: 0, lecture: 0 };
+    function _shouldReloadPage(key) {
+      const now = Date.now();
+      if (now - (_pageLastLoadedAt[key] || 0) >= PAGE_RELOAD_TTL_MS) {
+        _pageLastLoadedAt[key] = now;
+        return true;
+      }
+      return false;
+    }
     let cnLoaded = true; // 초기 페이지에서 자동 로드
     let knLoaded = false;
 
@@ -9178,10 +9188,11 @@
         if (backTitle) backTitle.textContent = PAGE_NAMES[page] || page;
       }
 
-      if (page === 'newsletter' && !nlLoaded) { loadNewsletterPage(); nlLoaded  = true; }
-      if (page === 'claimform'  && !cfLoaded) { loadClaimFormPage();  cfLoaded  = true; }
-      if (page === 'recruit'    && !rcLoaded) { loadRecruitPage();    rcLoaded  = true; }
-      if (page === 'lecture'    && !lecLoaded){ loadLecturePage();    lecLoaded = true; }
+      // v2.1.34: TTL 기반 재로드 — 60초 이상 경과 시 새 데이터 반영
+      if (page === 'newsletter' && _shouldReloadPage('newsletter')) { loadNewsletterPage(); }
+      if (page === 'claimform'  && _shouldReloadPage('claimform'))  { loadClaimFormPage(); }
+      if (page === 'recruit'    && _shouldReloadPage('recruit'))    { loadRecruitPage(); }
+      if (page === 'lecture'    && _shouldReloadPage('lecture'))    { loadLecturePage(); }
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
