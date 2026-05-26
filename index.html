@@ -8681,13 +8681,17 @@
     }
 
     /* ── 앱 공유 ── */
+    /* v2.1.30: 앱 공유 — native share 시 분석 카운트 추가 (viral 추적) */
     function shareApp() {
       const url = 'https://insureconnect-hub.pages.dev/';
       const text = 'InsureConnect — 보험설계사를 위한 통합 포털';
       if (navigator.share) {
-        navigator.share({ title: 'InsureConnect', text, url }).catch(() => {});
+        navigator.share({ title: 'InsureConnect', text, url })
+          .then(() => { try { trackClick('app_shared', 'app_shared'); } catch (_) {} })
+          .catch(() => {});
       } else {
         navigator.clipboard.writeText(url).then(() => {
+          try { trackClick('app_shared', 'app_copy'); } catch (_) {}
           alert('링크가 복사되었습니다!');
         }).catch(() => {
           prompt('아래 링크를 복사하세요:', url);
@@ -9522,53 +9526,69 @@
     }
     window.openLectureViewer = openLectureViewer;
 
-    /* ── 채용공고 링크 복사 ── */
-    async function shareRecruit(recruitId, evt) {
-      if (evt) { evt.stopPropagation(); evt.preventDefault(); }
-      const btn = evt && evt.currentTarget;
-      // OG meta가 동적으로 적용되는 share URL (카카오톡 미리보기 정확히)
-      const url = `${location.origin}/og/recruit/${encodeURIComponent(recruitId)}`;
+    /* v2.1.30: Native Web Share API 통합 — 모바일에서 1탭으로 카카오톡/라인/문자 등 공유
+       데스크탑이나 미지원 환경에선 자동으로 clipboard 복사 fallback */
+    async function nativeShareWithFallback({ url, title, text, copyToast, trackEvent }) {
+      // 1) navigator.share — 모바일에선 카카오톡/라인/문자/슬랙 등 OS 공유 시트 노출
+      if (navigator.share && typeof navigator.share === 'function') {
+        try {
+          await navigator.share({ url, title: title || '인슈어커넥트', text: text || '' });
+          try { trackClick(trackEvent.name, trackEvent.type); } catch (_) {}
+          return 'native';
+        } catch (e) {
+          // 사용자가 공유 sheet 닫음 → 그대로 종료 (clipboard 로 fall-through 안 함)
+          if (e && e.name === 'AbortError') return 'abort';
+          // 그 외 에러는 clipboard fallback 시도
+        }
+      }
+      // 2) Clipboard fallback
       let ok = false;
       if (navigator.clipboard && window.isSecureContext) {
         try { await navigator.clipboard.writeText(url); ok = true; }
         catch (_) { ok = false; }
       }
       if (!ok) ok = copyTextFallback(url);
-
       if (ok) {
-        if (btn) {
-          btn.classList.add('copied');
-          setTimeout(() => btn.classList.remove('copied'), 1400);
-        }
-        try { cnShareToast('채용공고 링크가 복사되었습니다'); } catch (_) {}
-        try { trackClick(`recruit_${recruitId}`, 'recruit_copy'); } catch (_) {}
-      } else {
-        try { cnShareToast('복사 실패 — 직접 URL을 복사해주세요'); } catch (_) {}
+        try { cnShareToast(copyToast); } catch (_) {}
+        try { trackClick(trackEvent.name, trackEvent.type); } catch (_) {}
+        return 'copy';
+      }
+      try { cnShareToast('공유 실패 — 직접 URL을 복사해주세요'); } catch (_) {}
+      return 'fail';
+    }
+
+    /* 채용공고 공유 — native share 우선, 복사 fallback */
+    async function shareRecruit(recruitId, evt) {
+      if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+      const btn = evt && evt.currentTarget;
+      const url = `${location.origin}/og/recruit/${encodeURIComponent(recruitId)}`;
+      const result = await nativeShareWithFallback({
+        url, title: '채용공고',
+        text: '인슈어커넥트에서 채용공고 확인하세요',
+        copyToast: '채용공고 링크가 복사되었습니다',
+        trackEvent: { name: `recruit_${recruitId}`, type: 'recruit_shared' }
+      });
+      if ((result === 'native' || result === 'copy') && btn) {
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1400);
       }
     }
     window.shareRecruit = shareRecruit;
 
-    /* v2.1.21: 강의공고 링크 복사 (오픈채팅방 공유용) */
+    /* 강의공고 공유 — native share 우선, 복사 fallback */
     async function shareLecture(lectureId, evt) {
       if (evt) { evt.stopPropagation(); evt.preventDefault(); }
       const btn = evt && evt.currentTarget;
       const url = `${location.origin}/og/lecture/${encodeURIComponent(lectureId)}`;
-      let ok = false;
-      if (navigator.clipboard && window.isSecureContext) {
-        try { await navigator.clipboard.writeText(url); ok = true; }
-        catch (_) { ok = false; }
-      }
-      if (!ok) ok = copyTextFallback(url);
-
-      if (ok) {
-        if (btn) {
-          btn.classList.add('copied');
-          setTimeout(() => btn.classList.remove('copied'), 1400);
-        }
-        try { cnShareToast('강의공고 링크가 복사되었습니다'); } catch (_) {}
-        try { trackClick(`lecture_${lectureId}`, 'lecture_copy'); } catch (_) {}
-      } else {
-        try { cnShareToast('복사 실패 — 직접 URL을 복사해주세요'); } catch (_) {}
+      const result = await nativeShareWithFallback({
+        url, title: '강의공고',
+        text: '인슈어커넥트에서 강의 일정 확인하세요',
+        copyToast: '강의공고 링크가 복사되었습니다',
+        trackEvent: { name: `lecture_${lectureId}`, type: 'lecture_shared' }
+      });
+      if ((result === 'native' || result === 'copy') && btn) {
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1400);
       }
     }
     window.shareLecture = shareLecture;
@@ -9683,13 +9703,9 @@
        v2.0.3: 사용자 신청 모달 (채용·강의 공용)
     ══════════════════════════════ */
     const submitState = { mode: 'recruit', step: 1 };
-    /* v2.1.27: mode 인자 생략 가능 — 마지막 선택 기억 + 모달 안에서 토글 */
+    /* v2.1.27: mode 인자 생략 가능 — 마지막 선택 기억 + 모달 안에서 토글
+       v2.1.30: 1시간 쿨다운 제거 — 어차피 관리자 승인 게이트가 있어서 불필요한 마찰 */
     function openSubmitModal(mode) {
-      const last = parseInt(localStorage.getItem('ic_last_submit_v1') || '0', 10);
-      if (Date.now() - last < 60 * 60 * 1000) {
-        alert('최근 신청 후 1시간이 지나야 다시 신청할 수 있습니다.');
-        return;
-      }
       if (!mode) {
         // 마지막 선택 모드 복원, 없으면 recruit
         try { mode = localStorage.getItem('ic_submit_last_mode') || 'recruit'; } catch (_) { mode = 'recruit'; }
@@ -9824,7 +9840,7 @@
           const errText = await insRes.text();
           throw new Error('신청 접수 실패: ' + errText.slice(0, 200));
         }
-        localStorage.setItem('ic_last_submit_v1', String(Date.now()));
+        // v2.1.30: 쿨다운 폐지 → localStorage 저장 불필요
         smShowStep(3);
       } catch (e) {
         status.textContent = '❌ ' + (e.message || '제출 중 오류');
@@ -10027,39 +10043,37 @@
         return ok;
       } catch (e) { return false; }
     }
+    /* v2.1.30: 카드뉴스 공유 — native share 시 카카오톡 1탭 공유 가능 */
     async function shareCardNews(target, evt) {
       const set = cardNewsState.sets[cardNewsState.currentSet];
       if (!set) return;
       // OG meta 동적 share URL (카카오톡 첫 페이지 이미지 미리보기)
       const url = `${location.origin}/og/news/${encodeURIComponent(set.set_id || '')}`;
+      const title = set.title || '카드뉴스';
+
+      const btn = (evt && evt.currentTarget) || document.querySelector('.cn-share-top');
+      const updateBtn = (status) => {
+        if (!btn) return;
+        const label = btn.querySelector('span');
+        const origText = label ? label.textContent : '';
+        if (label) label.textContent = status === 'ok' ? '✓ 완료' : '실패';
+        btn.classList.add(status === 'ok' ? 'copied' : 'copy-fail');
+        clearTimeout(btn._resetTimer);
+        btn._resetTimer = setTimeout(() => {
+          if (label) label.textContent = origText || '공유';
+          btn.classList.remove('copied', 'copy-fail');
+        }, 2000);
+      };
+
       if (target === 'copy') {
-        let ok = false;
-        if (navigator.clipboard && window.isSecureContext) {
-          try { await navigator.clipboard.writeText(url); ok = true; }
-          catch (_) { ok = false; }
-        }
-        if (!ok) ok = copyTextFallback(url);
-
-        // 복사 추적 (모니터 위젯용) — 성공한 경우만
-        if (ok) {
-          try { trackClick(set.title || '카드뉴스', 'cardnews_copy'); } catch (_) {}
-        }
-
-        // 버튼 라벨 일시 변경 (✓ 복사 완료)
-        const btn = (evt && evt.currentTarget) || document.querySelector('.cn-share-top');
-        if (btn) {
-          const label = btn.querySelector('span');
-          const origText = label ? label.textContent : '';
-          if (label) label.textContent = ok ? '✓ 복사 완료' : '복사 실패';
-          btn.classList.add(ok ? 'copied' : 'copy-fail');
-          clearTimeout(btn._resetTimer);
-          btn._resetTimer = setTimeout(() => {
-            if (label) label.textContent = origText || '링크 복사';
-            btn.classList.remove('copied', 'copy-fail');
-          }, 2000);
-        }
-
-        cnShareToast(ok ? '✓ 링크가 복사되었습니다' : '복사에 실패했습니다');
+        const result = await nativeShareWithFallback({
+          url, title, text: '인슈어커넥트 카드뉴스 확인하세요',
+          copyToast: '✓ 링크가 복사되었습니다',
+          trackEvent: { name: title, type: 'cardnews_shared' }
+        });
+        if (result === 'native' || result === 'copy') updateBtn('ok');
+        else if (result === 'fail') updateBtn('fail');
+        // abort 는 아무 표시 X
       }
     }
 
