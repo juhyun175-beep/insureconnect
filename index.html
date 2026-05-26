@@ -13255,6 +13255,10 @@
       if (n < 1) return '';
       return `<span class="ic-share-badge" title="공유 ${n}회">📤 ${n.toLocaleString()}회</span>`;
     }
+    /* v2.1.35: IIFE 외부 스코프(loadRecruitPage/loadLecturePage)에서도 호출 가능하도록 window 노출
+       — v2.1.31 도입 시 IIFE 안에만 정의해 외부 호출 시 ReferenceError 로 채용/강의 페이지 렌더 실패 */
+    window._ensureShareCounts = _ensureShareCounts;
+    window._shareBadge        = _shareBadge;
 
     async function loadHomeJobs() {
       const grid = document.getElementById('home-jobs-grid');

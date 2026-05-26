@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.1.35] - 2026-05-26
+### Fixed (채용/강의 페이지 카드 미표시 — 진짜 원인 발견)
+- **`_ensureShareCounts` IIFE 스코프 누출 버그**
+  - v2.1.31 에서 공유 카운트 헬퍼(`_ensureShareCounts`, `_shareBadge`) 를 IIFE `(function(){ ... })()` 내부에 정의
+  - 같은 IIFE 안의 `loadHomeJobs`/`loadHomeLectures` 는 정상 작동 (클로저 공유)
+  - 다른 script 블록의 `loadRecruitPage` (라인 9420) 와 `loadLecturePage` (라인 9480) 가 호출 시 `ReferenceError`
+  - try/catch 가 잡아 「채용공고를 불러올 수 없습니다」 또는 빈 화면 표시 → 사용자: "홈엔 있는데 페이지엔 없네"
+- **해결**: IIFE 내부에서 `window._ensureShareCounts = _ensureShareCounts; window._shareBadge = _shareBadge;` 노출
+  - 외부 스코프 호출처는 unqualified name 으로 자동 window 탐색 → 즉시 작동
+- **부수 효과**: v2.1.34 의 TTL 재로드는 유지 (별개 개선) — 단, 그것은 stale 표시 막는 용도였고 진짜 원인은 이번 스코프 버그였음
+
+### Why this matters
+- 새 공고 등록 → 관리자 승인 후 실제로 채용공고/강의 페이지에 노출되어야 viral 효과
+- 1주일 가까이 사용자가 「홈엔 보이는데 페이지엔 없네」 혼란을 겪었을 가능성 — 즉시 수정 배포
+
 ## [2.1.34] - 2026-05-26
 ### Fixed (관리자 승인 후 페이지 stale 표시 — 핵심 UX 버그)
 - **채용공고/강의/뉴스레터/청구서양식 페이지가 세션당 1회만 로드되던 버그**
