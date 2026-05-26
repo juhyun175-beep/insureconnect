@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.32] - 2026-05-26
+### Fixed (PC 환경 공유 버그 — 운영체제 한계)
+- **PC(Windows)에서 채용/강의/카드뉴스/앱 공유 시 「다시 시도하세요. 공유할 수 있는 일부 방법만 표시됩니다」 에러 해결**
+  - 원인: `navigator.share()` 호출 시 Windows 자체 공유 시트(IDataTransferManager) 가 노출되는데
+    - 한국 사용자가 원하는 카카오톡/라인/디스코드 등이 등록되지 않아 「근처 공유, Mail 앱」 정도만 표시
+    - Windows UWP 공유 권한 이슈로 위 에러 빈번
+  - 해결: 모바일/태블릿 환경에서만 `navigator.share()` 호출, **데스크탑은 즉시 clipboard 복사**로 분기
+  - 판정 조건: `matchMedia('(max-width: 768px)')` OR 모바일 UA OR 터치스크린(maxTouchPoints>1)
+  - 영향: `shareRecruit / shareLecture / shareCardNews / shareApp` 4개 공유 핸들러 전부 + 공통 `nativeShareWithFallback` 헬퍼
+
+### Why this matters
+- PC 사용자는 이제 「다시 시도하세요」 에러 없이 **즉시 클립보드 복사** → 카카오톡 PC앱 등에 붙여넣기 가능
+- 모바일 사용자 경험은 그대로 (v2.1.30 OS 공유 시트 유지)
+
 ## [2.1.31] - 2026-05-26
 ### Added (바이럴 마케팅 2순위 — 공유 카운트 사회적 증명 배지)
 - **채용/강의 카드에 「📤 N회 공유」 배지** 노출 (홈 대시보드 + 전체 페이지)

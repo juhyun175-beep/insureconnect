@@ -8699,13 +8699,17 @@
     }
 
     /* ── 앱 공유 ── */
-    /* v2.1.30: 앱 공유 — native share 시 분석 카운트 추가 (viral 추적) */
+    /* v2.1.30: 앱 공유 — native share 시 분석 카운트 추가 (viral 추적)
+       v2.1.32 fix: PC 는 Windows 공유 시트 결함으로 즉시 clipboard 복사 */
     function shareApp() {
       const url = 'https://insureconnect-hub.pages.dev/';
       const text = 'InsureConnect — 보험설계사를 위한 통합 포털';
-      if (navigator.share) {
+      const isMobileEnv = (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
+        || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+        || ('ontouchstart' in window && navigator.maxTouchPoints > 1);
+      if (isMobileEnv && navigator.share) {
         navigator.share({ title: 'InsureConnect', text, url })
-          .then(() => { try { trackClick('app_shared', 'app_shared'); } catch (_) {} })
+          .then(() => { try { trackClick('app_shared', 'app_copy'); } catch (_) {} })
           .catch(() => {});
       } else {
         navigator.clipboard.writeText(url).then(() => {
@@ -9548,10 +9552,18 @@
     window.openLectureViewer = openLectureViewer;
 
     /* v2.1.30: Native Web Share API 통합 — 모바일에서 1탭으로 카카오톡/라인/문자 등 공유
-       데스크탑이나 미지원 환경에선 자동으로 clipboard 복사 fallback */
+       데스크탑이나 미지원 환경에선 자동으로 clipboard 복사 fallback
+       v2.1.32 fix: PC(Windows/macOS)에서 navigator.share 호출 시
+         - Windows 공유 시트는 카카오톡/라인 등 한국 사용자 앱이 없고
+         - "다시 시도하세요. 공유할 수 있는 일부 방법만 표시됩니다" 에러 빈발
+         → 데스크탑은 navigator.share 건너뛰고 즉시 clipboard 복사 */
     async function nativeShareWithFallback({ url, title, text, copyToast, trackEvent }) {
-      // 1) navigator.share — 모바일에선 카카오톡/라인/문자/슬랙 등 OS 공유 시트 노출
-      if (navigator.share && typeof navigator.share === 'function') {
+      // v2.1.32: 모바일/태블릿에서만 OS 공유 시트 사용
+      const isMobileEnv = (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
+        || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
+        || ('ontouchstart' in window && navigator.maxTouchPoints > 1);
+      // 1) navigator.share — 모바일에서만 호출 (PC 는 OS 공유 시트가 빈약하거나 깨짐)
+      if (isMobileEnv && navigator.share && typeof navigator.share === 'function') {
         try {
           await navigator.share({ url, title: title || '인슈어커넥트', text: text || '' });
           try { trackClick(trackEvent.name, trackEvent.type); } catch (_) {}
