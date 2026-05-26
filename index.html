@@ -5394,6 +5394,24 @@
       border-radius: 8px;
       letter-spacing: 0.04em;
     }
+    /* v2.1.31: 공유 카운트 배지 — 사회적 증명 */
+    .ic-share-badge {
+      position: absolute;
+      bottom: 8px; right: 8px;
+      padding: 3px 8px;
+      background: linear-gradient(135deg, #f97316, #ef4444);
+      color: #fff;
+      font-size: 10px; font-weight: 800;
+      border-radius: 999px;
+      letter-spacing: 0.02em;
+      box-shadow: 0 2px 6px rgba(239,68,68,0.35);
+      z-index: 2;
+      animation: ic-share-pulse 2.4s ease-in-out infinite;
+    }
+    @keyframes ic-share-pulse {
+      0%,100% { transform: scale(1); }
+      50% { transform: scale(1.06); }
+    }
     .ic-job-body {
       padding: 9px 11px 11px;
       display: flex; flex-direction: column;
@@ -9399,6 +9417,7 @@
           return;
         }
         count.textContent = `${items.length}건`;
+        await _ensureShareCounts(); // v2.1.31
         const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         let html = '<div class="rc-card-grid">';
         items.forEach((it, i) => {
@@ -9425,6 +9444,7 @@
               <div class="rc-card-thumb">
                 ${thumb}
                 ${typeBadge}
+                ${_shareBadge('recruit', it.id)}
               </div>
               <div class="rc-card-body">
                 ${company ? `<span class="rc-card-company">${company}</span>` : ''}
@@ -9455,6 +9475,7 @@
           return;
         }
         if (count) count.textContent = `${items.length}건`;
+        await _ensureShareCounts(); // v2.1.31
         const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         body.innerHTML = '<div class="rc-card-grid">' + items.map((it, i) => {
           const d = new Date(it.created_at);
@@ -9475,7 +9496,7 @@
             <span class="rc-card-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="rc-card-thumb">${thumb}${typeBadge}</div>
+            <div class="rc-card-thumb">${thumb}${typeBadge}${_shareBadge('lecture', it.id)}</div>
             <div class="rc-card-body">
               ${instr ? `<span class="rc-card-company">${instr}</span>` : ''}
               <div class="rc-card-title">${esc(it.title)}</div>
@@ -9557,7 +9578,8 @@
       return 'fail';
     }
 
-    /* 채용공고 공유 — native share 우선, 복사 fallback */
+    /* 채용공고 공유 — native share 우선, 복사 fallback
+       v2.1.31 fix: 트래킹 type 을 '_copy' 로 통일 — '_shared' 는 incoming 방문자 시맨틱 보호 */
     async function shareRecruit(recruitId, evt) {
       if (evt) { evt.stopPropagation(); evt.preventDefault(); }
       const btn = evt && evt.currentTarget;
@@ -9566,7 +9588,7 @@
         url, title: '채용공고',
         text: '인슈어커넥트에서 채용공고 확인하세요',
         copyToast: '채용공고 링크가 복사되었습니다',
-        trackEvent: { name: `recruit_${recruitId}`, type: 'recruit_shared' }
+        trackEvent: { name: `recruit_${recruitId}`, type: 'recruit_copy' }
       });
       if ((result === 'native' || result === 'copy') && btn) {
         btn.classList.add('copied');
@@ -9584,7 +9606,7 @@
         url, title: '강의공고',
         text: '인슈어커넥트에서 강의 일정 확인하세요',
         copyToast: '강의공고 링크가 복사되었습니다',
-        trackEvent: { name: `lecture_${lectureId}`, type: 'lecture_shared' }
+        trackEvent: { name: `lecture_${lectureId}`, type: 'lecture_copy' }
       });
       if ((result === 'native' || result === 'copy') && btn) {
         btn.classList.add('copied');
@@ -10069,7 +10091,7 @@
         const result = await nativeShareWithFallback({
           url, title, text: '인슈어커넥트 카드뉴스 확인하세요',
           copyToast: '✓ 링크가 복사되었습니다',
-          trackEvent: { name: title, type: 'cardnews_shared' }
+          trackEvent: { name: title, type: 'cardnews_copy' }
         });
         if (result === 'native' || result === 'copy') updateBtn('ok');
         else if (result === 'fail') updateBtn('fail');
@@ -13181,6 +13203,26 @@
       return diff < 7;
     }
 
+    /* v2.1.31: 공유 카운트 캐시 — "📤 N회 공유" 배지용 사회적 증명 데이터
+       /api/share-counts 가 5분 edge-cached 이므로 매 페이지 진입마다 fetch 해도 부담 적음 */
+    let _shareCounts = null;
+    let _shareCountsPromise = null;
+    async function _ensureShareCounts() {
+      if (_shareCounts) return _shareCounts;
+      if (_shareCountsPromise) return _shareCountsPromise;
+      _shareCountsPromise = fetch('/api/share-counts')
+        .then(r => r.ok ? r.json() : null)
+        .then(d => { _shareCounts = d || { recruit:{}, lecture:{}, cardnews:{}, knowledge:{} }; return _shareCounts; })
+        .catch(() => ({ recruit:{}, lecture:{}, cardnews:{}, knowledge:{} }));
+      return _shareCountsPromise;
+    }
+    function _shareBadge(type, key) {
+      if (!_shareCounts || !_shareCounts[type]) return '';
+      const n = _shareCounts[type][String(key)] || 0;
+      if (n < 1) return '';
+      return `<span class="ic-share-badge" title="공유 ${n}회">📤 ${n.toLocaleString()}회</span>`;
+    }
+
     async function loadHomeJobs() {
       const grid = document.getElementById('home-jobs-grid');
       if (!grid) return;
@@ -13192,6 +13234,7 @@
           grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 채용공고가 없습니다.</div>';
           return;
         }
+        await _ensureShareCounts(); // v2.1.31: 공유 카운트 배지용
         grid.innerHTML = items.map(it => {
           let thumb;
           let typeBadge = '';
@@ -13206,11 +13249,12 @@
             typeBadge = '<span class="ic-job-type-badge">✍ TEXT</span>';
           }
           const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
+          const shareBadge = _shareBadge('recruit', it.id);
           return `<button class="ic-job-card" type="button" onclick="window.__openHomeJob(${it.id})">
             <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareRecruit(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}</div>
+            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}${shareBadge}</div>
             <div class="ic-job-body">
               ${it.company_name ? `<div class="ic-job-company">${esc(it.company_name)}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
@@ -13312,6 +13356,7 @@
           grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 강의가 없습니다.</div>';
           return;
         }
+        await _ensureShareCounts(); // v2.1.31
         grid.innerHTML = items.map((it, i) => {
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
@@ -13329,7 +13374,7 @@
             <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}</div>
+            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}${_shareBadge('lecture', it.id)}</div>
             <div class="ic-job-body">
               ${it.instructor ? `<div class="ic-job-company">${esc(it.instructor)}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
