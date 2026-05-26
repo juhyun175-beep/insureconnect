@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.1.29] - 2026-05-24
+### Added
+- **채용/강의 공고에 외부 폼 링크 첨부** (구글폼·네이버폼·카카오톡 등)
+  - 신청 모달에 「신청 폼 링크 (선택)」 입력란 추가 — 어떤 도메인이 지원되는지 안내 포함
+  - 서버측 화이트리스트 검증 (`docs.google.com / forms.gle / form.naver.com / naver.me / tally.so / forms.office.com / surveymonkey.com / typeform.com / open.kakao.com / kakao.com / github.com`)
+  - http/https 만 허용, 최대 500자 — XSS·피싱·임의 URL 차단
+  - 채용공고 뷰어 / 강의 뷰어에 「📝 신청 폼 작성하기 →」 그라데이션 버튼 노출
+  - DB: `ic_recruitments.form_url`, `ic_lectures.form_url` 컬럼 추가
+
+### Fixed (다크모드 텍스트 가시성)
+- 채용공고 뷰어 (`.rc-viewer-*`) — 하드코딩 `#111`, `#222`, `#9ca3af` → CSS 변수 `var(--txt-hi/--txt-mid/--txt-lo)` 로 교체
+- `.rc-viewer-body` 배경 `background: #fff` → `var(--bg-card)` — 다크모드에서 흰 카드 → 다크 카드로 자연 전환
+- admin 인기 콘텐츠 표의 `${l.company_name}` 에 `esc()` 추가 (defense-in-depth, v2.1.28 의 보안 점검 누락분)
+
 ## [2.1.28] - 2026-05-24
 ### Fixed (홈 팝업 「오늘 그만보기」 작동 안 함)
 - 원인: v2.1.26 사이드바 배너 삭제 시 `_getTodayStr()` 헬퍼 함수가 같은 블록에서 함께 사라졌는데, home popup 의 「오늘 그만보기」 로직이 그 함수에 의존 중이었음. `ReferenceError` 가 try/catch 로 silently 흡수되면서 `localStorage.setItem(...)` 이 실행되지 않아 다음 진입 때 또 팝업이 뜸.

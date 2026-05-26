@@ -20,7 +20,7 @@ export const onRequestDelete = async ({ params, request, env }) => handle(async 
 export const onRequestPatch = async ({ params, request, env }) => handle(async () => {
   if (!verifyAdmin(request, env)) return unauthorized();
   const body = await request.json();
-  const allowed = ['title','company_name','description','file_url','file_type',
+  const allowed = ['title','company_name','description','file_url','file_type','form_url',
                    'status','reject_reason','approved_at'];
   const fields = allowed.filter(k => k in body);
   if (!fields.length) return error('No fields to update');

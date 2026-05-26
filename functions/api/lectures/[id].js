@@ -18,7 +18,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   if (!verifyAdmin(request, env)) return unauthorized();
   const body = await request.json();
   // 승인/반려/일반 수정 필드 모두 허용
-  const allowed = ['title','instructor','description','file_url','file_type',
+  const allowed = ['title','instructor','description','file_url','file_type','form_url',
                    'status','reject_reason','approved_at'];
   const fields = allowed.filter(k => k in body);
   if (!fields.length) return error('No fields');
