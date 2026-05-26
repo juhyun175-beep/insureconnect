@@ -1,5 +1,24 @@
 # Changelog
 
+## [2.1.36] - 2026-05-26
+### Changed (보안 정책 — 신청 폼 링크 엄격화)
+- **「구글폼·네이버폼만」 정책으로 화이트리스트 축소**
+  - 이전(v2.1.29): docs.google.com / forms.gle / form.naver.com / naver.me / tally.so / forms.office.com / surveymonkey.com / typeform.com / open.kakao.com / kakao.com / kr.surveymonkey.com / github.com
+  - 이후(v2.1.36): **docs.google.com / forms.gle / form.naver.com / naver.me** 4개만
+  - 카카오톡 오픈채팅(open.kakao.com)·기타 사이트 모두 차단
+  - 이유: 「신청 폼 링크」 의도와 카톡 오픈채팅(채팅방)은 의미적으로 다르고, 폼 외 도메인은 피싱·외부 유출 위험 ↑
+- **3중 방어 적용**
+  1. 서버 (`functions/api/recruitments/index.js`, `functions/api/lectures/index.js`) — 화이트리스트 통과 못한 URL 은 `null` 로 저장 (defense in depth)
+  2. 프론트 실시간 입력 검증 (`smValidateFormUrl`) — input oninput 시 즉시 빨간 박스로 차단 사유 표시
+  3. submit 시점 재검증 — Step1→Step2 진행 차단
+- **UI 가이드 개선**
+  - 입력란 헬프 텍스트: 「✅ 구글폼·네이버폼만 허용 / ❌ 카카오톡 오픈채팅·기타 사이트 차단」 명시
+  - 카톡 링크 입력 시 전용 메시지: 「⚠ 카카오톡 오픈채팅 링크는 차단됩니다. 구글폼 또는 네이버폼만 입력해주세요.」
+
+### Why this matters
+- 관리자 승인 게이트가 있긴 하나, 사용자 입력 시점부터 막아 혼란·실수 방지
+- 「폼 = 폼만」 의도 명확화 → 운영 정책 일관성 ↑
+
 ## [2.1.35] - 2026-05-26
 ### Fixed (채용/강의 페이지 카드 미표시 — 진짜 원인 발견)
 - **`_ensureShareCounts` IIFE 스코프 누출 버그**

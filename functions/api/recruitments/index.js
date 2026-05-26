@@ -29,8 +29,11 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   return json(rs.results || []);
 });
 
-/** form_url 형식 검증 — http/https URL, 신뢰 도메인 화이트리스트 */
-const TRUSTED_FORM_HOSTS = /^(docs\.google\.com|forms\.gle|form\.naver\.com|naver\.me|tally\.so|forms\.office\.com|surveymonkey\.com|typeform\.com|open\.kakao\.com|kakao\.com|kr\.surveymonkey\.com|github\.com)$/i;
+/** form_url 형식 검증 — http/https URL, 신뢰 도메인 화이트리스트
+ *  v2.1.36: 「구글폼·네이버폼만」 정책으로 엄격화.
+ *  카카오톡 오픈채팅(open.kakao.com) 은 폼이 아니라 채팅이므로 차단.
+ *  Tally/Typeform/Office Forms/SurveyMonkey/GitHub 등도 제외 (요청 시 확장 가능). */
+const TRUSTED_FORM_HOSTS = /^(docs\.google\.com|forms\.gle|form\.naver\.com|naver\.me)$/i;
 function sanitizeFormUrl(raw) {
   if (!raw) return null;
   const s = String(raw).trim();

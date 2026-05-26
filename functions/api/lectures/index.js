@@ -3,8 +3,9 @@ import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 
 export const onRequestOptions = () => corsPreflight();
 
-/** v2.1.29: 외부 폼 URL 신뢰 도메인 화이트리스트 */
-const TRUSTED_FORM_HOSTS = /^(docs\.google\.com|forms\.gle|form\.naver\.com|naver\.me|tally\.so|forms\.office\.com|surveymonkey\.com|typeform\.com|open\.kakao\.com|kakao\.com|kr\.surveymonkey\.com|github\.com)$/i;
+/** v2.1.29: 외부 폼 URL 신뢰 도메인 화이트리스트
+ *  v2.1.36: 「구글폼·네이버폼만」 으로 엄격화 (카톡 오픈채팅·기타 서비스 차단) */
+const TRUSTED_FORM_HOSTS = /^(docs\.google\.com|forms\.gle|form\.naver\.com|naver\.me)$/i;
 function sanitizeFormUrl(raw) {
   if (!raw) return null;
   const s = String(raw).trim();

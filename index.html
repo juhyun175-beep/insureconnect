@@ -7477,14 +7477,19 @@
               📎 <span class="sm-file-name" id="sm-file-name">파일을 선택하세요 (최대 10MB)</span>
             </label>
           </div>
-          <!-- v2.1.29: 외부 폼 링크 (구글폼/네이버폼/카카오톡 등) -->
+          <!-- v2.1.29: 외부 폼 링크
+               v2.1.36: 구글폼·네이버폼만 허용 (카카오톡 오픈채팅 등 차단) -->
           <div class="sm-field">
             <label for="sm-input-form">신청 폼 링크 (선택)</label>
             <input type="url" id="sm-input-form" maxlength="500"
-                   placeholder="https://docs.google.com/forms/... 또는 https://form.naver.com/...">
-            <div style="margin-top:5px;font-size:11px;color:var(--txt-lo);line-height:1.5;">
-              지원 도메인: docs.google.com · forms.gle · form.naver.com · naver.me · tally.so · forms.office.com · typeform.com · open.kakao.com
+                   placeholder="https://docs.google.com/forms/... 또는 https://form.naver.com/..."
+                   oninput="smValidateFormUrl(this)">
+            <div id="sm-form-help" style="margin-top:5px;font-size:11px;color:var(--txt-lo);line-height:1.5;">
+              ✅ <strong>구글폼·네이버폼만</strong> 허용됩니다
+              <span style="color:var(--txt-mid);">(docs.google.com · forms.gle · form.naver.com · naver.me)</span><br>
+              ❌ 카카오톡 오픈채팅·기타 사이트 링크는 자동 차단됩니다.
             </div>
+            <div id="sm-form-error" style="display:none;margin-top:5px;padding:6px 10px;background:#fee2e2;color:#991b1b;border-radius:6px;font-size:11.5px;font-weight:600;"></div>
           </div>
           <hr style="border:none;border-top:1px solid var(--border, rgba(0,0,0,0.08));margin:18px 0;">
           <div class="sm-field">
@@ -9748,6 +9753,40 @@
        v2.0.3: 사용자 신청 모달 (채용·강의 공용)
     ══════════════════════════════ */
     const submitState = { mode: 'recruit', step: 1 };
+
+    /* v2.1.36: 신청 폼 URL 실시간 검증 — 구글폼·네이버폼만 허용 */
+    const ALLOWED_FORM_HOSTS = /^(docs\.google\.com|forms\.gle|form\.naver\.com|naver\.me)$/i;
+    function smValidateFormUrl(input) {
+      const err = document.getElementById('sm-form-error');
+      const raw = (input.value || '').trim();
+      if (!raw) {
+        if (err) { err.style.display = 'none'; err.textContent = ''; }
+        input.setCustomValidity('');
+        return true;
+      }
+      let host;
+      try {
+        const u = new URL(raw);
+        if (u.protocol !== 'http:' && u.protocol !== 'https:') throw 0;
+        host = u.hostname;
+      } catch (_) {
+        if (err) { err.textContent = '⚠ 올바른 URL 형식이 아닙니다.'; err.style.display = ''; }
+        input.setCustomValidity('URL 형식 오류');
+        return false;
+      }
+      if (!ALLOWED_FORM_HOSTS.test(host)) {
+        let reason = '⚠ 구글폼(docs.google.com·forms.gle) 또는 네이버폼(form.naver.com·naver.me) 링크만 허용됩니다.';
+        if (/kakao/i.test(host)) reason = '⚠ 카카오톡 오픈채팅 링크는 차단됩니다. 구글폼 또는 네이버폼만 입력해주세요.';
+        if (err) { err.textContent = reason; err.style.display = ''; }
+        input.setCustomValidity('허용되지 않은 도메인');
+        return false;
+      }
+      if (err) { err.style.display = 'none'; err.textContent = ''; }
+      input.setCustomValidity('');
+      return true;
+    }
+    window.smValidateFormUrl = smValidateFormUrl;
+
     /* v2.1.27: mode 인자 생략 가능 — 마지막 선택 기억 + 모달 안에서 토글
        v2.1.30: 1시간 쿨다운 제거 — 어차피 관리자 승인 게이트가 있어서 불필요한 마찰 */
     function openSubmitModal(mode) {
@@ -9816,6 +9855,14 @@
       if (file && file.size > 10 * 1024 * 1024) {
         status.textContent = '⚠ 파일 크기가 10MB를 초과합니다.';
         status.classList.add('error');
+        return;
+      }
+      // v2.1.36: 신청 폼 URL 입력 시 도메인 검증 (선택 입력이지만 입력했다면 형식 확인)
+      const formInput = document.getElementById('sm-input-form');
+      if (formInput && formInput.value.trim() && !smValidateFormUrl(formInput)) {
+        status.textContent = '⚠ 신청 폼 링크는 구글폼·네이버폼만 입력 가능합니다. (카카오톡 차단)';
+        status.classList.add('error');
+        formInput.focus();
         return;
       }
       smShowStep(2);
