@@ -863,6 +863,202 @@
     }
     .side-comm-btn:hover .scb-arrow { transform: translateX(2px); color: var(--blue-mid); }
 
+    /* v2.1.37: CREW 300 사이드바 강조 — 카카오 옐로우 + LIVE 배지 + pulse */
+    .side-comm-btn.kakao {
+      background: linear-gradient(135deg, #FEE500 0%, #FAE100 60%, #FFC700 100%);
+      color: #1a1a1a;
+      padding: 11px 11px;
+      border-radius: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 3px 12px rgba(254,229,0,0.45), 0 1px 3px rgba(0,0,0,0.08);
+      position: relative;
+      overflow: hidden;
+      animation: scb-crew-pulse 2.6s ease-in-out infinite;
+    }
+    .side-comm-btn.kakao::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -120%;
+      width: 60%; height: 100%;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.55) 50%, transparent 100%);
+      animation: scb-crew-shine 3.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .side-comm-btn.kakao:hover {
+      background: linear-gradient(135deg, #FEE500 0%, #FFD000 100%);
+      color: #1a1a1a;
+      transform: translateY(-1px);
+      box-shadow: 0 5px 16px rgba(254,229,0,0.65);
+      animation: none;
+    }
+    .side-comm-btn.kakao .scb-icon {
+      background: #fff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .side-comm-btn.kakao .scb-name { font-size: 13px; font-weight: 800; letter-spacing: -0.01em; }
+    .side-comm-btn.kakao .scb-sub  { font-size: 10px; color: #5b4900; font-weight: 600; }
+    .side-comm-btn.kakao .scb-arrow {
+      color: #1a1a1a;
+      font-weight: 800;
+      font-size: 14px;
+      animation: scb-arrow-bounce 1.6s ease-in-out infinite;
+    }
+    /* LIVE 배지 */
+    .side-comm-btn.kakao .scb-live {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 9px;
+      font-weight: 800;
+      background: #ef4444;
+      color: #fff;
+      padding: 2px 6px;
+      border-radius: 999px;
+      margin-right: 4px;
+      box-shadow: 0 1px 4px rgba(239,68,68,0.4);
+      letter-spacing: 0.04em;
+    }
+    .side-comm-btn.kakao .scb-live::before {
+      content: '';
+      width: 5px; height: 5px;
+      background: #fff;
+      border-radius: 50%;
+      animation: scb-live-dot 1.2s ease-in-out infinite;
+    }
+    @keyframes scb-crew-pulse {
+      0%,100% { transform: scale(1); box-shadow: 0 3px 12px rgba(254,229,0,0.45); }
+      50%     { transform: scale(1.025); box-shadow: 0 5px 20px rgba(254,229,0,0.70); }
+    }
+    @keyframes scb-crew-shine {
+      0%,55%  { left: -120%; }
+      85%,100% { left: 140%; }
+    }
+    @keyframes scb-arrow-bounce {
+      0%,100% { transform: translateX(0); }
+      50%     { transform: translateX(3px); }
+    }
+    @keyframes scb-live-dot {
+      0%,100% { opacity: 1; transform: scale(1); }
+      50%     { opacity: 0.5; transform: scale(0.75); }
+    }
+
+    /* v2.1.37: 홈 대시보드 Hero CTA — CREW 300 참여 유도 띠 */
+    .crew-hero-cta {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 14px 22px;
+      background: linear-gradient(135deg, #FEE500 0%, #FAE100 55%, #FFC700 100%);
+      border-radius: 16px;
+      margin: 0 0 18px;
+      box-shadow: 0 6px 22px rgba(254,229,0,0.40), 0 2px 6px rgba(0,0,0,0.05);
+      color: #1a1a1a;
+      text-decoration: none;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.18s ease, box-shadow 0.18s ease;
+      cursor: pointer;
+    }
+    .crew-hero-cta::after {
+      content: '';
+      position: absolute;
+      top: 0; left: -120%;
+      width: 50%; height: 100%;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.45) 50%, transparent 100%);
+      animation: crew-hero-shine 4.2s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .crew-hero-cta:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 30px rgba(254,229,0,0.60);
+    }
+    .crew-hero-icon {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: #fff;
+      flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.10);
+      overflow: hidden;
+    }
+    .crew-hero-icon img { width: 90%; height: 90%; object-fit: contain; }
+    .crew-hero-body { flex: 1; min-width: 0; }
+    .crew-hero-top {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 3px;
+    }
+    .crew-hero-live {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: #ef4444; color: #fff;
+      font-size: 10px; font-weight: 800;
+      padding: 2px 8px; border-radius: 999px;
+      letter-spacing: 0.04em;
+      box-shadow: 0 2px 6px rgba(239,68,68,0.4);
+    }
+    .crew-hero-live::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      animation: scb-live-dot 1.2s ease-in-out infinite;
+    }
+    .crew-hero-count {
+      font-size: 11px; font-weight: 700;
+      color: #5b4900;
+      background: rgba(255,255,255,0.45);
+      padding: 2px 8px; border-radius: 999px;
+    }
+    .crew-hero-title {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      color: #1a1a1a;
+      line-height: 1.3;
+    }
+    .crew-hero-sub {
+      font-size: 12px;
+      font-weight: 600;
+      color: #5b4900;
+      margin-top: 2px;
+    }
+    .crew-hero-action {
+      flex-shrink: 0;
+      background: #1a1a1a;
+      color: #FEE500;
+      font-weight: 800;
+      font-size: 13px;
+      padding: 9px 14px;
+      border-radius: 999px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+      transition: transform 0.15s;
+    }
+    .crew-hero-cta:hover .crew-hero-action {
+      transform: translateX(3px);
+      background: #000;
+    }
+    @keyframes crew-hero-shine {
+      0%,60% { left: -120%; }
+      88%,100% { left: 160%; }
+    }
+    /* 모바일에선 컴팩트 */
+    @media (max-width: 768px) {
+      .crew-hero-cta { padding: 12px 14px; gap: 12px; border-radius: 14px; }
+      .crew-hero-icon { width: 44px; height: 44px; border-radius: 12px; }
+      .crew-hero-title { font-size: 14.5px; }
+      .crew-hero-sub { font-size: 11px; }
+      .crew-hero-action { font-size: 11.5px; padding: 7px 11px; }
+    }
+    @media (max-width: 480px) {
+      .crew-hero-action span.cha-text { display: none; } /* 좁은 화면: 화살표만 */
+    }
+    /* 다크모드 */
+    [data-theme="dark"] .crew-hero-cta {
+      box-shadow: 0 6px 22px rgba(254,229,0,0.30), 0 2px 6px rgba(0,0,0,0.30);
+    }
+
     /* 사이드바 푸터 */
     .side-footer {
       padding: 10px 12px 16px;
@@ -7336,8 +7532,8 @@
          onclick="trackClick('CREW300 오픈채팅 참여','sidebar'); armCommunityFallback('CREW 300');">
         <span class="scb-icon"><picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture></span>
         <span class="scb-text">
-          <span class="scb-name">CREW 300</span>
-          <span class="scb-sub">보험설계사 커뮤니티</span>
+          <span class="scb-name">CREW 300 <span class="scb-live">LIVE</span></span>
+          <span class="scb-sub">보험설계사 300+ 활동 중</span>
         </span>
         <span class="scb-arrow">›</span>
       </a>
@@ -7792,6 +7988,27 @@
       </div>
     </div>
 
+    <!-- v2.1.37: 모바일 홈 CREW 300 Hero CTA -->
+    <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
+       target="_blank" rel="noopener noreferrer"
+       onclick="trackClick('CREW300 오픈채팅 참여','home-hero-mobile'); armCommunityFallback('CREW 300');">
+      <span class="crew-hero-icon">
+        <picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture>
+      </span>
+      <span class="crew-hero-body">
+        <span class="crew-hero-top">
+          <span class="crew-hero-live">LIVE</span>
+          <span class="crew-hero-count">👥 300+</span>
+        </span>
+        <span class="crew-hero-title">CREW 300 — 보험설계사 오픈채팅</span>
+        <span class="crew-hero-sub">동료들과 실시간 정보 공유</span>
+      </span>
+      <span class="crew-hero-action">
+        <span class="cha-text">참여</span>
+        <span aria-hidden="true">→</span>
+      </span>
+    </a>
+
     <!-- 모바일 빠른 검색 -->
     <section class="ic-m-section ic-m-search-section">
       <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
@@ -7939,6 +8156,27 @@
   </div>
 
   <div class="content" id="page-home">
+    <!-- v2.1.37: CREW 300 참여 유도 Hero CTA — 홈 진입 즉시 시야 정중앙 -->
+    <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
+       target="_blank" rel="noopener noreferrer"
+       onclick="trackClick('CREW300 오픈채팅 참여','home-hero'); armCommunityFallback('CREW 300');">
+      <span class="crew-hero-icon">
+        <picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture>
+      </span>
+      <span class="crew-hero-body">
+        <span class="crew-hero-top">
+          <span class="crew-hero-live">LIVE</span>
+          <span class="crew-hero-count">👥 300+ 활동 중</span>
+        </span>
+        <span class="crew-hero-title">CREW 300 — 보험설계사 오픈채팅</span>
+        <span class="crew-hero-sub">동료 설계사들과 실시간 정보·노하우 공유하세요</span>
+      </span>
+      <span class="crew-hero-action">
+        <span class="cha-text">참여하기</span>
+        <span aria-hidden="true">→</span>
+      </span>
+    </a>
+
     <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
     <div class="ic-top-left">
