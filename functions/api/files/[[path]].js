@@ -44,7 +44,7 @@ export const onRequestOptions = () => corsPreflight();
  *     → 과거 업로드 시 잘못 저장된 contentType(text/html 등) 이슈 자동 보정
  *   - HEAD 요청도 같은 헤더로 응답 (body 만 비움) — 카카오톡 스크래퍼의 og:image preflight 통과
  */
-async function serveFile({ params, env }, isHead) {
+async function serveFile({ params, request, env }, isHead) {
   const key = pathFromParams(params);
   if (!key) return new Response('Bad key', { status: 400 });
   try {
@@ -64,6 +64,22 @@ async function serveFile({ params, env }, isHead) {
     headers.set('Content-Type', finalCT);
     if (typeof obj.size === 'number') headers.set('Content-Length', String(obj.size));
     if (obj.httpEtag) headers.set('ETag', obj.httpEtag);
+
+    // v2.1.33: ?download=1[&name=...] → 강제 다운로드 (Content-Disposition: attachment)
+    // PC 에선 inline 미리보기 대신 즉시 저장, 모바일에선 다운로드 매니저로 직행
+    try {
+      const reqUrl = new URL(request.url);
+      if (reqUrl.searchParams.get('download') === '1') {
+        const rawName = reqUrl.searchParams.get('name');
+        const fallback = (key.split('/').pop() || 'file');
+        const filename = (rawName && rawName.trim()) ? rawName.trim() : fallback;
+        // RFC 5987: filename*=UTF-8'' 로 비ASCII(한글) 안전 처리
+        const ascii = filename.replace(/[^\x20-\x7E]/g, '_');
+        const utf8  = encodeURIComponent(filename);
+        headers.set('Content-Disposition',
+          `attachment; filename="${ascii}"; filename*=UTF-8''${utf8}`);
+      }
+    } catch (_) {}
 
     return new Response(isHead ? null : obj.body, { headers });
   } catch (e) {

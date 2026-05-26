@@ -12029,6 +12029,16 @@
             fmtBytes(it.file_size),
             it.download_count ? `다운로드 ${it.download_count}회` : ''
           ].filter(Boolean).join(' · ');
+          /* v2.1.33: 강제 다운로드 — 공유/미리보기 X, 즉시 저장 O
+             - 서버측: ?download=1&name=... → Content-Disposition: attachment 응답
+             - 프론트: <a download> 속성 + 한글 파일명 보존 */
+          const ext = (it.file_type === 'pdf') ? 'pdf'
+                    : (it.file_type === 'image' ? 'jpg' : '');
+          const safeTitle = String(it.title || 'textbook')
+            .replace(/[\\\/:*?"<>|]/g, '_').slice(0, 80);
+          const filename = ext ? `${safeTitle}.${ext}` : safeTitle;
+          const sep = it.file_url && it.file_url.includes('?') ? '&' : '?';
+          const dlUrl = `${it.file_url}${sep}download=1&name=${encodeURIComponent(filename)}`;
           return `<div class="tb-item">
             <div class="tb-item-icon">${icon}</div>
             <div class="tb-item-body">
@@ -12036,7 +12046,7 @@
               ${it.description ? `<div class="tb-item-desc">${it.description}</div>` : ''}
               ${meta ? `<div class="tb-item-meta">${meta}</div>` : ''}
             </div>
-            <a class="tb-dl-btn" href="${it.file_url}" target="_blank" rel="noopener noreferrer"
+            <a class="tb-dl-btn" href="${dlUrl}" download="${filename}"
                onclick="incrementDownload(${it.id})">⬇ 다운로드</a>
           </div>`;
         }).join('') + '</div>';
