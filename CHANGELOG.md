@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.1.38] - 2026-05-26
+### Changed
+- **PC 홈 Hero CTA 제거** — 사이드바 CREW 300 강조만으로 충분 (모바일 홈 Hero는 유지)
+
+### Added (실시간 인기 콘텐츠 — 채용/강의 순위 신설)
+- **인기 채용공고 / 인기 강의공고 컬럼 추가**
+  - 2컬럼 → **4컬럼 그리드** (PC: 4열, 1280px↓: 2열×2행, 700px↓: 1열)
+  - 데이터 소스: `ic_link_clicks_daily.*_copy + *_shared` 합산 (공유유입 + 외부 공유)
+  - 서버 `/api/top-items` 에 `recruit_today/total`, `lecture_today/total` 응답 추가
+  - SQL JOIN 으로 `recruit_<id>` → `ic_recruitments.title` 매핑, status='approved' 필터
+  - 클릭 시 `lmOpenRecruit(id)` / `lmOpenLecture(id)` → 해당 페이지 + 뷰어 자동 오픈
+  - 트래킹: `trackCardClick('실시간순위', '채용공고')` / `'강의공고'` — 효과 측정 가능
+
 ## [2.1.37] - 2026-05-26
 ### Added (CREW 300 커뮤니티 참여 극대화 — 홈 진입 즉시 시야 정중앙)
 - **홈 대시보드 상단 Hero CTA 띠** (PC + 모바일 양쪽)

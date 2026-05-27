@@ -5974,7 +5974,12 @@
       gap: 14px;
     }
     .lm-grid.lm-grid-2col { grid-template-columns: repeat(2, 1fr); }
-    @media (max-width: 700px) { .lm-grid, .lm-grid.lm-grid-2col { grid-template-columns: 1fr; } }
+    /* v2.1.38: 4컬럼 — 전산/최신/채용/강의 */
+    .lm-grid.lm-grid-4col { grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    @media (max-width: 1280px) { .lm-grid.lm-grid-4col { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px) {
+      .lm-grid, .lm-grid.lm-grid-2col, .lm-grid.lm-grid-4col { grid-template-columns: 1fr; }
+    }
     .lm-col {
       background: var(--bg-card);
       border: 1px solid var(--border);
@@ -8156,26 +8161,7 @@
   </div>
 
   <div class="content" id="page-home">
-    <!-- v2.1.37: CREW 300 참여 유도 Hero CTA — 홈 진입 즉시 시야 정중앙 -->
-    <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
-       target="_blank" rel="noopener noreferrer"
-       onclick="trackClick('CREW300 오픈채팅 참여','home-hero'); armCommunityFallback('CREW 300');">
-      <span class="crew-hero-icon">
-        <picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture>
-      </span>
-      <span class="crew-hero-body">
-        <span class="crew-hero-top">
-          <span class="crew-hero-live">LIVE</span>
-          <span class="crew-hero-count">👥 300+ 활동 중</span>
-        </span>
-        <span class="crew-hero-title">CREW 300 — 보험설계사 오픈채팅</span>
-        <span class="crew-hero-sub">동료 설계사들과 실시간 정보·노하우 공유하세요</span>
-      </span>
-      <span class="crew-hero-action">
-        <span class="cha-text">참여하기</span>
-        <span aria-hidden="true">→</span>
-      </span>
-    </a>
+    <!-- v2.1.38: PC Hero CTA 제거 (사이드바 강조로 충분) — 모바일 홈에는 유지 -->
 
     <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
@@ -8194,7 +8180,7 @@
         </div>
         <span class="lm-updated" id="lm-updated"></span>
       </div>
-      <div class="lm-grid lm-grid-2col">
+      <div class="lm-grid lm-grid-4col">
         <div class="lm-col">
           <div class="lm-col-head">
             <span class="lm-col-icon">🖥</span>
@@ -8210,6 +8196,26 @@
             <span class="lm-col-name">최신 콘텐츠 순위</span>
           </div>
           <ol class="lm-list" id="lm-list-latest">
+            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
+          </ol>
+        </div>
+        <!-- v2.1.38: 인기 채용공고 -->
+        <div class="lm-col">
+          <div class="lm-col-head">
+            <span class="lm-col-icon">💼</span>
+            <span class="lm-col-name">인기 채용공고</span>
+          </div>
+          <ol class="lm-list" id="lm-list-recruit">
+            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
+          </ol>
+        </div>
+        <!-- v2.1.38: 인기 강의공고 -->
+        <div class="lm-col">
+          <div class="lm-col-head">
+            <span class="lm-col-icon">🎓</span>
+            <span class="lm-col-name">인기 강의공고</span>
+          </div>
+          <ol class="lm-list" id="lm-list-lecture">
             <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
           </ol>
         </div>
@@ -12908,11 +12914,25 @@
         ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
         : latest.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenLatest('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
+      // v2.1.38: 인기 채용공고 / 강의공고
+      const recruit = _lmCache[`recruit_${suffix}`] || [];
+      const lecture = _lmCache[`lecture_${suffix}`] || [];
+      const recruitHtml = !recruit.length
+        ? '<li class="lm-empty">아직 공유 기록이 없습니다</li>'
+        : recruit.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenRecruit(${it.id || 0})`)).join('');
+      const lectureHtml = !lecture.length
+        ? '<li class="lm-empty">아직 공유 기록이 없습니다</li>'
+        : lecture.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenLecture(${it.id || 0})`)).join('');
+
       requestAnimationFrame(() => {
         const lj = document.getElementById('lm-list-jeonsan');
         const ll = document.getElementById('lm-list-latest');
+        const lr = document.getElementById('lm-list-recruit');
+        const le = document.getElementById('lm-list-lecture');
         if (lj) lj.innerHTML = jeonsanHtml;
         if (ll) ll.innerHTML = latestHtml;
+        if (lr) lr.innerHTML = recruitHtml;
+        if (le) le.innerHTML = lectureHtml;
 
         // 마지막 업데이트 시각
         const now = new Date();
@@ -12962,6 +12982,32 @@
       };
       tryOpen(20);
     }
+
+    /* v2.1.38: 채용/강의 인기순위 클릭 → 해당 페이지 + 뷰어 자동 오픈 */
+    window.lmOpenRecruit = function(id) {
+      try { trackCardClick('실시간순위', '채용공고'); } catch (_) {}
+      if (typeof goToPage === 'function') goToPage('recruit');
+      const tryOpen = (n) => {
+        if (typeof recruitState !== 'undefined' && recruitState.items && recruitState.items.length) {
+          const idx = recruitState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openRecruitViewer === 'function') { openRecruitViewer(idx); return; }
+        }
+        if (n > 0) setTimeout(() => tryOpen(n-1), 200);
+      };
+      setTimeout(() => tryOpen(15), 250);
+    };
+    window.lmOpenLecture = function(id) {
+      try { trackCardClick('실시간순위', '강의공고'); } catch (_) {}
+      if (typeof goToPage === 'function') goToPage('lecture');
+      const tryOpen = (n) => {
+        if (typeof lectureState !== 'undefined' && lectureState.items && lectureState.items.length) {
+          const idx = lectureState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openLectureViewer === 'function') { openLectureViewer(idx); return; }
+        }
+        if (n > 0) setTimeout(() => tryOpen(n-1), 200);
+      };
+      setTimeout(() => tryOpen(15), 250);
+    };
 
     initHashRouting();
   </script>
