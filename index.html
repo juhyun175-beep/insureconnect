@@ -942,6 +942,81 @@
       50%     { opacity: 0.5; transform: scale(0.75); }
     }
 
+    /* v2.1.41: 홈 방문자 카운터 강조 띠 — 사회적 증명 + 첫인상 강화 */
+    .ic-visitor-strip {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 11px 18px;
+      margin: 0 0 14px;
+      background: linear-gradient(95deg, #1a3de8 0%, #4a70f5 55%, #5b8cff 100%);
+      color: #fff;
+      border-radius: 14px;
+      box-shadow: 0 4px 16px rgba(26,61,232,0.30), 0 1px 3px rgba(0,0,0,0.06);
+      position: relative;
+      overflow: hidden;
+      font-size: 13px;
+    }
+    .ic-visitor-strip::before {
+      content: '';
+      position: absolute;
+      top: 0; left: -120%;
+      width: 50%; height: 100%;
+      background: linear-gradient(110deg, transparent 0%, rgba(255,255,255,0.18) 50%, transparent 100%);
+      animation: vs-shine 5s ease-in-out infinite;
+      pointer-events: none;
+    }
+    @keyframes vs-shine {
+      0%, 70% { left: -120%; }
+      95%,100% { left: 150%; }
+    }
+    .vs-live {
+      display: inline-flex; align-items: center; gap: 5px;
+      font-size: 10.5px; font-weight: 800;
+      background: #ef4444; color: #fff;
+      padding: 3px 9px; border-radius: 999px;
+      letter-spacing: 0.05em;
+      flex-shrink: 0;
+      box-shadow: 0 2px 6px rgba(239,68,68,0.5);
+    }
+    .vs-live::before {
+      content: '';
+      width: 6px; height: 6px;
+      background: #fff;
+      border-radius: 50%;
+      animation: scb-live-dot 1.2s ease-in-out infinite;
+    }
+    .vs-main { flex: 1; min-width: 0; display: flex; align-items: baseline; gap: 6px; flex-wrap: wrap; }
+    .vs-main-text { font-weight: 700; }
+    .vs-num {
+      font-size: 19px; font-weight: 900;
+      letter-spacing: -0.02em;
+      color: #fff;
+      background: linear-gradient(135deg, #ffff00, #ffd000);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      padding: 0 2px;
+    }
+    .vs-stats {
+      display: flex; align-items: center; gap: 10px;
+      flex-shrink: 0;
+      font-size: 11.5px;
+      font-weight: 600;
+      opacity: 0.95;
+    }
+    .vs-stat-item { display: inline-flex; align-items: center; gap: 4px; }
+    .vs-stat-item strong { font-weight: 800; color: #ffd000; font-variant-numeric: tabular-nums; }
+    .vs-stat-divider { opacity: 0.4; }
+    @media (max-width: 768px) {
+      .ic-visitor-strip { padding: 9px 13px; font-size: 12px; gap: 10px; }
+      .vs-num { font-size: 16px; }
+      .vs-stats { font-size: 10.5px; gap: 7px; }
+    }
+    @media (max-width: 480px) {
+      .vs-stats { display: none; } /* 모바일 좁은 화면: 핵심 메시지만 */
+    }
+
     /* v2.1.37: 홈 대시보드 Hero CTA — CREW 300 참여 유도 띠 */
     .crew-hero-cta {
       display: flex;
@@ -8014,6 +8089,19 @@
       </span>
     </a>
 
+    <!-- v2.1.41: 모바일 방문자 카운터 강조 띠 -->
+    <div class="ic-visitor-strip" id="home-visitor-strip-mobile">
+      <span class="vs-live">LIVE</span>
+      <div class="vs-main">
+        <span class="vs-main-text">오늘</span>
+        <span class="vs-num" id="vs-today-m">—</span>
+        <span class="vs-main-text">명 방문 중</span>
+      </div>
+      <div class="vs-stats">
+        <span class="vs-stat-item">누적 <strong id="vs-total-m">—</strong>명</span>
+      </div>
+    </div>
+
     <!-- 모바일 빠른 검색 -->
     <section class="ic-m-section ic-m-search-section">
       <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
@@ -8162,6 +8250,23 @@
 
   <div class="content" id="page-home">
     <!-- v2.1.38: PC Hero CTA 제거 (사이드바 강조로 충분) — 모바일 홈에는 유지 -->
+
+    <!-- v2.1.41: 방문자 카운터 강조 띠 — 사회적 증명 -->
+    <div class="ic-visitor-strip" id="home-visitor-strip">
+      <span class="vs-live">LIVE</span>
+      <div class="vs-main">
+        <span class="vs-main-text">오늘</span>
+        <span class="vs-num" id="vs-today">—</span>
+        <span class="vs-main-text">명의 보험설계사가 방문 중</span>
+      </div>
+      <div class="vs-stats">
+        <span class="vs-stat-item">📊 누적 <strong id="vs-total">—</strong>명</span>
+        <span class="vs-stat-divider">·</span>
+        <span class="vs-stat-item">💼 채용 <strong id="vs-recruit-cnt">—</strong>건</span>
+        <span class="vs-stat-divider">·</span>
+        <span class="vs-stat-item">🎓 강의 <strong id="vs-lecture-cnt">—</strong>건</span>
+      </div>
+    </div>
 
     <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
@@ -12772,8 +12877,30 @@
         if (res.ok) {
           const d = await res.json();
           if (d && (d.today_visits !== undefined)) {
-            if (todayEl) todayEl.textContent = (d.today_visits ?? 0).toLocaleString();
-            if (totalEl) totalEl.textContent = (d.total_visits ?? 0).toLocaleString();
+            const todayN = (d.today_visits ?? 0).toLocaleString();
+            const totalN = (d.total_visits ?? 0).toLocaleString();
+            if (todayEl) todayEl.textContent = todayN;
+            if (totalEl) totalEl.textContent = totalN;
+            // v2.1.41: 홈 방문자 카운터 strip 채우기
+            const vsT = document.getElementById('vs-today');
+            const vsP = document.getElementById('vs-total');
+            const vsTm = document.getElementById('vs-today-m');
+            const vsPm = document.getElementById('vs-total-m');
+            if (vsT)  vsT.textContent  = todayN;
+            if (vsP)  vsP.textContent  = totalN;
+            if (vsTm) vsTm.textContent = todayN;
+            if (vsPm) vsPm.textContent = totalN;
+            // 채용/강의 건수 (실시간 인기 순위 데이터에서 차용)
+            try {
+              if (typeof _lmCache !== 'undefined' && _lmCache) {
+                const rc = (_lmCache.recruit_total || []).length;
+                const lc = (_lmCache.lecture_total || []).length;
+                const vsR = document.getElementById('vs-recruit-cnt');
+                const vsL = document.getElementById('vs-lecture-cnt');
+                if (vsR) vsR.textContent = rc.toLocaleString();
+                if (vsL) vsL.textContent = lc.toLocaleString();
+              }
+            } catch (_) {}
             return;
           }
         }
