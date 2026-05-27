@@ -61,6 +61,9 @@ export const onRequestGet = async ({ params, env, request }) => {
   let desc  = '보험설계사를 위한 통합 허브';
   let image = FALLBACK_IMG;
   let target = SITE + '/';
+  let bodyContent = '';         // v2.1.39: 검색엔진 인덱싱용 본문 텍스트
+  let jsonLd = null;            // v2.1.39: schema.org JSON-LD
+  let indexable = false;        // v2.1.39: 검색 인덱싱 허용 여부
 
   try {
     if (type === 'news') {
@@ -72,37 +75,105 @@ export const onRequestGet = async ({ params, env, request }) => {
         if (r.file_url) image = absUrl(r.file_url);
         target = `${SITE}/?news=${encodeURIComponent(id)}`;
         desc = '인슈어커넥트 뉴스 카드 보러가기';
+        indexable = true;
+        bodyContent = `<h1>${esc(title)}</h1><p>${esc(desc)}</p>`;
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: title,
+          description: desc,
+          image: image,
+          publisher: { '@type': 'Organization', name: 'InsureConnect', logo: { '@type': 'ImageObject', url: FALLBACK_IMG } },
+          mainEntityOfPage: { '@type': 'WebPage', '@id': target }
+        };
       }
     } else if (type === 'recruit') {
       const r = await env.DB.prepare(
-        `SELECT title, company_name, description, file_url, file_type FROM ic_recruitments WHERE id = ?`
+        `SELECT title, company_name, description, file_url, file_type, created_at FROM ic_recruitments WHERE id = ? AND status = 'approved'`
       ).bind(id).first();
       if (r) {
         title = r.title || title;
         desc = r.company_name ? `[${r.company_name}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
         if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
         target = `${SITE}/?recruit=${encodeURIComponent(id)}`;
+        indexable = true;
+        const fullDesc = (r.description || '').replace(/\s+/g, ' ').trim();
+        bodyContent = `<h1>${esc(r.title)}</h1>${r.company_name ? `<p><strong>${esc(r.company_name)}</strong></p>` : ''}<div style="white-space:pre-line">${esc(fullDesc)}</div>`;
+        // Google Jobs JobPosting schema
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'JobPosting',
+          title: r.title,
+          description: fullDesc || r.title,
+          datePosted: (r.created_at || new Date().toISOString()).slice(0, 10),
+          validThrough: new Date(Date.now() + 90 * 86400e3).toISOString().slice(0, 10),
+          employmentType: 'CONTRACTOR',
+          hiringOrganization: {
+            '@type': 'Organization',
+            name: r.company_name || 'InsureConnect 등록 채용',
+            sameAs: SITE
+          },
+          jobLocation: {
+            '@type': 'Place',
+            address: { '@type': 'PostalAddress', addressCountry: 'KR' }
+          },
+          directApply: false,
+          industry: '보험',
+          identifier: { '@type': 'PropertyValue', name: 'InsureConnect', value: String(r.title) },
+          image: image
+        };
       }
     } else if (type === 'lecture') {
       // v2.1.21: 강의 공고 공유 미리보기
       const r = await env.DB.prepare(
-        `SELECT title, instructor, description, file_url, file_type FROM ic_lectures WHERE id = ?`
+        `SELECT title, instructor, description, file_url, file_type, created_at FROM ic_lectures WHERE id = ? AND status = 'approved'`
       ).bind(id).first();
       if (r) {
         title = r.title || title;
         desc = r.instructor ? `[${r.instructor}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
         if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
         target = `${SITE}/?lecture=${encodeURIComponent(id)}`;
+        indexable = true;
+        const fullDesc = (r.description || '').replace(/\s+/g, ' ').trim();
+        bodyContent = `<h1>${esc(r.title)}</h1>${r.instructor ? `<p><strong>강사: ${esc(r.instructor)}</strong></p>` : ''}<div style="white-space:pre-line">${esc(fullDesc)}</div>`;
+        // Course schema for Google's Course tab
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Course',
+          name: r.title,
+          description: fullDesc || r.title,
+          provider: {
+            '@type': 'Organization',
+            name: r.instructor || 'InsureConnect',
+            sameAs: SITE
+          },
+          image: image,
+          inLanguage: 'ko-KR'
+        };
       }
     } else if (type === 'knowledge') {
       const r = await env.DB.prepare(
-        `SELECT title, content, image_url FROM ic_knowledge_posts WHERE id = ?`
+        `SELECT title, content, image_url, created_at FROM ic_knowledge_posts WHERE id = ?`
       ).bind(id).first();
       if (r) {
         title = r.title || title;
         desc = (r.content || '').replace(/\[.*?\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 120);
         if (r.image_url) image = absUrl(r.image_url);
         target = `${SITE}/knowledge/${encodeURIComponent(id)}`;
+        indexable = true;
+        const fullContent = (r.content || '').replace(/\[.*?\]/g, '').slice(0, 1500);
+        bodyContent = `<h1>${esc(r.title)}</h1><div style="white-space:pre-line">${esc(fullContent)}</div>`;
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Article',
+          headline: r.title,
+          description: desc,
+          articleBody: fullContent,
+          image: image,
+          datePublished: (r.created_at || new Date().toISOString()).slice(0, 10),
+          publisher: { '@type': 'Organization', name: 'InsureConnect', logo: { '@type': 'ImageObject', url: FALLBACK_IMG } },
+          mainEntityOfPage: { '@type': 'WebPage', '@id': target }
+        };
       }
     }
   } catch (_) {}
@@ -113,13 +184,16 @@ export const onRequestGet = async ({ params, env, request }) => {
     target = `${target}${sep}_via=share`;
   }
 
+  const robotsTag = indexable ? 'index,follow' : 'noindex,nofollow';
+
   const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
-<meta name="robots" content="noindex,nofollow">
+<meta name="robots" content="${robotsTag}">
+<link rel="canonical" href="${esc(target.split('?')[0])}">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="${esc(title)}">
@@ -130,20 +204,24 @@ export const onRequestGet = async ({ params, env, request }) => {
 <meta property="og:site_name" content="InsureConnect">
 <meta property="og:locale" content="ko_KR">
 
-<!-- v2.1.16: width/height 하드코딩 제거 — 실제 카드뉴스 첫 슬라이드 (예: 2100×3000) 와 안 맞으면
-     일부 스크래퍼(카카오/슬랙)가 OG 이미지로 거부하는 케이스 방지 -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="${esc(title)}">
 <meta name="twitter:description" content="${esc(desc)}">
 <meta name="twitter:image" content="${esc(image)}">
 <meta name="twitter:image:alt" content="${esc(title)}">
-
-<meta http-equiv="refresh" content="0;url=${esc(target)}">
-<style>body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;background:#f0f5ff;color:#3d5080;text-align:center;padding:48px 16px}a{color:#1a3de8;text-decoration:none;font-weight:700}</style>
+${jsonLd ? `\n<script type="application/ld+json">${JSON.stringify(jsonLd)}</script>` : ''}
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;background:#f0f5ff;color:#3d5080;padding:32px 20px;max-width:760px;margin:0 auto;line-height:1.6}h1{font-size:24px;color:#1a3de8;margin-bottom:12px}.r-back{display:inline-block;margin-top:24px;padding:10px 18px;background:#1a3de8;color:#fff;border-radius:8px;text-decoration:none;font-weight:700}img.r-img{max-width:100%;border-radius:12px;margin:16px 0}</style>
 </head>
 <body>
-<p>이동 중... <a href="${esc(target)}">${esc(title)}</a></p>
-<script>location.replace(${JSON.stringify(target)});</script>
+${bodyContent ? `<article>${bodyContent}${image && image !== FALLBACK_IMG ? `<img class="r-img" src="${esc(image)}" alt="${esc(title)}">` : ''}<a class="r-back" href="${esc(target)}">📖 InsureConnect에서 자세히 보기 →</a></article>` : `<p>이동 중... <a href="${esc(target)}">${esc(title)}</a></p>`}
+<script>
+// v2.1.39: 봇이 아닌 일반 방문자만 자동 redirect (검색엔진 크롤러는 본문 인덱싱)
+(function(){
+  var ua = (navigator.userAgent || '').toLowerCase();
+  var isBot = /bot|crawler|spider|scrap|yeti|google|bing|baidu|yandex|naver|kakao|preview|facebookexternalhit|twitterbot|slack|discord|line|whatsapp/i.test(ua);
+  if (!isBot) setTimeout(function(){ location.replace(${JSON.stringify(target)}); }, 50);
+})();
+</script>
 </body>
 </html>`;
 

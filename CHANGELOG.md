@@ -1,5 +1,37 @@
 # Changelog
 
+## [2.1.39] - 2026-05-26
+### Added (SEO 풀스택 — Google Jobs / 네이버 검색 노출)
+- **`/sitemap.xml` 대폭 확장**
+  - 기존: 보험지식 게시글만
+  - 신규: **채용공고 + 강의공고 + 카드뉴스 + 보험지식 + 정적 페이지** 통합
+  - 채용/강의는 `status='approved'` 만, 우선순위 0.9 (높음)
+  - D1 직접 조회 — Cloudflare edge 캐시 30분 / s-maxage 1시간
+- **`/og/{type}/{id}` 페이지 검색 인덱싱 가능화**
+  - 이전: `<meta name="robots" content="noindex,nofollow">` 로 검색 차단
+  - 이후: **`index,follow`** + `<link rel="canonical">` + 본문 텍스트 노출 + JSON-LD 스키마
+- **schema.org JSON-LD 스키마 적용**
+  - `recruit` → **`JobPosting`** (Google Jobs / 네이버 채용 검색 직접 노출)
+    - `title / description / datePosted / hiringOrganization / employmentType: CONTRACTOR / industry: 보험`
+    - validThrough: 등록 후 90일
+  - `lecture` → **`Course`** (Google 검색 강의 카테고리)
+    - `name / description / provider(강사) / inLanguage: ko-KR`
+  - `knowledge` → **`Article`** (`articleBody` + `datePublished`)
+  - `news` → **`Article`** (헤드라인 + 이미지)
+- **사용자 redirect는 유지 (UX 보존)**
+  - 일반 사용자: 50ms 후 `location.replace(target)` 으로 메인 앱 진입
+  - 봇 (Google/Bing/Naver Yeti/Kakao 등): UA 감지 후 redirect 차단 → 본문 + JSON-LD 인덱싱
+
+### Why this matters
+- **무료 유입 채널 개설**: Google Jobs / 네이버 검색 / Daum 검색에 자동 노출
+- 채용공고 검색 노출 → 보험설계사 잠재 신규 사용자 유입 ↑
+- 강의공고 검색 노출 → 학습 관심 사용자 유입 ↑
+- 1주일 내 첫 인덱싱 시작 (제출 후 robots.txt 의 sitemap 라인을 Google/네이버 webmaster 도구에 알려야 함)
+
+### TODO (사용자가 직접 수행)
+- [ ] Google Search Console (https://search.google.com/search-console) 사이트 등록 + sitemap 제출
+- [ ] 네이버 서치어드바이저 (https://searchadvisor.naver.com) 사이트 등록 + sitemap 제출
+
 ## [2.1.38] - 2026-05-26
 ### Changed
 - **PC 홈 Hero CTA 제거** — 사이드바 CREW 300 강조만으로 충분 (모바일 홈 Hero는 유지)
