@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.1.44] - 2026-05-27
+### Fixed (실시간 인기 콘텐츠 카드 레이아웃 — 잘림·찌그러짐 해결)
+- **5가지 미관 문제 동시 해결**
+  1. **breakpoint 1280px → 1440px** — 일반 노트북(1366·1440)에서 4컬럼 → 2×2 변경 (컬럼당 폭 2배 확보)
+  2. **`.lm-name` 1줄 nowrap → 2줄 wrap** (`-webkit-line-clamp: 2`) + `word-break: keep-all` (한글 단어 단위) + `overflow-wrap: anywhere` (URL/긴 단어 강제 분리)
+  3. **`.lm-clicks` 알약 통일** — `min-width: 42px`, padding/radius 고정 → 「31회」「1회」「NEW」 모두 같은 폼팩터로 정렬 안정
+  4. **NEW 배지 inline style 제거** → `.lm-new` 클래스로 분리 (그라데이션·그림자 클래스 기반)
+  5. **`.lm-item` grid 레이아웃** (`20px 1fr auto`) + `min-height: 38px` — 행 일관성
+- **`.lm-empty` flex 정렬** — `min-height: 100px` + 중앙 정렬 → 컬럼 간 키 안 맞춰지는 문제 해결
+
+### Why this matters
+- 4컬럼이 ultra-wide 모니터에서만 의미가 있고 일반 노트북에선 가독성 ↓
+- 텍스트 잘림은 핵심 정보(어떤 비교표/공고인지) 가림 → 클릭률 저하
+- 알약 폭 일관화 → 시각적 안정감 ↑ (정렬 흔들림 없음)
+
 ## [2.1.43] - 2026-05-27
 ### Added (PWA Push 알림 — 재방문 유도 채널 신설)
 - **Service Worker `sw.js` 푸시 알림 전용으로 재작성**

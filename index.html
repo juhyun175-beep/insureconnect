@@ -6052,9 +6052,10 @@
       gap: 14px;
     }
     .lm-grid.lm-grid-2col { grid-template-columns: repeat(2, 1fr); }
-    /* v2.1.38: 4컬럼 — 전산/최신/채용/강의 */
+    /* v2.1.38: 4컬럼 — 전산/최신/채용/강의
+       v2.1.44: breakpoint 1280→1440 (일반 노트북은 2×2 가 더 깔끔, 23인치+ 만 4열) */
     .lm-grid.lm-grid-4col { grid-template-columns: repeat(4, 1fr); gap: 12px; }
-    @media (max-width: 1280px) { .lm-grid.lm-grid-4col { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 1440px) { .lm-grid.lm-grid-4col { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 700px) {
       .lm-grid, .lm-grid.lm-grid-2col, .lm-grid.lm-grid-4col { grid-template-columns: 1fr; }
     }
@@ -6087,24 +6088,27 @@
       gap: 5px;
       min-height: 100px;
     }
+    /* v2.1.44: 레이아웃 재설계 — grid 정렬 + 일관된 높이 + 2줄 wrap */
     .lm-item {
-      display: flex;
+      display: grid;
+      grid-template-columns: 20px 1fr auto;
       align-items: center;
-      gap: 8px;
-      padding: 6px 8px;
-      border-radius: 7px;
+      gap: 9px;
+      padding: 7px 9px;
+      border-radius: 8px;
       cursor: pointer;
       transition: background 0.15s;
+      min-height: 38px;     /* 1줄 기본 */
     }
     .lm-item:hover { background: rgba(26,61,232,0.06); }
     [data-theme="dark"] .lm-item:hover { background: rgba(74,112,245,0.10); }
     .lm-rank {
-      width: 18px; height: 18px;
+      width: 20px; height: 20px;
       flex-shrink: 0;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 10px;
+      font-size: 10.5px;
       font-weight: 800;
       border-radius: 5px;
       color: var(--txt-lo);
@@ -6124,27 +6128,52 @@
       background: linear-gradient(135deg, #fb923c, #c2410c);
       color: #fff;
     }
+    /* v2.1.44: 한글 단어 단위 줄바꿈, 최대 2줄 wrap, 잘릴 땐 끝 ellipsis */
     .lm-name {
-      flex: 1;
+      min-width: 0;        /* grid 1fr 가 overflow 되지 않도록 */
       font-size: 12.5px;
       font-weight: 600;
       color: var(--txt-hi);
-      white-space: nowrap;
+      line-height: 1.35;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
       overflow: hidden;
-      text-overflow: ellipsis;
+      word-break: keep-all;          /* 한글 단어 단위로만 줄바꿈 */
+      overflow-wrap: anywhere;       /* 단어가 너무 길면 강제 분리 (예: URL) */
     }
+    /* v2.1.44: 일관된 알약 — 폭 변동 최소화 */
     .lm-clicks {
-      font-size: 11px;
-      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 42px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: rgba(26,61,232,0.10);
       color: var(--blue-mid);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
       flex-shrink: 0;
       font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    [data-theme="dark"] .lm-clicks {
+      background: rgba(74,112,245,0.20);
+      color: #a5b4fc;
     }
     .lm-clicks-unit {
-      font-size: 9.5px;
-      color: var(--txt-lo);
+      font-size: 9px;
+      opacity: 0.7;
       margin-left: 1px;
-      font-weight: 500;
+      font-weight: 600;
+    }
+    /* v2.1.44: NEW 배지 — 같은 폼팩터 유지 */
+    .lm-clicks.lm-new {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      box-shadow: 0 1px 4px rgba(34,197,94,0.40);
     }
     /* 보조 메트릭 (복사 카운트) */
     .lm-secondary {
@@ -6174,6 +6203,11 @@
       color: var(--txt-lo);
       padding: 16px 4px;
       text-align: center;
+      /* v2.1.44: 행 5개 평균과 비슷한 높이로 맞춰 컬럼 간 정렬 안정 */
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     .lm-skel {
       height: 28px;
@@ -13159,7 +13193,7 @@
         const safeName = esc(it.name);
         const isNew = it.isNew || it.clicks === 0;
         const clicksHtml = isNew
-          ? `<span class="lm-clicks" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;">NEW</span>`
+          ? `<span class="lm-clicks lm-new">NEW</span>`
           : `<span class="lm-clicks">${(it.clicks||0).toLocaleString()}<span class="lm-clicks-unit">pt</span></span>`;
         return `<li class="lm-item lm-rank-${rank}" onclick="${openFn}(${it.id || 0})">
           <span class="lm-rank">${rank}</span>
