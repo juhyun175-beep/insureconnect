@@ -152,6 +152,9 @@ const CACHE_HEADERS = {
   'Access-Control-Allow-Origin': '*',
 };
 
+/** Kakao/Slack 등 스크래퍼의 og:image preflight HEAD 통과용 */
+export const onRequestHead = async () => new Response(null, { headers: CACHE_HEADERS });
+
 export const onRequestGet = async ({ params, env }) => {
   const { type, id } = params;
   if (!PRESETS[type]) {
