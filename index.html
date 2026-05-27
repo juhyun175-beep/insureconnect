@@ -12,14 +12,17 @@
   <meta name="theme-color" content="#1a3de8">
   <link rel="apple-touch-icon" href="/logo.png">
   <script>
-    /* 옛 Service Worker 강제 제거 — sw.js 404 + 등록 해제 + 모든 캐시 삭제 */
+    /* v2.1.43: Service Worker 정책 변경
+       - 옛 캐시 모두 청소 (PWA 잔재 제거)
+       - sw.js 등록 (캐시·fetch hijack 없음, push 알림 전용)
+       - register 실패해도 페이지는 정상 동작 */
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.getRegistrations().then(regs => {
-        regs.forEach(r => r.unregister().catch(() => {}));
-      }).catch(() => {});
       if (window.caches && caches.keys) {
         caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
       }
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
+      });
     }
   </script>
   <title>InsureConnect — 보험으로 연결하다</title>
@@ -7640,6 +7643,11 @@
       <button class="side-footer-link" onclick="shareApp()" type="button">
         📤 동료에게 공유하기
       </button>
+      <!-- v2.1.43: 푸시 알림 구독 토글 -->
+      <button class="side-footer-link" id="push-toggle-btn" type="button"
+              style="display:none" onclick="togglePushSubscription()">
+        🔔 새 공고 알림 받기
+      </button>
       <a class="side-footer-link"
          href="admin.html"
          onclick="trackClick('파트너 전용페이지','sidebar-footer')"
@@ -9073,6 +9081,104 @@
           prompt('아래 링크를 복사하세요:', url);
         });
       }
+    }
+
+    /* ══════════════ v2.1.43: PWA Push 알림 구독 ══════════════ */
+    let _vapidPublicKey = null;
+    function urlB64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const b64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+      const raw = atob(b64);
+      const out = new Uint8Array(raw.length);
+      for (let i = 0; i < raw.length; i++) out[i] = raw.charCodeAt(i);
+      return out;
+    }
+    async function _initPushToggle() {
+      const btn = document.getElementById('push-toggle-btn');
+      if (!btn) return;
+      // 지원 여부 체크
+      if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
+
+      try {
+        const r = await fetch('/api/push/public-key');
+        if (!r.ok) return;
+        const d = await r.json();
+        if (!d.publicKey) return; // VAPID 미설정 — 버튼 숨김 유지
+        _vapidPublicKey = d.publicKey;
+      } catch (_) { return; }
+
+      btn.style.display = '';
+      await _refreshPushBtn();
+    }
+    async function _getCurrentSubscription() {
+      try {
+        const reg = await navigator.serviceWorker.ready;
+        return await reg.pushManager.getSubscription();
+      } catch (_) { return null; }
+    }
+    async function _refreshPushBtn() {
+      const btn = document.getElementById('push-toggle-btn');
+      if (!btn) return;
+      const sub = await _getCurrentSubscription();
+      const denied = Notification.permission === 'denied';
+      if (denied) {
+        btn.textContent = '🔕 알림 차단됨 (브라우저 설정)';
+        btn.disabled = true;
+        return;
+      }
+      btn.disabled = false;
+      btn.textContent = sub ? '🔔 알림 구독중 (해제)' : '🔔 새 공고 알림 받기';
+    }
+    async function togglePushSubscription() {
+      const btn = document.getElementById('push-toggle-btn');
+      if (!btn || !_vapidPublicKey) return;
+      btn.disabled = true;
+
+      try {
+        const existing = await _getCurrentSubscription();
+        if (existing) {
+          // 해제
+          await fetch('/api/push/unsubscribe', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: existing.endpoint }),
+          }).catch(() => {});
+          try { await existing.unsubscribe(); } catch (_) {}
+          try { trackClick('push_unsubscribe', 'push'); } catch (_) {}
+        } else {
+          // 권한 요청 + 구독
+          const perm = await Notification.requestPermission();
+          if (perm !== 'granted') {
+            await _refreshPushBtn();
+            return;
+          }
+          const reg = await navigator.serviceWorker.ready;
+          const sub = await reg.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: urlB64ToUint8Array(_vapidPublicKey),
+          });
+          const payload = sub.toJSON();
+          await fetch('/api/push/subscribe', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              endpoint: payload.endpoint,
+              keys: payload.keys,
+              userAgent: navigator.userAgent,
+            }),
+          });
+          try { trackClick('push_subscribe', 'push'); } catch (_) {}
+        }
+      } catch (e) {
+        // 에러 — 사용자에 무리한 alert 금지
+      } finally {
+        await _refreshPushBtn();
+      }
+    }
+    window.togglePushSubscription = togglePushSubscription;
+    // sw.js 등록 + 버튼 초기화
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        setTimeout(() => _initPushToggle().catch(() => {}), 1500);
+      });
     }
 
     function setTheme(val) {

@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.1.43] - 2026-05-27
+### Added (PWA Push 알림 — 재방문 유도 채널 신설)
+- **Service Worker `sw.js` 푸시 알림 전용으로 재작성**
+  - 캐시 / fetch hijack 없음 (옛 PWA 사고 재발 방지)
+  - `push` 이벤트 → `showNotification` (제목·본문·아이콘·이미지·URL·tag 지원)
+  - `notificationclick` → 기존 InsureConnect 탭 포커스 + URL 이동, 없으면 새 창
+- **DB**: `ic_push_subscriptions` 신설 (endpoint UNIQUE + keys + active flag)
+- **API 4종**
+  - `GET  /api/push/public-key` — VAPID 공개 키 (env 기반, 미설정 시 null → 프론트 자동 숨김)
+  - `POST /api/push/subscribe` — endpoint upsert + 활성화
+  - `POST /api/push/unsubscribe` — active=0 비활성화
+  - `POST /api/push/send` (admin only) — 모든 활성 구독자에게 broadcast
+- **Web Push 발송 헬퍼 `_lib/webpush.js`**
+  - 외부 npm 의존성 0 — Web Crypto API 만 사용
+  - VAPID JWT (ES256) 서명 + aes128gcm 메시지 암호화 (RFC 8291)
+  - 404/410 응답 자동 감지 → 만료 구독 자동 비활성화
+- **프론트**: 사이드바 푸터에 「🔔 새 공고 알림 받기」 토글 버튼
+  - 권한 요청 → 구독 → 서버 등록 자동 흐름
+  - 이미 구독중이면 「해제」 토글
+  - 차단 상태면 「🔕 알림 차단됨」 비활성 표시
+  - 미지원 브라우저 / VAPID 미설정 시 버튼 자동 숨김
+
+### TODO (Phase 2 — 사용자 1회 설정 필요)
+- [ ] **VAPID 키 발급 + Cloudflare 시크릿 등록** (5분 소요)
+  ```
+  npx web-push generate-vapid-keys
+  npx wrangler pages secret put VAPID_PUBLIC_KEY  --project-name=insureconnect-hub
+  npx wrangler pages secret put VAPID_PRIVATE_KEY --project-name=insureconnect-hub
+  npx wrangler pages secret put VAPID_SUBJECT     --project-name=insureconnect-hub
+  # subject 예: mailto:juhyun175@gmail.com
+  ```
+- [ ] 등록 후 사이드바 「🔔 알림 받기」 버튼 자동 노출
+- [ ] 향후 admin.html 에 「새 공고 푸시 발송」 UI 추가 가능 (백엔드는 이미 완성)
+
+### Why this matters
+- 재방문 유도 채널 — 신규 공고·강의 등록 시 푸시 → retention ↑
+- 외부 서비스 의존도 0 — Cloudflare D1 + Workers 만으로 완결
+- 알림 차단 / 미지원 환경 graceful degradation
+
 ## [2.1.42] - 2026-05-26
 ### Added (동적 OG 이미지 — 카톡 미리보기 클릭률 향상)
 - **`/og-image/{type}/{id}` 엔드포인트 신설** — SVG 1200×630 디자인 카드 동적 생성
