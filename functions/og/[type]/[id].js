@@ -12,6 +12,13 @@
 const SITE = 'https://insureconnect-hub.pages.dev';
 const FALLBACK_IMG = `${SITE}/logo-full.png`;
 
+/** v2.1.42: 동적 OG 이미지 — 업로드 이미지 없을 때 사용
+ *  wsrv.nl 프록시로 SVG→PNG 변환 (카카오톡은 SVG 미리보기 미지원이라 PNG 필요) */
+const dynamicOgImage = (type, id) => {
+  const svgUrl = `${SITE}/og-image/${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(svgUrl)}&output=png&w=1200&h=630&fit=cover`;
+};
+
 /** 상대 경로 → 절대 URL (카카오톡 봇은 절대 URL 필요) */
 const absUrl = (u) => {
   if (!u) return FALLBACK_IMG;
@@ -72,7 +79,8 @@ export const onRequestGet = async ({ params, env, request }) => {
       ).bind(id).first();
       if (r) {
         title = r.title || title;
-        if (r.file_url) image = absUrl(r.file_url);
+        // v2.1.42: 업로드 이미지 우선, 없으면 동적 OG 이미지
+        image = r.file_url ? absUrl(r.file_url) : dynamicOgImage('news', id);
         target = `${SITE}/?news=${encodeURIComponent(id)}`;
         desc = '인슈어커넥트 뉴스 카드 보러가기';
         indexable = true;
@@ -94,7 +102,8 @@ export const onRequestGet = async ({ params, env, request }) => {
       if (r) {
         title = r.title || title;
         desc = r.company_name ? `[${r.company_name}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
-        if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
+        // v2.1.42: 업로드 이미지 우선, 없으면 동적 OG 이미지
+        image = (r.file_type === 'image' && r.file_url) ? absUrl(r.file_url) : dynamicOgImage('recruit', id);
         target = `${SITE}/?recruit=${encodeURIComponent(id)}`;
         indexable = true;
         const fullDesc = (r.description || '').replace(/\s+/g, ' ').trim();
@@ -131,7 +140,8 @@ export const onRequestGet = async ({ params, env, request }) => {
       if (r) {
         title = r.title || title;
         desc = r.instructor ? `[${r.instructor}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
-        if (r.file_type === 'image' && r.file_url) image = absUrl(r.file_url);
+        // v2.1.42: 업로드 이미지 우선, 없으면 동적 OG 이미지
+        image = (r.file_type === 'image' && r.file_url) ? absUrl(r.file_url) : dynamicOgImage('lecture', id);
         target = `${SITE}/?lecture=${encodeURIComponent(id)}`;
         indexable = true;
         const fullDesc = (r.description || '').replace(/\s+/g, ' ').trim();
@@ -158,7 +168,8 @@ export const onRequestGet = async ({ params, env, request }) => {
       if (r) {
         title = r.title || title;
         desc = (r.content || '').replace(/\[.*?\]/g, '').replace(/\s+/g, ' ').trim().slice(0, 120);
-        if (r.image_url) image = absUrl(r.image_url);
+        // v2.1.42: 업로드 이미지 우선, 없으면 동적 OG 이미지
+        image = r.image_url ? absUrl(r.image_url) : dynamicOgImage('knowledge', id);
         target = `${SITE}/knowledge/${encodeURIComponent(id)}`;
         indexable = true;
         const fullContent = (r.content || '').replace(/\[.*?\]/g, '').slice(0, 1500);
