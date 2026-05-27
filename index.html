@@ -9776,6 +9776,8 @@
     function openLectureViewer(idx) {
       const it = lectureState.items[idx];
       if (!it) return;
+      // v2.1.40: 강의 뷰어 열림 → view 카운트 (인기순위 데이터 시드)
+      try { if (it.id) trackClick(`lecture_${it.id}`, 'lecture_view'); } catch (_) {}
       // 채용공고 뷰어를 재사용 (구조 동일)
       const modal = document.getElementById('rc-viewer');
       if (!modal) { alert(it.title + '\n' + (it.description || '')); return; }
@@ -9932,6 +9934,8 @@
     function openRecruitViewer(idx) {
       const it = recruitState.items[idx];
       if (!it) return;
+      // v2.1.40: 채용공고 뷰어 열림 → view 카운트 (인기순위 데이터 시드)
+      try { if (it.id) trackClick(`recruit_${it.id}`, 'recruit_view'); } catch (_) {}
       const modal = document.getElementById('rc-viewer');
       const d = new Date(it.created_at);
       const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
@@ -12914,15 +12918,28 @@
         ? '<li class="lm-empty">아직 조회 기록이 없습니다</li>'
         : latest.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenLatest('${String(n).replace(/'/g,"\\\\'")}')`)).join('');
 
-      // v2.1.38: 인기 채용공고 / 강의공고
+      // v2.1.38/40: 인기 채용공고 / 강의공고 (clicks=0 도 표시, "NEW" 배지)
       const recruit = _lmCache[`recruit_${suffix}`] || [];
       const lecture = _lmCache[`lecture_${suffix}`] || [];
+      const renderJobItem = (it, i, openFn) => {
+        const rank = i + 1;
+        const safeName = esc(it.name);
+        const isNew = it.isNew || it.clicks === 0;
+        const clicksHtml = isNew
+          ? `<span class="lm-clicks" style="background:linear-gradient(135deg,#22c55e,#16a34a);color:#fff;">NEW</span>`
+          : `<span class="lm-clicks">${(it.clicks||0).toLocaleString()}<span class="lm-clicks-unit">pt</span></span>`;
+        return `<li class="lm-item lm-rank-${rank}" onclick="${openFn}(${it.id || 0})">
+          <span class="lm-rank">${rank}</span>
+          <span class="lm-name" title="${safeName}">${safeName}</span>
+          ${clicksHtml}
+        </li>`;
+      };
       const recruitHtml = !recruit.length
-        ? '<li class="lm-empty">아직 공유 기록이 없습니다</li>'
-        : recruit.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenRecruit(${it.id || 0})`)).join('');
+        ? '<li class="lm-empty">등록된 채용공고가 없습니다</li>'
+        : recruit.slice(0,5).map((it,i) => renderJobItem(it, i, 'lmOpenRecruit')).join('');
       const lectureHtml = !lecture.length
-        ? '<li class="lm-empty">아직 공유 기록이 없습니다</li>'
-        : lecture.slice(0,5).map((it,i) => renderItem(it, i, it.clicks, (n) => `lmOpenLecture(${it.id || 0})`)).join('');
+        ? '<li class="lm-empty">등록된 강의공고가 없습니다</li>'
+        : lecture.slice(0,5).map((it,i) => renderJobItem(it, i, 'lmOpenLecture')).join('');
 
       requestAnimationFrame(() => {
         const lj = document.getElementById('lm-list-jeonsan');

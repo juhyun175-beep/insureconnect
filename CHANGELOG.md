@@ -1,5 +1,21 @@
 # Changelog
 
+## [2.1.40] - 2026-05-26
+### Fixed (실시간 인기 채용/강의 컬럼 반응 없음 — v2.1.38 후속)
+- **원인**: `ic_link_clicks_daily` 의 `*_copy`/`*_shared` 만 시그널로 사용 → 공유 빈도 낮아 거의 0 데이터
+- **3종 해결**
+  1. **view 시그널 추가** — `openRecruitViewer`/`openLectureViewer` 호출 시 `trackClick(`recruit_${id}`, 'recruit_view')` 발생
+  2. **가중 합산** — view(×1) + copy(×3) + shared(×5) — 공유 우대하되 단순 조회도 반영
+  3. **Fallback 최신순** — 엔게이지 데이터 0 이면 최신 승인 5개 표시 + 「NEW」 녹색 배지로 차별화
+- **UI 개선**
+  - 클릭 수 단위: `회` → `pt` (가중 점수 의미)
+  - 신규 항목: 녹색 그라데이션 「NEW」 배지
+  - 빈 상태 텍스트: 「아직 공유 기록이 없습니다」 → 「등록된 채용공고가 없습니다」
+
+### Why this matters
+- v2.1.38 도입 직후 데이터 부족으로 빈 컬럼만 노출되던 문제 해결
+- 사용자 첫 view 도 시그널로 활용 → 인기 순위가 실제로 움직임
+
 ## [2.1.39] - 2026-05-26
 ### Added (SEO 풀스택 — Google Jobs / 네이버 검색 노출)
 - **`/sitemap.xml` 대폭 확장**

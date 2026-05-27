@@ -47,18 +47,30 @@ export const onRequestGet = async ({ env }) => handle(async () => {
   const jeonsanTypes = ['life','nonlife','payment','ga'];
   const latestTypes  = ['knowledge','cardnews'];
 
-  /** v2.1.38: 채용/강의 인기순위 — share/copy 이벤트(`*_copy`, `*_shared`) 를 engagement signal 로 사용
-   *  company_name 패턴 `recruit_<id>` / `lecture_<id>` 로 저장되어 있어 ID 추출 후 title 조인 */
+  /** v2.1.38/40: 채용/강의 인기순위 — engagement signal:
+   *  - `*_view`   : 뷰어 열림 (가중치 1)
+   *  - `*_copy`   : 공유 링크 복사 (가중치 3)
+   *  - `*_shared` : 외부 공유 유입 (가중치 5)
+   *  - 데이터 없으면 최신 등록 5개 fallback (빈 컬럼 방지) */
   const topRecruitOrLecture = async (mode, whereDate) => {
     const table = mode === 'recruit' ? 'ic_recruitments' : 'ic_lectures';
     const prefix = mode === 'recruit' ? 'recruit_' : 'lecture_';
-    const types = [`${prefix.slice(0,-1)}_copy`, `${prefix.slice(0,-1)}_shared`];
+    const baseType = prefix.slice(0, -1);   // 'recruit' or 'lecture'
+    const types = [`${baseType}_view`, `${baseType}_copy`, `${baseType}_shared`];
     const placeholders = types.map(() => '?').join(',');
     const dateClause = whereDate ? `AND d.date = ?` : '';
     const binds = whereDate ? [...types, today] : [...types];
+
+    let rows = [];
     try {
+      // 가중 합산: view(×1) + copy(×3) + shared(×5)
       const rs = await env.DB.prepare(
-        `SELECT t.id AS id, t.title AS name, SUM(d.clicks) AS clicks
+        `SELECT t.id AS id, t.title AS name,
+                SUM(CASE
+                      WHEN d.company_type = '${baseType}_shared' THEN d.clicks * 5
+                      WHEN d.company_type = '${baseType}_copy'   THEN d.clicks * 3
+                      ELSE d.clicks
+                    END) AS clicks
          FROM ic_link_clicks_daily d
          JOIN ${table} t
            ON d.company_name = ('${prefix}' || t.id)
@@ -69,10 +81,20 @@ export const onRequestGet = async ({ env }) => handle(async () => {
          ORDER BY clicks DESC
          LIMIT 5`
       ).bind(...binds).all();
-      return (rs.results || []).map(r => ({
-        id: r.id, name: r.name, clicks: r.clicks
-      }));
-    } catch (_) { return []; }
+      rows = (rs.results || []).map(r => ({ id: r.id, name: r.name, clicks: r.clicks }));
+    } catch (_) {}
+
+    // Fallback: 데이터 없으면 최신 등록 5개 (clicks=0 으로 표시)
+    if (rows.length === 0) {
+      try {
+        const fb = await env.DB.prepare(
+          `SELECT id, title AS name FROM ${table}
+           WHERE status = 'approved' ORDER BY created_at DESC LIMIT 5`
+        ).all();
+        rows = (fb.results || []).map(r => ({ id: r.id, name: r.name, clicks: 0, isNew: true }));
+      } catch (_) {}
+    }
+    return rows;
   };
 
   const [
