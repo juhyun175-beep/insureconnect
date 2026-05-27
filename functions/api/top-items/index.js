@@ -47,11 +47,10 @@ export const onRequestGet = async ({ env }) => handle(async () => {
   const jeonsanTypes = ['life','nonlife','payment','ga'];
   const latestTypes  = ['knowledge','cardnews'];
 
-  /** v2.1.38/40: 채용/강의 인기순위 — engagement signal:
-   *  - `*_view`   : 뷰어 열림 (가중치 1)
-   *  - `*_copy`   : 공유 링크 복사 (가중치 3)
-   *  - `*_shared` : 외부 공유 유입 (가중치 5)
-   *  - 데이터 없으면 최신 등록 5개 fallback (빈 컬럼 방지) */
+  /** v2.1.38/40/45: 채용/강의 인기순위 — engagement signal:
+   *  - `*_view` + `*_copy` + `*_shared` 모두 단순 합산 (1회당 1)
+   *  - v2.1.45: 가중치 제거 → "회" 단위로 정확하게 표시 가능
+   *  - 데이터 없으면 최신 등록 5개 fallback */
   const topRecruitOrLecture = async (mode, whereDate) => {
     const table = mode === 'recruit' ? 'ic_recruitments' : 'ic_lectures';
     const prefix = mode === 'recruit' ? 'recruit_' : 'lecture_';
@@ -63,14 +62,8 @@ export const onRequestGet = async ({ env }) => handle(async () => {
 
     let rows = [];
     try {
-      // 가중 합산: view(×1) + copy(×3) + shared(×5)
       const rs = await env.DB.prepare(
-        `SELECT t.id AS id, t.title AS name,
-                SUM(CASE
-                      WHEN d.company_type = '${baseType}_shared' THEN d.clicks * 5
-                      WHEN d.company_type = '${baseType}_copy'   THEN d.clicks * 3
-                      ELSE d.clicks
-                    END) AS clicks
+        `SELECT t.id AS id, t.title AS name, SUM(d.clicks) AS clicks
          FROM ic_link_clicks_daily d
          JOIN ${table} t
            ON d.company_name = ('${prefix}' || t.id)

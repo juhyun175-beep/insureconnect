@@ -9236,8 +9236,22 @@
     })();
 
     /* ── 외부 링크 클릭 기록 (회사명·타입별 카운터) ── */
+    /* v2.1.45: 봇 UA 차단 + 세션 내 동일 (name+type) 중복 차단
+       - view 류 이벤트가 사용자 1명당 수백 회 카운트되던 문제 해결
+       - copy/shared 등 의도적 액션은 세션 내 여러 번 가능하도록 화이트리스트 */
+    const _BOT_UA_RE = /bot|crawler|spider|scrap|preview|facebookexternalhit|twitterbot|slackbot|telegrambot|whatsapp|line\/|kakaotalk-scrap|kakao-link|naverbot|yeti|googlebot|bingbot|duckduck|baidu|yandex|applebot|embedly|outbrain|pinterest|discordbot|skypeuripreview|chatgpt|gptbot|claudebot|perplexitybot/i;
+    const _DEDUPE_TYPES = new Set(['recruit_view','lecture_view','knowledge','cardnews']);
+    const _trackedKeys = new Set();
     async function trackClick(name, type) {
       try {
+        // 봇 차단
+        if (_BOT_UA_RE.test(navigator.userAgent || '')) return;
+        // dedupe — 세션 내 동일 (name+type) 1회만 (의도적 액션은 제외)
+        if (_DEDUPE_TYPES.has(type)) {
+          const k = `${type}:${name}`;
+          if (_trackedKeys.has(k)) return;
+          _trackedKeys.add(k);
+        }
         await fetch('/api/track/link-click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -13192,9 +13206,10 @@
         const rank = i + 1;
         const safeName = esc(it.name);
         const isNew = it.isNew || it.clicks === 0;
+        // v2.1.45: 가중치 제거 + "회" 표기 (실제 클릭/뷰 수)
         const clicksHtml = isNew
           ? `<span class="lm-clicks lm-new">NEW</span>`
-          : `<span class="lm-clicks">${(it.clicks||0).toLocaleString()}<span class="lm-clicks-unit">pt</span></span>`;
+          : `<span class="lm-clicks">${(it.clicks||0).toLocaleString()}<span class="lm-clicks-unit">회</span></span>`;
         return `<li class="lm-item lm-rank-${rank}" onclick="${openFn}(${it.id || 0})">
           <span class="lm-rank">${rank}</span>
           <span class="lm-name" title="${safeName}">${safeName}</span>
