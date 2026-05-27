@@ -1,5 +1,34 @@
 # Changelog
 
+## [2.1.46] - 2026-05-27
+### Reset (인기 채용/강의 카운트 완전 초기화)
+- `ic_link_clicks_daily` 의 `recruit_view / recruit_copy / recruit_shared / lecture_view / lecture_copy / lecture_shared` 행 4개 모두 삭제
+- **이 배포 시점부터 fresh 카운팅 시작** — 사용자가 클릭/공유한 만큼만 누적
+
+### Fixed (실시간 카운팅 전수 점검 — 봇·중복 트래픽 차단 일관화)
+- **공통 봇 차단 모듈** `functions/_lib/bot.js` 신설 (`isBot(request)`)
+  - 차단 패턴: bot/crawler/spider/scrap/preview/facebookexternalhit/twitterbot/slackbot/telegrambot/whatsapp/line/kakaotalk-scrap/kakao-link/naverbot/yeti/googlebot/bingbot/duckduck/baidu/yandex/applebot/embedly/pinterest/discordbot/skypeuripreview/chatgpt/gptbot/claudebot/perplexitybot/headless/phantom/selenium/playwright/puppeteer/cypress 등 30+ 패턴
+  - UA 없는 요청도 봇으로 간주
+- **서버측 봇 차단 적용 4개 엔드포인트**
+  - `/api/track/visit` — 봇 visits 카운트 차단
+  - `/api/track/link-click` — 봇 link click 카운트 차단
+  - `/api/track/card-click` — 봇 card click 카운트 차단
+  - `/api/track/session` — 봇 세션 통계 차단
+- **클라이언트측 보강**
+  - `trackVisit()` — `_BOT_UA_RE` 클라이언트 검사 추가
+  - `trackCardClick()` — 봇 차단 추가 (기존 미적용)
+  - `trackClick()` — v2.1.45 의 봇 차단 + 세션 dedupe 유지
+
+### 점검 결과
+- **랜딩페이지 트래킹 호출 4종** 모두 봇 차단 ✅
+- **관리자페이지** — 트래킹 호출 없음 (표시 전용) ✅
+- **OG 핸들러** — 이미 봇 차단 적용됨 (v2.0.9) ✅
+
+### Why this matters
+- 봇 트래픽으로 인한 통계 오염 해소 — 「누가 봐도 비현실적인 343회」 같은 사고 방지
+- 트래킹 시스템 봇 차단 정책 통일 — 한 곳만 누락되면 의미 없음
+- 카운트 reset + 봇 차단 인프라 함께 배포 → 처음부터 깨끗한 데이터
+
 ## [2.1.45] - 2026-05-27
 ### Fixed (실시간 인기 채용공고 카운트 오류 — 343회 미스터리 해결)
 - **원인 진단 (D1 직접 조회 결과)**:

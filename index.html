@@ -9081,6 +9081,8 @@
     }
 
     async function trackVisit() {
+      // v2.1.46: 클라이언트측 봇 차단 (서버에서도 한 번 더 차단됨)
+      if (_BOT_UA_RE.test(navigator.userAgent || '')) return;
       const today = kstDateKey();
       if (localStorage.getItem('ic_visited_date') === today) return;
       localStorage.setItem('ic_visited_date', today);
@@ -9259,9 +9261,11 @@
         });
       } catch (_) {}
     }
-    /* ── 카드 클릭 기록 (메뉴+카드 카운터) ── */
+    /* ── 카드 클릭 기록 (메뉴+카드 카운터) ──
+       v2.1.46: 봇 UA 차단 (의도적 액션이므로 dedupe 없음 — 같은 카드 N번 클릭하면 N회 카운트) */
     async function trackCardClick(menu, card) {
       try {
+        if (_BOT_UA_RE.test(navigator.userAgent || '')) return;
         await fetch('/api/track/card-click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

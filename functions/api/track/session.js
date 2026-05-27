@@ -6,6 +6,7 @@
  * sessions_count는 +1. 매 세션마다 row 만들지 않아 부하 거의 0.
  */
 import { json, handle, corsPreflight } from '../../_lib/http.js';
+import { isBot } from '../../_lib/bot.js';
 export const onRequestOptions = () => corsPreflight();
 
 function kstDateKey() {
@@ -14,6 +15,8 @@ function kstDateKey() {
 }
 
 export const onRequestPost = async ({ request, env }) => handle(async () => {
+  // v2.1.46: 봇 차단 — 세션 통계 오염 방지
+  if (isBot(request)) return json({ ok: true, skipped: 'bot' });
   let dur = 0;
   try { const body = await request.json(); dur = Math.max(0, Math.min(parseInt(body.duration || 0, 10), 7200)); } catch (_) {}
   const date = kstDateKey();

@@ -1,4 +1,5 @@
 import { json, handle, corsPreflight } from '../../_lib/http.js';
+import { isBot } from '../../_lib/bot.js';
 export const onRequestOptions = () => corsPreflight();
 
 function kstDateKey() {
@@ -8,6 +9,8 @@ function kstDateKey() {
 }
 
 export const onRequestPost = async ({ request, env }) => handle(async () => {
+  // v2.1.46: 봇 차단 — 통계 데이터 오염 방지
+  if (isBot(request)) return json({ ok: true, skipped: 'bot' });
   const { menu, card } = await request.json();
   if (!menu || !card) return json({ error: 'menu, card required' }, 400);
   const date = kstDateKey();
