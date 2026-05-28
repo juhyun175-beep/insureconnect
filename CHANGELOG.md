@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.0.0-sprint2b] - 2026-05-28  ← master 브랜치 격리 (production 미배포)
+### Added (회원 시스템 프론트 UI — Sprint 2 Phase 2b)
+- **로그인/회원가입 모달**
+  - 2단계 흐름: Step 1 이메일 → Step 2 6자리 OTP
+  - 큰 OTP 입력(letter-spacing 14px, 26px 폰트)
+  - 60초 재전송 카운트다운
+  - 이메일 수정 (Step 2 에서 Step 1 으로 돌아가기)
+  - dev 모드 응답 시 OTP 자동 입력 + 「[DEV] OTP 자동 입력」 노트
+  - Enter 키 흐름 + Esc 닫기
+  - localStorage 이메일 기억
+- **사이드바 로그인 상태 표시** (`#side-auth`)
+  - 비로그인: 「🔑 로그인 / 회원가입」 그라데이션 버튼 (블루)
+  - 로그인: 사용자 아바타(이니셜) + 닉네임 + 등급 배지 — 클릭 시 마이페이지
+- **마이페이지 모달**
+  - 이메일·닉네임·회원 등급·설계사 인증 상태 노출
+  - 등급별 배지 색상 (admin=빨강, premium=오렌지, certified=그린, member=블루)
+  - 설계사 인증 신청 버튼 (Sprint 3 예정 — placeholder)
+  - 로그아웃 버튼
+- **토스트 알림** (`.auth-success-toast`)
+  - 로그인/로그아웃 성공 시 그린 그라데이션 알약 토스트
+- **자동 로그인 체크** — 페이지 로드 시 `/api/auth/me` 호출 → 사이드바 자동 갱신
+- **CSS 모달 일관성** — `auth-modal-bg / auth-modal / auth-step / auth-input / auth-otp-input / auth-submit-btn / auth-resend / auth-err`
+- **다크모드 + 모바일 반응형** 완성
+
+### Master 격리
+- master preview deployment 만 노출 (main production 영향 0)
+- Phase 2a + 2b 코드가 함께 master 에 통합되어 end-to-end 테스트 가능
+
 ## [2.0.0-sprint2a] - 2026-05-28  ← master 브랜치 격리 (production 미배포)
 ### Added (회원 시스템 백엔드 인프라 — Sprint 2 Phase 2a)
 - **D1 테이블 3종**
