@@ -6193,27 +6193,51 @@
       }
     }
 
+    /* v2.1.49: 다중 안전장치 적용
+       이전 버그: GET 의 set_id 미반영 → 전체 카드뉴스 반환 → 클라이언트가 모든 R2 파일 삭제 (R2 손실 사고 원인)
+       이전 버그: collection DELETE 핸들러 부재 → 405 → DB 안 지워짐 (삭제 동작 안 함)
+       수정 후: set_id UUID 검증 + GET 응답이 정확히 해당 세트만 반환되는지 cross-check */
     async function deleteCardNewsSet(setId) {
+      // 1) UUID 형식 사전 검증
+      if (!setId || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(setId)) {
+        alert('잘못된 세트 ID 입니다.');
+        return;
+      }
       if (!confirm('이 카드뉴스 세트를 모두 삭제하시겠습니까?')) return;
       try {
-        const res = await fetch(`/api/card-news?set_id=${setId}&select=file_url`, {
+        // 2) GET — 서버가 set_id 필터를 정확히 적용했는지 확인
+        const res = await fetch(`/api/card-news?set_id=${encodeURIComponent(setId)}`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const rows = await res.json();
-        // Storage 파일 삭제
+        if (!Array.isArray(rows)) throw new Error('서버 응답이 배열이 아님');
+        // 3) cross-check — 반환된 모든 row 가 진짜 해당 set_id 인가? (서버 GET 버그 방지)
+        const mismatched = rows.filter(r => r.set_id !== setId);
+        if (mismatched.length > 0) {
+          alert(`서버 응답 오염 감지 — ${mismatched.length} 행이 다른 세트입니다. 삭제 중단.`);
+          return;
+        }
+        // 4) 안전 한도 — 한 세트가 50장 초과면 비정상 (대량 삭제 방지)
+        if (rows.length > 50) {
+          if (!confirm(`세트에 ${rows.length}장이 있습니다. 정말 계속하시겠습니까?`)) return;
+        }
+        // 5) Storage 파일 삭제 — 해당 세트의 file_url 만
         for (const r of rows) {
+          if (!r.file_url) continue;
           const path = r.file_url.split('/card-news/')[1];
           if (path) {
             await fetch(`/api/files/card-news/${path}`, {
-              method: 'DELETE',
-              headers: adminHeaders()
-            });
+              method: 'DELETE', headers: adminHeaders()
+            }).catch(() => {});
           }
         }
-        await fetch(`/api/card-news?set_id=${setId}`, {
-          method: 'DELETE',
-          headers: adminHeaders()
+        // 6) DB 행 삭제 — collection DELETE 엔드포인트 (v2.1.49 신설)
+        const delRes = await fetch(`/api/card-news?set_id=${encodeURIComponent(setId)}`, {
+          method: 'DELETE', headers: adminHeaders()
         });
+        if (!delRes.ok) throw new Error('DB 삭제 실패: ' + delRes.status);
+        const delJson = await delRes.json().catch(() => ({}));
+        if (!delJson.ok) throw new Error('DB 삭제 응답 비정상');
         loadCardNews();
       } catch (e) {
         alert('삭제 실패: ' + e.message);

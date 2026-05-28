@@ -1,5 +1,36 @@
 # Changelog
 
+## [2.1.49] - 2026-05-28
+### Fixed (카드뉴스 세트 삭제 — R2 사고의 진짜 원인 발견 + 수정)
+- **버그 1 (서버 GET)**: `/api/card-news` 의 `onRequestGet` 이 `?set_id=` 쿼리 무시
+  - 클라이언트가 `?set_id=A` 보내도 전체 200+개 슬라이드 반환
+- **버그 2 (서버 DELETE)**: `/api/card-news/index.js` 에 `onRequestDelete` 미정의
+  - 클라이언트가 `DELETE /api/card-news?set_id=A` 호출 → **405 Method Not Allowed** → DB 삭제 실패
+- **🔥 사고 시나리오 재구성 (이전 R2 손실의 진짜 원인)**:
+  1. 누군가 세트 A 삭제 시도
+  2. GET 이 set_id 무시 → 전체 카드뉴스 반환 (200개+)
+  3. 클라이언트가 그 200개 file_url 모두 `DELETE /api/files/card-news/*` 호출
+  4. **R2 의 모든 카드뉴스 파일 삭제 (= v2.1.48 placeholder fallback 이 필요했던 원인)**
+  5. 마지막 `DELETE /api/card-news?set_id=A` → 405 → **DB 는 그대로**
+  6. 사용자가 본 결과: 「삭제 안 됨 + 모든 카드뉴스 깨짐」
+
+### 🔧 3중 안전장치
+1. **서버 GET**: `set_id` 쿼리 시 정확히 그 세트만 반환 + `sort_order ASC` 정렬
+2. **서버 DELETE 신설**: `/api/card-news?set_id=<uuid>` 처리
+   - UUID 형식 검증 — 무차별 대량 삭제 방지
+   - `set_id` 필수 — 누락 시 400 Bad Request
+   - 삭제 행 수 응답 (`deleted: N`)
+3. **클라이언트 deleteCardNewsSet 보강**:
+   - UUID 형식 사전 검증
+   - GET 응답의 모든 행이 진짜 해당 set_id 인지 cross-check (서버 버그 재발 방지)
+   - 한 세트 50장 초과 시 재확인 prompt
+   - DELETE 응답 `ok: true` 확인
+
+### Why this matters
+- 삭제 버튼이 실제로 작동
+- R2 파일 무차별 삭제 사고 재발 방지 (3중 검증)
+- 같은 패턴(collection DELETE + GET 필터)이 다른 리소스에도 있는지 점검 완료 — 카드뉴스 만 해당, 나머지는 `/api/{resource}/{id}` 단건 삭제 패턴이라 안전
+
 ## [2.1.48] - 2026-05-28
 ### Fixed (긴급 — 카드뉴스 이미지 404 → placeholder fallback)
 - **원인 진단**: `/api/files/card-news/...` 모든 경로 404
