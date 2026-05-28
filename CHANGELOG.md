@@ -1,5 +1,44 @@
 # Changelog
 
+## [2.0.0-sprint2a] - 2026-05-28  ← master 브랜치 격리 (production 미배포)
+### Added (회원 시스템 백엔드 인프라 — Sprint 2 Phase 2a)
+- **D1 테이블 3종**
+  - `ic_users` — id/email/display_name/role/cert_status/cert_company/cert_card_url/cert_doc_url/contact/created_at/updated_at/last_login_at/active
+  - `ic_email_otps` — id/email/code_hash (SHA-256)/expires_at/attempts/created_at  (인증 후 즉시 삭제)
+  - `ic_sessions` — id/user_id/jti (UUID)/user_agent/ip/expires_at/created_at/revoked
+- **JWT 라이브러리** `_lib/jwt.js` — HMAC-SHA256, 외부 의존성 0
+  - `signJwt(payload, secret, expSec)` / `verifyJwt(token, secret)`
+  - `parseCookie / sessionCookie / clearSessionCookie`
+- **인증 미들웨어** `_lib/auth.js`
+  - `getCurrentUser({ request, env })` — 쿠키→JWT→DB 세션 cross-check
+  - `hasRole(user, minRole)` — admin > premium > certified > member > guest 위계
+- **이메일 발송** `_lib/email.js`
+  - Resend API (https://resend.com) 무료 100/day
+  - 키 미설정 시 console 폴백 + `AUTH_DEV_MODE=1` 시 응답에 OTP 노출
+  - 디자인된 HTML 이메일 템플릿 (그라데이션 헤더 + 6자리 코드 박스)
+- **API 4종** `/api/auth/*`
+  - `POST /request-otp` — 이메일 검증, rate limit 1분, 10분 만료 OTP 생성·발송
+  - `POST /verify-otp`  — OTP 검증(시도 5회 한도), 신규는 자동 가입(role=member), JWT 발급 + Set-Cookie
+  - `GET  /me`          — 현재 로그인 사용자 조회 (cookie → JWT 검증)
+  - `POST /logout`      — 세션 revoked=1 처리 + 쿠키 만료
+
+### Configuration (Phase 2a 활성화 요건)
+```bash
+npx wrangler pages secret put JWT_SECRET     --project-name=insureconnect-hub  # 32+ 자리 랜덤
+npx wrangler pages secret put RESEND_API_KEY --project-name=insureconnect-hub  # https://resend.com
+npx wrangler pages secret put MAIL_FROM      --project-name=insureconnect-hub  # 발신자
+# 선택 (개발용)
+npx wrangler pages secret put AUTH_DEV_MODE  --project-name=insureconnect-hub  # 값: 1
+```
+
+### 격리 배포
+- master 브랜치 preview deployment 로만 노출 (production main 영향 0)
+- preview URL 에서 사용자 테스트 → OK 시 main 으로 동일 코드 재배포
+
+### 다음 Phase
+- 2b: 프론트 로그인 모달 + 마이페이지 + 사이드바 로그인 상태 표시
+- 2c: OAuth (카카오 / 구글 / 네이버)
+
 ## [2.0.0-sprint1] - 2026-05-28  ← 고도화 v2 Sprint 1 완료
 ### Added (SEO 게시판 시스템 — 보험 카테고리 12종 SSR 게시판)
 - **DB**: `ic_seo_posts` (category/slug/title/excerpt/content/cover/tags/faq_json/view_count/status/author)
