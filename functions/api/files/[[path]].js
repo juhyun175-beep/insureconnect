@@ -44,6 +44,44 @@ export const onRequestOptions = () => corsPreflight();
  *     → 과거 업로드 시 잘못 저장된 contentType(text/html 등) 이슈 자동 보정
  *   - HEAD 요청도 같은 헤더로 응답 (body 만 비움) — 카카오톡 스크래퍼의 og:image preflight 통과
  */
+/** v2.1.48: R2 miss 시 placeholder SVG — 깨진 이미지 자리에 "만료" 안내 카드 표시
+ *  근본 원인: card-news/ prefix 의 R2 객체들이 외부 사고로 손실됨.
+ *  DB orphan row 들은 보존(제목·메타 살아있음), 이미지만 placeholder. 재업로드 시 자동 복구.
+ *  - 이미지 type (png/jpg/webp/gif/svg) 요청 시: SVG placeholder 반환
+ *  - PDF / 기타: 그대로 404 (PDF 뷰어가 빈 영역 처리) */
+function placeholderSvgResponse(key, isHead) {
+  const filename = (key.split('/').pop() || '').slice(0, 60);
+  const svg = `<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f3f4f6"/>
+      <stop offset="100%" stop-color="#e5e7eb"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="900" fill="url(#bg)"/>
+  <g transform="translate(600 380)" text-anchor="middle" font-family="Pretendard, -apple-system, sans-serif">
+    <circle cx="0" cy="-60" r="60" fill="none" stroke="#9ca3af" stroke-width="6"/>
+    <text x="0" y="-45" font-size="64" font-weight="800" fill="#9ca3af">!</text>
+    <text x="0" y="50" font-size="36" font-weight="800" fill="#4b5563">이미지를 불러올 수 없습니다</text>
+    <text x="0" y="100" font-size="22" font-weight="500" fill="#6b7280">관리자가 재업로드 시 자동 복구됩니다</text>
+    <text x="0" y="180" font-size="14" font-weight="500" fill="#9ca3af">InsureConnect · ${filename.replace(/[<&>]/g, '')}</text>
+  </g>
+</svg>`;
+  return new Response(isHead ? null : svg, {
+    status: 200,
+    headers: {
+      'Content-Type': 'image/svg+xml; charset=utf-8',
+      'Cache-Control': 'public, max-age=300',
+      'Access-Control-Allow-Origin': '*',
+      'X-Content-Type-Options': 'nosniff',
+      'X-R2-Fallback': 'placeholder',
+    }
+  });
+}
+
+const IMAGE_EXT_RE = /\.(png|jpe?g|webp|gif|svg)$/i;
+
 async function serveFile({ params, request, env }, isHead) {
   const key = pathFromParams(params);
   if (!key) return new Response('Bad key', { status: 400 });
@@ -51,7 +89,11 @@ async function serveFile({ params, request, env }, isHead) {
     const obj = isHead
       ? await env.STORAGE.head(key)
       : await env.STORAGE.get(key);
-    if (!obj) return new Response(isHead ? null : 'Not found', { status: 404 });
+    if (!obj) {
+      // v2.1.48: 이미지면 placeholder, 비이미지면 404 유지
+      if (IMAGE_EXT_RE.test(key)) return placeholderSvgResponse(key, isHead);
+      return new Response(isHead ? null : 'Not found', { status: 404 });
+    }
 
     const inferred = inferContentType(key);
     const stored   = obj.httpMetadata?.contentType;

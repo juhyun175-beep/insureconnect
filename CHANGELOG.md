@@ -1,5 +1,25 @@
 # Changelog
 
+## [2.1.48] - 2026-05-28
+### Fixed (긴급 — 카드뉴스 이미지 404 → placeholder fallback)
+- **원인 진단**: `/api/files/card-news/...` 모든 경로 404
+  - `wrangler r2 object get` 직접 확인 → "The specified key does not exist"
+  - R2 의 `card-news/` 폴더 객체들이 외부 사고로 손실
+  - DB (`ic_card_news`) 메타데이터는 보존됨
+  - 채용공고(`recruitments/`) R2 객체는 정상 → 사고는 `card-news/` prefix 한정
+- **수정**: `/api/files/[[path]]` 가 R2 미스 시
+  - 이미지 확장자(png/jpg/webp/gif/svg)면 → **placeholder SVG 200 응답**
+    - 안내 메시지: 「이미지를 불러올 수 없습니다 / 관리자가 재업로드 시 자동 복구됩니다」
+    - `X-R2-Fallback: placeholder` 헤더로 디버깅 가능
+  - 비이미지(PDF 등)는 기존 404 유지
+- **효과**: 카드뉴스 tile / 슬라이드 / 카카오 OG 미리보기 모두 깨진 X 표시 사라짐
+- **복구 경로**: 관리자가 카드뉴스 재업로드 시 자동으로 정상 이미지 노출 (코드 변경 불필요)
+
+### Why this matters
+- 사용자 입장: "업로드한 자료가 안 보임" → 즉시 placeholder 로 graceful 표현
+- 데이터 손실 영향 격리 (제목/카운트/메타 모두 보존)
+- 향후 R2 미스 발생해도 사이트 동작 자체는 깨지지 않음
+
 ## [2.1.47] - 2026-05-28
 ### Fixed (카드뉴스 클릭 시 빈 화면 버그)
 - **원인**: `renderDashPreviews` 의 카드뉴스 클릭 핸들러가 `goToPage('cardnews')` 호출

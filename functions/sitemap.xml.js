@@ -27,7 +27,22 @@ export async function onRequestGet({ env }) {
   const staticUrls = [
     urlEntry(`${BASE}/`, today, 'daily', 1.0),
     urlEntry(`${BASE}/privacy.html`, today, 'yearly', 0.3),
+    urlEntry(`${BASE}/insurance`, today, 'daily', 0.9),
   ];
+
+  // v2.0.0 (master): SEO 게시판 카테고리 + 게시글
+  const SEO_SLUGS = ['claim','actual-loss','whole-life','cancer','car','practice','recruit-tips','notice','surgery-code','disease-code','terms','underwrite'];
+  const seoCategoryUrls = SEO_SLUGS.map(s => urlEntry(`${BASE}/insurance/${s}`, today, 'daily', 0.8));
+  let seoPosts = [];
+  try {
+    const rs = await env.DB.prepare(
+      `SELECT category, slug, created_at, updated_at FROM ic_seo_posts WHERE status='published' ORDER BY created_at DESC LIMIT 5000`
+    ).all();
+    seoPosts = rs.results || [];
+  } catch (_) {}
+  const seoPostUrls = seoPosts.map(p =>
+    urlEntry(`${BASE}/insurance/${p.category}/${p.slug}`, fmtDate(p.updated_at || p.created_at), 'weekly', 0.85)
+  );
 
   // 보험지식 (Supabase REST 경유 — 기존 호환)
   let posts = [];
@@ -83,7 +98,15 @@ export async function onRequestGet({ env }) {
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${[...staticUrls, ...recruitUrls, ...lectureUrls, ...knowledgeUrls, ...newsUrls].join('\n')}
+${[
+  ...staticUrls,
+  ...seoCategoryUrls,
+  ...seoPostUrls,
+  ...recruitUrls,
+  ...lectureUrls,
+  ...knowledgeUrls,
+  ...newsUrls,
+].join('\n')}
 </urlset>`;
 
   return new Response(xml, {
