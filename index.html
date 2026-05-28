@@ -7610,6 +7610,11 @@
     </div>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
+      <!-- v2.0.0 (master): SEO 게시판 진입 — 외부 페이지(SSR)이므로 a 태그 -->
+      <a class="menu-tab" href="/insurance" onclick="trackCardClick('사이드바','보험 정보 게시판');" style="text-decoration:none;display:flex;align-items:center;gap:6px;">
+        <span>📝 보험 정보 게시판</span>
+        <span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;margin-left:auto;letter-spacing:0.04em;">NEW</span>
+      </a>
     </nav>
     <!-- 글로벌 빠른 검색 트리거 -->
     <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">

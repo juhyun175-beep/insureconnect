@@ -3386,6 +3386,11 @@
         <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
         <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
+
+        <span class="tab-group-sep" aria-hidden="true"></span>
+
+        <!-- v2.0.0 (master): SEO 게시판 -->
+        <button class="upload-tab" data-panel="up-seo" style="border-color:#10b981;color:#10b981;">📝 SEO 게시판</button>
       </div>
 
       <!-- v2.1.11: 📥 사용자 신청 통합 (승인대기 + 렌트카 신청 sub-tabs) -->
@@ -3977,6 +3982,124 @@
         </div>
       </div><!-- /#up-rental-vehicles -->
 
+      <!-- v2.0.0 (master): SEO 게시판 관리 -->
+      <div class="upload-panel" id="up-seo">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">📝 SEO 게시판 관리</p>
+          <button type="button" onclick="loadSeoPostsAdmin()"
+                  style="padding:6px 12px;background:transparent;border:1px solid #10b981;color:#10b981;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
+            🔄 새로고침
+          </button>
+        </div>
+
+        <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.20);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid,#9aa);line-height:1.6;">
+          <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px;letter-spacing:0.03em;">📝 SEO 게시판 작성 가이드</div>
+          <ul style="margin:0;padding-left:18px;">
+            <li>여기에 등록한 글이 <code>/insurance/{카테고리}/{slug}</code> URL 로 노출되어 구글·네이버 검색에 인덱싱됩니다</li>
+            <li><strong>slug</strong>: URL 의 영문 식별자 (예: <code>silbi-claim-process</code>) — 영소문자/숫자/하이픈만</li>
+            <li><strong>제목</strong>: 검색 결과에 노출되는 핵심 — 길이 30~60자 권장</li>
+            <li><strong>요약</strong>: 메타 description 으로 사용 — 100~160자 권장</li>
+            <li><strong>본문</strong>: HTML 허용 (<code>&lt;h2&gt; &lt;p&gt; &lt;ul&gt; &lt;img&gt;</code> 등) — Markdown 변환 미적용</li>
+            <li><strong>FAQ JSON</strong>: <code>[{"q":"질문","a":"답변"}]</code> 형식, Google FAQ schema 자동 적용</li>
+          </ul>
+        </div>
+
+        <!-- 등록 폼 -->
+        <div class="nl-upload-box">
+          <div class="nl-form">
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:180px;">
+                <label>카테고리 <span style="color:#ff3355">*</span></label>
+                <select id="seo-cat" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="claim">보험금청구</option>
+                  <option value="actual-loss">실손보험</option>
+                  <option value="whole-life">종신보험</option>
+                  <option value="cancer">암보험</option>
+                  <option value="car">자동차보험</option>
+                  <option value="practice">설계사실무</option>
+                  <option value="recruit-tips">리쿠르팅</option>
+                  <option value="notice">보험사공지</option>
+                  <option value="surgery-code">수술코드</option>
+                  <option value="disease-code">질병코드</option>
+                  <option value="terms">약관해설</option>
+                  <option value="underwrite">인수사례</option>
+                </select>
+              </div>
+              <div style="flex:1.4;min-width:240px;">
+                <label>URL slug <span style="color:#ff3355">*</span></label>
+                <input type="text" id="seo-slug" maxlength="80" placeholder="예: silbi-claim-process" style="width:100%;padding:8px 10px;font-size:13px;" pattern="[a-z0-9-]{2,80}">
+              </div>
+            </div>
+            <div class="nl-field">
+              <label>제목 <span style="color:#ff3355">*</span></label>
+              <input type="text" id="seo-title" maxlength="200" placeholder="예: 실손보험 청구 가이드 — 처음부터 끝까지" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field">
+              <label>요약 (meta description, 100~160자 권장)</label>
+              <textarea id="seo-excerpt" maxlength="300" rows="2" placeholder="실손보험 청구 절차·필요서류·반려 사유와 대처법을 한 번에 정리했습니다." style="width:100%;padding:8px 10px;font-size:13px;resize:vertical;"></textarea>
+            </div>
+            <div class="nl-field">
+              <label>본문 (HTML 가능)</label>
+              <textarea id="seo-content" rows="14" placeholder="&lt;h2&gt;섹션 제목&lt;/h2&gt;&#10;&lt;p&gt;본문 내용&lt;/p&gt;" style="width:100%;padding:10px 12px;font-size:13px;font-family:'Pretendard',sans-serif;resize:vertical;line-height:1.6;"></textarea>
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:200px;">
+                <label>커버 이미지 URL (선택)</label>
+                <input type="url" id="seo-cover" maxlength="500" placeholder="https://...png" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+              <div style="flex:1;min-width:200px;">
+                <label>태그 (쉼표 구분)</label>
+                <input type="text" id="seo-tags" maxlength="200" placeholder="실손,청구,서류" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+            </div>
+            <div class="nl-field">
+              <label>FAQ JSON (선택) — 구글 FAQ schema 자동 적용</label>
+              <textarea id="seo-faq" rows="4" placeholder='[{"q":"실비 청구 가능한가요?","a":"가능합니다. 필요서류는..."}]' style="width:100%;padding:8px 10px;font-size:12px;font-family:Monaco,Consolas,monospace;resize:vertical;"></textarea>
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
+              <div style="flex:1;min-width:120px;">
+                <label>상태</label>
+                <select id="seo-status" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="published">게시</option>
+                  <option value="draft">초안</option>
+                  <option value="archived">보관</option>
+                </select>
+              </div>
+              <button type="button" id="seo-submit-btn" onclick="submitSeoPost()"
+                      style="margin-top:18px;padding:10px 24px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:800;cursor:pointer;letter-spacing:0.04em;">
+                ✓ 등록
+              </button>
+              <button type="button" id="seo-cancel-btn" onclick="resetSeoForm()" style="display:none;margin-top:18px;padding:10px 18px;background:transparent;color:var(--txt-mid);border:1px solid var(--border);border-radius:8px;font-size:13px;font-weight:700;cursor:pointer;">
+                취소
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 목록 -->
+        <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+          <p class="dash-section-title" style="margin:0">📋 등록된 글 목록</p>
+          <select id="seo-filter-cat" onchange="loadSeoPostsAdmin()" style="padding:6px 10px;font-size:12px;">
+            <option value="">전체 카테고리</option>
+            <option value="claim">보험금청구</option>
+            <option value="actual-loss">실손보험</option>
+            <option value="whole-life">종신보험</option>
+            <option value="cancer">암보험</option>
+            <option value="car">자동차보험</option>
+            <option value="practice">설계사실무</option>
+            <option value="recruit-tips">리쿠르팅</option>
+            <option value="notice">보험사공지</option>
+            <option value="surgery-code">수술코드</option>
+            <option value="disease-code">질병코드</option>
+            <option value="terms">약관해설</option>
+            <option value="underwrite">인수사례</option>
+          </select>
+        </div>
+        <div class="nl-list" id="seo-list">
+          <p class="empty-msg">목록을 불러오는 중…</p>
+        </div>
+      </div><!-- /#up-seo -->
+
       <!-- v2.1.11: 기존 #up-rental-inquiries 패널은 #up-requests 안의 sub-pane 으로 흡수됨 -->
 
       <!-- v2.1.26: 배너 미리보기 모달 제거 -->
@@ -4103,6 +4226,10 @@
         document.querySelectorAll('.upload-panel').forEach(p => {
           p.classList.toggle('active', p.id === target);
         });
+        // v2.0.0 (master): SEO 패널 진입 시 자동 로드
+        if (target === 'up-seo' && typeof loadSeoPostsAdmin === 'function') {
+          loadSeoPostsAdmin();
+        }
       });
     });
 
@@ -7043,6 +7170,158 @@
         btn.disabled = false; btn.textContent = '등록';
       }
     }
+
+    /* ══════════════ v2.0.0 (master): SEO 게시판 관리 ══════════════ */
+    const SEO_CAT_LABELS = {
+      'claim': '보험금청구', 'actual-loss': '실손보험', 'whole-life': '종신보험',
+      'cancer': '암보험', 'car': '자동차보험', 'practice': '설계사실무',
+      'recruit-tips': '리쿠르팅', 'notice': '보험사공지', 'surgery-code': '수술코드',
+      'disease-code': '질병코드', 'terms': '약관해설', 'underwrite': '인수사례',
+    };
+    let _editingSeoId = null;
+
+    function resetSeoForm() {
+      _editingSeoId = null;
+      ['seo-cat','seo-slug','seo-title','seo-excerpt','seo-content','seo-cover','seo-tags','seo-faq','seo-status'].forEach(id => {
+        const el = document.getElementById(id);
+        if (!el) return;
+        if (el.tagName === 'SELECT') el.selectedIndex = 0;
+        else el.value = '';
+      });
+      const btn = document.getElementById('seo-submit-btn'); if (btn) btn.textContent = '✓ 등록';
+      const cancel = document.getElementById('seo-cancel-btn'); if (cancel) cancel.style.display = 'none';
+    }
+
+    async function submitSeoPost() {
+      const btn = document.getElementById('seo-submit-btn');
+      const body = {
+        category: document.getElementById('seo-cat').value,
+        slug:     document.getElementById('seo-slug').value.trim().toLowerCase(),
+        title:    document.getElementById('seo-title').value.trim(),
+        excerpt:  document.getElementById('seo-excerpt').value.trim() || null,
+        content:  document.getElementById('seo-content').value,
+        cover_image_url: document.getElementById('seo-cover').value.trim() || null,
+        tags:     document.getElementById('seo-tags').value.trim() || null,
+        faq_json: document.getElementById('seo-faq').value.trim() || null,
+        status:   document.getElementById('seo-status').value,
+      };
+
+      // 1차 검증
+      if (!body.title) return alert('제목을 입력하세요');
+      if (!body.content) return alert('본문을 입력하세요');
+      if (!/^[a-z0-9-]{2,80}$/.test(body.slug)) return alert('slug 는 영소문자/숫자/하이픈만 (2-80자)');
+      if (body.faq_json) {
+        try {
+          const parsed = JSON.parse(body.faq_json);
+          if (!Array.isArray(parsed)) throw 0;
+        } catch (_) { return alert('FAQ JSON 형식이 올바르지 않습니다'); }
+      }
+
+      btn.disabled = true; btn.textContent = '저장 중…';
+      try {
+        const isEdit = !!_editingSeoId;
+        const url = isEdit ? `/api/seo-posts/${_editingSeoId}` : '/api/seo-posts';
+        const method = isEdit ? 'PATCH' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: { ...adminHeaders(), 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
+        alert(isEdit ? '수정 완료' : '등록 완료');
+        resetSeoForm();
+        loadSeoPostsAdmin();
+      } catch (e) {
+        alert('실패: ' + e.message);
+      } finally {
+        btn.disabled = false; btn.textContent = _editingSeoId ? '✓ 수정' : '✓ 등록';
+      }
+    }
+    window.submitSeoPost = submitSeoPost;
+    window.resetSeoForm = resetSeoForm;
+
+    async function loadSeoPostsAdmin() {
+      const el = document.getElementById('seo-list');
+      if (!el) return;
+      const filterCat = document.getElementById('seo-filter-cat')?.value || '';
+      el.innerHTML = '<p class="empty-msg">불러오는 중…</p>';
+      try {
+        const qs = new URLSearchParams({ status: 'all', limit: '200' });
+        if (filterCat) qs.set('category', filterCat);
+        const res = await fetch(`/api/seo-posts?${qs}`, { headers: adminHeaders() });
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          el.innerHTML = '<p class="empty-msg">등록된 글이 없습니다.</p>';
+          return;
+        }
+        const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+        el.innerHTML = items.map(it => {
+          const catLabel = SEO_CAT_LABELS[it.category] || it.category;
+          const statusBadge = it.status === 'published'
+            ? '<span style="background:#10b981;color:#fff;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;">게시</span>'
+            : it.status === 'draft'
+              ? '<span style="background:#f59e0b;color:#fff;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;">초안</span>'
+              : '<span style="background:#9ca3af;color:#fff;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;">보관</span>';
+          return `
+            <div class="nl-item">
+              <div class="nl-item-info">
+                <div class="nl-item-name">
+                  ${statusBadge}
+                  <span style="background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:6px;font-size:11px;font-weight:700;margin:0 6px;">${esc(catLabel)}</span>
+                  ${esc(it.title)}
+                </div>
+                <div class="nl-item-meta">
+                  <a href="/insurance/${esc(it.category)}/${esc(it.slug)}" target="_blank" rel="noopener" style="color:#1a3de8;text-decoration:none;font-family:Monaco,monospace;">/insurance/${esc(it.category)}/${esc(it.slug)}</a>
+                  · 조회 ${(it.view_count||0).toLocaleString()}회
+                  · ${String(it.created_at).slice(0,10)}
+                </div>
+                ${it.excerpt ? `<div class="nl-item-desc" style="font-size:11.5px;color:var(--txt-lo);margin-top:4px;">${esc(it.excerpt.slice(0,120))}</div>` : ''}
+              </div>
+              <div class="nl-item-actions">
+                <button class="nl-edit-btn" onclick="editSeoPost(${it.id})">수정</button>
+                <button class="nl-del-btn" onclick="deleteSeoPost(${it.id})">삭제</button>
+              </div>
+            </div>`;
+        }).join('');
+      } catch (e) {
+        el.innerHTML = `<p class="empty-msg">불러오기 실패: ${e.message}</p>`;
+      }
+    }
+    window.loadSeoPostsAdmin = loadSeoPostsAdmin;
+
+    async function editSeoPost(id) {
+      try {
+        const res = await fetch(`/api/seo-posts/${id}`);
+        const it = await res.json();
+        if (!it || it.error) throw new Error(it?.error || 'Not found');
+        _editingSeoId = id;
+        document.getElementById('seo-cat').value = it.category;
+        document.getElementById('seo-slug').value = it.slug;
+        document.getElementById('seo-title').value = it.title || '';
+        document.getElementById('seo-excerpt').value = it.excerpt || '';
+        document.getElementById('seo-content').value = it.content || '';
+        document.getElementById('seo-cover').value = it.cover_image_url || '';
+        document.getElementById('seo-tags').value = it.tags || '';
+        document.getElementById('seo-faq').value = it.faq_json || '';
+        document.getElementById('seo-status').value = it.status || 'published';
+        document.getElementById('seo-submit-btn').textContent = '✓ 수정';
+        document.getElementById('seo-cancel-btn').style.display = '';
+        // 폼 영역으로 스크롤
+        document.getElementById('seo-cat').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } catch (e) { alert('수정 데이터 로드 실패: ' + e.message); }
+    }
+    window.editSeoPost = editSeoPost;
+
+    async function deleteSeoPost(id) {
+      if (!confirm('이 글을 삭제하시겠습니까?')) return;
+      try {
+        const res = await fetch(`/api/seo-posts/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        loadSeoPostsAdmin();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
+    window.deleteSeoPost = deleteSeoPost;
 
     async function loadRentalVehiclesAdmin() {
       const el = document.getElementById('rv-list');

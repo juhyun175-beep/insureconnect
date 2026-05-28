@@ -1,5 +1,38 @@
 # Changelog
 
+## [2.0.0-sprint1] - 2026-05-28  ← 고도화 v2 Sprint 1 완료
+### Added (SEO 게시판 시스템 — 보험 카테고리 12종 SSR 게시판)
+- **DB**: `ic_seo_posts` (category/slug/title/excerpt/content/cover/tags/faq_json/view_count/status/author)
+- **공통 모듈**: `functions/_lib/seo-categories.js` 12 카테고리 enum
+- **SSR 페이지 3종**
+  - `/insurance` — 카테고리 그리드 (게시글 수 표시)
+  - `/insurance/{category}` — 카테고리별 글 목록
+  - `/insurance/{category}/{slug}` — 게시글 본문 (JSON-LD Article + Breadcrumb + FAQPage)
+- **schema.org JSON-LD 3종** 자동 삽입 — Google 검색 결과 풍부 노출
+- **봇 제외 view_count** — `isBot()` 통과한 실제 사용자만 카운트
+- **자동 메타** — meta description / canonical / og:* / twitter:* / 한국어 locale
+- **Related Posts** — 같은 카테고리 최신 5개 자동 노출
+- **CRUD API**: `/api/seo-posts/{ ?, [id] }` (GET·POST·PATCH·DELETE) — 관리자 시크릿 보호
+- **관리자 UI**: admin.html 「📝 SEO 게시판」 탭 신설
+  - 카테고리 select + slug + 제목/요약/본문/커버/태그/FAQ JSON/상태 폼
+  - 등록·수정·삭제·필터 기능
+  - 첫 진입 시 자동 목록 로드
+- **사이드바 메뉴**: 「📝 보험 정보 게시판」 NEW 배지 진입 링크
+- **sitemap.xml 통합** — 카테고리 12개 + 모든 게시글 자동 포함
+- **시드 콘텐츠 2건** (실손보험 청구 가이드 / 신입 설계사 첫 달 체크리스트)
+
+### Master 브랜치 정책 메모
+- v2.0.0 코드는 점진 진화로 main 직배포 (Sprint 1 한정 — 게시판 자체가 새 경로라 기존 동작 영향 0)
+- 회원 시스템(Sprint 2) 부터 master 브랜치 격리 후 preview URL 검증 → main merge 전략 적용
+
+### 다음 Sprint
+- Sprint 2: 회원 시스템 (이메일+OAuth+JWT)
+- Sprint 3: 설계사 인증
+- Sprint 4: 리쿠르팅 상품화
+- Sprint 5: 강의 평점/신청
+- Sprint 6: AI 도구
+- Sprint 7: CRM SaaS
+
 ## [2.1.49] - 2026-05-28
 ### Fixed (카드뉴스 세트 삭제 — R2 사고의 진짜 원인 발견 + 수정)
 - **버그 1 (서버 GET)**: `/api/card-news` 의 `onRequestGet` 이 `?set_id=` 쿼리 무시
