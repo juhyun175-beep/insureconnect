@@ -10823,10 +10823,11 @@
       };
 
       /* 동적 카드 */
+      /* v2.1.47: goToPage('cardnews') 제거 — PAGE_NAMES 에 'cardnews' 없어 빈 화면 발생.
+         카드뉴스는 별도 페이지가 아닌 모달이므로 현재 페이지 유지하며 모달만 오픈 */
       renderItems('dcp-cardnews', rawByKey.cardnews,
         it => it.title || '카드뉴스',
         it => {
-          goToPage('cardnews');
           if (it.set_id == null) return;
           waitFor(
             () => (cardNewsState.sets || []).length > 0,

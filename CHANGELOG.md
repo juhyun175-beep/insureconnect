@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.47] - 2026-05-28
+### Fixed (카드뉴스 클릭 시 빈 화면 버그)
+- **원인**: `renderDashPreviews` 의 카드뉴스 클릭 핸들러가 `goToPage('cardnews')` 호출
+  - `PAGE_NAMES` 에 `cardnews` 미포함 → `ALL_PAGES.forEach` 가 모든 `page-*` 숨김 → 빈 화면 노출
+  - 모달은 열리지만 모달 닫으면 빈 페이지만 보임 → 사용자: "뉴스 카드 오류"
+- **수정**: `goToPage('cardnews')` 호출 제거 — 카드뉴스는 모달이지 별도 페이지 아님
+  - 현재 보고 있던 페이지(홈/실시간 모니터 등) 유지하며 모달만 오픈
+  - 모달 닫으면 원래 페이지로 자연 복귀
+
 ## [2.1.46] - 2026-05-27
 ### Reset (인기 채용/강의 카운트 완전 초기화)
 - `ic_link_clicks_daily` 의 `recruit_view / recruit_copy / recruit_shared / lecture_view / lecture_copy / lecture_shared` 행 4개 모두 삭제
