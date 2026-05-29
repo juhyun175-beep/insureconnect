@@ -1,5 +1,33 @@
 # Changelog
 
+## [2.1.0-stripe-backend] - 2026-05-28  ← master 브랜치 (production 미배포)
+### Reverted
+- Sprint 2a / 2b 회원 시스템 코드 revert (사용자 결정 — Stripe 결제 우선)
+  - D1 `ic_users / ic_email_otps / ic_sessions` 테이블은 데이터 보존 (재도입 시 복구 가능)
+
+### Added (Stripe 결제 시스템 — 백엔드 인프라)
+- **D1 테이블 2종** (`migrations/d1_v2_1_0_payments.sql`)
+  - `ic_products` — slug/name/type/target_id/price_krw/download_file_url/download_filename/active
+  - `ic_purchases` — product_id/email/user_id/stripe_session/stripe_payment_intent/amount_krw/status/download_token/download_count/download_max/download_expires_at/paid_at
+- **`_lib/stripe.js`** — 외부 npm 의존성 0, Web Crypto 만 사용
+  - `createCheckoutSession()` — Stripe Checkout Session (KRW + 한국어 locale)
+  - `verifyWebhookSignature()` — HMAC-SHA256 Webhook 서명 검증 (timing-safe + 5분 replay 방지)
+  - `retrieveSession()` / `randomToken()` 유틸
+- **API 7종**
+  - `GET·POST  /api/products` — 활성 상품 목록 / 등록(admin)
+  - `GET·PATCH·DELETE /api/products/{id}` — 단건
+  - `POST /api/payments/checkout` — Checkout 세션 생성 → Stripe URL 반환
+  - `GET  /api/payments/status` — 결제 상태 조회 (success_url 폴링)
+  - `POST /api/webhooks/stripe` — webhook 수신 (3 이벤트 처리)
+  - `GET  /api/downloads/{token}` — 토큰 검증 후 R2 파일 스트림 (RFC 5987 한글 파일명)
+- **다운로드 보호**
+  - 32-byte URL-safe random token (paid 확정 시 발급)
+  - 만료: 결제 후 30일 / 한도: 5회 / status='paid' 만 허용
+
+### 다음 단계 (Phase 2 — 프론트 UI)
+- 카드뉴스 모달에 "📥 자료 다운로드" 버튼 + 결제 모달 + success_url 처리
+- 관리자 「💳 결제 상품」 탭
+
 ## [2.0.0-sprint1] - 2026-05-28  ← 고도화 v2 Sprint 1 완료
 ### Added (SEO 게시판 시스템 — 보험 카테고리 12종 SSR 게시판)
 - **DB**: `ic_seo_posts` (category/slug/title/excerpt/content/cover/tags/faq_json/view_count/status/author)
