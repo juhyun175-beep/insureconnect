@@ -77,35 +77,11 @@ CREATE INDEX idx_seo_published ON ic_seo_posts(status, created_at DESC);
 
 ---
 
-### **Sprint 2 — 회원 시스템** (Phase 2a 완료, master 격리)
-- ✅ 이메일 OTP 회원가입 (HMAC-SHA256 JWT)
-- ✅ D1 `ic_users` + `ic_email_otps` + `ic_sessions`
-- ✅ 등급: guest / member / certified / premium / admin
-- ✅ httpOnly cookie 세션, 14일 유효
-- ⏳ Phase 2b: 프론트 로그인 모달 + 마이페이지
-- ⏳ Phase 2c: OAuth (카카오 / 구글 / 네이버)
-
-#### Phase 2a 백엔드 — 필수 wrangler secret 등록
-```
-npx wrangler pages secret put JWT_SECRET     --project-name=insureconnect-hub
-  (32+ 자리 랜덤 문자열 — 예: openssl rand -base64 48)
-npx wrangler pages secret put RESEND_API_KEY --project-name=insureconnect-hub
-  (https://resend.com 가입 후 API 키)
-npx wrangler pages secret put MAIL_FROM      --project-name=insureconnect-hub
-  (예: "InsureConnect <noreply@your-domain.com>")
-```
-
-선택:
-```
-npx wrangler pages secret put AUTH_DEV_MODE  --project-name=insureconnect-hub
-  값: 1  → Resend 미설정 시 응답에 OTP 노출 (개발 단계만!)
-```
-
-#### API
-- `POST /api/auth/request-otp` — 이메일로 6자리 OTP 발송
-- `POST /api/auth/verify-otp`  — OTP 검증 + JWT 세션 발급
-- `GET  /api/auth/me`          — 현재 로그인 사용자 조회
-- `POST /api/auth/logout`      — 세션 무효화
+### **Sprint 2 — 회원 시스템**
+- 이메일 회원가입 + 매직 링크
+- OAuth: 카카오 / 구글 / 네이버
+- D1 `ic_users` + `ic_sessions` (JWT)
+- 등급: guest / member / certified / premium / admin
 
 ### **Sprint 3 — 설계사 인증**
 - 명함/위촉증명서 R2 업로드
