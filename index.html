@@ -6041,6 +6041,22 @@
       background: var(--blue-mid);
       color: #fff;
     }
+    /* v2.1.50: 「누적 순위」 라벨 — 탭 자리에 작은 알약 */
+    .lm-period-label {
+      display: inline-flex; align-items: center;
+      gap: 4px;
+      margin-left: auto;
+      padding: 4px 10px;
+      background: rgba(26,61,232,0.10);
+      color: var(--blue-mid);
+      font-size: 10.5px; font-weight: 800;
+      letter-spacing: 0.04em;
+      border-radius: 999px;
+    }
+    [data-theme="dark"] .lm-period-label {
+      background: rgba(74,112,245,0.18);
+      color: #a5b4fc;
+    }
     .lm-updated {
       font-size: 10.5px;
       color: var(--txt-lo);
@@ -8326,10 +8342,8 @@
           <span>LIVE</span>
         </span>
         <span class="lm-title">실시간 인기 콘텐츠</span>
-        <div class="lm-tabs" role="tablist" aria-label="기간">
-          <button class="lm-tab active" data-period="today" onclick="lmSetPeriod('today')" type="button">오늘</button>
-          <button class="lm-tab" data-period="total" onclick="lmSetPeriod('total')" type="button">누적</button>
-        </div>
+        <!-- v2.1.50: 「오늘」 탭 제거 — 누적 순위만 노출 (사용자 요청) -->
+        <span class="lm-period-label" aria-label="누적 순위">누적 순위</span>
         <span class="lm-updated" id="lm-updated"></span>
       </div>
       <div class="lm-grid lm-grid-4col">
@@ -13150,8 +13164,9 @@
 
     /* ══════════════════════════════
        실시간 인기 콘텐츠 모니터
+       v2.1.50: 「오늘」 탭 제거 — 누적('total') 기본 + 고정
     ══════════════════════════════ */
-    let _lmPeriod = 'today';   // 'today' | 'total'
+    let _lmPeriod = 'total';   // 'total' (오늘 제거)
     let _lmCache  = null;
 
     async function loadLiveMonitor() {

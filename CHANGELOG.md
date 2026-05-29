@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.50] - 2026-05-28
+### Changed (실시간 인기 콘텐츠 — 「오늘」 탭 제거, 누적만 노출)
+- **HTML**: `lm-tabs` 「오늘 / 누적」 두 탭 버튼 제거 → 「누적 순위」 알약 라벨로 교체
+- **CSS**: `.lm-period-label` 신설 — 블루 알약 + 다크모드 대응
+- **JS**: `_lmPeriod` 기본값 `'today'` → `'total'` 로 고정
+- **호환성**: `lmSetPeriod()` 함수 자체는 유지 (혹시 다른 곳 호출 시 안전)
+- **데이터 영향 없음**: `/api/top-items` 가 `*_today` + `*_total` 둘 다 반환하지만 프론트는 `*_total` 만 사용
+
+### Why this matters
+- 누적 데이터가 더 안정적인 신호 (오늘은 데이터 적어 「NEW」 만 가득)
+- UI 단순화 → 사용자 의사결정 부담 ↓
+
 ## [2.1.1-toss-backend] - 2026-05-28  ← master 브랜치 (production 미배포)
 ### Changed (Stripe → 토스페이먼츠 전환)
 - **이유**: Stripe 한국 정식 미진출 + 사용 난이도 / 토스페이먼츠가 한국 사업자 + 모든 결제수단 지원
