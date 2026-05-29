@@ -13272,7 +13272,7 @@
     function lmOpenJeonsan(name) {
       goToPage('jeonsan');
     }
-    // 통합 최신 콘텐츠 — 카드뉴스 먼저 시도, 없으면 보험지식
+    // 통합 최신 콘텐츠 — 카드뉴스 먼저 시도, 없으면 보험지식 (페이지 이동 없이 모달만 띄움)
     function lmOpenLatest(name) {
       try {
         if (typeof cardNewsState !== 'undefined' && cardNewsState.sets && cardNewsState.sets.length) {
@@ -13282,16 +13282,25 @@
       } catch (_) {}
       lmOpenKnowledge(name);
     }
-    function lmOpenKnowledge(name) {
-      goToPage('knowledge');
-      // 제목으로 포스트 찾아 열기 (가벼운 시도)
-      setTimeout(async () => {
-        try {
-          const r = await fetch(`/api/knowledge-posts?title=${encodeURIComponent(name)}&limit=1`);
-          const arr = await r.json();
-          if (Array.isArray(arr) && arr[0] && typeof openKnPost === 'function') openKnPost(arr[0].id, true);
-        } catch (_) {}
-      }, 200);
+    // 보험지식 모달 (#kn-modal) 은 전역 오버레이라 페이지 이동 없이 그대로 호출 가능
+    async function lmOpenKnowledge(name) {
+      try {
+        const r = await fetch(`/api/knowledge-posts?title=${encodeURIComponent(name)}&limit=1`);
+        const arr = await r.json();
+        if (Array.isArray(arr) && arr[0] && typeof openKnPost === 'function') {
+          openKnPost(arr[0].id, true);
+          return;
+        }
+      } catch (_) {}
+      // 매칭 실패 — loadCardNews 늦게 끝났을 가능성 대비 카드뉴스 한 번 더 확인
+      try {
+        if (typeof cardNewsState !== 'undefined' && cardNewsState.sets && cardNewsState.sets.length) {
+          const idx = cardNewsState.sets.findIndex(s => s && s.title === name);
+          if (idx >= 0) { openCardNewsModal(idx); return; }
+        }
+      } catch (_) {}
+      // 모두 실패 시 보험지식 페이지가 아닌 최신 콘텐츠 피드로 이동
+      if (typeof goToPage === 'function') goToPage('latest');
     }
     function lmOpenCardnews(name) {
       // cardNewsState가 로드되어 있다면 제목으로 매칭해서 열기
