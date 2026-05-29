@@ -1,6 +1,50 @@
 # Changelog
 
-## [2.1.0-stripe-backend] - 2026-05-28  ← master 브랜치 (production 미배포)
+## [2.1.1-toss-backend] - 2026-05-28  ← master 브랜치 (production 미배포)
+### Changed (Stripe → 토스페이먼츠 전환)
+- **이유**: Stripe 한국 정식 미진출 + 사용 난이도 / 토스페이먼츠가 한국 사업자 + 모든 결제수단 지원
+- **Stripe 코드 제거**: `_lib/stripe.js`, `/api/webhooks/stripe`, 기존 checkout/status 의 Stripe 부분
+- **재사용**: D1 테이블 (`ic_products`, `ic_purchases`), `/api/products`, `/api/downloads/{token}` 100% 그대로
+
+### Added (토스페이먼츠 백엔드 인프라)
+- **D1 ALTER** — `toss_order_id`, `toss_payment_key`, `toss_method`, `toss_receipt_url` 컬럼 추가
+  - 기존 stripe_* 컬럼은 NULL 상태로 보존 (deprecated)
+- **`_lib/tosspayments.js`** — 외부 npm 의존성 0
+  - `confirmPayment()` — POST /v1/payments/confirm (paymentKey/orderId/amount)
+  - `cancelPayment()` — POST /v1/payments/{paymentKey}/cancel (환불)
+  - `retrievePayment()` — 결제 조회
+  - `verifyWebhookSignature()` — HMAC-SHA256 (Stripe 패턴과 동일, hex/base64/t=... 형식 모두 처리)
+  - `makeOrderId() / randomToken()`
+- **API 5종**
+  - `GET  /api/payments/config` — clientKey 노출 (프론트 SDK 초기화용)
+  - `POST /api/payments/checkout` — orderId 발급 + pending purchase + 응답에 orderId/amount/orderName/clientKey/successUrl/failUrl
+  - `POST /api/payments/confirm` — successUrl 에서 호출, 토스 confirm → status=paid + download_token 발급 (멱등성 보장)
+  - `GET  /api/payments/status` — purchase_id 또는 order_id 로 폴링
+  - `POST /api/webhooks/toss` — webhook 수신 (PAYMENT.DONE 보완 + PAYMENT.CANCELED 환불 처리)
+- **결제 흐름** (Stripe hosted 페이지 → 토스 결제위젯/창)
+  ```
+  [프론트] /api/payments/checkout → orderId, amount, clientKey 받음
+  [프론트] Toss SDK requestPayment() 호출 → 결제수단 선택 모달
+  [사용자] 카드/카톡/네이버/토스페이 선택 결제
+  [토스]   successUrl 리다이렉트 + paymentKey/orderId/amount 쿼리
+  [프론트] /api/payments/confirm 호출
+  [백엔드] amount 변조 검증 → 토스 confirm → status=paid → download_token 발급
+  [프론트] /api/downloads/{token} 으로 다운로드 트리거
+  ```
+
+### 다음 단계 (Phase 2 — 프론트 UI)
+- 카드뉴스 모달 "📥 다운로드" 버튼 + 결제 모달 (Toss SDK 통합)
+- successUrl 처리 + 자동 다운로드
+- 관리자 「💳 결제 상품」 탭
+
+### 필수 시크릿 (사용자 등록 필요)
+```bash
+npx wrangler pages secret put TOSS_SECRET_KEY     --project-name=insureconnect-hub --env=preview
+npx wrangler pages secret put TOSS_CLIENT_KEY     --project-name=insureconnect-hub --env=preview
+npx wrangler pages secret put TOSS_WEBHOOK_SECRET --project-name=insureconnect-hub --env=preview
+```
+
+## [2.1.0-stripe-backend] - 2026-05-28  ← (Stripe 시도 — Toss 로 대체됨)
 ### Reverted
 - Sprint 2a / 2b 회원 시스템 코드 revert (사용자 결정 — Stripe 결제 우선)
   - D1 `ic_users / ic_email_otps / ic_sessions` 테이블은 데이터 보존 (재도입 시 복구 가능)
