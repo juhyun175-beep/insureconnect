@@ -1,3 +1,5 @@
+import { SEO_CATEGORIES } from '../_lib/seo-categories.js';
+
 const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
 const SB_HDR  = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
@@ -6,8 +8,16 @@ const BASE    = 'https://insureconnect-hub.pages.dev';
 function fmtDate(iso) {
   return iso ? iso.slice(0, 10) : new Date().toISOString().slice(0, 10);
 }
+const xmlEsc = (s) => String(s || '')
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+function urlTag(loc, lastmod, changefreq, priority) {
+  return `  <url>\n    <loc>${xmlEsc(loc)}</loc>\n    <lastmod>${lastmod}</lastmod>\n    <changefreq>${changefreq}</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+}
 
 export async function onRequestGet(context) {
+  const { env } = context;
   const url = new URL(context.request.url);
   const debug = url.searchParams.has('debug');
 
@@ -27,8 +37,20 @@ export async function onRequestGet(context) {
     sbBody = String(e);
   }
 
+  // SEO 게시판(ic_seo_posts, D1) — published 글의 /insurance/{category}/{slug}
+  let seoPosts = [];
+  try {
+    if (env && env.DB) {
+      const rs = await env.DB.prepare(
+        `SELECT category, slug, updated_at FROM ic_seo_posts
+         WHERE status = 'published' ORDER BY updated_at DESC LIMIT 5000`
+      ).all();
+      seoPosts = rs.results || [];
+    }
+  } catch (e) { /* D1 미연결 시 무시 */ }
+
   if (debug) {
-    return new Response(JSON.stringify({ sbStatus, posts, sbBody }, null, 2), {
+    return new Response(JSON.stringify({ sbStatus, posts, seoCount: seoPosts.length, sbBody }, null, 2), {
       headers: { 'content-type': 'application/json; charset=utf-8' },
     });
   }
@@ -36,17 +58,28 @@ export async function onRequestGet(context) {
   const today = new Date().toISOString().slice(0, 10);
 
   const staticUrls = [
-    `  <url>\n    <loc>${BASE}/</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>daily</changefreq>\n    <priority>1.0</priority>\n  </url>`,
-    `  <url>\n    <loc>${BASE}/guide.html</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`,
-    `  <url>\n    <loc>${BASE}/about.html</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.7</priority>\n  </url>`,
-    `  <url>\n    <loc>${BASE}/privacy.html</loc>\n    <lastmod>${today}</lastmod>\n    <changefreq>yearly</changefreq>\n    <priority>0.3</priority>\n  </url>`,
+    urlTag(`${BASE}/`, today, 'daily', '1.0'),
+    urlTag(`${BASE}/insurance`, today, 'daily', '0.9'),
+    urlTag(`${BASE}/guide.html`, today, 'monthly', '0.8'),
+    urlTag(`${BASE}/about.html`, today, 'monthly', '0.7'),
+    urlTag(`${BASE}/privacy.html`, today, 'yearly', '0.3'),
   ];
 
-  const postUrls = posts.map(p =>
-    `  <url>\n    <loc>${BASE}/knowledge/${p.id}</loc>\n    <lastmod>${fmtDate(p.created_at)}</lastmod>\n    <changefreq>monthly</changefreq>\n    <priority>0.8</priority>\n  </url>`
+  // SEO 카테고리 목록 페이지
+  const categoryUrls = SEO_CATEGORIES.map(c =>
+    urlTag(`${BASE}/insurance/${c.slug}`, today, 'weekly', '0.7')
   );
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticUrls, ...postUrls].join('\n')}\n</urlset>`;
+  const knowledgeUrls = posts.map(p =>
+    urlTag(`${BASE}/knowledge/${p.id}`, fmtDate(p.created_at), 'monthly', '0.8')
+  );
+
+  // SEO 게시글 — 가장 가치 높은 인덱싱 대상
+  const seoUrls = seoPosts.map(p =>
+    urlTag(`${BASE}/insurance/${p.category}/${p.slug}`, fmtDate(p.updated_at), 'monthly', '0.9')
+  );
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticUrls, ...categoryUrls, ...seoUrls, ...knowledgeUrls].join('\n')}\n</urlset>`;
 
   return new Response(xml, {
     headers: {
