@@ -71,6 +71,10 @@ header.h h1{margin:0 0 8px;font-size:27px;letter-spacing:-0.02em}header.h p{marg
 <header class="h">
   <h1>보험사 전산·고객센터·청구 안내</h1>
   <p>생명보험 ${life.length}곳 · 손해보험 ${nonlife.length}곳 — 전산 바로가기, 고객센터, 청구 팩스, 상품공시를 한 곳에서</p>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
+    <a href="/company/customer-center" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;">📞 고객센터 번호 총정리</a>
+    <a href="/company/claim-fax" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;">📠 청구 팩스번호 모음</a>
+  </div>
 </header>
 <div class="sec"><h2>🟦 생명보험</h2><div class="grid">${cardsOf(life)}</div></div>
 <div class="sec"><h2>🟧 손해보험</h2><div class="grid">${cardsOf(nonlife)}</div></div>

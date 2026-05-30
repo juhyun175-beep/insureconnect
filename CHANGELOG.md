@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.66] - 2026-05-29
+### Added (신규 유입 레버 — 보험사 집계 허브 페이지 + 카카오 리치공유 준비)
+- **신규 유입: 집계(허브) 페이지 2종** (`/company/customer-center`, `/company/claim-fax`)
+  - "보험사 고객센터 전화번호 총정리", "보험금 청구 팩스번호 모음" — broad 고검색량 쿼리 타깃
+  - 32개 상세 페이지로 내부링크 분배(hub-spoke) + FAQ/Breadcrumb JSON-LD + 공유바
+  - `/company` 인덱스 헤더에 두 허브 링크 노출, sitemap 추가
+- **C 카카오 리치공유 코드 준비**: `seo-cta.js`에 Kakao JS SDK 리치 공유(feed 카드+버튼) 추가, `KAKAO_JS_KEY` 상수로 게이팅
+  - 키 비어있으면 기존 Web Share/복사로 자동 폴백(안전) → **앱키 입력 시 즉시 활성화**
+  - 공유바에 desc/image 전달 → 카카오 카드 썸네일·설명 표시
+
 ## [2.1.65] - 2026-05-29
 ### Added (유입 #A — PWA 푸시 활성화 / 유입 #B — 네이버 재배포본)
 - **A 푸시 활성화**:

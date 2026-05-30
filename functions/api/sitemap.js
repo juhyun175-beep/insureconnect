@@ -67,10 +67,12 @@ export async function onRequestGet(context) {
     urlTag(`${BASE}/privacy.html`, today, 'yearly', '0.3'),
   ];
 
-  // 보험사별 전산/청구 랜딩
-  const companyUrls = INSURERS.map(i =>
-    urlTag(`${BASE}/company/${i.slug}`, today, 'weekly', '0.8')
-  );
+  // 보험사별 전산/청구 랜딩 + 집계(허브) 페이지
+  const companyUrls = [
+    urlTag(`${BASE}/company/customer-center`, today, 'weekly', '0.85'),
+    urlTag(`${BASE}/company/claim-fax`, today, 'weekly', '0.85'),
+    ...INSURERS.map(i => urlTag(`${BASE}/company/${i.slug}`, today, 'weekly', '0.8')),
+  ];
 
   // SEO 카테고리 목록 페이지
   const categoryUrls = SEO_CATEGORIES.map(c =>

@@ -1,14 +1,21 @@
 /**
  * v2.1.61: SEO 게시판(SSR) 공통 전환 푸터 + 공유 바
  *   - seoCtaFooter: 검색 유입 방문자를 InsureConnect 본 서비스/커뮤니티로 유도 (전환)
- *   - seoShareBar: 카카오톡 등으로 공유 유도 (바이럴 유입) — 페이지 OG가 풍부해 미리보기 양호
- *   - 자체 <style>/<script> 포함, 각 SSR 페이지에 1회 삽입
+ *   - seoShareBar: 카카오톡 등으로 공유 유도 (바이럴 유입)
+ *   - v2.1.66: Kakao JS SDK 리치 공유 (앱키 설정 시) — 데스크톱 원탭 + 맞춤 카드
  */
+
+/* ── Kakao JavaScript 앱키 ──────────────────────────────────────
+ * developers.kakao.com → 내 애플리케이션 → 앱 키 → JavaScript 키
+ * 플랫폼 → Web → 사이트 도메인에 https://insureconnect-hub.pages.dev 등록 필요
+ * 키가 비어있으면 SDK 미로드 → 기존 Web Share/복사로 자동 폴백 (안전) */
+const KAKAO_JS_KEY = ''; // ← 여기에 JavaScript 키를 넣으면 리치 공유 활성화
+
 const sesc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
-/** 공유 바 (페이지 prime 위치에 1회). url/title 은 raw 로 받음. */
-export function seoShareBar(url, title) {
+/** 공유 바 (페이지 prime 위치에 1회). url/title/desc/image 는 raw. */
+export function seoShareBar(url, title, desc, image) {
   return `
 <style>
 .seo-share{max-width:760px;margin:0 auto 16px;padding:14px 18px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
@@ -21,7 +28,7 @@ export function seoShareBar(url, title) {
 .ssb-copy{background:#eef2ff;color:#1a3de8}
 @media(max-width:640px){.seo-share{margin:0 16px 16px;border-radius:12px}}
 </style>
-<div class="seo-share" data-url="${sesc(url)}" data-title="${sesc(title)}">
+<div class="seo-share" data-url="${sesc(url)}" data-title="${sesc(title)}" data-desc="${sesc(desc)}" data-image="${sesc(image)}">
   <span class="seo-share-label">📢 도움이 됐다면 동료·고객에게 공유하세요</span>
   <div class="seo-share-btns">
     <button type="button" class="ssb-kakao" onclick="seoKakao(this)">💬 카카오톡</button>
@@ -61,6 +68,8 @@ export function seoCtaFooter(SITE) {
 <div class="seo-foot">
   © InsureConnect · <a href="/about.html">서비스 소개</a> · <a href="/disclaimer.html">면책조항</a> · <a href="/privacy.html">개인정보처리방침</a>
 </div>
+${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"></script>
+<script>try{if(window.Kakao&&!window.Kakao.isInitialized()){window.Kakao.init('${KAKAO_JS_KEY}');}}catch(e){}</script>` : ''}
 <script>
 (function(){
   function w(b){return b.closest('.seo-share');}
@@ -68,8 +77,14 @@ export function seoCtaFooter(SITE) {
     if(navigator.share){navigator.share({title:t,url:u}).catch(function(){});}else{window.seoCopy(b);}};
   window.seoCopy=function(b){var x=w(b),u=x.getAttribute('data-url');var ok=function(){var s=b.innerHTML;b.innerHTML='✅ 복사됨';setTimeout(function(){b.innerHTML=s;},1500);};
     if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(u).then(ok,function(){window.prompt('아래 링크를 복사하세요',u);});}else{window.prompt('아래 링크를 복사하세요',u);}};
-  window.seoKakao=function(b){var x=w(b),u=x.getAttribute('data-url'),t=x.getAttribute('data-title')||document.title;
-    /* Kakao JS SDK 미사용 — 모바일은 네이티브 공유(카카오톡 선택), 데스크톱은 링크 복사로 폴백 */
+  window.seoKakao=function(b){var x=w(b),u=x.getAttribute('data-url'),t=x.getAttribute('data-title')||document.title,d=x.getAttribute('data-desc')||'',img=x.getAttribute('data-image')||'';
+    // 1) Kakao SDK(앱키 설정 시): 데스크톱·모바일 원탭 리치 카드
+    if(window.Kakao&&window.Kakao.Share){
+      try{ window.Kakao.Share.sendDefault({objectType:'feed',
+        content:{title:t,description:d,imageUrl:img,link:{mobileWebUrl:u,webUrl:u}},
+        buttons:[{title:'자세히 보기',link:{mobileWebUrl:u,webUrl:u}}]}); return; }catch(e){}
+    }
+    // 2) 폴백: 모바일 네이티브 공유(카카오톡 선택), 데스크톱 링크 복사
     if(navigator.share){navigator.share({title:t,url:u}).catch(function(){});}
     else{window.seoCopy(b);b.innerHTML='🔗 링크복사됨';setTimeout(function(){b.innerHTML='💬 카카오톡';},1500);}};
 })();

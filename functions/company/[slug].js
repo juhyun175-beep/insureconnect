@@ -5,6 +5,7 @@
  */
 import { INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { renderAggregation, AGGREGATIONS } from '../_lib/company-aggregation.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
@@ -15,7 +16,14 @@ const isPhone = (s) => /\d{3,}/.test(String(s || ''));
 
 export const onRequestGet = async ({ params }) => {
   const ins = INSURER_MAP[params.slug];
-  if (!ins) return new Response('Not found', { status: 404 });
+  if (!ins) {
+    // 집계(허브) 페이지 — /company/customer-center, /company/claim-fax
+    if (AGGREGATIONS[params.slug]) {
+      const r = renderAggregation(params.slug, SITE);
+      if (r) return r;
+    }
+    return new Response('Not found', { status: 404 });
+  }
 
   const typeLabel = TYPE_LABEL[ins.type] || '보험';
   const url = `${SITE}/company/${ins.slug}`;
@@ -123,7 +131,7 @@ table.info a{color:#1a3de8;text-decoration:none}
   </table>
   <p class="note">※ 청구 팩스·접수처는 상품(실손/정액)에 따라 다를 수 있어, 청구 전 콜센터로 확인을 권장합니다.</p>
 </section>
-${seoShareBar(url, ins.name + ' 전산·청구 안내')}
+${seoShareBar(url, ins.name + ' 전산·청구 안내', desc, `${SITE}/logo-full.png`)}
 
 <section class="card">
   <h2>전산 · 상품공시 바로가기</h2>

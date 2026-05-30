@@ -1,0 +1,136 @@
+/**
+ * v2.1.66: 보험사 정보 집계(허브) 페이지 — 신규 유입용 프로그래매틱 SEO
+ *   /company/customer-center, /company/claim-fax
+ *   - broad 고검색량 쿼리("보험사 고객센터 번호", "보험금 청구 팩스번호") 타깃
+ *   - 32개 상세(/company/{slug})로 내부링크 분배 (hub-spoke)
+ */
+import { INSURERS, TYPE_LABEL } from './insurers.js';
+import { seoCtaFooter, seoShareBar } from './seo-cta.js';
+
+const esc = (s) => String(s == null ? '' : s)
+  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+  .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
+
+export const AGGREGATIONS = {
+  'customer-center': {
+    h1: '보험사 고객센터 전화번호 총정리 (생보·손보 32곳)',
+    title: '보험사 고객센터 전화번호 모음 — 생명·손해보험 대표/보상 접수',
+    desc: '삼성생명·삼성화재·메리츠화재·현대해상 등 국내 생명·손해보험사 32곳의 대표 고객센터 전화번호와 보험금 보상 접수 번호를 한 표로 정리했습니다.',
+    intro: '보험금 문의나 상담 시 필요한 보험사별 대표전화와 보상 접수 번호입니다. 보험사명을 누르면 전산 바로가기·청구 팩스·상품공시까지 확인할 수 있습니다.',
+    cols: ['보험사', '대표전화', '보상·접수'],
+    row: (i) => [i.call, i.incall],
+    faq: [
+      { q: '보험사 고객센터는 어디로 전화하나요?', a: '위 표에서 가입한 보험사의 대표전화로 연결하면 됩니다. 보험금 보상·접수는 별도 번호가 있는 경우가 많아 함께 정리했습니다.' },
+      { q: '보험금 접수 번호가 대표전화와 다른가요?', a: '많은 보험사가 일반 상담과 보상 접수 회선을 구분합니다. 표의 "보상·접수" 번호를 이용하면 더 빠릅니다.' },
+    ],
+  },
+  'claim-fax': {
+    h1: '보험사 보험금 청구 팩스번호 모음 (32곳)',
+    title: '보험금 청구 팩스번호 모음 — 보험사별 청구 서류 팩스',
+    desc: '보험금 청구 서류를 팩스로 접수할 때 필요한 국내 보험사 32곳의 청구 팩스번호를 정리했습니다. 실손/정액에 따라 접수처가 다를 수 있어 콜센터 확인을 권장합니다.',
+    intro: '보험금 청구 서류는 모바일 앱·팩스·방문으로 접수할 수 있습니다. 아래는 보험사별 청구 팩스번호입니다. 상품(실손/정액)에 따라 접수처가 다를 수 있으니 청구 전 콜센터 확인을 권장합니다.',
+    cols: ['보험사', '청구 팩스', '대표전화'],
+    row: (i) => [i.fax, i.call],
+    faq: [
+      { q: '보험금 청구를 팩스로 해도 되나요?', a: '대부분의 보험사가 팩스 청구를 받습니다. 위 표의 청구 팩스번호로 보험금청구서·진단서·영수증 등을 보내면 됩니다. 다만 모바일 앱 청구가 더 빠를 수 있습니다.' },
+      { q: '청구 팩스번호가 "가상번호 부여"라고 되어 있어요.', a: '일부 보험사는 청구 건마다 가상 팩스번호를 부여합니다. 콜센터에 청구 의사를 알리면 전용 번호를 안내받을 수 있습니다.' },
+    ],
+  },
+};
+
+export function renderAggregation(slug, SITE) {
+  const cfg = AGGREGATIONS[slug];
+  if (!cfg) return null;
+  const url = `${SITE}/company/${slug}`;
+
+  const life = INSURERS.filter(i => i.type === 'life');
+  const nonlife = INSURERS.filter(i => i.type === 'nonlife');
+
+  const rowsHtml = (arr) => arr.map(i => {
+    const cells = cfg.row(i).map(v => `<td>${esc(v)}</td>`).join('');
+    return `<tr><th scope="row"><a href="/company/${i.slug}">${esc(i.name)}</a></th>${cells}</tr>`;
+  }).join('');
+
+  const tableFor = (label, arr) => `
+    <h2>${esc(label)}</h2>
+    <table class="agg">
+      <thead><tr>${cfg.cols.map((c, idx) => idx === 0 ? `<th scope="col">${esc(c)}</th>` : `<th scope="col">${esc(c)}</th>`).join('')}</tr></thead>
+      <tbody>${rowsHtml(arr)}</tbody>
+    </table>`;
+
+  const faqHtml = cfg.faq.map(f => `<dl><dt>Q. ${esc(f.q)}</dt><dd>${esc(f.a)}</dd></dl>`).join('');
+  const faqLd = {
+    '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: cfg.faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '홈', item: SITE },
+      { '@type': 'ListItem', position: 2, name: '보험사 전산', item: `${SITE}/company` },
+      { '@type': 'ListItem', position: 3, name: cfg.h1, item: url },
+    ],
+  };
+
+  const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>${esc(cfg.title)} | InsureConnect</title>
+<meta name="description" content="${esc(cfg.desc)}">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="${url}">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="InsureConnect">
+<meta property="og:title" content="${esc(cfg.title)}">
+<meta property="og:description" content="${esc(cfg.desc)}">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${SITE}/logo-full.png">
+<meta name="twitter:card" content="summary">
+${ld(faqLd)}
+${ld(breadcrumbLd)}
+<style>
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;color:#1a202c;background:#f9fafb;line-height:1.7;margin:0;padding:0}
+.crumb{font-size:13px;color:#6b7280;padding:16px 20px;max-width:860px;margin:0 auto}.crumb a{color:#1a3de8;text-decoration:none}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px}
+header.h{background:#fff;border-radius:14px;padding:26px 26px;box-shadow:0 4px 16px rgba(0,0,0,0.04);margin-bottom:16px}
+header.h h1{margin:0 0 8px;font-size:25px;color:#0f172a;letter-spacing:-0.02em}
+header.h p{margin:0;color:#6b7280;font-size:14px}
+h2{font-size:18px;color:#0f172a;margin:22px 0 10px}
+table.agg{width:100%;border-collapse:collapse;background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,0.04);font-size:14px}
+table.agg th[scope=col]{background:#eff6ff;color:#1a3de8;text-align:left;padding:11px 14px;font-size:13px}
+table.agg th[scope=row]{text-align:left;padding:11px 14px;border-top:1px solid #f1f5f9;white-space:nowrap}
+table.agg th[scope=row] a{color:#1a3de8;text-decoration:none;font-weight:700}
+table.agg td{padding:11px 14px;border-top:1px solid #f1f5f9;color:#1f2937}
+.faq{background:#eff6ff;border-left:4px solid #1a3de8;border-radius:14px;padding:22px 24px;margin:22px 0}
+.faq h2{margin-top:0;color:#1e3a8a}.faq dt{font-weight:700;color:#1e3a8a;margin-bottom:4px}.faq dd{margin:0 0 12px;color:#374151}
+.note{font-size:12px;color:#9ca3af;margin-top:10px}
+@media(max-width:640px){header.h{border-radius:0}.wrap{padding:0}.crumb{padding:12px 16px}table.agg{font-size:13px}}
+</style>
+</head>
+<body>
+<nav class="crumb" aria-label="breadcrumb"><a href="/">홈</a> &raquo; <a href="/company">보험사 전산</a> &raquo; <span>${esc(cfg.h1)}</span></nav>
+<div class="wrap">
+<header class="h">
+  <h1>${esc(cfg.h1)}</h1>
+  <p>${esc(cfg.intro)}</p>
+</header>
+${tableFor('🟦 생명보험', life)}
+${tableFor('🟧 손해보험', nonlife)}
+<p class="note">※ 번호·접수처는 변경될 수 있습니다. 정확한 정보는 각 보험사 공식 안내를 확인하세요. 보험사명을 누르면 전산·청구·공시 안내를 볼 수 있습니다.</p>
+${seoShareBar(url, cfg.h1, cfg.desc, `${SITE}/logo-full.png`)}
+<div class="faq">
+  <h2>자주 묻는 질문</h2>
+  ${faqHtml}
+</div>
+</div>
+${seoCtaFooter(SITE)}
+</body>
+</html>`;
+
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=600, s-maxage=3600' },
+  });
+}

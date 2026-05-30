@@ -180,7 +180,7 @@ article.post{max-width:760px;margin:0 auto;background:#fff;padding:32px 28px 48p
   <div class="post-body">${row.content}</div>
   <a class="back-link" href="/insurance/${cat.slug}">← ${esc(cat.label)} 목록으로</a>
 </article>
-${seoShareBar(url, row.title)}
+${seoShareBar(url, row.title, description, ogImage)}
 ${faqHtml}
 ${relatedHtml}
 ${seoCtaFooter(SITE)}
