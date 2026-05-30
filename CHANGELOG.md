@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.2.0] - 2026-05-31
+### Added (심사 통과 패키지 ① — AI 보험비서 MVP)
+- **AI 보험비서** `/ai` 페이지 + `/api/ai/assistant` 엔드포인트 (4모드: 상담 스크립트·마케팅 문구·보장분석 요약·보험 개념 설명)
+- **프로바이더 자동 선택**: OPENAI_API_KEY 또는 ANTHROPIC_API_KEY 시크릿 중 있는 것 사용 (둘 다 없으면 안내)
+- **보안**: 키는 서버 시크릿(클라이언트 노출 0), IP 일일 레이트리밋 20회(`ic_ai_usage`), 입력 2000자 제한, 봇 차단, 출력 textContent 렌더(XSS 방지), YMYL 안전 시스템 프롬프트
+- 사이드바에 "🤖 AI 보험비서 BETA" 링크, sitemap에 /ai 추가
+- 사용 로그(`ic_ai_logs`, 개인정보 미저장 — 모드·길이만)
+- ※ 활성화에 OpenAI 또는 Anthropic API 키 1개 필요 (시크릿 등록)
+
 ## [2.1.71] - 2026-05-31
 ### Added (AEO — AI 답변엔진 최적화 가벼운 패스)
 - **AI 유입 측정**: 유입 경로 분류기에 ChatGPT·Perplexity·Gemini·Claude·Copilot·You.com 추가 (gemini.google은 Google보다 먼저 검사) → 관리자 "유입 경로" 탭에서 AI 검색 유입이 별도 채널로 집계
