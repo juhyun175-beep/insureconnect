@@ -6,4 +6,46 @@ User-agent: Yeti
 Allow: /
 Disallow: /admin.html
 
+# AI 검색/답변 엔진 크롤러 명시 허용 (AEO) — 인용·노출 허용, 관리자만 차단
+User-agent: GPTBot
+Allow: /
+Disallow: /admin.html
+
+User-agent: OAI-SearchBot
+Allow: /
+Disallow: /admin.html
+
+User-agent: ChatGPT-User
+Allow: /
+Disallow: /admin.html
+
+User-agent: ClaudeBot
+Allow: /
+Disallow: /admin.html
+
+User-agent: Claude-Web
+Allow: /
+Disallow: /admin.html
+
+User-agent: anthropic-ai
+Allow: /
+Disallow: /admin.html
+
+User-agent: PerplexityBot
+Allow: /
+Disallow: /admin.html
+
+User-agent: Google-Extended
+Allow: /
+Disallow: /admin.html
+
+User-agent: Applebot-Extended
+Allow: /
+Disallow: /admin.html
+
+User-agent: CCBot
+Allow: /
+Disallow: /admin.html
+
 Sitemap: https://insureconnect-hub.pages.dev/sitemap.xml
+LLM-Content: https://insureconnect-hub.pages.dev/llms.txt

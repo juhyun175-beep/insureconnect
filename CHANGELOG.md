@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.1.71] - 2026-05-31
+### Added (AEO — AI 답변엔진 최적화 가벼운 패스)
+- **AI 유입 측정**: 유입 경로 분류기에 ChatGPT·Perplexity·Gemini·Claude·Copilot·You.com 추가 (gemini.google은 Google보다 먼저 검사) → 관리자 "유입 경로" 탭에서 AI 검색 유입이 별도 채널로 집계
+- **AI 크롤러 명시 허용**: robots.txt에 GPTBot·OAI-SearchBot·ChatGPT-User·ClaudeBot·Claude-Web·anthropic-ai·PerplexityBot·Google-Extended·Applebot-Extended·CCBot 허용(관리자만 차단) + LLM-Content 라인
+- **llms.txt 신설**: LLM/AI 답변엔진용 콘텐츠 맵(핵심 허브 + 게시판 118편 카테고리별) — `seo-seed/llms-gen.mjs` 생성기
+- **Organization/WebSite JSON-LD**: 홈에 사이트·브랜드 엔티티(@graph) 추가 → SEO·AEO E-E-A-T
+- 참고: 콘텐츠는 이미 FAQ/스키마 구조라 AEO 80%는 기존 SEO 작업으로 충족된 상태
+
 ## [2.1.70] - 2026-05-31
 ### Added (관리자 유입 경로 분석 — 어느 루트로 들어왔는지)
 - **추적 파이프라인 신설**: 진입 비콘(세션당 1회) → `/api/track/hit` → `ic_traffic_hits`(D1)

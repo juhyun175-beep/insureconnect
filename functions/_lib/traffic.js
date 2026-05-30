@@ -6,6 +6,13 @@ export function sourceFromReferrer(ref) {
   try { host = ref ? new URL(ref).hostname.toLowerCase() : ''; } catch (_) { host = String(ref || '').toLowerCase(); }
   if (!host) return { source: '직접/앱', host: '' };
   if (host.includes('insureconnect-hub.pages.dev')) return { source: '내부 이동', host };
+  // AI 답변 엔진(AEO) — google 계열보다 먼저 검사 (gemini.google.com 등)
+  if (host.includes('chatgpt') || host.includes('openai'))   return { source: 'ChatGPT', host };
+  if (host.includes('perplexity'))                            return { source: 'Perplexity', host };
+  if (host.includes('gemini.google') || host.includes('bard')) return { source: 'Gemini', host };
+  if (host.includes('claude.ai') || host.includes('anthropic')) return { source: 'Claude', host };
+  if (host.includes('copilot'))                               return { source: 'Copilot', host };
+  if (host.includes('you.com'))                               return { source: 'You.com', host };
   if (host.includes('google'))                       return { source: 'Google', host };
   if (host.includes('naver'))                        return { source: 'Naver', host };
   if (host.includes('daum') || host.includes('kakao')) return { source: host.includes('kakao') ? 'KakaoTalk' : 'Daum', host };
