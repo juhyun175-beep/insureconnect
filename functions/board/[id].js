@@ -9,14 +9,18 @@ const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const fmt = (iso) => { const d = new Date(iso); if (isNaN(d)) return ''; const k = new Date(d.getTime() + 9 * 3600000); return `${k.getUTCFullYear()}.${String(k.getUTCMonth() + 1).padStart(2, '0')}.${String(k.getUTCDate()).padStart(2, '0')} ${String(k.getUTCHours()).padStart(2, '0')}:${String(k.getUTCMinutes()).padStart(2, '0')}`; };
+const roleBadge = (role) => role === 'certified' ? '<span class="bdg bdg-cert">인증설계사</span>'
+  : role === 'premium' ? '<span class="bdg bdg-prem">프리미엄</span>'
+  : role === 'admin' ? '<span class="bdg bdg-admin">운영자</span>' : '';
 
 export const onRequestGet = async ({ env, request, params }) => {
   const id = parseInt(params.id, 10);
   if (!id) return new Response('Not found', { status: 404 });
 
   const post = await env.DB.prepare(
-    `SELECT id, user_id, nickname, title, content, view_count, comment_count, created_at
-     FROM ic_board_posts WHERE id = ? AND deleted = 0`
+    `SELECT p.id, p.user_id, p.nickname, p.title, p.content, p.view_count, p.comment_count, p.created_at, m.role AS author_role
+     FROM ic_board_posts p LEFT JOIN ic_members m ON m.id = p.user_id
+     WHERE p.id = ? AND p.deleted = 0`
   ).bind(id).first();
   if (!post) return new Response('Not found', { status: 404 });
 
@@ -24,14 +28,15 @@ export const onRequestGet = async ({ env, request, params }) => {
     env.DB.prepare(`UPDATE ic_board_posts SET view_count = view_count + 1 WHERE id = ?`).bind(id).run().catch(() => {});
   }
   const cs = await env.DB.prepare(
-    `SELECT id, user_id, nickname, content, created_at FROM ic_board_comments
-     WHERE post_id = ? AND deleted = 0 ORDER BY created_at ASC`
+    `SELECT c.id, c.user_id, c.nickname, c.content, c.created_at, m.role AS author_role
+     FROM ic_board_comments c LEFT JOIN ic_members m ON m.id = c.user_id
+     WHERE c.post_id = ? AND c.deleted = 0 ORDER BY c.created_at ASC`
   ).bind(id).all();
   const comments = cs.results || [];
 
   const commentsHtml = comments.length ? comments.map(c => `
     <div class="cmt" data-uid="${c.user_id}" data-cid="${c.id}">
-      <div class="cmt-head"><b>${esc(c.nickname || '회원')}</b><span>${fmt(c.created_at)}</span></div>
+      <div class="cmt-head"><b>${esc(c.nickname || '회원')}</b>${roleBadge(c.author_role)}<span>${fmt(c.created_at)}</span></div>
       <div class="cmt-body">${esc(c.content)}</div>
     </div>`).join('') : '<div class="cmt-empty">첫 댓글을 남겨보세요.</div>';
 
@@ -55,7 +60,9 @@ article h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.01em}
 .cmts{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.04);padding:20px 22px;margin-top:16px}
 .cmts h2{font-size:15px;margin:0 0 14px}
 .cmt{padding:12px 0;border-bottom:1px solid #f5f7fa}
-.cmt-head{display:flex;gap:8px;font-size:12.5px;color:#94a3b8;margin-bottom:4px}.cmt-head b{color:#334155}
+.cmt-head{display:flex;gap:8px;font-size:12.5px;color:#94a3b8;margin-bottom:4px;align-items:center}.cmt-head b{color:#334155}
+.bdg{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:5px}
+.bdg-cert{background:#dbeafe;color:#1a3de8}.bdg-prem{background:#fef3c7;color:#b45309}.bdg-admin{background:#fee2e2;color:#dc2626}
 .cmt-body{white-space:pre-wrap;font-size:14.5px;color:#1f2937;word-break:break-word}
 .cmt-empty{color:#94a3b8;font-size:13.5px;padding:8px 0}
 .cmt-form{margin-top:16px;display:none}
@@ -74,7 +81,7 @@ article h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.01em}
   <article>
     <h1>${esc(post.title)}</h1>
     <div class="meta">
-      <b style="color:#334155">${esc(post.nickname || '회원')}</b>
+      <b style="color:#334155">${esc(post.nickname || '회원')}</b>${roleBadge(post.author_role)}
       <span>${fmt(post.created_at)}</span>
       <span>조회 ${post.view_count}</span>
       <button class="del" id="del-btn" type="button" data-uid="${post.user_id}">삭제</button>

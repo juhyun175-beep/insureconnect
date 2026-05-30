@@ -8,6 +8,9 @@ const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const fmt = (iso) => { const d = new Date(iso); if (isNaN(d)) return ''; const k = new Date(d.getTime() + 9 * 3600000); return `${k.getUTCFullYear()}.${String(k.getUTCMonth() + 1).padStart(2, '0')}.${String(k.getUTCDate()).padStart(2, '0')}`; };
+const roleBadge = (role) => role === 'certified' ? '<span class="bdg bdg-cert">인증설계사</span>'
+  : role === 'premium' ? '<span class="bdg bdg-prem">프리미엄</span>'
+  : role === 'admin' ? '<span class="bdg bdg-admin">운영자</span>' : '';
 
 export const onRequestGet = async ({ env, request }) => {
   const url = new URL(request.url);
@@ -18,8 +21,9 @@ export const onRequestGet = async ({ env, request }) => {
   let posts = [], total = 0;
   try {
     const rs = await env.DB.prepare(
-      `SELECT id, nickname, title, view_count, comment_count, created_at
-       FROM ic_board_posts WHERE deleted = 0 ORDER BY created_at DESC LIMIT ? OFFSET ?`
+      `SELECT p.id, p.nickname, p.title, p.view_count, p.comment_count, p.created_at, m.role AS author_role
+       FROM ic_board_posts p LEFT JOIN ic_members m ON m.id = p.user_id
+       WHERE p.deleted = 0 ORDER BY p.created_at DESC LIMIT ? OFFSET ?`
     ).bind(per, offset).all();
     posts = rs.results || [];
     const c = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_board_posts WHERE deleted = 0`).first();
@@ -30,7 +34,7 @@ export const onRequestGet = async ({ env, request }) => {
     <a class="row" href="/board/${p.id}">
       <div class="row-main">
         <div class="row-title">${esc(p.title)}${p.comment_count ? `<span class="cc">[${p.comment_count}]</span>` : ''}</div>
-        <div class="row-meta">${esc(p.nickname || '회원')} · ${fmt(p.created_at)} · 조회 ${p.view_count}</div>
+        <div class="row-meta">${esc(p.nickname || '회원')}${roleBadge(p.author_role)} · ${fmt(p.created_at)} · 조회 ${p.view_count}</div>
       </div>
     </a>`).join('') : '<div class="empty">아직 글이 없습니다. 첫 글을 남겨보세요!</div>';
 
@@ -60,6 +64,8 @@ header.h h1{margin:0;font-size:24px;letter-spacing:-0.02em}
 .row-title{font-size:15.5px;font-weight:700;color:#0f172a}
 .row-title .cc{color:#1a3de8;font-weight:800;margin-left:6px;font-size:13px}
 .row-meta{font-size:12.5px;color:#94a3b8;margin-top:4px}
+.bdg{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;border-radius:5px;margin-left:5px;vertical-align:1px}
+.bdg-cert{background:#dbeafe;color:#1a3de8}.bdg-prem{background:#fef3c7;color:#b45309}.bdg-admin{background:#fee2e2;color:#dc2626}
 .empty{padding:48px 20px;text-align:center;color:#94a3b8}
 .pager{display:flex;gap:14px;justify-content:center;align-items:center;margin-top:18px;color:#64748b;font-size:13px}
 .pager a{color:#1a3de8;text-decoration:none;font-weight:700}

@@ -5,6 +5,12 @@
 export const SITE = 'https://insureconnect-hub.pages.dev';
 const SESSION_DAYS = 30;
 
+// 회원 등급 (낮음 → 높음)
+export const ROLES = ['member', 'certified', 'premium', 'admin'];
+export const ROLE_LABEL = { member: '일반회원', certified: '인증설계사', premium: '프리미엄', admin: '관리자' };
+export function roleRank(r) { const i = ROLES.indexOf(r); return i < 0 ? 0 : i; }
+export function hasRole(user, minRole) { return !!user && roleRank(user.role) >= roleRank(minRole); }
+
 export function randomToken() {
   const b = crypto.getRandomValues(new Uint8Array(32));
   return [...b].map(x => x.toString(16).padStart(2, '0')).join('');
@@ -47,7 +53,7 @@ export async function getUserFromRequest(env, request) {
     if (!token) return null;
     const hash = await sha256hex(token);
     const row = await env.DB.prepare(
-      `SELECT u.id, u.nickname, u.profile_image, u.kakao_id, s.expires_at
+      `SELECT u.id, u.nickname, u.profile_image, u.kakao_id, u.role, s.expires_at
        FROM ic_member_sessions s JOIN ic_members u ON u.id = s.user_id
        WHERE s.token_hash = ?`
     ).bind(hash).first();
@@ -56,7 +62,7 @@ export async function getUserFromRequest(env, request) {
       await env.DB.prepare(`DELETE FROM ic_member_sessions WHERE token_hash = ?`).bind(hash).run().catch(() => {});
       return null;
     }
-    return { id: row.id, nickname: row.nickname, profile_image: row.profile_image };
+    return { id: row.id, nickname: row.nickname, profile_image: row.profile_image, role: row.role || 'member' };
   } catch (_) { return null; }
 }
 

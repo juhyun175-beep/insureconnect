@@ -5,11 +5,13 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { isBot } from '../../_lib/bot.js';
-import { AI_MODES, callLLM, hashIp, aiProvider } from '../../_lib/ai.js';
+import { AI_MODES, callLLM, aiProvider } from '../../_lib/ai.js';
+import { getUserFromRequest } from '../../_lib/auth.js';
 
 export const onRequestOptions = () => corsPreflight();
 
-const DAILY_LIMIT = 20;      // IP당 1일 호출 한도 (비용·악용 차단)
+// 등급별 1일 AI 사용 한도 (서버 강제 = 실제 권한부여)
+const TIER_LIMIT = { member: 5, certified: 20, premium: 100, admin: 9999 };
 const MAX_INPUT = 2000;
 
 function kstDateKey() {
@@ -29,25 +31,31 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
   if (!input) return error('입력을 작성해주세요.');
   if (input.length > MAX_INPUT) return error(`입력이 너무 깁니다 (최대 ${MAX_INPUT}자).`);
 
+  // 로그인 필수 (회원 등급제 — 실제 권한부여)
+  const user = await getUserFromRequest(env, request);
+  if (!user) {
+    return json({ error: 'AI 보험비서는 로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
+  }
+  const limit = TIER_LIMIT[user.role] || TIER_LIMIT.member;
+
   // 키 미설정 → 안내 (503)
   if (!aiProvider(env)) {
     return json({ error: 'AI 키가 아직 설정되지 않았습니다. 관리자에게 문의해주세요.', code: 'no_key' }, 503);
   }
 
-  // IP 일일 레이트리밋 (먼저 증가 후 검사 → LLM 호출 전 차단)
-  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  // 등급별 1일 한도 (회원 id 기준, 증가 후 검사 → LLM 호출 전 차단)
   const date = kstDateKey();
-  const ipHash = await hashIp(ip, date + '|ic-ai');
+  const usageKey = `m${user.id}`;
   let count = 1;
   try {
     const r = await env.DB.prepare(
       `INSERT INTO ic_ai_usage (date, ip_hash, count) VALUES (?, ?, 1)
        ON CONFLICT (date, ip_hash) DO UPDATE SET count = count + 1 RETURNING count`
-    ).bind(date, ipHash).first();
+    ).bind(date, usageKey).first();
     count = r?.count || 1;
   } catch (_) {}
-  if (count > DAILY_LIMIT) {
-    return json({ error: `오늘 무료 이용 한도(${DAILY_LIMIT}회)를 초과했습니다. 내일 다시 이용해주세요.`, code: 'rate_limit' }, 429);
+  if (count > limit) {
+    return json({ error: `오늘 이용 한도(${user.role === 'member' ? '일반회원 ' : ''}${limit}회)를 초과했습니다. 등급을 올리면 더 많이 이용할 수 있어요.`, code: 'rate_limit' }, 429);
   }
 
   const r = await callLLM(env, conf.system, input.slice(0, MAX_INPUT), { maxTokens: 900 });
@@ -62,5 +70,5 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
       .bind(new Date().toISOString(), date, mode, input.length, r.text.length).run();
   } catch (_) {}
 
-  return json({ text: r.text, remaining: Math.max(0, DAILY_LIMIT - count) });
+  return json({ text: r.text, remaining: Math.max(0, limit - count), role: user.role });
 });
