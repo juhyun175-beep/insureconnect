@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.1.62] - 2026-05-29
+### Added (유입 극대화 #1 — 보험사별 전산/청구 프로그래매틱 SEO)
+- **신규 SSR 랜딩 32개**: `/company/{slug}` — 생보 20 + 손보 12
+  - 타깃 고의도 검색: "삼성생명 전산 바로가기", "현대해상 청구 팩스번호", "메리츠화재 보상 전화", "교보생명 상품공시" 등
+  - 보험사별 고유 데이터(전산 URL·대표전화·보상접수·청구팩스·상품공시) → thin content 아님
+  - JSON-LD: InsuranceAgency(ContactPoint) + FAQPage + BreadcrumbList
+  - 청구 게시판 글 내부링크 + 전환 CTA 푸터
+- **신규 인덱스**: `/company` — 생보/손보 전 보험사 허브 (ItemList/Breadcrumb JSON-LD)
+- 데이터 모듈 `_lib/insurers.js` (index.html LIFE/NONLIFE 추출, 서버 공유)
+- sitemap에 `/company` + 32개 보험사 페이지 추가
+- 홈 대시보드에 "🖥 보험사 전산·청구" 내부링크 추가 (크롤 경로 강화)
+
 ## [2.1.61] - 2026-05-29
 ### Changed (보험정보게시판 색인·전환 최적화 — B안)
 - **전환 동선 추가**: SEO 게시판 SSR 3종(진입·카테고리·글)에 공통 전환 푸터(`_lib/seo-cta.js`) 삽입

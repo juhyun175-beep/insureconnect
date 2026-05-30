@@ -1,4 +1,5 @@
 import { SEO_CATEGORIES } from '../_lib/seo-categories.js';
+import { INSURERS } from '../_lib/insurers.js';
 
 const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
@@ -60,10 +61,16 @@ export async function onRequestGet(context) {
   const staticUrls = [
     urlTag(`${BASE}/`, today, 'daily', '1.0'),
     urlTag(`${BASE}/insurance`, today, 'daily', '0.9'),
+    urlTag(`${BASE}/company`, today, 'weekly', '0.9'),
     urlTag(`${BASE}/guide.html`, today, 'monthly', '0.8'),
     urlTag(`${BASE}/about.html`, today, 'monthly', '0.7'),
     urlTag(`${BASE}/privacy.html`, today, 'yearly', '0.3'),
   ];
+
+  // 보험사별 전산/청구 랜딩
+  const companyUrls = INSURERS.map(i =>
+    urlTag(`${BASE}/company/${i.slug}`, today, 'weekly', '0.8')
+  );
 
   // SEO 카테고리 목록 페이지
   const categoryUrls = SEO_CATEGORIES.map(c =>
@@ -79,7 +86,7 @@ export async function onRequestGet(context) {
     urlTag(`${BASE}/insurance/${p.category}/${p.slug}`, fmtDate(p.updated_at), 'monthly', '0.9')
   );
 
-  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticUrls, ...categoryUrls, ...seoUrls, ...knowledgeUrls].join('\n')}\n</urlset>`;
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${[...staticUrls, ...companyUrls, ...categoryUrls, ...seoUrls, ...knowledgeUrls].join('\n')}\n</urlset>`;
 
   return new Response(xml, {
     headers: {
