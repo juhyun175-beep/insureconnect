@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.2.1] - 2026-05-31
+### Added (심사 통과 패키지 ② — 카카오 로그인 회원 시스템)
+- **회원 시스템**: `ic_users` + `ic_sessions`(D1), 카카오 OAuth 로그인
+  - `/api/auth/kakao/login`(state CSRF) → `/api/auth/kakao/callback`(code 교환·사용자 upsert·세션 발급) → `/api/auth/me` · `/api/auth/logout`
+  - 보안: REST 키·시크릿 서버 보관, 세션 토큰은 **해시로 DB 저장**, 쿠키 httpOnly·Secure·SameSite=Lax, state CSRF 검증, 30일 만료
+  - 사이드바 카카오 로그인 위젯(프로필·로그아웃) — `KAKAO_REST_KEY` 미설정 시 **자동 숨김**(미완성 노출 방지)
+  - "가입 회원수·MAU·재방문율" 지표의 토대
+- ※ 활성화: 카카오 개발자에서 카카오 로그인 ON + Redirect URI 등록 + REST API 키 시크릿 등록 필요
+### Changed
+- AI 보험비서 `/ai` **비공개(unlisted)** 전환 — 사이드바 메뉴 제거 + noindex + sitemap 제외 (완성 전 이용자 노출 방지, URL은 데모용 유지)
+
 ## [2.2.0] - 2026-05-31
 ### Added (심사 통과 패키지 ① — AI 보험비서 MVP)
 - **AI 보험비서** `/ai` 페이지 + `/api/ai/assistant` 엔드포인트 (4모드: 상담 스크립트·마케팅 문구·보장분석 요약·보험 개념 설명)

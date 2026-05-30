@@ -21,7 +21,7 @@ export const onRequestGet = async ({ env }) => {
 <meta charset="UTF-8">
 <title>AI 보험비서 — 보험설계사를 위한 AI 도구 | InsureConnect</title>
 <meta name="description" content="보험설계사를 위한 AI 도구. 상담 스크립트·마케팅 문구·보장분석 요약·보험 개념 설명을 AI가 즉시 생성합니다.">
-<meta name="robots" content="index,follow">
+<meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="${SITE}/ai">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta property="og:type" content="website">

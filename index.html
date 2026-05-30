@@ -7633,12 +7633,27 @@
         <span>📝 보험 정보 게시판</span>
         <span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;margin-left:auto;letter-spacing:0.04em;">NEW</span>
       </a>
-      <!-- v2.2.0: AI 보험비서 -->
-      <a class="menu-tab" href="/ai" onclick="trackCardClick('사이드바','AI 보험비서');" style="text-decoration:none;display:flex;align-items:center;gap:6px;">
-        <span>🤖 AI 보험비서</span>
-        <span style="background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;margin-left:auto;letter-spacing:0.04em;">BETA</span>
-      </a>
+      <!-- v2.2.0: AI 보험비서 — 완성 전까지 비공개(unlisted). URL(/ai)은 데모용으로 유지, 메뉴/색인 미노출 -->
     </nav>
+    <!-- v2.2.1: 회원(카카오 로그인) 위젯 — KAKAO_REST_KEY 미설정 시 자동 숨김 -->
+    <div id="ic-auth" style="margin:8px 12px 0;"></div>
+    <script>
+    (function(){
+      var box=document.getElementById('ic-auth'); if(!box) return;
+      function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+      fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+        if(d.user){
+          box.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.06);border-radius:10px;font-size:13px;color:#e6edf3;">'
+            +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'<span>👤</span>')
+            +'<span style="font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span>'
+            +'<button type="button" onclick="icLogout()" style="border:none;background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;">로그아웃</button></div>';
+        } else if(d.login_enabled){
+          box.innerHTML='<a href="/api/auth/kakao/login" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#FEE500;color:#191600;text-decoration:none;font-weight:800;font-size:13.5px;padding:10px;border-radius:10px;">💬 카카오 로그인</a>';
+        }
+      }).catch(function(){});
+    })();
+    function icLogout(){ fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.reload();}); }
+    </script>
     <!-- 글로벌 빠른 검색 트리거 -->
     <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
       <span class="ssb-icon">🔍</span>
