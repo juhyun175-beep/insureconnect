@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.1.70] - 2026-05-31
+### Added (관리자 유입 경로 분석 — 어느 루트로 들어왔는지)
+- **추적 파이프라인 신설**: 진입 비콘(세션당 1회) → `/api/track/hit` → `ic_traffic_hits`(D1)
+  - 랜딩 페이지 + referrer→채널 분류(Google/Naver/KakaoTalk/Instagram/직접 등) + 기기(모바일/데스크톱) + utm
+  - SSR(게시판·보험사·GA) 공통 푸터 + SPA 양쪽에 비콘 → **그동안 추적 안 되던 SEO 착지점도 집계**
+  - 봇 자동 제외, 120일 초과 자동 정리
+- **집계 API** `/api/stats/traffic`(admin) 실데이터 구현 (기존 빈 응답 → referrer/landing/device/utm today·total + recent)
+- **관리자 "📈 유입 경로" 탭**: 유입 채널/유입 페이지/기기 막대그래프(오늘·누적) + 최근 유입 30건
+  - 참고: 검색 키워드는 GSC/네이버 서치어드바이저 (referrer는 채널까지만)
+
 ## [2.1.69] - 2026-05-31
 ### Added (신규 유입 레버 — 보험사 청구서류 양식 다운로드)
 - **보험사 페이지 강화**: `/company/{slug}`에 해당 보험사 실제 청구서 양식(PDF) 다운로드 섹션 추가 (ic_claim_forms D1, 49건)

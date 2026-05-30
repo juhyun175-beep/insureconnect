@@ -9155,6 +9155,20 @@
       } catch (_) {}
     }
 
+    /* v2.1.70: 유입 경로 추적 — 세션당 1회 (랜딩페이지 + referrer) */
+    function trackEntry() {
+      try {
+        if (sessionStorage.getItem('ic_ent')) return;
+        sessionStorage.setItem('ic_ent', '1');
+        if (_BOT_UA_RE.test(navigator.userAgent || '')) return;
+        const q = new URLSearchParams(location.search);
+        fetch('/api/track/hit', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
+          body: JSON.stringify({ path: location.pathname, ref: document.referrer, utm: q.get('utm_source') })
+        }).catch(() => {});
+      } catch (_) {}
+    }
+
     /* ── 앱 공유 ── */
     /* v2.1.30: 앱 공유 — native share 시 분석 카운트 추가 (viral 추적)
        v2.1.32 fix: PC 는 Windows 공유 시트 결함으로 즉시 clipboard 복사 */
@@ -11024,6 +11038,7 @@
 
     /* ── 초기 실행 ── */
     trackVisit();
+    trackEntry();
     loadCardNews();
     loadLiveTicker();
 

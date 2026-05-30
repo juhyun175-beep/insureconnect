@@ -3380,6 +3380,7 @@
         <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
+        <button class="upload-tab" data-panel="up-traffic">📈 유입 경로</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
@@ -3864,6 +3865,55 @@
         </div>
       </div><!-- /#up-push -->
 
+      <!-- ══════════════════ 유입 경로 패널 ══════════════════ -->
+      <div class="upload-panel" id="up-traffic">
+        <style>
+          #up-traffic .tf-period-bar{display:flex;gap:8px;align-items:center;margin-bottom:14px}
+          #up-traffic .tf-period-btn{font-family:inherit;cursor:pointer;border:1px solid var(--border,#2a3550);background:transparent;color:var(--txt-mid,#9fb0c8);border-radius:8px;font-size:12px;font-weight:700;padding:6px 14px}
+          #up-traffic .tf-period-btn.active{background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border-color:transparent}
+          #up-traffic .tf-refresh{margin-left:auto;font-size:11.5px;cursor:pointer;border:none;background:transparent;color:var(--blue-mid,#4a70f5);font-weight:700}
+          #up-traffic .tf-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:14px}
+          #up-traffic .tf-block{background:var(--card-bg,#141b2e);border:1px solid var(--border,#2a3550);border-radius:12px;padding:14px 16px}
+          #up-traffic .tf-block h4{margin:0 0 10px;font-size:13px;color:var(--txt-hi,#e6edf3);font-weight:800;letter-spacing:0.03em}
+          #up-traffic .tf-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:12.5px}
+          #up-traffic .tf-name{min-width:84px;max-width:120px;color:var(--txt-hi,#e6edf3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+          #up-traffic .tf-bar{flex:1;height:8px;background:rgba(120,140,180,0.15);border-radius:6px;overflow:hidden}
+          #up-traffic .tf-fill{display:block;height:100%;background:linear-gradient(90deg,#1a3de8,#00c8ee);border-radius:6px}
+          #up-traffic .tf-cnt{min-width:34px;text-align:right;color:var(--txt-mid,#9fb0c8);font-weight:700}
+          #up-traffic .tf-land .tf-name{max-width:200px}
+          #up-traffic table.tf-recent{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
+          #up-traffic table.tf-recent th{text-align:left;color:var(--txt-mid,#9fb0c8);padding:6px 8px;border-bottom:1px solid var(--border,#2a3550);font-size:11px}
+          #up-traffic table.tf-recent td{padding:6px 8px;border-bottom:1px solid rgba(120,140,180,0.1);color:var(--txt-hi,#e6edf3)}
+          #up-traffic .tf-land-cell{max-width:240px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--blue-mid,#7dd3fc)}
+          #up-traffic .cs-empty{color:var(--txt-mid,#9fb0c8);font-size:12px;padding:8px 0}
+        </style>
+        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(26,61,232,0.30);border-left:3px solid #1a3de8;border-radius:8px;background:linear-gradient(90deg,rgba(26,61,232,0.08),rgba(26,61,232,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#1a3de8;margin-bottom:6px;">📈 유입 경로 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>방문자가 <b>어느 채널(구글·네이버·카카오 등)</b>로, <b>어느 페이지</b>로 처음 들어왔는지 보여줍니다 (세션당 1회 집계)</li>
+            <li>검색 키워드까지는 구글 서치콘솔/네이버 서치어드바이저에서 확인하세요 (referrer는 채널까지만 노출)</li>
+            <li>봇은 자동 제외. 데이터는 추적 시작(이 배포) 이후부터 쌓입니다</li>
+          </ul>
+        </div>
+        <div class="tf-period-bar">
+          <button class="tf-period-btn active" data-period="today" onclick="tfSetPeriod('today')" type="button">오늘</button>
+          <button class="tf-period-btn" data-period="total" onclick="tfSetPeriod('total')" type="button">누적</button>
+          <button class="tf-refresh" onclick="loadTrafficSources()" type="button">↻ 새로고침</button>
+        </div>
+        <div class="tf-grid">
+          <div class="tf-block"><h4>📡 유입 채널</h4><div id="tf-ref"><p class="cs-empty">불러오는 중…</p></div></div>
+          <div class="tf-block tf-land"><h4>📄 유입 페이지 (랜딩)</h4><div id="tf-land"><p class="cs-empty">불러오는 중…</p></div></div>
+          <div class="tf-block"><h4>📱 기기</h4><div id="tf-dev"><p class="cs-empty">불러오는 중…</p></div></div>
+        </div>
+        <div class="tf-block" style="margin-top:14px;">
+          <h4>🕒 최근 유입 30건</h4>
+          <table class="tf-recent">
+            <thead><tr><th>시각</th><th>채널</th><th>유입 페이지</th><th>기기</th></tr></thead>
+            <tbody id="tf-recent"><tr><td colspan="4" class="cs-empty">불러오는 중…</td></tr></tbody>
+          </table>
+        </div>
+      </div><!-- /#up-traffic -->
+
       <!-- ══════════════════ 강의 관리 패널 ══════════════════ -->
       <div class="upload-panel" id="up-lecture">
         <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(16,185,129,0.30);border-left:3px solid #10b981;border-radius:8px;background:linear-gradient(90deg,rgba(16,185,129,0.08),rgba(16,185,129,0.02));">
@@ -4262,8 +4312,48 @@
         if (target === 'up-seo' && typeof loadSeoPostsAdmin === 'function') {
           loadSeoPostsAdmin();
         }
+        // v2.1.70: 유입 경로 패널 진입 시 자동 로드
+        if (target === 'up-traffic' && typeof loadTrafficSources === 'function') {
+          loadTrafficSources();
+        }
       });
     });
+
+    /* ── v2.1.70: 유입 경로 ── */
+    let _tsCache = null, _tsPeriod = 'today';
+    async function loadTrafficSources() {
+      try {
+        const r = await fetch('/api/stats/traffic', { headers: adminHeaders() });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        _tsCache = await r.json();
+        renderTraffic();
+      } catch (e) {
+        const el = document.getElementById('tf-ref');
+        if (el) el.innerHTML = '<p class="cs-empty">불러오기 실패: ' + esc(e.message) + '</p>';
+      }
+    }
+    function tfSetPeriod(p) {
+      _tsPeriod = p;
+      document.querySelectorAll('#up-traffic .tf-period-btn').forEach(b => b.classList.toggle('active', b.dataset.period === p));
+      renderTraffic();
+    }
+    function tfBars(arr) {
+      if (!arr || !arr.length) return '<p class="cs-empty">데이터 없음</p>';
+      const max = Math.max.apply(null, arr.map(x => x.count)) || 1;
+      return arr.map(x => `<div class="tf-row"><span class="tf-name" title="${esc(x.name)}">${esc(x.name)}</span><span class="tf-bar"><span class="tf-fill" style="width:${Math.round(x.count / max * 100)}%"></span></span><span class="tf-cnt">${x.count}</span></div>`).join('');
+    }
+    function renderTraffic() {
+      if (!_tsCache) return;
+      const s = _tsPeriod === 'today' ? 'today' : 'total';
+      const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+      set('tf-ref', tfBars(_tsCache['referrer_' + s]));
+      set('tf-land', tfBars(_tsCache['landing_' + s]));
+      set('tf-dev', tfBars(_tsCache['device_' + s]));
+      const rec = _tsCache.recent || [];
+      set('tf-recent', rec.length
+        ? rec.map(r => `<tr><td>${esc(String(r.ts || '').slice(5, 16).replace('T', ' '))}</td><td>${esc(r.source || '')}</td><td class="tf-land-cell" title="${esc(r.landing || '')}">${esc(r.landing || '')}</td><td>${esc(r.device || '')}</td></tr>`).join('')
+        : '<tr><td colspan="4" class="cs-empty">아직 유입 기록이 없습니다 (추적 시작 직후엔 비어 있습니다)</td></tr>');
+    }
 
     /* ── v2.1.65: 푸시 발송 ── */
     async function sendPush() {

@@ -87,6 +87,12 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
     // 2) 폴백: 모바일 네이티브 공유(카카오톡 선택), 데스크톱 링크 복사
     if(navigator.share){navigator.share({title:t,url:u}).catch(function(){});}
     else{window.seoCopy(b);b.innerHTML='🔗 링크복사됨';setTimeout(function(){b.innerHTML='💬 카카오톡';},1500);}};
+  /* 유입 경로 추적 — 세션당 1회 (랜딩페이지 + referrer) */
+  try{ if(!sessionStorage.getItem('ic_ent')){ sessionStorage.setItem('ic_ent','1');
+    var _q=new URLSearchParams(location.search);
+    fetch('/api/track/hit',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
+      body:JSON.stringify({path:location.pathname,ref:document.referrer,utm:_q.get('utm_source')})}).catch(function(){});
+  } }catch(e){}
 })();
 </script>`;
 }
