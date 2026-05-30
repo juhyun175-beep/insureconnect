@@ -4,7 +4,7 @@
  *   타깃 검색: "삼성생명 전산 바로가기", "현대해상 청구 팩스번호", "메리츠화재 보상 전화" 등
  */
 import { INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
-import { seoCtaFooter } from '../_lib/seo-cta.js';
+import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
@@ -123,6 +123,7 @@ table.info a{color:#1a3de8;text-decoration:none}
   </table>
   <p class="note">※ 청구 팩스·접수처는 상품(실손/정액)에 따라 다를 수 있어, 청구 전 콜센터로 확인을 권장합니다.</p>
 </section>
+${seoShareBar(url, ins.name + ' 전산·청구 안내')}
 
 <section class="card">
   <h2>전산 · 상품공시 바로가기</h2>
