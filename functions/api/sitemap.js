@@ -73,6 +73,7 @@ export async function onRequestGet(context) {
   const companyUrls = [
     urlTag(`${BASE}/company/customer-center`, today, 'weekly', '0.85'),
     urlTag(`${BASE}/company/claim-fax`, today, 'weekly', '0.85'),
+    urlTag(`${BASE}/company/claim-forms`, today, 'weekly', '0.85'),
     ...INSURERS.map(i => urlTag(`${BASE}/company/${i.slug}`, today, 'weekly', '0.8')),
     ...GA_LIST.map(g => urlTag(`${BASE}/ga/${g.slug}`, today, 'weekly', '0.75')),
   ];

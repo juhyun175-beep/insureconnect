@@ -74,6 +74,7 @@ header.h h1{margin:0 0 8px;font-size:27px;letter-spacing:-0.02em}header.h p{marg
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;">
     <a href="/company/customer-center" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;">📞 고객센터 번호 총정리</a>
     <a href="/company/claim-fax" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;">📠 청구 팩스번호 모음</a>
+    <a href="/company/claim-forms" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;">📄 청구서류 양식 다운로드</a>
     <a href="/ga" style="background:rgba(255,255,255,0.18);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:8px 14px;border-radius:8px;">🏢 GA 법인대리점 전산</a>
   </div>
 </header>

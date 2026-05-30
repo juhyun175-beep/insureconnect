@@ -5,7 +5,7 @@
  */
 import { INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
-import { renderAggregation, AGGREGATIONS } from '../_lib/company-aggregation.js';
+import { renderAggregation, AGGREGATIONS, renderClaimFormsHub } from '../_lib/company-aggregation.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
@@ -14,9 +14,17 @@ const esc = (s) => String(s == null ? '' : s)
 const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
 const isPhone = (s) => /\d{3,}/.test(String(s || ''));
 
-export const onRequestGet = async ({ params }) => {
+// 청구서류 테이블의 보험사명 ↔ INSURERS 이름 별칭
+const CF_ALIAS = { '라이나손해보험': ['라이나손보'] };
+
+export const onRequestGet = async ({ params, env }) => {
   const ins = INSURER_MAP[params.slug];
   if (!ins) {
+    // 청구서류 양식 허브 — /company/claim-forms
+    if (params.slug === 'claim-forms') {
+      const r = await renderClaimFormsHub(env, SITE);
+      if (r) return r;
+    }
     // 집계(허브) 페이지 — /company/customer-center, /company/claim-fax
     if (AGGREGATIONS[params.slug]) {
       const r = renderAggregation(params.slug, SITE);
@@ -25,10 +33,21 @@ export const onRequestGet = async ({ params }) => {
     return new Response('Not found', { status: 404 });
   }
 
+  // 보험금 청구서류 양식 (D1)
+  const cfNames = [ins.name, ...(CF_ALIAS[ins.name] || [])];
+  let claimForms = [];
+  try {
+    const ph = cfNames.map(() => '?').join(',');
+    const rs = await env.DB.prepare(
+      `SELECT title, file_url, file_type FROM ic_claim_forms WHERE company IN (${ph}) ORDER BY created_at DESC`
+    ).bind(...cfNames).all();
+    claimForms = (rs.results || []).filter(f => f.file_url);
+  } catch (_) {}
+
   const typeLabel = TYPE_LABEL[ins.type] || '보험';
   const url = `${SITE}/company/${ins.slug}`;
-  const title = `${ins.name} 전산 바로가기·고객센터·청구 안내`;
-  const desc = `${ins.name} 설계사 전산(사이버창구) 바로가기, 대표전화 ${ins.call}, 보상접수 ${ins.incall}, 청구 팩스 ${ins.fax}, 상품공시실 링크를 한 곳에 정리했습니다.`;
+  const title = `${ins.name} 전산 바로가기·고객센터·청구${claimForms.length ? '서류' : ''} 안내`;
+  const desc = `${ins.name} 설계사 전산(사이버창구) 바로가기, 대표전화 ${ins.call}, 보상접수 ${ins.incall}, 청구 팩스 ${ins.fax}, ${claimForms.length ? '보험금 청구서류 양식 다운로드, ' : ''}상품공시실 링크를 한 곳에 정리했습니다.`;
 
   // FAQ (보험사별 데이터로 구성 → FAQPage 리치결과)
   const faqs = [
@@ -37,6 +56,9 @@ export const onRequestGet = async ({ params }) => {
     { q: `${ins.name} 설계사 전산(사이버창구)은 어디서 접속하나요?`, a: `이 페이지의 "전산 바로가기" 버튼으로 ${ins.name} 공식 설계사 전산에 접속할 수 있습니다.` },
     { q: `${ins.name} 상품공시는 어디서 확인하나요?`, a: `${ins.name} 공식 상품공시실에서 판매 상품과 약관을 확인할 수 있습니다. 이 페이지의 "상품공시실" 링크를 이용하세요.` },
   ];
+  if (claimForms.length) {
+    faqs.splice(2, 0, { q: `${ins.name} 보험금 청구서류 양식은 어디서 받나요?`, a: `이 페이지의 "보험금 청구서류 양식 다운로드"에서 ${ins.name} 청구서 양식(PDF)을 무료로 내려받을 수 있습니다.` });
+  }
   const faqLd = {
     '@context': 'https://schema.org', '@type': 'FAQPage',
     mainEntity: faqs.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })),
@@ -66,6 +88,18 @@ export const onRequestGet = async ({ params }) => {
   ];
 
   const faqHtml = faqs.map(f => `<dl><dt>Q. ${esc(f.q)}</dt><dd>${esc(f.a)}</dd></dl>`).join('');
+  const cfHtml = claimForms.length ? `
+<section class="card">
+  <h2>📄 ${esc(ins.name)} 보험금 청구서류 양식 다운로드</h2>
+  <ul class="cf-list">
+    ${claimForms.map(f => {
+      const label = (f.title || '청구서').trim();
+      const ft = String(f.file_type || 'pdf').toUpperCase();
+      return `<li><a href="${esc(f.file_url)}" target="_blank" rel="noopener" download>📎 ${esc(ins.name)} ${esc(label)} 청구서 양식 <span class="cf-ft">${esc(ft)}</span></a></li>`;
+    }).join('')}
+  </ul>
+  <p class="note">※ ${esc(ins.name)} 공식 청구서류 양식입니다. 작성 후 모바일 앱·팩스·방문으로 제출하세요. 상품(실손/정액)에 따라 진단서·영수증 등 추가 서류가 필요할 수 있습니다.</p>
+</section>` : '';
   const faxRow = isPhone(ins.fax)
     ? `<tr><th>청구 팩스</th><td><a href="#" onclick="return false">${esc(ins.fax)}</a></td></tr>`
     : `<tr><th>청구 팩스</th><td>${esc(ins.fax)}</td></tr>`;
@@ -104,6 +138,10 @@ table.info{width:100%;border-collapse:collapse}
 table.info th{text-align:left;width:120px;color:#6b7280;font-weight:600;padding:9px 0;vertical-align:top;font-size:14px}
 table.info td{padding:9px 0;color:#1f2937;font-weight:600;border-bottom:1px solid #f1f5f9}
 table.info a{color:#1a3de8;text-decoration:none}
+.cf-list{list-style:none;padding:0;margin:0}
+.cf-list li{padding:11px 0;border-bottom:1px solid #f1f5f9}
+.cf-list a{color:#1a3de8;text-decoration:none;font-weight:700;display:flex;align-items:center;gap:8px}
+.cf-ft{font-size:10.5px;font-weight:800;color:#fff;background:#ef4444;padding:2px 7px;border-radius:5px}
 .btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
 .btn-row a{display:inline-block;background:#eff6ff;color:#1a3de8;text-decoration:none;font-weight:700;font-size:14px;padding:9px 16px;border-radius:9px}
 .faq dl{margin:0 0 12px}.faq dt{font-weight:700;color:#1e3a8a;margin-bottom:4px}.faq dd{margin:0;color:#374151}
@@ -131,6 +169,7 @@ table.info a{color:#1a3de8;text-decoration:none}
   </table>
   <p class="note">※ 청구 팩스·접수처는 상품(실손/정액)에 따라 다를 수 있어, 청구 전 콜센터로 확인을 권장합니다.</p>
 </section>
+${cfHtml}
 ${seoShareBar(url, ins.name + ' 전산·청구 안내', desc, `${SITE}/logo-full.png`)}
 
 <section class="card">

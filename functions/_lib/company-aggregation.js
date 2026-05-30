@@ -39,6 +39,106 @@ export const AGGREGATIONS = {
   },
 };
 
+const NAME_TO_SLUG = Object.fromEntries(INSURERS.map(i => [i.name, i.slug]));
+const CF_ALIAS_TO_NAME = { '라이나손보': '라이나손해보험' };
+
+/** 보험사 청구서류 양식 다운로드 허브 — /company/claim-forms (D1 조회, async) */
+export async function renderClaimFormsHub(env, SITE) {
+  const url = `${SITE}/company/claim-forms`;
+  let rows = [];
+  try {
+    const rs = await env.DB.prepare(
+      `SELECT company, title, file_url, file_type FROM ic_claim_forms WHERE file_url IS NOT NULL ORDER BY company ASC, created_at DESC`
+    ).all();
+    rows = rs.results || [];
+  } catch (_) {}
+
+  const byCompany = new Map();
+  for (const r of rows) {
+    if (!byCompany.has(r.company)) byCompany.set(r.company, []);
+    byCompany.get(r.company).push(r);
+  }
+
+  const cardsHtml = [...byCompany.entries()].map(([company, forms]) => {
+    const slug = NAME_TO_SLUG[company] || NAME_TO_SLUG[CF_ALIAS_TO_NAME[company]] || null;
+    const nameHtml = slug ? `<a href="/company/${slug}">${esc(company)}</a>` : esc(company);
+    const items = forms.map(f => {
+      const label = (f.title || '청구서').trim();
+      const ft = String(f.file_type || 'pdf').toUpperCase();
+      return `<li><a href="${esc(f.file_url)}" target="_blank" rel="noopener" download>📎 ${esc(label)} 청구서 양식 <span class="ft">${esc(ft)}</span></a></li>`;
+    }).join('');
+    return `<div class="cf-card"><h3>${nameHtml}</h3><ul>${items}</ul></div>`;
+  }).join('');
+
+  const faq = [
+    { q: '보험금 청구서 양식은 무료인가요?', a: '네, 이 페이지의 보험사별 청구서 양식(PDF)은 무료로 다운로드할 수 있습니다. 작성 후 앱·팩스·방문으로 제출하세요.' },
+    { q: '청구서 양식만 내면 보험금이 지급되나요?', a: '청구서 외에 진단서·영수증·세부내역서 등 보장 항목별 서류가 필요합니다. 보험사별 상세 안내는 각 보험사 페이지를 참고하세요.' },
+  ];
+  const faqLd = { '@context': 'https://schema.org', '@type': 'FAQPage',
+    mainEntity: faq.map(f => ({ '@type': 'Question', name: f.q, acceptedAnswer: { '@type': 'Answer', text: f.a } })) };
+  const breadcrumbLd = { '@context': 'https://schema.org', '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '홈', item: SITE },
+      { '@type': 'ListItem', position: 2, name: '보험사 전산', item: `${SITE}/company` },
+      { '@type': 'ListItem', position: 3, name: '보험금 청구서류 양식', item: url },
+    ] };
+  const faqHtml = faq.map(f => `<dl><dt>Q. ${esc(f.q)}</dt><dd>${esc(f.a)}</dd></dl>`).join('');
+
+  const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<title>보험사 보험금 청구서류 양식 다운로드 모음 | InsureConnect</title>
+<meta name="description" content="삼성생명·현대해상·메리츠화재·삼성화재 등 보험사별 보험금 청구서 양식(PDF)을 한 곳에서 무료로 다운로드하세요. 청구서류 작성·제출 안내 포함.">
+<meta name="robots" content="index,follow">
+<link rel="canonical" href="${url}">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="InsureConnect">
+<meta property="og:title" content="보험사 보험금 청구서류 양식 다운로드 모음 | InsureConnect">
+<meta property="og:description" content="보험사별 보험금 청구서 양식(PDF) 무료 다운로드">
+<meta property="og:url" content="${url}">
+<meta property="og:image" content="${SITE}/logo-full.png">
+${ld(faqLd)}
+${ld(breadcrumbLd)}
+<style>
+*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;color:#1a202c;background:#f9fafb;line-height:1.7;margin:0;padding:0}
+.crumb{font-size:13px;color:#6b7280;padding:16px 20px;max-width:900px;margin:0 auto}.crumb a{color:#1a3de8;text-decoration:none}
+header.h{max-width:900px;margin:0 auto 20px;padding:28px 26px;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border-radius:16px}
+header.h h1{margin:0 0 8px;font-size:25px;letter-spacing:-0.02em}header.h p{margin:0;opacity:.92;font-size:14px}
+.wrap{max-width:900px;margin:0 auto;padding:0 16px}
+.cf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.cf-card{background:#fff;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,0.04)}
+.cf-card h3{margin:0 0 8px;font-size:15px}.cf-card h3 a{color:#1a3de8;text-decoration:none}
+.cf-card ul{list-style:none;padding:0;margin:0}
+.cf-card li{padding:7px 0;border-top:1px solid #f1f5f9}
+.cf-card a{color:#374151;text-decoration:none;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px}
+.ft{font-size:10px;font-weight:800;color:#fff;background:#ef4444;padding:1px 6px;border-radius:5px}
+.faq{background:#eff6ff;border-left:4px solid #1a3de8;border-radius:14px;padding:22px 24px;margin:22px 0}
+.faq h2{margin-top:0;color:#1e3a8a}.faq dt{font-weight:700;color:#1e3a8a;margin-bottom:4px}.faq dd{margin:0 0 12px;color:#374151}
+@media(max-width:640px){header.h{border-radius:0}.wrap{padding:0 12px}}
+</style>
+</head>
+<body>
+<nav class="crumb"><a href="/">홈</a> &raquo; <a href="/company">보험사 전산</a> &raquo; <span>보험금 청구서류 양식</span></nav>
+<header class="h">
+  <h1>보험사 보험금 청구서류 양식 다운로드</h1>
+  <p>보험사별 보험금 청구서 양식(PDF)을 무료로 내려받으세요. 보험사명을 누르면 전산·고객센터·청구 안내도 볼 수 있습니다.</p>
+</header>
+<div class="wrap">
+<div class="cf-grid">${cardsHtml || '<p>등록된 청구서류가 없습니다.</p>'}</div>
+${seoShareBar(url, '보험사 보험금 청구서류 양식 다운로드 모음', '보험사별 청구서 양식 PDF 무료 다운로드', `${SITE}/logo-full.png`)}
+<div class="faq"><h2>자주 묻는 질문</h2>${faqHtml}</div>
+</div>
+${seoCtaFooter(SITE)}
+</body>
+</html>`;
+
+  return new Response(html, {
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=600, s-maxage=1800' },
+  });
+}
+
 export function renderAggregation(slug, SITE) {
   const cfg = AGGREGATIONS[slug];
   if (!cfg) return null;
