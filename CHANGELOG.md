@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.1.68] - 2026-05-31
+### Added (신규 유입 레버 — GA 법인대리점 전산 프로그래매틱 SEO)
+- **GA 전산 랜딩 17곳** (`/ga/{slug}`): 에이플러스에셋·지에이코리아·굿리치·프라임에셋 등
+  - 타깃: "지에이코리아 전산", "굿리치 로그인", "프라임에셋 전산 바로가기" 등 설계사 고의도 쿼리
+  - 각 페이지 실질 콘텐츠: 전산 바로가기 + 로그인 3단계 안내 + 공식 홈페이지 + GA별 FAQ + 관련 글 + 공유/CTA (thin content 회피)
+  - InsuranceAgency + FAQPage + BreadcrumbList JSON-LD
+- **GA 전산 허브** (`/ga`): 17곳 디렉토리 (ItemList/Breadcrumb)
+- 데이터 모듈 `_lib/ga-companies.js`, sitemap +18, `/company` 인덱스에 GA 허브 링크
+
 ## [2.1.67] - 2026-05-29
 ### Added (C 카카오 리치공유 활성화)
 - Kakao JavaScript 키 설정 → SSR 152p + 보험사/집계 페이지 공유바에서 카카오 리치 공유(feed 카드+버튼) 활성

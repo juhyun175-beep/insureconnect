@@ -1,5 +1,6 @@
 import { SEO_CATEGORIES } from '../_lib/seo-categories.js';
 import { INSURERS } from '../_lib/insurers.js';
+import { GA_LIST } from '../_lib/ga-companies.js';
 
 const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
@@ -62,6 +63,7 @@ export async function onRequestGet(context) {
     urlTag(`${BASE}/`, today, 'daily', '1.0'),
     urlTag(`${BASE}/insurance`, today, 'daily', '0.9'),
     urlTag(`${BASE}/company`, today, 'weekly', '0.9'),
+    urlTag(`${BASE}/ga`, today, 'weekly', '0.85'),
     urlTag(`${BASE}/guide.html`, today, 'monthly', '0.8'),
     urlTag(`${BASE}/about.html`, today, 'monthly', '0.7'),
     urlTag(`${BASE}/privacy.html`, today, 'yearly', '0.3'),
@@ -72,6 +74,7 @@ export async function onRequestGet(context) {
     urlTag(`${BASE}/company/customer-center`, today, 'weekly', '0.85'),
     urlTag(`${BASE}/company/claim-fax`, today, 'weekly', '0.85'),
     ...INSURERS.map(i => urlTag(`${BASE}/company/${i.slug}`, today, 'weekly', '0.8')),
+    ...GA_LIST.map(g => urlTag(`${BASE}/ga/${g.slug}`, today, 'weekly', '0.75')),
   ];
 
   // SEO 카테고리 목록 페이지
