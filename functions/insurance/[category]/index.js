@@ -3,6 +3,7 @@
  *   GET /insurance/{category}
  */
 import { SEO_CATEGORY_MAP } from '../../_lib/seo-categories.js';
+import { seoCtaFooter } from '../../_lib/seo-cta.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s || '')
@@ -49,12 +50,35 @@ export const onRequestGet = async ({ params, env }) => {
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(url)}">
 <meta property="og:site_name" content="InsureConnect">
+<meta property="og:image" content="${SITE}/logo-full.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="${esc(title)}">
+<meta name="twitter:description" content="${esc(desc)}">
 <script type="application/ld+json">${JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: cat.label,
   description: cat.desc,
   url,
+  isPartOf: { '@type': 'WebSite', name: 'InsureConnect', url: SITE },
+  mainEntity: {
+    '@type': 'ItemList',
+    itemListElement: items.map((it, i) => ({
+      '@type': 'ListItem',
+      position: i + 1,
+      url: `${SITE}/insurance/${cat.slug}/${it.slug}`,
+      name: it.title,
+    })),
+  },
+})}</script>
+<script type="application/ld+json">${JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    { '@type': 'ListItem', position: 1, name: '홈',      item: SITE },
+    { '@type': 'ListItem', position: 2, name: '보험',    item: `${SITE}/insurance` },
+    { '@type': 'ListItem', position: 3, name: cat.label, item: url },
+  ],
 })}</script>
 <style>
 *{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;color:#1a202c;background:#f9fafb;margin:0;padding:0}
@@ -79,6 +103,7 @@ header.cat-head p{margin:0;color:#6b7280}
   <p>${esc(cat.desc)}</p>
 </header>
 ${listHtml}
+${seoCtaFooter(SITE)}
 </body>
 </html>`;
 

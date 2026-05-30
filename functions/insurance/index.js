@@ -3,6 +3,7 @@
  *   GET /insurance
  */
 import { SEO_CATEGORIES } from '../_lib/seo-categories.js';
+import { seoCtaFooter } from '../_lib/seo-cta.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s || '')
@@ -15,12 +16,40 @@ export const onRequestGet = async ({ env }) => {
   ).all().catch(() => ({ results: [] }));
   const countMap = Object.fromEntries((counts.results || []).map(r => [r.category, r.n]));
 
-  const gridHtml = SEO_CATEGORIES.map(cat => `
+  // 글이 있는 카테고리만 노출 (빈 카테고리 = soft-404 방지)
+  const visibleCats = SEO_CATEGORIES.filter(cat => (countMap[cat.slug] || 0) > 0);
+  const totalPosts = visibleCats.reduce((s, c) => s + (countMap[c.slug] || 0), 0);
+
+  const gridHtml = visibleCats.map(cat => `
     <a class="cat-card" href="/insurance/${cat.slug}">
       <div class="cat-label">${esc(cat.label)}</div>
       <div class="cat-desc">${esc(cat.desc)}</div>
       <div class="cat-count">${(countMap[cat.slug] || 0).toLocaleString()}건</div>
     </a>`).join('');
+
+  const itemListLd = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: '보험 정보 게시판',
+    description: '보험금청구·실손·종신·암·자동차·실무 등 보험 전문 정보',
+    url: `${SITE}/insurance`,
+    isPartOf: { '@type': 'WebSite', name: 'InsureConnect', url: SITE },
+    mainEntity: {
+      '@type': 'ItemList',
+      itemListElement: visibleCats.map((cat, i) => ({
+        '@type': 'ListItem', position: i + 1,
+        url: `${SITE}/insurance/${cat.slug}`, name: cat.label,
+      })),
+    },
+  };
+  const breadcrumbLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: '홈',   item: SITE },
+      { '@type': 'ListItem', position: 2, name: '보험', item: `${SITE}/insurance` },
+    ],
+  };
 
   const html = `<!DOCTYPE html>
 <html lang="ko">
@@ -33,8 +62,14 @@ export const onRequestGet = async ({ env }) => {
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta property="og:type" content="website">
 <meta property="og:title" content="보험 정보 게시판 | InsureConnect">
-<meta property="og:description" content="보험설계사를 위한 12개 카테고리 SEO 게시판">
+<meta property="og:description" content="보험설계사를 위한 보험 전문 정보 게시판">
 <meta property="og:url" content="${SITE}/insurance">
+<meta property="og:site_name" content="InsureConnect">
+<meta property="og:image" content="${SITE}/logo-full.png">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="보험 정보 게시판 | InsureConnect">
+<script type="application/ld+json">${JSON.stringify(itemListLd)}</script>
+<script type="application/ld+json">${JSON.stringify(breadcrumbLd)}</script>
 <style>
 *{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;color:#1a202c;background:#f9fafb;margin:0;padding:0}
 .crumb{font-size:13px;color:#6b7280;padding:16px 20px;max-width:1080px;margin:0 auto}.crumb a{color:#1a3de8;text-decoration:none}
@@ -54,9 +89,10 @@ header.b-head p{margin:0;opacity:.9;font-size:15px}
 <nav class="crumb"><a href="/">홈</a> &raquo; <span>보험</span></nav>
 <header class="b-head">
   <h1>보험 정보 게시판</h1>
-  <p>보험설계사를 위한 ${SEO_CATEGORIES.length}개 전문 카테고리</p>
+  <p>보험설계사를 위한 ${visibleCats.length}개 카테고리 · 총 ${totalPosts.toLocaleString()}편의 전문 정보</p>
 </header>
 <div class="cat-grid">${gridHtml}</div>
+${seoCtaFooter(SITE)}
 </body>
 </html>`;
 

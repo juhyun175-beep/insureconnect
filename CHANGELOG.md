@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.1.61] - 2026-05-29
+### Changed (보험정보게시판 색인·전환 최적화 — B안)
+- **전환 동선 추가**: SEO 게시판 SSR 3종(진입·카테고리·글)에 공통 전환 푸터(`_lib/seo-cta.js`) 삽입
+  - 검색 유입 방문자를 InsureConnect 홈·게시판·설계사 오픈채팅으로 유도
+  - about/면책/개인정보 푸터 링크 포함
+- **빈 카테고리 숨김**: `/insurance` 진입 페이지가 글 0개 카테고리(notice 등)를 노출하지 않음 → soft-404 방지, 헤더에 총 편수 표기
+- **구조화 데이터 보강**:
+  - 진입 페이지: CollectionPage(ItemList) + BreadcrumbList JSON-LD, OG/twitter 보강
+  - 카테고리 페이지: CollectionPage에 ItemList(글 목록) + BreadcrumbList JSON-LD, og:image/twitter 보강
+- robots.txt·sitemap(120편 + 카테고리)·사이트 인증 메타는 기존대로 정상
+
 ## [2.1.60] - 2026-05-29
 ### Added (보험정보게시판 SEO 콘텐츠 — 배치 11·12: 20편 추가, 누적 120편)
 - **배치 11 (12편)**: 실손 자기부담금·응급실·한방, 갑상선암·암검사(PET-CT), 주차 물피도주·중고차·이륜차, 진료기록 발급, 질병/상해 사망 구분, 보험나이(상령일), 소득보장보험

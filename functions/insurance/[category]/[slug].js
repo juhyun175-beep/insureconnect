@@ -11,6 +11,7 @@
  */
 import { isBot } from '../../_lib/bot.js';
 import { SEO_CATEGORY_MAP } from '../../_lib/seo-categories.js';
+import { seoCtaFooter } from '../../_lib/seo-cta.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 
@@ -181,6 +182,7 @@ article.post{max-width:760px;margin:0 auto;background:#fff;padding:32px 28px 48p
 </article>
 ${faqHtml}
 ${relatedHtml}
+${seoCtaFooter(SITE)}
 </body>
 </html>`;
 
