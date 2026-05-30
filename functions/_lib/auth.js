@@ -36,7 +36,7 @@ export async function createSession(env, userId, ua) {
   const now = Date.now();
   const expires = new Date(now + SESSION_DAYS * 86400000).toISOString();
   await env.DB.prepare(
-    `INSERT INTO ic_sessions (token_hash, user_id, created_at, expires_at, user_agent) VALUES (?, ?, ?, ?, ?)`
+    `INSERT INTO ic_member_sessions (token_hash, user_id, created_at, expires_at, user_agent) VALUES (?, ?, ?, ?, ?)`
   ).bind(hash, userId, new Date(now).toISOString(), expires, String(ua || '').slice(0, 200)).run();
   return { token, maxAge: SESSION_DAYS * 86400 };
 }
@@ -48,12 +48,12 @@ export async function getUserFromRequest(env, request) {
     const hash = await sha256hex(token);
     const row = await env.DB.prepare(
       `SELECT u.id, u.nickname, u.profile_image, u.kakao_id, s.expires_at
-       FROM ic_sessions s JOIN ic_users u ON u.id = s.user_id
+       FROM ic_member_sessions s JOIN ic_members u ON u.id = s.user_id
        WHERE s.token_hash = ?`
     ).bind(hash).first();
     if (!row) return null;
     if (new Date(row.expires_at).getTime() < Date.now()) {
-      await env.DB.prepare(`DELETE FROM ic_sessions WHERE token_hash = ?`).bind(hash).run().catch(() => {});
+      await env.DB.prepare(`DELETE FROM ic_member_sessions WHERE token_hash = ?`).bind(hash).run().catch(() => {});
       return null;
     }
     return { id: row.id, nickname: row.nickname, profile_image: row.profile_image };
@@ -65,6 +65,6 @@ export async function deleteSession(env, request) {
     const token = parseCookies(request)['ic_sess'];
     if (!token) return;
     const hash = await sha256hex(token);
-    await env.DB.prepare(`DELETE FROM ic_sessions WHERE token_hash = ?`).bind(hash).run();
+    await env.DB.prepare(`DELETE FROM ic_member_sessions WHERE token_hash = ?`).bind(hash).run();
   } catch (_) {}
 }

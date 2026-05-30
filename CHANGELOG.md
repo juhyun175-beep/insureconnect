@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.2.2] - 2026-05-31
+### Fixed (카카오 로그인 테이블 충돌 버그)
+- 기존에 이미 존재하던 `ic_users`(email/위촉인증용)·`ic_sessions`(JWT용) 테이블과 이름이 충돌해 로그인 시 DB 저장 실패(`no such column: nickname`) → 회원 0명
+- 카카오 회원을 **별도 테이블 `ic_members` + `ic_member_sessions`** 로 분리(기존 인증 테이블 미손상). `_lib/auth.js`·callback.js 참조 변경
+- 이제 카카오 로그인 → 회원 upsert → 세션 발급 정상 동작
+
 ## [2.2.1] - 2026-05-31
 ### Added (심사 통과 패키지 ② — 카카오 로그인 회원 시스템)
 - **회원 시스템**: `ic_users` + `ic_sessions`(D1), 카카오 OAuth 로그인

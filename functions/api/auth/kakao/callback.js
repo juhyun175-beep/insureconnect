@@ -47,11 +47,11 @@ export const onRequestGet = async ({ env, request }) => {
 
     const now = new Date().toISOString();
     await env.DB.prepare(
-      `INSERT INTO ic_users (kakao_id, nickname, profile_image, email, created_at, last_login)
+      `INSERT INTO ic_members (kakao_id, nickname, profile_image, email, created_at, last_login)
        VALUES (?, ?, ?, ?, ?, ?)
        ON CONFLICT(kakao_id) DO UPDATE SET nickname=excluded.nickname, profile_image=excluded.profile_image, last_login=excluded.last_login`
     ).bind(kakaoId, nickname, profileImage, email, now, now).run();
-    const row = await env.DB.prepare(`SELECT id FROM ic_users WHERE kakao_id = ?`).bind(kakaoId).first();
+    const row = await env.DB.prepare(`SELECT id FROM ic_members WHERE kakao_id = ?`).bind(kakaoId).first();
 
     const { token, maxAge } = await createSession(env, row.id, request.headers.get('User-Agent'));
     const headers = new Headers();
