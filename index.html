@@ -8449,6 +8449,45 @@
     <!-- v2.1.25: 「진행중인 채용공고/강의」는 ic-top-left 안으로 이동 (위에 위치) -->
     <!-- v2.1.22: 추천 차량 라인업 섹션은 별도 #page-rental 페이지로 이전 -->
 
+    <!-- v2.1.58: 보험 정보 게시판 진입 섹션 (홈→카테고리 내부링크 / SEO 크롤 경로) -->
+    <section class="icbp" aria-label="보험 정보 게시판">
+      <style>
+        .icbp{margin:14px 0 0;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(0,200,238,0.05));border:1px solid rgba(26,61,232,0.16);}
+        [data-theme="dark"] .icbp{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(0,200,238,0.08));border-color:rgba(0,240,255,0.18);}
+        .icbp-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+        .icbp-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);display:flex;align-items:center;gap:7px;}
+        [data-theme="dark"] .icbp-title{color:#e6edf3;}
+        .icbp-badge{font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#00c8ee);padding:3px 9px;border-radius:999px;letter-spacing:0.02em;}
+        .icbp-all{margin-left:auto;font-size:13px;font-weight:700;color:#1a3de8;text-decoration:none;}
+        [data-theme="dark"] .icbp-all{color:#7dd3fc;}
+        .icbp-all:hover{text-decoration:underline;}
+        .icbp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:9px;}
+        .icbp-cat{display:flex;align-items:center;gap:8px;padding:11px 13px;border-radius:11px;background:#fff;border:1px solid rgba(15,23,42,0.08);text-decoration:none;color:var(--txt-hi,#0f172a);font-size:13.5px;font-weight:700;transition:transform .15s,box-shadow .15s,border-color .15s;}
+        [data-theme="dark"] .icbp-cat{background:#161b22;border-color:rgba(255,255,255,0.08);color:#e6edf3;}
+        .icbp-cat:hover{transform:translateY(-2px);box-shadow:0 6px 16px rgba(26,61,232,0.16);border-color:rgba(26,61,232,0.35);}
+        .icbp-cat-ico{font-size:16px;line-height:1;}
+        .icbp-cat-sub{display:block;font-size:10.5px;font-weight:600;color:#94a3b8;margin-top:1px;}
+      </style>
+      <div class="icbp-head">
+        <span class="icbp-title">📚 보험 정보 게시판</span>
+        <span class="icbp-badge">전문 정보 80+편</span>
+        <a class="icbp-all" href="/insurance">전체 보기 →</a>
+      </div>
+      <div class="icbp-grid">
+        <a class="icbp-cat" href="/insurance/actual-loss"><span class="icbp-cat-ico">🏥</span><span>실손보험<span class="icbp-cat-sub">청구·세대·비급여</span></span></a>
+        <a class="icbp-cat" href="/insurance/claim"><span class="icbp-cat-ico">📋</span><span>보험금청구<span class="icbp-cat-sub">절차·분쟁·서류</span></span></a>
+        <a class="icbp-cat" href="/insurance/cancer"><span class="icbp-cat-ico">🎗</span><span>암보험<span class="icbp-cat-sub">진단비·치료·갱신</span></span></a>
+        <a class="icbp-cat" href="/insurance/car"><span class="icbp-cat-ico">🚗</span><span>자동차보험<span class="icbp-cat-sub">과실·할증·운전자</span></span></a>
+        <a class="icbp-cat" href="/insurance/whole-life"><span class="icbp-cat-ico">🛡</span><span>종신보험<span class="icbp-cat-sub">정기·환급·연금</span></span></a>
+        <a class="icbp-cat" href="/insurance/terms"><span class="icbp-cat-ico">📑</span><span>약관해설<span class="icbp-cat-sub">면책·용어·대출</span></span></a>
+        <a class="icbp-cat" href="/insurance/practice"><span class="icbp-cat-ico">💼</span><span>설계사실무<span class="icbp-cat-sub">상담·보장분석</span></span></a>
+        <a class="icbp-cat" href="/insurance/underwrite"><span class="icbp-cat-ico">✅</span><span>인수사례<span class="icbp-cat-sub">고지·심사</span></span></a>
+        <a class="icbp-cat" href="/insurance/surgery-code"><span class="icbp-cat-ico">⚕️</span><span>수술코드<span class="icbp-cat-sub">수술 분류</span></span></a>
+        <a class="icbp-cat" href="/insurance/disease-code"><span class="icbp-cat-ico">🧬</span><span>질병코드<span class="icbp-cat-sub">KCD·진단비</span></span></a>
+        <a class="icbp-cat" href="/insurance/recruit-tips"><span class="icbp-cat-ico">🧑‍💼</span><span>리쿠르팅<span class="icbp-cat-sub">정착·이직</span></span></a>
+      </div>
+    </section>
+
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
       <ins class="adsbygoogle"
