@@ -33,6 +33,10 @@ export const onRequestGet = async ({ env, request }) => {
     const tok = await tokRes.json();
     const accessToken = tok.access_token;
     if (!accessToken) return home('token_fail');
+    // 카톡 메시지(공고 알림)용 토큰 + 동의 여부
+    const refreshToken = tok.refresh_token || null;
+    const tokenExpires = tok.expires_in ? new Date(Date.now() + tok.expires_in * 1000).toISOString() : null;
+    const optin = String(tok.scope || '').includes('talk_message') ? 1 : 0;
 
     const meRes = await fetch('https://kapi.kakao.com/v2/user/me', {
       headers: { 'Authorization': `Bearer ${accessToken}` },
@@ -47,10 +51,15 @@ export const onRequestGet = async ({ env, request }) => {
 
     const now = new Date().toISOString();
     await env.DB.prepare(
-      `INSERT INTO ic_members (kakao_id, nickname, profile_image, email, created_at, last_login)
-       VALUES (?, ?, ?, ?, ?, ?)
-       ON CONFLICT(kakao_id) DO UPDATE SET nickname=excluded.nickname, profile_image=excluded.profile_image, last_login=excluded.last_login`
-    ).bind(kakaoId, nickname, profileImage, email, now, now).run();
+      `INSERT INTO ic_members (kakao_id, nickname, profile_image, email, created_at, last_login, kakao_access_token, kakao_refresh_token, kakao_token_expires, alert_optin)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+       ON CONFLICT(kakao_id) DO UPDATE SET
+         nickname=excluded.nickname, profile_image=excluded.profile_image, last_login=excluded.last_login,
+         kakao_access_token=excluded.kakao_access_token,
+         kakao_refresh_token=COALESCE(excluded.kakao_refresh_token, ic_members.kakao_refresh_token),
+         kakao_token_expires=excluded.kakao_token_expires,
+         alert_optin=excluded.alert_optin`
+    ).bind(kakaoId, nickname, profileImage, email, now, now, accessToken, refreshToken, tokenExpires, optin).run();
     const row = await env.DB.prepare(`SELECT id FROM ic_members WHERE kakao_id = ?`).bind(kakaoId).first();
 
     const { token, maxAge } = await createSession(env, row.id, request.headers.get('User-Agent'));

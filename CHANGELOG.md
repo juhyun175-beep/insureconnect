@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.5.0] - 2026-05-31
+### Added (카카오톡 공고 알림 — 나에게 보내기)
+- **카카오톡 메시지 알림**: 로그인 scope에 `talk_message` 추가 → 동의 회원의 refresh_token 서버 저장 → 신규 공고 시 카톡(나와의 채팅)으로 알림 발송
+  - `_lib/kakao-msg.js`(토큰 자동 갱신 + memo/default/send), `/api/admin/kakao-broadcast`(admin)
+  - 관리자 푸시 패널에 "💬 카톡 알림 발송" 버튼(웹푸시와 동일 입력 재사용)
+  - 보안: 토큰 서버(D1)에만 저장, 동의 해제/만료 시 자동 비활성, ic_members에 토큰·alert_optin 컬럼
+  - ※ 회원이 로그인 시 "카카오톡 메시지" 선택동의해야 발송 대상이 됨(재로그인 필요)
+### Changed (사이드바 정리)
+- 사이드바 **시계 위젯 제거** (불필요 장식 — 이용자 편의)
+
 ## [2.4.0] - 2026-05-31
 ### Added (회원 등급제 + 실제 권한부여(RBAC) + 운영 지표 대시보드)
 - **회원 등급제**: `ic_members.role` (member/certified/premium/admin) — 관리자 페이지에서 등급 변경

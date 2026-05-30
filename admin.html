@@ -3861,7 +3861,9 @@
               <input type="text" id="push-url" placeholder="/  또는  /insurance/cancer/...  또는  /company/samsung-life">
             </div>
           </div>
-          <button id="push-send-btn" onclick="sendPush()" style="margin-top:6px;padding:12px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">📤 전체 구독자에게 발송</button>
+          <button id="push-send-btn" onclick="sendPush()" style="margin-top:6px;padding:12px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">📤 웹푸시 발송</button>
+          <button id="kakao-send-btn" onclick="sendKakaoBroadcast()" style="margin-top:6px;margin-left:8px;padding:12px 22px;border:none;border-radius:10px;background:#FEE500;color:#191600;font-weight:800;font-size:14px;cursor:pointer;">💬 카톡 알림 발송</button>
+          <div style="margin-top:8px;font-size:11px;color:var(--txt-mid);">※ 웹푸시 = '알림 받기' 구독자 / 카톡 = '카카오톡 메시지' 동의 회원에게 발송됩니다.</div>
           <div id="push-result" style="margin-top:12px;font-size:12.5px;font-weight:600;color:var(--txt-mid);"></div>
         </div>
       </div><!-- /#up-push -->
@@ -4476,6 +4478,34 @@
       } catch (e) {
         res.style.color = '#dc2626';
         res.textContent = '❌ 발송 실패: ' + e.message;
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    /* ── v2.5.0: 카카오톡 공고 알림 발송 ── */
+    async function sendKakaoBroadcast() {
+      const title = (document.getElementById('push-title').value || '').trim();
+      const body  = (document.getElementById('push-body').value  || '').trim();
+      const url   = (document.getElementById('push-url').value   || '').trim() || '/';
+      const res   = document.getElementById('push-result');
+      const btn   = document.getElementById('kakao-send-btn');
+      if (!title || !body) { res.style.color = '#dc2626'; res.textContent = '제목과 내용을 입력하세요.'; return; }
+      if (!confirm('카카오톡 메시지에 동의한 회원 전체에게 발송합니다. 진행할까요?')) return;
+      btn.disabled = true; res.style.color = 'var(--txt-mid)'; res.textContent = '카톡 발송 중…';
+      try {
+        const r = await fetch('/api/admin/kakao-broadcast', {
+          method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ title, body, url })
+        });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        res.style.color = '#10b981';
+        res.textContent = `✅ 카톡 발송 완료 — 대상 ${d.total}명 / 성공 ${d.sent} / 실패 ${d.failed}` + (d.revoked ? ` / 동의해제 ${d.revoked}` : '');
+        if (d.total === 0) res.textContent += ' (아직 카톡 알림 동의 회원이 없습니다. 회원이 로그인 시 "카카오톡 메시지" 동의해야 발송됩니다.)';
+      } catch (e) {
+        res.style.color = '#dc2626';
+        res.textContent = '❌ 카톡 발송 실패: ' + e.message;
       } finally {
         btn.disabled = false;
       }

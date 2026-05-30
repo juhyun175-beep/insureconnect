@@ -13,7 +13,7 @@ export const onRequestGet = async ({ env }) => {
   const authUrl = 'https://kauth.kakao.com/oauth/authorize'
     + `?response_type=code&client_id=${encodeURIComponent(env.KAKAO_REST_KEY)}`
     + `&redirect_uri=${encodeURIComponent(redirectUri)}&state=${state}`
-    + `&scope=${encodeURIComponent('profile_nickname,profile_image')}`;
+    + `&scope=${encodeURIComponent('profile_nickname,profile_image,talk_message')}`;
   return new Response(null, {
     status: 302,
     headers: { 'Location': authUrl, 'Set-Cookie': cookie('ic_oauth_state', state, { maxAge: 600 }) },
