@@ -7626,6 +7626,12 @@
     <div class="side-nav-header">
       <picture><source srcset="logo-banner.webp" type="image/webp"><img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" decoding="async" fetchpriority="high" onerror="this.style.display='none'"></picture>
     </div>
+    <!-- v2.5.2: 빠른 검색 — 홈 버튼 위로 이동 -->
+    <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기" style="margin-bottom:8px;">
+      <span class="ssb-icon">🔍</span>
+      <span class="ssb-label">빠른 검색</span>
+      <span class="ssb-kbd">Ctrl K</span>
+    </button>
     <nav class="menu-tabs">
       <button class="menu-tab active" data-page="home">🏠 홈</button>
       <!-- v2.0.0 (master): SEO 게시판 진입 — 외부 페이지(SSR)이므로 a 태그 -->
@@ -7659,20 +7665,7 @@
     })();
     function icLogout(){ fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.reload();}); }
     </script>
-    <!-- 글로벌 빠른 검색 트리거 -->
-    <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
-      <span class="ssb-icon">🔍</span>
-      <span class="ssb-label">빠른 검색</span>
-      <span class="ssb-kbd">Ctrl K</span>
-    </button>
-    <!-- v2.1.27: 「내 공고 직접 등록」 단일 버튼으로 통합 (모달 내부에서 채용/강의 선택) -->
-    <button type="button" class="side-submit-single" onclick="openSubmitModal()">
-      <span class="sss-icon">📤</span>
-      <span class="sss-text">
-        <span class="sss-title">내 공고 직접 등록</span>
-        <span class="sss-sub">💼 채용 · 🎓 강의</span>
-      </span>
-    </button>
+    <!-- v2.5.2: 빠른 검색은 상단(홈 위)으로, 내 공고 등록은 커뮤니티 그룹 하단으로 이동 -->
     <!-- v2.5.0: 사이드바 시계 위젯 제거 (이용자 편의 — 불필요 장식 정리) -->
     <!-- v2.1.26: 사이드바 파트너사 프로모션 배너 기능 제거 -->
     <!-- 커뮤니티 참여 버튼 -->
@@ -7701,6 +7694,14 @@
         <span class="scb-arrow">›</span>
       </a>
     </div>
+    <!-- v2.5.2: 내 공고 직접 등록 — 회원·커뮤니티 그룹 하단 -->
+    <button type="button" class="side-submit-single" onclick="openSubmitModal()" style="margin-top:10px;">
+      <span class="sss-icon">📤</span>
+      <span class="sss-text">
+        <span class="sss-title">내 공고 직접 등록</span>
+        <span class="sss-sub">💼 채용 · 🎓 강의</span>
+      </span>
+    </button>
     <!-- 사이드바 푸터 -->
     <div class="side-footer">
       <a class="side-footer-link"
