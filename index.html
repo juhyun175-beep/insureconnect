@@ -4492,6 +4492,12 @@
     [data-theme="dark"] .ic-m-core-card .cc-lb { color: #e6edf3; }
     .ic-m-core-card:active { transform: scale(0.96); }
 
+    /* v2.6.1: 모바일 2열 섹션 (채용공고 + 강의 한 행) */
+    .ic-m-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; margin-bottom: 22px; }
+    .ic-m-two-col > .ic-m-section { margin-bottom: 0; min-width: 0; }
+    .ic-m-two-col .ic-m-section-head { font-size: 12.5px; gap: 4px; }
+    .ic-m-two-col .ic-m-more { font-size: 10.5px; }
+
     .ic-m-hero {
       padding: 18px 16px 18px;
       background: linear-gradient(135deg, #1a3de8 0%, #00c8ee 100%);
@@ -8218,7 +8224,20 @@
     })();
     </script>
 
-    <!-- v2.6.0: 검색을 최상단으로 — 이용자 바로 찾기 -->
+    <!-- v2.6.1: 실시간 방문통계 — 검색창 위로 -->
+    <div class="ic-visitor-strip" id="home-visitor-strip-mobile">
+      <span class="vs-live">LIVE</span>
+      <div class="vs-main">
+        <span class="vs-main-text">오늘</span>
+        <span class="vs-num" id="vs-today-m">—</span>
+        <span class="vs-main-text">명 방문 중</span>
+      </div>
+      <div class="vs-stats">
+        <span class="vs-stat-item">누적 <strong id="vs-total-m">—</strong>명</span>
+      </div>
+    </div>
+
+    <!-- 빠른 검색 -->
     <section class="ic-m-section ic-m-search-section">
       <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
         <span class="ic-m-search-icon">🔍</span>
@@ -8226,7 +8245,7 @@
       </button>
     </section>
 
-    <!-- v2.6.0: 자주 쓰는 핵심 메뉴 (설계사 일상 업무 중심) -->
+    <!-- 자주 쓰는 핵심 메뉴 -->
     <section class="ic-m-section">
       <div class="ic-m-section-head"><span>⚡ 자주 쓰는 메뉴</span></div>
       <div class="ic-m-core-grid">
@@ -8239,7 +8258,35 @@
       </div>
     </section>
 
-    <!-- 모바일 홈 CREW 300 Hero CTA (커뮤니티 강조 — 유지) -->
+    <!-- 더 둘러보기 (보조 메뉴) -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>🧰 더 둘러보기</span></div>
+      <div class="ic-m-menu-grid">
+        <button class="ic-m-menu-card" onclick="goToPage('knowledge')"><span class="ic-m-menu-icon">📚</span><span class="ic-m-menu-label">보험지식</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('tools')"><span class="ic-m-menu-icon">🛠</span><span class="ic-m-menu-label">실무도구</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('lecture')"><span class="ic-m-menu-icon">🎓</span><span class="ic-m-menu-label">강의</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('recruit')"><span class="ic-m-menu-icon">💼</span><span class="ic-m-menu-label">채용</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('latest')"><span class="ic-m-menu-icon">🆕</span><span class="ic-m-menu-label">최신</span></button>
+      </div>
+    </section>
+
+    <!-- 기타 메뉴 (운영자 문의 / 공유 / 파트너) -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>🛠 기타 메뉴</span></div>
+      <div class="ic-m-tools-grid">
+        <a class="ic-m-tool-btn" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')">
+          <span>✏️</span><span>운영자 문의</span>
+        </a>
+        <button class="ic-m-tool-btn" type="button" onclick="shareApp()">
+          <span>📤</span><span>앱 공유</span>
+        </button>
+        <a class="ic-m-tool-btn" href="/admin.html">
+          <span>🔐</span><span>파트너 전용</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- CREW 300 Hero CTA (커뮤니티 강조 — 유지) -->
     <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
        target="_blank" rel="noopener noreferrer"
        onclick="trackClick('CREW300 오픈채팅 참여','home-hero-mobile'); armCommunityFallback('CREW 300');">
@@ -8259,19 +8306,6 @@
         <span aria-hidden="true">→</span>
       </span>
     </a>
-
-    <!-- 방문자 카운터 (사회적 증명) -->
-    <div class="ic-visitor-strip" id="home-visitor-strip-mobile">
-      <span class="vs-live">LIVE</span>
-      <div class="vs-main">
-        <span class="vs-main-text">오늘</span>
-        <span class="vs-num" id="vs-today-m">—</span>
-        <span class="vs-main-text">명 방문 중</span>
-      </div>
-      <div class="vs-stats">
-        <span class="vs-stat-item">누적 <strong id="vs-total-m">—</strong>명</span>
-      </div>
-    </div>
 
     <!-- v2.5.3: 모바일 자유게시판 섹션 (데스크탑 홈 자유게시판 섹션과 동기화 — 참여·리텐션) -->
     <section class="ic-m-section">
@@ -8300,39 +8334,29 @@
     })();
     </script>
 
-    <!-- v2.6.0: 더 둘러보기 (보조 메뉴 — 덜 자주 쓰는 항목 정리) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>🧰 더 둘러보기</span></div>
-      <div class="ic-m-menu-grid">
-        <button class="ic-m-menu-card" onclick="goToPage('knowledge')"><span class="ic-m-menu-icon">📚</span><span class="ic-m-menu-label">보험지식</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('tools')"><span class="ic-m-menu-icon">🛠</span><span class="ic-m-menu-label">실무도구</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('lecture')"><span class="ic-m-menu-icon">🎓</span><span class="ic-m-menu-label">강의</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('recruit')"><span class="ic-m-menu-icon">💼</span><span class="ic-m-menu-label">채용</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('latest')"><span class="ic-m-menu-icon">🆕</span><span class="ic-m-menu-label">최신</span></button>
-      </div>
-    </section>
+    <!-- (더 둘러보기 → 상단 메뉴 그룹으로 이동) -->
 
-    <!-- 모바일 최신 채용공고 (간소화) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head">
-        <span>🔥 진행중인 채용공고</span>
-        <button onclick="goToPage('recruit')" class="ic-m-more">더보기 →</button>
-      </div>
-      <div class="ic-m-list" id="m-home-jobs">
-        <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
-      </div>
-    </section>
-
-    <!-- 모바일 최신 강의 -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head">
-        <span>🎓 진행중인 강의</span>
-        <button onclick="goToPage('lecture')" class="ic-m-more">더보기 →</button>
-      </div>
-      <div class="ic-m-list" id="m-home-lectures">
-        <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
-      </div>
-    </section>
+    <!-- v2.6.1: 진행중인 채용공고 + 강의 — 2열 한 행 -->
+    <div class="ic-m-two-col">
+      <section class="ic-m-section">
+        <div class="ic-m-section-head">
+          <span>🔥 채용공고</span>
+          <button onclick="goToPage('recruit')" class="ic-m-more">더보기 →</button>
+        </div>
+        <div class="ic-m-list" id="m-home-jobs">
+          <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
+        </div>
+      </section>
+      <section class="ic-m-section">
+        <div class="ic-m-section-head">
+          <span>🎓 강의</span>
+          <button onclick="goToPage('lecture')" class="ic-m-more">더보기 →</button>
+        </div>
+        <div class="ic-m-list" id="m-home-lectures">
+          <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
+        </div>
+      </section>
+    </div>
 
     <!-- v2.1.22: 모바일 추천 차량 라인업도 별도 #page-rental 페이지로 이전 -->
 
@@ -8383,21 +8407,7 @@
       </div>
     </section>
 
-    <!-- 빠른 도구 (운영자 문의 / 공유 / 파트너) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>🛠 기타 메뉴</span></div>
-      <div class="ic-m-tools-grid">
-        <a class="ic-m-tool-btn" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')">
-          <span>✏️</span><span>운영자 문의</span>
-        </a>
-        <button class="ic-m-tool-btn" type="button" onclick="shareApp()">
-          <span>📤</span><span>앱 공유</span>
-        </button>
-        <a class="ic-m-tool-btn" href="/admin.html">
-          <span>🔐</span><span>파트너 전용</span>
-        </a>
-      </div>
-    </section>
+    <!-- (기타 메뉴 → 상단 메뉴 그룹으로 이동) -->
 
     <!-- 통계 + 테마 -->
     <section class="ic-m-section ic-m-bottom">
