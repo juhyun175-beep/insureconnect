@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.5.4] - 2026-05-31
+### Fixed (모바일 — 서브페이지가 "반만 열리는" 버그)
+- 메뉴 이동 시 모바일 홈(`#page-home-mobile`)이 숨겨지지 않고 위에 남아 새 페이지가 그 아래 붙어 보이던 문제 수정
+  - 원인: `body.ic-mobile #page-home-mobile { display:block !important }`의 `!important`가 JS의 인라인 `display:none`을 덮어씀
+  - 해결: `body.ic-mobile.nav-subpage #page-home-mobile { display:none !important }` 규칙 추가 + `showPage()`에서 홈이 아닐 때 `nav-subpage` 클래스 토글 (기본값은 홈 표시 유지 → 초기 로드 깜빡임 없음)
+
 ## [2.5.3] - 2026-05-31
 ### Changed (모바일 환경 — 데스크탑 최근 변경 동기화)
 - **모바일 홈 시계 제거**: 히어로 시계(`ic-m-hero-clock`) + 숨겨진 구 시계 섹션(`ic-m-clock-card`) 삭제 (v2.5.0 사이드바 시계 제거와 동기화)
