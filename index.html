@@ -4484,8 +4484,8 @@
     [data-theme="dark"] .mlg-note { color: #475569; }
 
     /* v2.6.0: 자주 쓰는 핵심 메뉴 그리드 (3열, 크게) */
-    .ic-m-core-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-    .ic-m-core-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 18px 6px; border: none; border-radius: 16px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; }
+    .ic-m-core-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
+    .ic-m-core-card { flex: 0 0 calc((100% - 20px) / 3); box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 15px 6px; border: none; border-radius: 16px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-decoration: none; color: inherit; }
     [data-theme="dark"] .ic-m-core-card { background: #161b22; box-shadow: 0 2px 10px rgba(0,0,0,0.32); }
     .ic-m-core-card .cc-ic { font-size: 27px; line-height: 1; }
     .ic-m-core-card .cc-lb { font-size: 12.5px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
@@ -8245,9 +8245,9 @@
       </button>
     </section>
 
-    <!-- 자주 쓰는 핵심 메뉴 -->
+    <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>⚡ 자주 쓰는 메뉴</span></div>
+      <div class="ic-m-section-head"><span>🚀 빠른 메뉴</span></div>
       <div class="ic-m-core-grid">
         <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-ic">🖥</span><span class="cc-lb">보험사 전산</span></button>
         <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-ic">📋</span><span class="cc-lb">청구서류</span></button>
@@ -8255,34 +8255,14 @@
         <button class="ic-m-core-card" onclick="goToPage('payment')"><span class="cc-ic">💳</span><span class="cc-lb">수납</span></button>
         <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-ic">📰</span><span class="cc-lb">소식지</span></button>
         <button class="ic-m-core-card" onclick="location.href='/board'"><span class="cc-ic">💬</span><span class="cc-lb">자유게시판</span></button>
-      </div>
-    </section>
-
-    <!-- 더 둘러보기 (보조 메뉴) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>🧰 더 둘러보기</span></div>
-      <div class="ic-m-menu-grid">
-        <button class="ic-m-menu-card" onclick="goToPage('knowledge')"><span class="ic-m-menu-icon">📚</span><span class="ic-m-menu-label">보험지식</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('tools')"><span class="ic-m-menu-icon">🛠</span><span class="ic-m-menu-label">실무도구</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('lecture')"><span class="ic-m-menu-icon">🎓</span><span class="ic-m-menu-label">강의</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('recruit')"><span class="ic-m-menu-icon">💼</span><span class="ic-m-menu-label">채용</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('latest')"><span class="ic-m-menu-icon">🆕</span><span class="ic-m-menu-label">최신</span></button>
-      </div>
-    </section>
-
-    <!-- 기타 메뉴 (운영자 문의 / 공유 / 파트너) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>🛠 기타 메뉴</span></div>
-      <div class="ic-m-tools-grid">
-        <a class="ic-m-tool-btn" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')">
-          <span>✏️</span><span>운영자 문의</span>
-        </a>
-        <button class="ic-m-tool-btn" type="button" onclick="shareApp()">
-          <span>📤</span><span>앱 공유</span>
-        </button>
-        <a class="ic-m-tool-btn" href="/admin.html">
-          <span>🔐</span><span>파트너 전용</span>
-        </a>
+        <button class="ic-m-core-card" onclick="goToPage('knowledge')"><span class="cc-ic">📚</span><span class="cc-lb">보험지식</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('tools')"><span class="cc-ic">🛠</span><span class="cc-lb">실무도구</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('lecture')"><span class="cc-ic">🎓</span><span class="cc-lb">강의</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-ic">💼</span><span class="cc-lb">채용</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-ic">🆕</span><span class="cc-lb">최신</span></button>
+        <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-ic">✏️</span><span class="cc-lb">운영자 문의</span></a>
+        <button class="ic-m-core-card" type="button" onclick="shareApp()"><span class="cc-ic">📤</span><span class="cc-lb">앱 공유</span></button>
+        <a class="ic-m-core-card" href="/admin.html"><span class="cc-ic">🔐</span><span class="cc-lb">파트너 전용</span></a>
       </div>
     </section>
 
