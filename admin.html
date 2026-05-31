@@ -3932,6 +3932,7 @@
             <li>랜딩페이지에서 '알림 받기'를 누른 모든 구독자에게 즉시 발송됩니다</li>
             <li>신규 채용공고·소식지·카드뉴스 등록 시 재방문 유도에 활용하세요</li>
             <li>제목 80자·내용 240자 이내 권장. 클릭 시 이동할 링크를 지정할 수 있습니다</li>
+            <li>💬 카톡 알림: 링크의 <b>첫 화면(표지)</b>이 미리보기 이미지로 자동 표시됩니다 (표지 직접 지정도 가능)</li>
           </ul>
         </div>
         <div class="nl-upload-box">
@@ -3947,7 +3948,11 @@
             </div>
             <div class="nl-field" style="flex:1 1 100%;">
               <label>클릭 시 이동 URL (선택, 기본 홈)</label>
-              <input type="text" id="push-url" placeholder="/  또는  /insurance/cancer/...  또는  /company/samsung-life">
+              <input type="text" id="push-url" placeholder="/  또는  /og/recruit/123  또는  /company/samsung-life">
+            </div>
+            <div class="nl-field" style="flex:1 1 100%;">
+              <label>카톡 표지 이미지 URL (선택 — 비우면 위 링크의 첫 화면 자동)</label>
+              <input type="text" id="push-image" placeholder="비워두면 링크의 미리보기(og:image)가 카톡 표지로 사용됩니다">
             </div>
           </div>
           <button id="push-send-btn" onclick="sendPush()" style="margin-top:6px;padding:12px 22px;border:none;border-radius:10px;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;font-weight:800;font-size:14px;cursor:pointer;">📤 웹푸시 발송</button>
@@ -4577,20 +4582,22 @@
       const title = (document.getElementById('push-title').value || '').trim();
       const body  = (document.getElementById('push-body').value  || '').trim();
       const url   = (document.getElementById('push-url').value   || '').trim() || '/';
+      const image = (document.getElementById('push-image') ? document.getElementById('push-image').value : '' || '').trim();
       const res   = document.getElementById('push-result');
       const btn   = document.getElementById('kakao-send-btn');
       if (!title || !body) { res.style.color = '#dc2626'; res.textContent = '제목과 내용을 입력하세요.'; return; }
       if (!confirm('카카오톡 메시지에 동의한 회원 전체에게 발송합니다. 진행할까요?')) return;
-      btn.disabled = true; res.style.color = 'var(--txt-mid)'; res.textContent = '카톡 발송 중…';
+      btn.disabled = true; res.style.color = 'var(--txt-mid)'; res.textContent = '카톡 발송 중… (표지 이미지 준비)';
       try {
         const r = await fetch('/api/admin/kakao-broadcast', {
           method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ title, body, url })
+          body: JSON.stringify({ title, body, url, image })
         });
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
         res.style.color = '#10b981';
-        res.textContent = `✅ 카톡 발송 완료 — 대상 ${d.total}명 / 성공 ${d.sent} / 실패 ${d.failed}` + (d.revoked ? ` / 동의해제 ${d.revoked}` : '');
+        res.innerHTML = `✅ 카톡 발송 완료 — 대상 ${d.total}명 / 성공 ${d.sent} / 실패 ${d.failed}` + (d.revoked ? ` / 동의해제 ${d.revoked}` : '')
+          + (d.image ? `<br><span style="font-size:11px;color:var(--txt-mid)">표지 이미지: <a href="${d.image}" target="_blank" rel="noopener" style="color:var(--blue-mid)">${d.image.split('/').pop().slice(0,48)}</a></span>` : '');
         if (d.total === 0) res.textContent += ' (아직 카톡 알림 동의 회원이 없습니다. 회원이 로그인 시 "카카오톡 메시지" 동의해야 발송됩니다.)';
       } catch (e) {
         res.style.color = '#dc2626';
