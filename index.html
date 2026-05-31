@@ -8237,6 +8237,27 @@
       </div>
     </div>
 
+    <!-- v2.6.4: CREW300 강조 배너 — 실시간 방문통계 바로 아래로 이동 -->
+    <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
+       target="_blank" rel="noopener noreferrer"
+       onclick="trackClick('CREW300 오픈채팅 참여','home-hero-mobile'); armCommunityFallback('CREW 300');">
+      <span class="crew-hero-icon">
+        <picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture>
+      </span>
+      <span class="crew-hero-body">
+        <span class="crew-hero-top">
+          <span class="crew-hero-live">LIVE</span>
+          <span class="crew-hero-count">👥 300+</span>
+        </span>
+        <span class="crew-hero-title">CREW 300 — 보험설계사 오픈채팅</span>
+        <span class="crew-hero-sub">동료들과 실시간 정보 공유</span>
+      </span>
+      <span class="crew-hero-action">
+        <span class="cha-text">참여</span>
+        <span aria-hidden="true">→</span>
+      </span>
+    </a>
+
     <!-- 빠른 검색 -->
     <section class="ic-m-section ic-m-search-section">
       <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
@@ -8269,53 +8290,7 @@
       </div>
     </section>
 
-    <!-- CREW 300 Hero CTA (커뮤니티 강조 — 유지) -->
-    <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
-       target="_blank" rel="noopener noreferrer"
-       onclick="trackClick('CREW300 오픈채팅 참여','home-hero-mobile'); armCommunityFallback('CREW 300');">
-      <span class="crew-hero-icon">
-        <picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture>
-      </span>
-      <span class="crew-hero-body">
-        <span class="crew-hero-top">
-          <span class="crew-hero-live">LIVE</span>
-          <span class="crew-hero-count">👥 300+</span>
-        </span>
-        <span class="crew-hero-title">CREW 300 — 보험설계사 오픈채팅</span>
-        <span class="crew-hero-sub">동료들과 실시간 정보 공유</span>
-      </span>
-      <span class="crew-hero-action">
-        <span class="cha-text">참여</span>
-        <span aria-hidden="true">→</span>
-      </span>
-    </a>
-
-    <!-- v2.5.3: 모바일 자유게시판 섹션 (데스크탑 홈 자유게시판 섹션과 동기화 — 참여·리텐션) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head">
-        <span>💬 자유게시판</span>
-        <a href="/board" class="ic-m-more" style="text-decoration:none;">전체 보기 →</a>
-      </div>
-      <div class="ic-m-list" id="m-home-board">
-        <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
-      </div>
-    </section>
-    <script>
-    (function(){
-      var el=document.getElementById('m-home-board'); if(!el) return;
-      function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
-      fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
-        var posts=(d.posts||[]).slice(0,4);
-        if(!posts.length){ el.innerHTML='<a href="/board" style="display:block;padding:14px;text-align:center;color:#f97316;font-weight:700;font-size:13px;text-decoration:none;">아직 글이 없어요. 첫 글 남기기 →</a>'; return; }
-        el.innerHTML=posts.map(function(p){
-          return '<a href="/board/'+p.id+'" style="display:flex;align-items:center;gap:8px;padding:11px 13px;text-decoration:none;color:inherit;">'
-            +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;font-weight:700;">'+e(p.title)+'</span>'
-            +(p.comment_count?'<span style="font-size:12px;font-weight:800;color:#f97316;">['+p.comment_count+']</span>':'')
-            +'<span style="font-size:11px;color:#94a3b8;white-space:nowrap;">'+e(p.nickname||'회원')+'</span></a>';
-        }).join('');
-      }).catch(function(){ el.innerHTML='<div style="padding:14px;text-align:center;color:#94a3b8;font-size:13px;">불러오지 못했습니다.</div>'; });
-    })();
-    </script>
+    <!-- (CREW300 강조 배너 → 실시간 방문통계 아래로 이동 / 자유게시판 섹션 제거) -->
 
     <!-- (더 둘러보기 → 상단 메뉴 그룹으로 이동) -->
 
@@ -8343,13 +8318,7 @@
 
     <!-- (인슈어커넥트 파트너사 혜택/렌트카 → 빠른 메뉴 '렌트카' 카드로 통합) -->
 
-    <!-- 모바일 오픈채팅방 대화순위 (compact) -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>💬 오픈채팅방 순위</span></div>
-      <div class="ic-m-list" id="m-home-kakao">
-        <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
-      </div>
-    </section>
+    <!-- (오픈채팅방 순위 섹션 제거) -->
 
     <!-- (커뮤니티 참여 CREW300·MANAGER LINK → 빠른 메뉴 카드로 통합) -->
 
