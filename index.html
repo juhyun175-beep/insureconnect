@@ -4485,17 +4485,17 @@
 
     /* v2.6.0: 자주 쓰는 핵심 메뉴 그리드 (3열, 크게) */
     .ic-m-core-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-    .ic-m-core-card { position: relative; flex: 0 0 calc((100% - 20px) / 3); box-sizing: border-box; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 15px 6px; border: none; border-radius: 16px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; text-decoration: none; color: inherit; }
+    /* v2.6.8: 이모지 제거 → 단순 텍스트 버튼 */
+    .ic-m-core-card { position: relative; flex: 0 0 calc((100% - 20px) / 3); box-sizing: border-box; display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 8px; border: 1px solid var(--border, rgba(12,31,184,0.10)); border-radius: 12px; background: var(--bg-card, #fff); cursor: pointer; font-family: inherit; text-decoration: none; color: inherit; transition: background .15s, border-color .15s; }
     /* v2.6.5: 빠른 메뉴 NEW 표시 (새 포스팅/업로드 알림 점) */
     .cc-new { position: absolute; top: 7px; right: 9px; width: 9px; height: 9px; border-radius: 999px; background: #ef4444; box-shadow: 0 0 0 2px #fff; display: none; }
     [data-theme="dark"] .cc-new { box-shadow: 0 0 0 2px #161b22; }
     .cc-new.show { display: block; animation: ccNewPulse 1.6s ease-in-out infinite; }
     @keyframes ccNewPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.75; } }
-    [data-theme="dark"] .ic-m-core-card { background: #161b22; box-shadow: 0 2px 10px rgba(0,0,0,0.32); }
-    .ic-m-core-card .cc-ic { font-size: 27px; line-height: 1; }
-    .ic-m-core-card .cc-lb { font-size: 12.5px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+    [data-theme="dark"] .ic-m-core-card { background: #161b22; border-color: rgba(255,255,255,0.08); }
+    .ic-m-core-card .cc-lb { font-size: 13px; font-weight: 700; color: var(--txt-hi, #0f172a); letter-spacing: -0.01em; text-align: center; line-height: 1.25; }
     [data-theme="dark"] .ic-m-core-card .cc-lb { color: #e6edf3; }
-    .ic-m-core-card:active { transform: scale(0.96); }
+    .ic-m-core-card:active { background: var(--bg-card-hi, #f4f7ff); border-color: var(--blue-light, #4a70f5); }
 
     /* v2.6.1: 모바일 2열 섹션 (채용공고 + 강의 한 행) */
     .ic-m-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: start; margin-bottom: 22px; }
@@ -8297,25 +8297,25 @@
 
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section">
-      <div class="ic-m-section-head"><span>🚀 빠른 메뉴</span></div>
+      <div class="ic-m-section-head"><span>빠른 메뉴</span></div>
       <div class="ic-m-core-grid">
-        <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-ic">🖥</span><span class="cc-lb">보험사 전산</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-ic">📋</span><span class="cc-lb">청구서류</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-ic">🏢</span><span class="cc-lb">GA 전산</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('payment')"><span class="cc-ic">💳</span><span class="cc-lb">수납</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-ic">📰</span><span class="cc-lb">소식지</span></button>
-        <button class="ic-m-core-card" onclick="if(window.icMarkSeen)icMarkSeen('board');location.href='/board'"><span class="cc-new" data-mnew="board"></span><span class="cc-ic">💬</span><span class="cc-lb">자유게시판</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('knowledge')"><span class="cc-ic">📚</span><span class="cc-lb">보험지식</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('tools')"><span class="cc-ic">🛠</span><span class="cc-lb">실무도구</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('lecture')"><span class="cc-new" data-mnew="lecture"></span><span class="cc-ic">🎓</span><span class="cc-lb">강의</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-ic">💼</span><span class="cc-lb">채용</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-ic">🆕</span><span class="cc-lb">최신</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-ic">🚗</span><span class="cc-lb">렌트카</span></button>
-        <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-ic">🎯</span><span class="cc-lb">CREW 300</span></a>
-        <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-ic">🤝</span><span class="cc-lb">MANAGER LINK</span></a>
-        <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-ic">✏️</span><span class="cc-lb">운영자 문의</span></a>
-        <button class="ic-m-core-card" type="button" onclick="shareApp()"><span class="cc-ic">📤</span><span class="cc-lb">앱 공유</span></button>
-        <a class="ic-m-core-card" href="/admin.html"><span class="cc-ic">🔐</span><span class="cc-lb">파트너 전용</span></a>
+        <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-lb">보험사 전산</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-lb">청구서류</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-lb">GA 전산</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('payment')"><span class="cc-lb">수납</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-lb">소식지</span></button>
+        <button class="ic-m-core-card" onclick="if(window.icMarkSeen)icMarkSeen('board');location.href='/board'"><span class="cc-new" data-mnew="board"></span><span class="cc-lb">자유게시판</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('knowledge')"><span class="cc-lb">보험지식</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('tools')"><span class="cc-lb">실무도구</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('lecture')"><span class="cc-new" data-mnew="lecture"></span><span class="cc-lb">강의</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-lb">채용</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-lb">최신</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
+        <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
+        <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
+        <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-lb">운영자 문의</span></a>
+        <button class="ic-m-core-card" type="button" onclick="shareApp()"><span class="cc-lb">앱 공유</span></button>
+        <a class="ic-m-core-card" href="/admin.html"><span class="cc-lb">파트너 전용</span></a>
       </div>
     </section>
 
