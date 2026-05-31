@@ -4462,6 +4462,36 @@
     body.ic-mobile.nav-subpage #page-home-mobile { display: none !important; }
     body:not(.ic-mobile) #page-home-mobile { display: none !important; }
 
+    /* v2.6.0: 모바일 전용 로그인 게이트 (홈 진입 전 카카오 로그인) */
+    #m-login-gate { display: none; }
+    @media (max-width: 900px) {
+      #m-login-gate:not(.mlg-hidden) {
+        display: flex; position: fixed; inset: 0; z-index: 99999;
+        align-items: center; justify-content: center; padding: 24px;
+        background: linear-gradient(160deg, #1a3de8 0%, #00c8ee 100%);
+      }
+    }
+    .mlg-card { width: 100%; max-width: 360px; background: #fff; border-radius: 24px; padding: 34px 24px 26px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.32); }
+    [data-theme="dark"] .mlg-card { background: #161b22; }
+    .mlg-logo { width: 180px; max-width: 74%; height: auto; margin-bottom: 18px; }
+    .mlg-title { font-size: 21px; font-weight: 900; color: #0f172a; margin: 0 0 8px; letter-spacing: -0.02em; }
+    [data-theme="dark"] .mlg-title { color: #e6edf3; }
+    .mlg-sub { font-size: 14px; line-height: 1.6; color: #64748b; margin: 0 0 26px; }
+    [data-theme="dark"] .mlg-sub { color: #94a3b8; }
+    .mlg-kakao { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; box-sizing: border-box; background: #FEE500; color: #191600; text-decoration: none; font-weight: 900; font-size: 16px; padding: 16px; border-radius: 14px; box-shadow: 0 8px 20px rgba(254,229,0,0.45); }
+    .mlg-kakao:active { transform: scale(0.98); }
+    .mlg-note { margin: 18px 0 0; font-size: 11px; color: #cbd5e1; line-height: 1.5; }
+    [data-theme="dark"] .mlg-note { color: #475569; }
+
+    /* v2.6.0: 자주 쓰는 핵심 메뉴 그리드 (3열, 크게) */
+    .ic-m-core-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .ic-m-core-card { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 9px; padding: 18px 6px; border: none; border-radius: 16px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.06); cursor: pointer; font-family: inherit; }
+    [data-theme="dark"] .ic-m-core-card { background: #161b22; box-shadow: 0 2px 10px rgba(0,0,0,0.32); }
+    .ic-m-core-card .cc-ic { font-size: 27px; line-height: 1; }
+    .ic-m-core-card .cc-lb { font-size: 12.5px; font-weight: 800; color: #0f172a; letter-spacing: -0.01em; }
+    [data-theme="dark"] .ic-m-core-card .cc-lb { color: #e6edf3; }
+    .ic-m-core-card:active { transform: scale(0.96); }
+
     .ic-m-hero {
       padding: 18px 16px 18px;
       background: linear-gradient(135deg, #1a3de8 0%, #00c8ee 100%);
@@ -8126,6 +8156,39 @@
     <div class="rc-viewer-body" id="rc-viewer-body"></div>
   </div>
 
+  <!-- v2.6.0: 모바일 전용 로그인 게이트 (홈 진입 전 카카오 로그인 강제) — 데스크탑·검색 콘텐츠 페이지(/insurance·/company·/board 등)는 영향 없음 -->
+  <div id="m-login-gate" role="dialog" aria-modal="true" aria-label="로그인">
+    <div class="mlg-card">
+      <picture><source srcset="/logo-full.webp" type="image/webp"><img src="/logo-full.png" alt="InsureConnect" class="mlg-logo" onerror="this.style.display='none'"></picture>
+      <h2 class="mlg-title">보험설계사 전용 허브</h2>
+      <p class="mlg-sub">보험사 전산·청구서류·자유게시판을<br>한 곳에서. 카카오로 로그인하고 시작하세요.</p>
+      <a class="mlg-kakao" href="/api/auth/kakao/login" onclick="if(typeof trackClick==='function')trackClick('카카오 로그인','login-gate')">
+        <span aria-hidden="true">💬</span> 카카오로 3초 만에 시작하기
+      </a>
+      <p class="mlg-note">로그인 시 서비스 이용약관 및 개인정보처리방침에 동의하게 됩니다.</p>
+    </div>
+  </div>
+  <script>
+  (function(){
+    var g=document.getElementById('m-login-gate'); if(!g) return;
+    try{ document.body.appendChild(g); }catch(_){}
+    var member=false;
+    try{ member = localStorage.getItem('ic_member')==='1'; }catch(_){}
+    if(member) g.classList.add('mlg-hidden'); // 회원으로 알려졌으면 우선 숨김(깜빡임 방지)
+    fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+      if(d && d.user){
+        try{ localStorage.setItem('ic_member','1'); }catch(_){}
+        g.classList.add('mlg-hidden');
+      } else if(d && d.login_enabled){
+        try{ localStorage.removeItem('ic_member'); }catch(_){}
+        g.classList.remove('mlg-hidden'); // 미로그인 → 게이트 노출
+      } else {
+        g.classList.add('mlg-hidden');     // 로그인 미설정 → 게이트 없음
+      }
+    }).catch(function(){ g.classList.add('mlg-hidden'); }); // 네트워크 실패 → 가두지 않음
+  })();
+  </script>
+
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <!-- ══════ MOBILE 전용 홈 (CSS로만 표시/숨김 제어 — 인라인 style 없음) ══════ -->
   <div class="content" id="page-home-mobile">
@@ -8155,7 +8218,28 @@
     })();
     </script>
 
-    <!-- v2.1.37: 모바일 홈 CREW 300 Hero CTA -->
+    <!-- v2.6.0: 검색을 최상단으로 — 이용자 바로 찾기 -->
+    <section class="ic-m-section ic-m-search-section">
+      <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
+        <span class="ic-m-search-icon">🔍</span>
+        <span class="ic-m-search-text">전산·실무도구·페이지 검색…</span>
+      </button>
+    </section>
+
+    <!-- v2.6.0: 자주 쓰는 핵심 메뉴 (설계사 일상 업무 중심) -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>⚡ 자주 쓰는 메뉴</span></div>
+      <div class="ic-m-core-grid">
+        <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-ic">🖥</span><span class="cc-lb">보험사 전산</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-ic">📋</span><span class="cc-lb">청구서류</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-ic">🏢</span><span class="cc-lb">GA 전산</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('payment')"><span class="cc-ic">💳</span><span class="cc-lb">수납</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-ic">📰</span><span class="cc-lb">소식지</span></button>
+        <button class="ic-m-core-card" onclick="location.href='/board'"><span class="cc-ic">💬</span><span class="cc-lb">자유게시판</span></button>
+      </div>
+    </section>
+
+    <!-- 모바일 홈 CREW 300 Hero CTA (커뮤니티 강조 — 유지) -->
     <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
        target="_blank" rel="noopener noreferrer"
        onclick="trackClick('CREW300 오픈채팅 참여','home-hero-mobile'); armCommunityFallback('CREW 300');">
@@ -8176,7 +8260,7 @@
       </span>
     </a>
 
-    <!-- v2.1.41: 모바일 방문자 카운터 강조 띠 -->
+    <!-- 방문자 카운터 (사회적 증명) -->
     <div class="ic-visitor-strip" id="home-visitor-strip-mobile">
       <span class="vs-live">LIVE</span>
       <div class="vs-main">
@@ -8188,34 +8272,6 @@
         <span class="vs-stat-item">누적 <strong id="vs-total-m">—</strong>명</span>
       </div>
     </div>
-
-    <!-- 모바일 빠른 검색 -->
-    <section class="ic-m-section ic-m-search-section">
-      <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
-        <span class="ic-m-search-icon">🔍</span>
-        <span class="ic-m-search-text">전산·실무도구·페이지 검색…</span>
-      </button>
-    </section>
-
-    <!-- v2.5.3: (구) 모바일 시계 섹션 제거 (시계 컬럼 폐지) -->
-
-    <!-- 모바일 빠른 메뉴 그리드 -->
-    <section class="ic-m-section">
-      <div class="ic-m-section-head">🚀 빠른 메뉴</div>
-      <div class="ic-m-menu-grid">
-        <button class="ic-m-menu-card" onclick="location.href='/board'"><span class="ic-m-menu-icon">💬</span><span class="ic-m-menu-label">자유게시판</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('jeonsan')"><span class="ic-m-menu-icon">🖥</span><span class="ic-m-menu-label">전산</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('ga')"><span class="ic-m-menu-icon">🏢</span><span class="ic-m-menu-label">GA</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('payment')"><span class="ic-m-menu-icon">💳</span><span class="ic-m-menu-label">수납</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('newsletter')"><span class="ic-m-menu-icon">📰</span><span class="ic-m-menu-label">소식지</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('claimform')"><span class="ic-m-menu-icon">📋</span><span class="ic-m-menu-label">청구</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('recruit')"><span class="ic-m-menu-icon">💼</span><span class="ic-m-menu-label">채용</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('lecture')"><span class="ic-m-menu-icon">🎓</span><span class="ic-m-menu-label">강의</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('knowledge')"><span class="ic-m-menu-icon">📚</span><span class="ic-m-menu-label">보험지식</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('tools')"><span class="ic-m-menu-icon">🛠</span><span class="ic-m-menu-label">실무도구</span></button>
-        <button class="ic-m-menu-card" onclick="goToPage('latest')"><span class="ic-m-menu-icon">🆕</span><span class="ic-m-menu-label">최신</span></button>
-      </div>
-    </section>
 
     <!-- v2.5.3: 모바일 자유게시판 섹션 (데스크탑 홈 자유게시판 섹션과 동기화 — 참여·리텐션) -->
     <section class="ic-m-section">
@@ -8243,6 +8299,18 @@
       }).catch(function(){ el.innerHTML='<div style="padding:14px;text-align:center;color:#94a3b8;font-size:13px;">불러오지 못했습니다.</div>'; });
     })();
     </script>
+
+    <!-- v2.6.0: 더 둘러보기 (보조 메뉴 — 덜 자주 쓰는 항목 정리) -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head"><span>🧰 더 둘러보기</span></div>
+      <div class="ic-m-menu-grid">
+        <button class="ic-m-menu-card" onclick="goToPage('knowledge')"><span class="ic-m-menu-icon">📚</span><span class="ic-m-menu-label">보험지식</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('tools')"><span class="ic-m-menu-icon">🛠</span><span class="ic-m-menu-label">실무도구</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('lecture')"><span class="ic-m-menu-icon">🎓</span><span class="ic-m-menu-label">강의</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('recruit')"><span class="ic-m-menu-icon">💼</span><span class="ic-m-menu-label">채용</span></button>
+        <button class="ic-m-menu-card" onclick="goToPage('latest')"><span class="ic-m-menu-icon">🆕</span><span class="ic-m-menu-label">최신</span></button>
+      </div>
+    </section>
 
     <!-- 모바일 최신 채용공고 (간소화) -->
     <section class="ic-m-section">
