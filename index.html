@@ -8127,24 +8127,31 @@
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <!-- ══════ MOBILE 전용 홈 (CSS로만 표시/숨김 제어 — 인라인 style 없음) ══════ -->
   <div class="content" id="page-home-mobile">
-    <!-- v2.0.4: 시계 좌측 + 로고 우측 -->
-    <div class="ic-m-hero">
-      <div class="ic-m-hero-clock" aria-label="현재 시각">
-        <div class="ic-m-hero-clock-time">
-          <span id="m-clock-hh-top">--</span><span class="ic-clock-colon">:</span><span id="m-clock-mm-top">--</span>
-        </div>
-        <div class="ic-m-hero-clock-date">
-          <span class="ic-m-hero-clock-day" id="m-clock-day-top">—</span>
-          <span id="m-clock-date-top">—.—</span>
-        </div>
-      </div>
+    <!-- v2.5.3: 시계 제거 → 로고 좌측 + 카카오 로그인/프로필 우측 (데스크탑 사이드바 변경과 동기화) -->
+    <div class="ic-m-hero" style="justify-content:space-between;">
       <div class="ic-m-hero-logo-wrap">
         <picture>
           <source srcset="/logo-banner.webp" type="image/webp">
           <img src="/logo-banner.png" alt="InsureConnect" class="ic-m-hero-logo" decoding="async" fetchpriority="high">
         </picture>
       </div>
+      <div id="ic-m-auth" class="ic-m-auth" style="position:relative;z-index:2;flex-shrink:0;"></div>
     </div>
+    <script>
+    (function(){
+      var box=document.getElementById('ic-m-auth'); if(!box) return;
+      function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+      fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+        if(d && d.user){
+          box.innerHTML='<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.20);padding:5px 11px 5px 6px;border-radius:999px;font-size:12.5px;color:#fff;font-weight:800;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">'
+            +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:22px;height:22px;border-radius:50%;object-fit:cover">':'<span style="font-size:15px">👤</span>')
+            +'<span>'+e(d.user.nickname)+'</span></div>';
+        } else if(d && d.login_enabled){
+          box.innerHTML='<a href="/api/auth/kakao/login" style="display:inline-flex;align-items:center;gap:5px;background:#FEE500;color:#191600;text-decoration:none;font-weight:800;font-size:12.5px;padding:8px 13px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">💬 로그인</a>';
+        }
+      }).catch(function(){});
+    })();
+    </script>
 
     <!-- v2.1.37: 모바일 홈 CREW 300 Hero CTA -->
     <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
@@ -8188,28 +8195,13 @@
       </button>
     </section>
 
-    <!-- (구) 모바일 시계 — 이제 hero에 통합되어 숨김 -->
-    <section class="ic-m-section ic-m-clock-section" style="display:none;">
-      <div class="ic-m-clock-card">
-        <div class="ic-m-clock-head">
-          <span class="ic-m-clock-dot"></span>
-          <span class="ic-m-clock-label">KST · SEOUL</span>
-          <span id="m-clock-ampm">AM</span>
-        </div>
-        <div class="ic-m-clock-time">
-          <span id="m-clock-hh">--</span><span class="ic-m-clock-colon">:</span><span id="m-clock-mm">--</span><span class="ic-m-clock-seconds" id="m-clock-ss">--</span>
-        </div>
-        <div class="ic-m-clock-date">
-          <span class="ic-m-clock-day" id="m-clock-day">—요일</span>
-          <span id="m-clock-date">—월 —일</span>
-        </div>
-      </div>
-    </section>
+    <!-- v2.5.3: (구) 모바일 시계 섹션 제거 (시계 컬럼 폐지) -->
 
     <!-- 모바일 빠른 메뉴 그리드 -->
     <section class="ic-m-section">
       <div class="ic-m-section-head">🚀 빠른 메뉴</div>
       <div class="ic-m-menu-grid">
+        <button class="ic-m-menu-card" onclick="location.href='/board'"><span class="ic-m-menu-icon">💬</span><span class="ic-m-menu-label">자유게시판</span></button>
         <button class="ic-m-menu-card" onclick="goToPage('jeonsan')"><span class="ic-m-menu-icon">🖥</span><span class="ic-m-menu-label">전산</span></button>
         <button class="ic-m-menu-card" onclick="goToPage('ga')"><span class="ic-m-menu-icon">🏢</span><span class="ic-m-menu-label">GA</span></button>
         <button class="ic-m-menu-card" onclick="goToPage('payment')"><span class="ic-m-menu-icon">💳</span><span class="ic-m-menu-label">수납</span></button>
@@ -8222,6 +8214,33 @@
         <button class="ic-m-menu-card" onclick="goToPage('latest')"><span class="ic-m-menu-icon">🆕</span><span class="ic-m-menu-label">최신</span></button>
       </div>
     </section>
+
+    <!-- v2.5.3: 모바일 자유게시판 섹션 (데스크탑 홈 자유게시판 섹션과 동기화 — 참여·리텐션) -->
+    <section class="ic-m-section">
+      <div class="ic-m-section-head">
+        <span>💬 자유게시판</span>
+        <a href="/board" class="ic-m-more" style="text-decoration:none;">전체 보기 →</a>
+      </div>
+      <div class="ic-m-list" id="m-home-board">
+        <div class="ic-m-list-skel"></div><div class="ic-m-list-skel"></div>
+      </div>
+    </section>
+    <script>
+    (function(){
+      var el=document.getElementById('m-home-board'); if(!el) return;
+      function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+      fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
+        var posts=(d.posts||[]).slice(0,4);
+        if(!posts.length){ el.innerHTML='<a href="/board" style="display:block;padding:14px;text-align:center;color:#f97316;font-weight:700;font-size:13px;text-decoration:none;">아직 글이 없어요. 첫 글 남기기 →</a>'; return; }
+        el.innerHTML=posts.map(function(p){
+          return '<a href="/board/'+p.id+'" style="display:flex;align-items:center;gap:8px;padding:11px 13px;text-decoration:none;color:inherit;">'
+            +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:13.5px;font-weight:700;">'+e(p.title)+'</span>'
+            +(p.comment_count?'<span style="font-size:12px;font-weight:800;color:#f97316;">['+p.comment_count+']</span>':'')
+            +'<span style="font-size:11px;color:#94a3b8;white-space:nowrap;">'+e(p.nickname||'회원')+'</span></a>';
+        }).join('');
+      }).catch(function(){ el.innerHTML='<div style="padding:14px;text-align:center;color:#94a3b8;font-size:13px;">불러오지 못했습니다.</div>'; });
+    })();
+    </script>
 
     <!-- 모바일 최신 채용공고 (간소화) -->
     <section class="ic-m-section">
