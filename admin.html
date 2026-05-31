@@ -3063,6 +3063,95 @@
     @media (max-width: 900px) {
       .pc-3col { grid-template-columns: 1fr; }
     }
+
+    /* ════════════════════════════════════════════════════════════
+       v2.6.6: 모바일 관리자 레이아웃 전면 정비 (≤640px)
+       - 탭 바: 줄바꿈 난립 → 가로 스크롤 한 줄
+       - 표/넓은 그리드/입력폼/미디어를 화면 폭에 맞게 정리
+    ════════════════════════════════════════════════════════════ */
+    @media (max-width: 640px) {
+      /* 헤더 */
+      .dash-header { padding: 0 12px !important; }
+      .dash-header-inner { height: 54px; gap: 8px; }
+      .dash-brand { gap: 8px; min-width: 0; }
+      .dash-brand img { height: 28px; }
+      .dash-brand span { display: none; }
+      .dash-actions { gap: 8px; flex-shrink: 0; }
+      .refresh-btn { padding: 7px 11px; font-size: 10px; letter-spacing: 0.04em; }
+      .back-link { font-size: 10px; letter-spacing: 0.04em; }
+      .last-updated { display: none; }
+
+      /* 본문 여백 축소 */
+      .dash-body { padding: 14px 12px 52px !important; }
+      .dash-section-title { font-size: 12px; margin-bottom: 14px; }
+
+      /* 탭 바 → 가로 스크롤 한 줄 (줄바꿈 제거) */
+      .upload-tabs {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        overflow-y: hidden;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        gap: 6px;
+        padding: 10px 0;
+        margin-bottom: 16px;
+      }
+      .upload-tabs::-webkit-scrollbar { display: none; }
+      .upload-tab {
+        flex: 0 0 auto;
+        white-space: nowrap;
+        padding: 9px 13px;
+        font-size: 11px;
+        letter-spacing: 0.03em;
+      }
+      .tab-group-sep { display: none; }
+
+      /* 내부 서브탭도 가로 스크롤 */
+      .reqs-subtabs {
+        flex-wrap: nowrap !important;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+      }
+      .reqs-subtabs::-webkit-scrollbar { display: none; }
+
+      /* 표 → 가로 스크롤 (잘림 방지) */
+      .dash-body table {
+        display: block;
+        width: 100%;
+        max-width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        white-space: nowrap;
+      }
+
+      /* 넓은 그리드 축소 */
+      .sess-dist     { grid-template-columns: repeat(2, 1fr) !important; }
+      .sess-kpi-row  { grid-template-columns: repeat(3, 1fr) !important; }
+      .cs-cards-grid { grid-template-columns: repeat(2, 1fr) !important; }
+      .kpi-grid      { grid-template-columns: repeat(2, 1fr) !important; }
+      /* 패널 내부 인라인 3열 그리드 폴백 */
+      .upload-panel [style*="repeat(3"] { grid-template-columns: repeat(2, 1fr) !important; }
+
+      /* 입력폼 — iOS 확대 방지 + 풀폭 */
+      .dash-body input,
+      .dash-body select,
+      .dash-body textarea {
+        font-size: 16px !important;
+        max-width: 100%;
+        box-sizing: border-box;
+      }
+
+      /* 미디어 오버플로 방지 */
+      .dash-body img,
+      .dash-body iframe,
+      .dash-body canvas,
+      .dash-body video { max-width: 100%; height: auto; }
+
+      /* 패널/카드 폭 안전장치 */
+      .upload-panel { max-width: 100%; }
+      .upload-panel > * { max-width: 100%; box-sizing: border-box; }
+    }
   </style>
 </head>
 <body>
