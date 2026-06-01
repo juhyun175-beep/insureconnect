@@ -4055,7 +4055,7 @@
         <div class="roledist" id="mt-roles"></div>
         <div id="mt-chart" style="margin:14px 0 18px;"></div>
         <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;">회원 목록 · 등급 변경</div>
-        <table class="mlist"><thead><tr><th>ID</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th></tr></thead><tbody id="mt-members"><tr><td colspan="5">불러오는 중…</td></tr></tbody></table>
+        <table class="mlist"><thead><tr><th>순번</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th></tr></thead><tbody id="mt-members"><tr><td colspan="5">불러오는 중…</td></tr></tbody></table>
       </div><!-- /#up-members -->
 
       <!-- ══════════════════ 강의 관리 패널 ══════════════════ -->
@@ -4521,7 +4521,7 @@
         const m = await mRes.json();
         const l = await lRes.json();
         renderMetrics(m);
-        renderMemberList(l.members || []);
+        renderMemberList(l.members || [], l.total || 0);
       } catch (e) {
         const el = document.getElementById('mt-cards');
         if (el) el.innerHTML = '<div class="mt-card"><div class="mt-lbl">불러오기 실패: ' + esc(e.message) + '</div></div>';
@@ -4567,15 +4567,18 @@
       const el = document.getElementById('mt-chart'); if (!el) return;
       el.innerHTML = _trendBars(m.visit_series, '#1a3de8', '📈 일별 방문') + _trendBars(m.signup_series, '#16a34a', '🆕 일별 신규가입');
     }
-    function renderMemberList(members) {
+    function renderMemberList(members, total) {
       const tb = document.getElementById('mt-members');
       if (!tb) return;
       if (!members.length) { tb.innerHTML = '<tr><td colspan="5">아직 가입 회원이 없습니다.</td></tr>'; return; }
-      tb.innerHTML = members.map(function (u) {
+      // 표시는 순번(1…N) — id DESC 정렬이라 첫 행(최신)이 가장 큰 번호. 실제 DB id는 등급변경에만 사용(+툴팁)
+      const base = (typeof total === 'number' && total >= members.length) ? total : members.length;
+      tb.innerHTML = members.map(function (u, i) {
+        const seq = base - i;
         const opts = ['member', 'certified', 'premium', 'admin'].map(function (r) {
           return '<option value="' + r + '"' + (u.role === r ? ' selected' : '') + '>' + ROLE_LABELS[r] + '</option>';
         }).join('');
-        return '<tr><td>' + u.id + '</td><td>' + esc(u.nickname || '회원') + '</td>'
+        return '<tr><td title="DB #' + u.id + '">' + seq + '</td><td>' + esc(u.nickname || '회원') + '</td>'
           + '<td><select class="role-sel" onchange="changeMemberRole(' + u.id + ', this.value)">' + opts + '</select></td>'
           + '<td>' + esc(String(u.created_at || '').slice(0, 10)) + '</td>'
           + '<td>' + esc(String(u.last_login || '').slice(0, 10)) + '</td></tr>';
