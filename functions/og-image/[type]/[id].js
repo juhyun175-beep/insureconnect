@@ -37,6 +37,12 @@ const PRESETS = {
     accent: '#fde68a',
     label: 'knowledge',
   },
+  board: {
+    badge: '💬 자유게시판',
+    grad: ['#d97706', '#f97316', '#fb923c'],
+    accent: '#fff7ed',
+    label: 'board',
+  },
 };
 
 /** XML 안전 이스케이프 */
@@ -198,6 +204,15 @@ export const onRequestGet = async ({ params, env }) => {
       ).bind(id).first();
       if (r) {
         title = r.title || title;
+        if (r.created_at) dateStr = String(r.created_at).slice(0, 10).replace(/-/g, '.');
+      }
+    } else if (type === 'board') {
+      const r = await env.DB.prepare(
+        `SELECT title, content, created_at FROM ic_board_posts WHERE id = ? AND deleted = 0`
+      ).bind(id).first();
+      if (r) {
+        title = r.title || title;
+        subtitle = (r.content || '').replace(/\s+/g, ' ').trim().slice(0, 48);
         if (r.created_at) dateStr = String(r.created_at).slice(0, 10).replace(/-/g, '.');
       }
     }

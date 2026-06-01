@@ -186,6 +186,29 @@ export const onRequestGet = async ({ params, env, request }) => {
           mainEntityOfPage: { '@type': 'WebPage', '@id': target }
         };
       }
+    } else if (type === 'board') {
+      const r = await env.DB.prepare(
+        `SELECT title, content, nickname, created_at FROM ic_board_posts WHERE id = ? AND deleted = 0`
+      ).bind(id).first();
+      if (r) {
+        title = r.title || title;
+        const clean = (r.content || '').replace(/\s+/g, ' ').trim();
+        desc = (r.nickname ? `[${r.nickname}] ` : '') + clean.slice(0, 110);
+        image = dynamicOgImage('board', id); // 글 내용이 보이는 카드 이미지
+        target = `${SITE}/board/${encodeURIComponent(id)}`;
+        indexable = false; // 자유게시판은 noindex 유지
+        bodyContent = `<h1>${esc(r.title)}</h1><div style="white-space:pre-line">${esc(clean.slice(0, 1500))}</div>`;
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'DiscussionForumPosting',
+          headline: r.title,
+          text: clean.slice(0, 500),
+          author: { '@type': 'Person', name: r.nickname || '회원' },
+          datePublished: (r.created_at || new Date().toISOString()).slice(0, 10),
+          image: image,
+          mainEntityOfPage: { '@type': 'WebPage', '@id': target }
+        };
+      }
     }
   } catch (_) {}
 

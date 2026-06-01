@@ -54,7 +54,8 @@ export const onRequestGet = async ({ env, request, params }) => {
 article{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.04);padding:26px 24px}
 article h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.01em}
 .meta{font-size:13px;color:#94a3b8;border-bottom:1px solid #f1f5f9;padding-bottom:14px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
-.meta .del{margin-left:auto;color:#dc2626;cursor:pointer;border:none;background:transparent;font-size:12.5px;display:none}
+.meta .share{margin-left:auto;color:#1a3de8;cursor:pointer;border:none;background:transparent;font-size:12.5px;font-weight:700;padding:0}
+.meta .del{margin-left:8px;color:#dc2626;cursor:pointer;border:none;background:transparent;font-size:12.5px;display:none}
 .content{white-space:pre-wrap;font-size:15.5px;color:#1f2937;word-break:break-word}
 .back{display:inline-block;margin-top:22px;color:#1a3de8;text-decoration:none;font-weight:700}
 .cmts{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.04);padding:20px 22px;margin-top:16px}
@@ -84,6 +85,7 @@ article h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.01em}
       <b style="color:#334155">${esc(post.nickname || '회원')}</b>${roleBadge(post.author_role)}
       <span>${fmt(post.created_at)}</span>
       <span>조회 ${post.view_count}</span>
+      <button class="share" id="share-btn" type="button">🔗 공유</button>
       <button class="del" id="del-btn" type="button" data-uid="${post.user_id}">삭제</button>
     </div>
     <div class="content">${esc(post.content)}</div>
@@ -121,6 +123,19 @@ ${seoCtaFooter(SITE)}
       if(r.ok){location.href='/board';}else{alert('삭제 권한이 없거나 실패했습니다.');}
     });
   });
+
+  // v2.7.0: 글 공유 (카톡 등에 붙이면 글 내용 미리보기) — /og/board/{id} 링크
+  var shareBtn=document.getElementById('share-btn');
+  if(shareBtn){
+    var shareUrl=location.origin+'/og/board/'+POST_ID;
+    shareBtn.addEventListener('click',async function(){
+      var t=(document.querySelector('article h1')||{}).textContent||'InsureConnect 자유게시판';
+      try{ if(navigator.share){ await navigator.share({title:t,url:shareUrl}); return; } }
+      catch(e){ if(e&&e.name==='AbortError') return; }
+      try{ await navigator.clipboard.writeText(shareUrl); shareBtn.textContent='✓ 링크 복사됨'; setTimeout(function(){shareBtn.textContent='🔗 공유';},1800); }
+      catch(e){ window.prompt('아래 링크를 복사해 공유하세요', shareUrl); }
+    });
+  }
 
   document.getElementById('cmt-form').addEventListener('submit',async function(ev){
     ev.preventDefault();
