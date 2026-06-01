@@ -3746,11 +3746,7 @@
       background: #f1f5f9; font-weight: 700; color: #1e40af;
     }
     .kn-table tr:nth-child(even) td { background: #f8fafc; }
-    @media (prefers-color-scheme: dark) {
-      .kn-table th, .kn-table td { border-color: rgba(0,240,255,0.2); color: #e2e8f0; }
-      .kn-table th { background: rgba(0,240,255,0.07); color: #7dd3fc; }
-      .kn-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
-    }
+    /* v2.8.6: (제거) prefers-color-scheme 기반 kn-table 다크 스타일 — OS가 다크면 앱 라이트모드에서도 적용돼 흰 배경에 밝은 글씨가 안 보이던 원인. 다크는 [data-theme="dark"]로만 처리(v2.8.5). */
     .kn-modal-content .kn-inline-img {
       max-width: 100%; border-radius: 12px;
       margin: 16px 0; display: block;
@@ -4470,12 +4466,12 @@
 
     /* v2.6.0: 모바일 전용 로그인 게이트 (홈 진입 전 카카오 로그인) */
     #m-login-gate { display: none; }
-    @media (max-width: 900px) {
-      #m-login-gate:not(.mlg-hidden) {
-        display: flex; position: fixed; inset: 0; z-index: 99999;
-        align-items: center; justify-content: center; padding: 24px;
-        background: linear-gradient(160deg, #1a3de8 0%, #00c8ee 100%);
-      }
+    /* v2.8.6: PC·모바일 공통 로그인 게이트 (이전엔 max-width:900px 모바일 한정) — SSR 콘텐츠 페이지(/insurance·/company·/board 등)는 게이트 없음(SEO 유지) -->
+       로그인 미설정·네트워크 실패 시 게이트 미노출(가두지 않음) */
+    #m-login-gate:not(.mlg-hidden) {
+      display: flex; position: fixed; inset: 0; z-index: 99999;
+      align-items: center; justify-content: center; padding: 24px;
+      background: linear-gradient(160deg, #1a3de8 0%, #00c8ee 100%);
     }
     .mlg-card { width: 100%; max-width: 360px; background: #fff; border-radius: 24px; padding: 34px 24px 26px; text-align: center; box-shadow: 0 24px 60px rgba(0,0,0,0.32); }
     [data-theme="dark"] .mlg-card { background: #161b22; }

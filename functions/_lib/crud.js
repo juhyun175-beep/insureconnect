@@ -14,7 +14,8 @@ export function listHandler(table, allowedFilters = []) {
   return async ({ request, env }) => handle(async () => {
     const url = new URL(request.url);
     const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 200);
-    const orderCol = url.searchParams.get('order_by') || 'created_at';
+    // v2.8.6 보안: ORDER BY 컬럼은 식별자 문자만 허용 (SQL 인젝션 차단)
+    const orderCol = (url.searchParams.get('order_by') || 'created_at').replace(/[^a-zA-Z0-9_]/g, '').slice(0, 40) || 'created_at';
     const orderDir = url.searchParams.get('order') === 'asc' ? 'ASC' : 'DESC';
 
     let where = '';

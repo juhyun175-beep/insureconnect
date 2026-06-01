@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.8.6] - 2026-06-01
+### Security (보안 순찰 자동화 + 취약점 수정)
+- **보안 스캐너 도입** `scripts/security-scan.mjs` + `SECURITY.md` 루틴 — 배포 전 자동 점검(HIGH 발견 시 차단), 매 작업마다 실행
+- 🔴 **SQL 인젝션 수정**: `_lib/crud.js` `listHandler`의 `order_by`가 사용자 입력을 `ORDER BY ${}`에 그대로 보간 → 식별자 문자만 허용하도록 정제(블라인드 데이터 추출 차단)
+- 점검 결과: 관리자 쓰기(crud)·세션·출력 escape 등은 이상 없음. user-upload 서버측 rate-limit 보강은 TODO 기록
+### Changed (PC 로그인 게이트)
+- 모바일에만 적용되던 로그인 게이트를 **PC에도 동일 적용**(미디어쿼리 해제). SSR 콘텐츠 페이지(/insurance·/company·/board)는 공개 유지(SEO), 로그인 미설정·네트워크 실패 시 미노출
+### Fixed (테마 — 라이트모드 안 보이던 텍스트)
+- 보험지식 표(kn-table)의 `@media (prefers-color-scheme: dark)`(OS 기준) 제거 — OS가 다크일 때 앱 라이트모드에서 밝은 글씨가 흰 배경에 안 보이던 문제. 다크는 `[data-theme="dark"]`로만 처리
+
 ## [2.8.5] - 2026-06-01
 ### Fixed (다크모드 — 보험지식 모달 텍스트가 안 보이던 문제)
 - 보험지식 모달이 다크모드에서 박스 배경만 어두워지고 **제목·본문·댓글·표·입력폼 텍스트는 진한 색 그대로**라 안 보이던 버그 수정
