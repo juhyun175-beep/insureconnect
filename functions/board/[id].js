@@ -36,7 +36,7 @@ export const onRequestGet = async ({ env, request, params }) => {
 
   const commentsHtml = comments.length ? comments.map(c => `
     <div class="cmt" data-uid="${c.user_id}" data-cid="${c.id}">
-      <div class="cmt-head"><b>${esc(c.nickname || '회원')}</b>${roleBadge(c.author_role)}<span>${fmt(c.created_at)}</span></div>
+      <div class="cmt-head"><b>${esc(c.nickname || '회원')}</b>${roleBadge(c.author_role)}<span>${fmt(c.created_at)}</span><button class="cmt-report" type="button" data-cid="${c.id}">신고</button></div>
       <div class="cmt-body">${esc(c.content)}</div>
     </div>`).join('') : '<div class="cmt-empty">첫 댓글을 남겨보세요.</div>';
 
@@ -56,6 +56,8 @@ article h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.01em}
 .meta{font-size:13px;color:#94a3b8;border-bottom:1px solid #f1f5f9;padding-bottom:14px;margin-bottom:18px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .meta .share{margin-left:auto;color:#1a3de8;cursor:pointer;border:none;background:transparent;font-size:12.5px;font-weight:700;padding:0}
 .meta .del{margin-left:8px;color:#dc2626;cursor:pointer;border:none;background:transparent;font-size:12.5px;display:none}
+.meta .report{margin-left:8px;color:#b45309;cursor:pointer;border:none;background:transparent;font-size:12.5px;font-weight:700;padding:0}
+.cmt-report{margin-left:auto;color:#b45309;background:none;border:none;font-size:11.5px;cursor:pointer;padding:0}
 .content{white-space:pre-wrap;font-size:15.5px;color:#1f2937;word-break:break-word}
 .back{display:inline-block;margin-top:22px;color:#1a3de8;text-decoration:none;font-weight:700}
 .cmts{background:#fff;border-radius:14px;box-shadow:0 2px 10px rgba(0,0,0,0.04);padding:20px 22px;margin-top:16px}
@@ -86,6 +88,7 @@ article h1{font-size:22px;margin:0 0 10px;letter-spacing:-0.01em}
       <span>${fmt(post.created_at)}</span>
       <span>조회 ${post.view_count}</span>
       <button class="share" id="share-btn" type="button">🔗 공유</button>
+      <button class="report" id="report-btn" type="button">🚨 신고</button>
       <button class="del" id="del-btn" type="button" data-uid="${post.user_id}">삭제</button>
     </div>
     <div class="content">${esc(post.content)}</div>
@@ -136,6 +139,24 @@ ${seoCtaFooter(SITE)}
       catch(e){ window.prompt('아래 링크를 복사해 공유하세요', shareUrl); }
     });
   }
+
+  // v2.7.2: 신고 (글/댓글)
+  function reportTarget(type,id){
+    if(!id) return;
+    if(!confirm('이 '+(type==='post'?'글':'댓글')+'을(를) 신고할까요?')) return;
+    fetch('/api/board/report',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+      body:JSON.stringify({target_type:type,target_id:id,post_id:POST_ID})})
+      .then(function(r){ if(r.status===401){ alert('로그인 후 신고할 수 있습니다.'); return null; } return r.json(); })
+      .then(function(d){ if(d){ alert(d.dup?'이미 신고한 항목입니다.':'신고가 접수되었습니다. 감사합니다.'); } })
+      .catch(function(){ alert('신고 처리 중 오류가 발생했습니다.'); });
+  }
+  var reportBtn=document.getElementById('report-btn');
+  if(reportBtn) reportBtn.addEventListener('click',function(){ reportTarget('post',POST_ID); });
+  var cmtList=document.getElementById('cmt-list');
+  if(cmtList) cmtList.addEventListener('click',function(e){
+    var b=e.target.closest&&e.target.closest('.cmt-report');
+    if(b){ reportTarget('comment', parseInt(b.dataset.cid,10)); }
+  });
 
   document.getElementById('cmt-form').addEventListener('submit',async function(ev){
     ev.preventDefault();

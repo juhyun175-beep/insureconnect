@@ -5,6 +5,7 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
+import { findProfanity, isSpammy, isBanned } from '../../_lib/moderation.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -29,6 +30,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
 export const onRequestPost = async ({ env, request }) => handle(async () => {
   const user = await getUserFromRequest(env, request);
   if (!user) return error('로그인이 필요합니다.', 401);
+  if (await isBanned(env, user.id)) return error('이용이 제한된 계정입니다. 운영자에게 문의해주세요.', 403);
 
   let body = {};
   try { body = await request.json(); } catch (_) { return error('Invalid JSON'); }
@@ -37,6 +39,8 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
   if (!title || !content) return error('제목과 내용을 입력해주세요.');
   if (title.length > MAX_TITLE) return error(`제목은 ${MAX_TITLE}자 이내로 작성해주세요.`);
   if (content.length > MAX_CONTENT) return error(`내용은 ${MAX_CONTENT}자 이내로 작성해주세요.`);
+  if (findProfanity(title + ' ' + content)) return error('부적절한 표현이 포함되어 있어 등록할 수 없습니다.', 400);
+  if (isSpammy(content)) return error('스팸성 내용으로 등록할 수 없습니다.', 400);
 
   // 도배 방지: 1일 작성 한도
   const since = kstDate() + 'T00:00:00';

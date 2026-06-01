@@ -3471,6 +3471,7 @@
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
         <button class="upload-tab" data-panel="up-traffic">📈 유입 경로</button>
         <button class="upload-tab" data-panel="up-members">👥 회원/지표</button>
+        <button class="upload-tab" data-panel="up-reports" style="border-color:#f59e0b;color:#f59e0b;">🚨 신고</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
@@ -3965,6 +3966,17 @@
         </div>
       </div><!-- /#up-push -->
 
+      <!-- v2.7.2: 자유게시판 신고 처리 패널 -->
+      <div class="upload-panel" id="up-reports">
+        <div class="nl-upload-box">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:10px;flex-wrap:wrap;">
+            <h4 style="margin:0;font-size:14px;color:var(--blue-mid);font-weight:700;">🚨 자유게시판 신고 처리</h4>
+            <button class="mt-refresh" type="button" onclick="loadBoardReports()">↻ 새로고침</button>
+          </div>
+          <div id="reports-list" style="font-size:13px;color:var(--txt-mid)">신고 탭을 열면 불러옵니다…</div>
+        </div>
+      </div><!-- /#up-reports -->
+
       <!-- ══════════════════ 유입 경로 패널 ══════════════════ -->
       <div class="upload-panel" id="up-traffic">
         <style>
@@ -4451,8 +4463,51 @@
         if (target === 'up-members' && typeof loadMembersDash === 'function') {
           loadMembersDash();
         }
+        if (target === 'up-reports' && typeof loadBoardReports === 'function') {
+          loadBoardReports();
+        }
       });
     });
+
+    /* v2.7.2: 자유게시판 신고 처리 */
+    async function loadBoardReports() {
+      const el = document.getElementById('reports-list');
+      if (!el) return;
+      el.textContent = '불러오는 중…';
+      try {
+        const r = await fetch('/api/admin/board-reports', { headers: adminHeaders() });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        const d = await r.json();
+        const reports = d.reports || [];
+        if (!reports.length) { el.innerHTML = '<div style="padding:18px;text-align:center;color:var(--txt-lo)">대기중인 신고가 없습니다.</div>'; return; }
+        const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+        el.innerHTML = reports.map(function (rp) {
+          const openUrl = '/board/' + (rp.post_id || rp.target_id);
+          return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--bg-card)">'
+            + '<div style="font-size:11px;color:var(--txt-lo);margin-bottom:4px">#' + rp.id + ' · ' + (rp.target_type === 'post' ? '글' : '댓글') + ' · 신고자 ' + esc(rp.reporter_nick || '') + ' · ' + esc((rp.created_at || '').slice(0, 16)) + (rp.target_deleted ? ' · <b style="color:#dc2626">이미 삭제됨</b>' : '') + '</div>'
+            + '<div style="font-weight:700;color:var(--txt-hi);margin-bottom:4px">' + esc(rp.author_nick || '?') + ': ' + esc(rp.preview || '(내용 없음)') + '</div>'
+            + (rp.reason ? '<div style="font-size:12px;color:#b45309;margin-bottom:8px">사유: ' + esc(rp.reason) + '</div>' : '')
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap">'
+            + '<a href="' + openUrl + '" target="_blank" rel="noopener" style="font-size:12px;padding:6px 10px;border:1px solid var(--border);border-radius:7px;text-decoration:none;color:var(--blue-mid)">원문 보기</a>'
+            + '<button type="button" onclick="reportAction(\'delete\',{target_type:\'' + rp.target_type + '\',target_id:' + rp.target_id + '})" style="font-size:12px;padding:6px 10px;border:none;border-radius:7px;background:#fee2e2;color:#dc2626;cursor:pointer">' + (rp.target_type === 'post' ? '글' : '댓글') + ' 삭제</button>'
+            + (rp.author_id ? '<button type="button" onclick="reportAction(\'ban\',{member_id:' + rp.author_id + ',report_id:' + rp.id + '})" style="font-size:12px;padding:6px 10px;border:none;border-radius:7px;background:#7c2d12;color:#fff;cursor:pointer">작성자 차단</button>' : '')
+            + '<button type="button" onclick="reportAction(\'dismiss\',{report_id:' + rp.id + '})" style="font-size:12px;padding:6px 10px;border:none;border-radius:7px;background:#f1f5f9;color:#475569;cursor:pointer">무시</button>'
+            + '</div></div>';
+        }).join('');
+      } catch (e) {
+        el.innerHTML = '<div style="color:#dc2626">신고 목록을 불러오지 못했습니다: ' + (e.message || '') + '</div>';
+      }
+    }
+    async function reportAction(action, extra) {
+      const labels = { ban: '작성자를 차단', delete: '대상을 삭제', dismiss: '신고를 무시' };
+      if (!confirm((labels[action] || action) + '할까요?')) return;
+      try {
+        const r = await fetch('/api/admin/board-reports', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(Object.assign({ action: action }, extra || {})) });
+        const d = await r.json();
+        if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
+        loadBoardReports();
+      } catch (e) { alert('처리 실패: ' + (e.message || '')); }
+    }
 
     /* ── v2.4.0: 회원/지표 대시보드 ── */
     const ROLE_LABELS = { member: '일반회원', certified: '인증설계사', premium: '프리미엄', admin: '관리자' };

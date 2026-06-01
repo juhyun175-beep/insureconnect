@@ -5,6 +5,7 @@
 import { json, error, handle, corsPreflight } from '../../../../_lib/http.js';
 import { getUserFromRequest, SITE } from '../../../../_lib/auth.js';
 import { sendMemoToMember } from '../../../../_lib/kakao-msg.js';
+import { findProfanity, isSpammy, isBanned } from '../../../../_lib/moderation.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -18,12 +19,15 @@ export const onRequestPost = async ({ env, request, params, waitUntil }) => hand
 
   const user = await getUserFromRequest(env, request);
   if (!user) return error('로그인이 필요합니다.', 401);
+  if (await isBanned(env, user.id)) return error('이용이 제한된 계정입니다. 운영자에게 문의해주세요.', 403);
 
   let body = {};
   try { body = await request.json(); } catch (_) { return error('Invalid JSON'); }
   const content = String(body?.content || '').trim();
   if (!content) return error('댓글 내용을 입력해주세요.');
   if (content.length > MAX_COMMENT) return error(`댓글은 ${MAX_COMMENT}자 이내로 작성해주세요.`);
+  if (findProfanity(content)) return error('부적절한 표현이 포함되어 있어 등록할 수 없습니다.', 400);
+  if (isSpammy(content)) return error('스팸성 내용으로 등록할 수 없습니다.', 400);
 
   const post = await env.DB.prepare(`SELECT id, user_id FROM ic_board_posts WHERE id = ? AND deleted = 0`).bind(postId).first();
   if (!post) return error('삭제되었거나 없는 글입니다.', 404);
