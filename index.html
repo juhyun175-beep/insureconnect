@@ -7682,30 +7682,14 @@
 
   <!-- 사이드 메뉴 -->
   <aside class="side-nav" id="side-nav">
+    <!-- v2.7.8: 로고 클릭 → 홈 이동 -->
     <div class="side-nav-header">
-      <picture><source srcset="logo-banner.webp" type="image/webp"><img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" decoding="async" fetchpriority="high" onerror="this.style.display='none'"></picture>
+      <a onclick="goToPage('home')" onkeydown="if(event.key==='Enter'){goToPage('home');}" role="button" tabindex="0" aria-label="홈으로 이동" style="display:block;cursor:pointer;">
+        <picture><source srcset="logo-banner.webp" type="image/webp"><img src="logo-banner.png" alt="INSURECONNECT — 보험으로 연결하다" decoding="async" fetchpriority="high" onerror="this.style.display='none'"></picture>
+      </a>
     </div>
-    <!-- v2.5.2: 빠른 검색 — 홈 버튼 위로 이동 -->
-    <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기" style="margin-bottom:8px;">
-      <span class="ssb-icon">🔍</span>
-      <span class="ssb-label">빠른 검색</span>
-      <span class="ssb-kbd">Ctrl K</span>
-    </button>
-    <nav class="menu-tabs">
-      <button class="menu-tab active" data-page="home">🏠 홈</button>
-      <!-- v2.0.0 (master): SEO 게시판 진입 — 외부 페이지(SSR)이므로 a 태그 -->
-      <a class="menu-tab" href="/insurance" onclick="trackCardClick('사이드바','보험 정보 게시판');" style="text-decoration:none;display:flex;align-items:center;gap:6px;">
-        <span>📝 보험 정보 게시판</span>
-        <span style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;margin-left:auto;letter-spacing:0.04em;">NEW</span>
-      </a>
-      <!-- v2.3.0: 자유게시판 (회원 커뮤니티) -->
-      <a class="menu-tab" href="/board" onclick="trackCardClick('사이드바','자유게시판');" style="text-decoration:none;display:flex;align-items:center;gap:6px;">
-        <span>💬 자유게시판</span>
-        <span style="background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;font-size:9px;font-weight:800;padding:2px 6px;border-radius:999px;margin-left:auto;letter-spacing:0.04em;">NEW</span>
-      </a>
-      <!-- v2.2.0: AI 보험비서 — 완성 전까지 비공개(unlisted). URL(/ai)은 데모용으로 유지, 메뉴/색인 미노출 -->
-    </nav>
-    <!-- v2.2.1: 회원(카카오 로그인) 위젯 — KAKAO_REST_KEY 미설정 시 자동 숨김 -->
+
+    <!-- v2.7.8: 로그인 / 마이페이지 -->
     <div id="ic-auth" style="margin:8px 12px 0;"></div>
     <script>
     (function(){
@@ -7728,12 +7712,25 @@
     })();
     function icLogout(){ fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.reload();}); }
     </script>
-    <!-- v2.5.2: 빠른 검색은 상단(홈 위)으로, 내 공고 등록은 커뮤니티 그룹 하단으로 이동 -->
-    <!-- v2.5.0: 사이드바 시계 위젯 제거 (이용자 편의 — 불필요 장식 정리) -->
-    <!-- v2.1.26: 사이드바 파트너사 프로모션 배너 기능 제거 -->
-    <!-- 커뮤니티 참여 버튼 -->
+
+    <!-- v2.7.8: 내 공고 직접 등록 -->
+    <button type="button" class="side-submit-single" onclick="openSubmitModal()" style="margin:10px 0 0;">
+      <span class="sss-icon">📤</span>
+      <span class="sss-text">
+        <span class="sss-title">내 공고 직접 등록</span>
+        <span class="sss-sub">💼 채용 · 🎓 강의</span>
+      </span>
+    </button>
+
+    <!-- v2.7.8: 빠른 검색 -->
+    <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기" style="margin:10px 0 8px;">
+      <span class="ssb-icon">🔍</span>
+      <span class="ssb-label">빠른 검색</span>
+      <span class="ssb-kbd">Ctrl K</span>
+    </button>
+
+    <!-- v2.7.8: 커뮤니티 링크 (「커뮤니티 참여」 라벨 제거, 강조 CREW300 버튼 유지) / 홈·보험정보·자유게시판 탭 제거 → 로고→홈·홈 내 링크·검색으로 접근 -->
     <div class="side-comm-section">
-      <span class="side-comm-label">커뮤니티 참여</span>
       <a class="side-comm-btn kakao"
          href="https://open.kakao.com/o/gSN4EEoh"
          target="_blank" rel="noopener noreferrer"
@@ -7757,14 +7754,6 @@
         <span class="scb-arrow">›</span>
       </a>
     </div>
-    <!-- v2.5.2: 내 공고 직접 등록 — 회원·커뮤니티 그룹 하단 -->
-    <button type="button" class="side-submit-single" onclick="openSubmitModal()" style="margin-top:10px;">
-      <span class="sss-icon">📤</span>
-      <span class="sss-text">
-        <span class="sss-title">내 공고 직접 등록</span>
-        <span class="sss-sub">💼 채용 · 🎓 강의</span>
-      </span>
-    </button>
     <!-- 사이드바 푸터 -->
     <div class="side-footer">
       <a class="side-footer-link"
