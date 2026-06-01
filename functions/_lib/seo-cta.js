@@ -91,7 +91,7 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
   try{ if(!sessionStorage.getItem('ic_ent')){ sessionStorage.setItem('ic_ent','1');
     var _q=new URLSearchParams(location.search);
     fetch('/api/track/hit',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
-      body:JSON.stringify({path:location.pathname,ref:document.referrer,utm:_q.get('utm_source')})}).catch(function(){});
+      body:JSON.stringify({path:location.pathname,ref:document.referrer,utm:(function(){var s=_q.get('utm_source'),c=_q.get('utm_campaign');return c?(s?s+':'+c:c):s;})()})}).catch(function(){});
   } }catch(e){}
 })();
 </script>`;

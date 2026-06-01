@@ -4007,6 +4007,16 @@
             <li>봇은 자동 제외. 데이터는 추적 시작(이 배포) 이후부터 쌓입니다</li>
           </ul>
         </div>
+        <!-- v2.8.3: QR 캠페인 링크 생성기 (오프라인 유입 추적) -->
+        <div class="nl-upload-box" style="margin:0 0 16px;">
+          <h4 style="margin:0 0 10px;font-size:14px;color:var(--blue-mid);font-weight:700;">📱 QR 캠페인 링크 만들기 <span style="font-size:11px;font-weight:600;color:var(--txt-mid)">— 명함·세미나·현수막용</span></h4>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;">
+            <div class="nl-field" style="flex:1;min-width:150px;"><label>캠페인 이름</label><input id="qrc-name" type="text" placeholder="예: 명함_2026, 세미나_6월"></div>
+            <div class="nl-field" style="flex:1;min-width:130px;"><label>도착 경로(기본 홈)</label><input id="qrc-path" type="text" placeholder="/ 또는 /og/recruit/123"></div>
+            <button class="nl-upload-btn" type="button" onclick="makeQrCampaign()">QR 만들기</button>
+          </div>
+          <div id="qrc-out" style="margin-top:12px;"></div>
+        </div>
         <div class="tf-period-bar">
           <button class="tf-period-btn active" data-period="today" onclick="tfSetPeriod('today')" type="button">오늘</button>
           <button class="tf-period-btn" data-period="total" onclick="tfSetPeriod('total')" type="button">누적</button>
@@ -4016,6 +4026,7 @@
           <div class="tf-block"><h4>📡 유입 채널</h4><div id="tf-ref"><p class="cs-empty">불러오는 중…</p></div></div>
           <div class="tf-block tf-land"><h4>📄 유입 페이지 (랜딩)</h4><div id="tf-land"><p class="cs-empty">불러오는 중…</p></div></div>
           <div class="tf-block"><h4>📱 기기</h4><div id="tf-dev"><p class="cs-empty">불러오는 중…</p></div></div>
+          <div class="tf-block"><h4>🔗 UTM·QR 캠페인</h4><div id="tf-utm"><p class="cs-empty">불러오는 중…</p></div></div>
         </div>
         <div class="tf-block" style="margin-top:14px;">
           <h4>🕒 최근 유입 30건</h4>
@@ -4613,6 +4624,27 @@
       } catch (e) { alert('오류: ' + e.message); }
     }
 
+    /* v2.8.3: QR 캠페인 링크 생성기 */
+    function makeQrCampaign() {
+      var raw = (document.getElementById('qrc-name').value || '').trim();
+      var name = raw.replace(/[^\w가-힣\-]/g, '_');
+      if (!name) { alert('캠페인 이름을 입력하세요.'); return; }
+      var path = (document.getElementById('qrc-path').value || '/').trim() || '/';
+      if (path.charAt(0) !== '/') path = '/' + path;
+      var sep = path.indexOf('?') >= 0 ? '&' : '?';
+      var link = location.origin + path + sep + 'utm_source=qr&utm_campaign=' + encodeURIComponent(name);
+      var qr = 'https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=10&data=' + encodeURIComponent(link);
+      var out = document.getElementById('qrc-out');
+      out.innerHTML = '<div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;border:1px solid var(--border);border-radius:10px;padding:14px;background:var(--bg-card)">'
+        + '<img src="' + qr + '" alt="QR" style="width:150px;height:150px;border-radius:8px;background:#fff;padding:6px;flex-shrink:0">'
+        + '<div style="flex:1;min-width:200px">'
+        + '<div style="font-size:11px;color:var(--txt-lo);margin-bottom:4px">캠페인: <b>' + esc(name) + '</b> · 추적 링크</div>'
+        + '<div style="display:flex;gap:6px;margin-bottom:8px"><input readonly id="qrc-link" value="' + esc(link) + '" style="flex:1;min-width:0;font-size:12px;border:1px solid var(--border);border-radius:7px;padding:7px 9px;color:var(--txt-hi)"><button type="button" onclick="(navigator.clipboard&&navigator.clipboard.writeText(document.getElementById(\'qrc-link\').value));this.textContent=\'✓\'" style="border:none;background:var(--blue-mid);color:#fff;border-radius:7px;padding:0 12px;cursor:pointer;font-weight:700">복사</button></div>'
+        + '<a href="' + qr + '&download=1" download="qr-' + esc(name) + '.png" style="display:inline-block;background:#10b981;color:#fff;text-decoration:none;font-weight:700;font-size:12.5px;padding:8px 14px;border-radius:8px">⬇ QR 이미지 다운로드</a>'
+        + '<p style="font-size:11px;color:var(--txt-lo);margin:10px 0 0">명함·세미나·현수막에 넣으세요. 스캔 유입은 위 <b>UTM·QR 캠페인</b> 집계에 <b>qr:' + esc(name) + '</b>로 표시됩니다.</p>'
+        + '</div></div>';
+    }
+
     /* ── v2.1.70: 유입 경로 ── */
     let _tsCache = null, _tsPeriod = 'today';
     async function loadTrafficSources() {
@@ -4643,6 +4675,7 @@
       set('tf-ref', tfBars(_tsCache['referrer_' + s]));
       set('tf-land', tfBars(_tsCache['landing_' + s]));
       set('tf-dev', tfBars(_tsCache['device_' + s]));
+      set('tf-utm', tfBars(_tsCache['utm_' + s]));
       const rec = _tsCache.recent || [];
       set('tf-recent', rec.length
         ? rec.map(r => `<tr><td>${esc(String(r.ts || '').slice(5, 16).replace('T', ' '))}</td><td>${esc(r.source || '')}</td><td class="tf-land-cell" title="${esc(r.landing || '')}">${esc(r.landing || '')}</td><td>${esc(r.device || '')}</td></tr>`).join('')

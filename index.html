@@ -9255,7 +9255,7 @@
         const q = new URLSearchParams(location.search);
         fetch('/api/track/hit', {
           method: 'POST', headers: { 'Content-Type': 'application/json' }, keepalive: true,
-          body: JSON.stringify({ path: location.pathname, ref: document.referrer, utm: q.get('utm_source') })
+          body: JSON.stringify({ path: location.pathname, ref: document.referrer, utm: (function(){ var s=q.get('utm_source'), c=q.get('utm_campaign'); return c ? (s ? s+':'+c : c) : s; })() })
         }).catch(() => {});
       } catch (_) {}
     }
