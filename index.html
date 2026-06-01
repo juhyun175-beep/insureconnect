@@ -8295,13 +8295,13 @@
         <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-lb">청구서류</span></button>
         <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-lb">GA 전산</span></button>
         <button class="ic-m-core-card" onclick="goToPage('payment')"><span class="cc-lb">수납</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-lb">소식지</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-new" data-mnew="newsletter"></span><span class="cc-lb">소식지</span></button>
         <button class="ic-m-core-card" onclick="if(window.icMarkSeen)icMarkSeen('board');location.href='/board'"><span class="cc-new" data-mnew="board"></span><span class="cc-lb">자유게시판</span></button>
         <button class="ic-m-core-card" onclick="goToPage('knowledge')"><span class="cc-lb">보험지식</span></button>
         <button class="ic-m-core-card" onclick="goToPage('tools')"><span class="cc-lb">실무도구</span></button>
         <button class="ic-m-core-card" onclick="goToPage('lecture')"><span class="cc-new" data-mnew="lecture"></span><span class="cc-lb">강의</span></button>
         <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-lb">채용</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-lb">최신</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">최신</span></button>
         <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
@@ -8321,25 +8321,32 @@
     <script>
     (function(){
       var KEY='ic_last_seen_v1';
+      // v2.6.11: 메뉴(점) 1개당 여러 소스를 OR 집계 — 하나라도 신규면 점 표시
+      function arrPick(d){ return Array.isArray(d) ? d : ((d && (d.items || d.posts)) || []); }
       var SRC=[
-        {k:'recruit', url:'/api/recruitments', pick:function(d){return Array.isArray(d)?d:((d&&d.items)||[]);}},
-        {k:'lecture', url:'/api/lectures',     pick:function(d){return Array.isArray(d)?d:((d&&d.items)||[]);}},
-        {k:'board',   url:'/api/board/posts?page=1', pick:function(d){return (d&&d.posts)||[];}}
+        {k:'recruit',    urls:['/api/recruitments']},
+        {k:'lecture',    urls:['/api/lectures']},
+        {k:'board',      urls:['/api/board/posts?page=1']},
+        {k:'newsletter', urls:['/api/newsletters']},
+        // '최신' 피드 = 인슈어커넥트 뉴스(카드뉴스) + 보험지식
+        {k:'latest',     urls:['/api/card-news','/api/knowledge-posts?limit=100']}
       ];
       function getSeen(){ try{ return JSON.parse(localStorage.getItem(KEY))||{}; }catch(e){ return {}; } }
       window.icMarkSeen=function(k){
         try{ var s=getSeen(); s[k]=new Date().toISOString(); localStorage.setItem(KEY,JSON.stringify(s)); }catch(e){}
         var dot=document.querySelector('.cc-new[data-mnew="'+k+'"]'); if(dot) dot.classList.remove('show');
       };
+      function countNew(arr, since){ var n=0; (arr||[]).forEach(function(it){ if(it && it.created_at && new Date(it.created_at).getTime()>since) n++; }); return n; }
       function refresh(){
         var s=getSeen(), def=Date.now()-7*864e5;
         SRC.forEach(function(src){
           var since=s[src.k]?new Date(s[src.k]).getTime():def;
-          fetch(src.url,{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
-            var arr=src.pick(d)||[];
-            var n=arr.filter(function(it){ return it && it.created_at && new Date(it.created_at).getTime()>since; }).length;
+          Promise.all(src.urls.map(function(u){
+            return fetch(u,{credentials:'same-origin'}).then(function(r){return r.ok?r.json():[];}).then(arrPick).catch(function(){return [];});
+          })).then(function(lists){
+            var n=0; lists.forEach(function(arr){ n+=countNew(arr, since); });
             var dot=document.querySelector('.cc-new[data-mnew="'+src.k+'"]'); if(dot) dot.classList.toggle('show', n>0);
-          }).catch(function(){});
+          });
         });
       }
       refresh();
