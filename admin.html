@@ -4054,6 +4054,7 @@
         <div class="mt-cards" id="mt-cards"><div class="mt-card"><div class="mt-num">—</div><div class="mt-lbl">불러오는 중…</div></div></div>
         <div class="roledist" id="mt-roles"></div>
         <div id="mt-chart" style="margin:14px 0 18px;"></div>
+        <div id="mt-referrals" style="margin:0 0 18px;"></div>
         <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;">회원 목록 · 등급 변경</div>
         <table class="mlist"><thead><tr><th>순번</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th></tr></thead><tbody id="mt-members"><tr><td colspan="5">불러오는 중…</td></tr></tbody></table>
       </div><!-- /#up-members -->
@@ -4514,14 +4515,16 @@
     const ROLE_LABELS = { member: '일반회원', certified: '인증설계사', premium: '프리미엄', admin: '관리자' };
     async function loadMembersDash() {
       try {
-        const [mRes, lRes] = await Promise.all([
+        const [mRes, lRes, rRes] = await Promise.all([
           fetch('/api/admin/metrics', { headers: adminHeaders() }),
           fetch('/api/admin/members', { headers: adminHeaders() }),
+          fetch('/api/admin/referrals', { headers: adminHeaders() }),
         ]);
         const m = await mRes.json();
         const l = await lRes.json();
         renderMetrics(m);
         renderMemberList(l.members || [], l.total || 0);
+        try { renderReferrals(await rRes.json()); } catch (_) {}
       } catch (e) {
         const el = document.getElementById('mt-cards');
         if (el) el.innerHTML = '<div class="mt-card"><div class="mt-lbl">불러오기 실패: ' + esc(e.message) + '</div></div>';
@@ -4583,6 +4586,21 @@
           + '<td>' + esc(String(u.created_at || '').slice(0, 10)) + '</td>'
           + '<td>' + esc(String(u.last_login || '').slice(0, 10)) + '</td></tr>';
       }).join('');
+    }
+    function renderReferrals(d) {
+      const el = document.getElementById('mt-referrals'); if (!el) return;
+      const top = (d && d.top) || [];
+      const total = (d && d.total) || 0;
+      if (!top.length) { el.innerHTML = '<div style="font-size:12px;color:var(--txt-lo)">아직 추천 가입이 없습니다.</div>'; return; }
+      const rows = top.map(function (r, i) {
+        const medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '<span style="color:var(--txt-lo)">' + (i + 1) + '</span>';
+        return '<div style="display:flex;align-items:center;gap:8px;padding:7px 4px;border-bottom:1px solid var(--border)">'
+          + '<span style="width:24px;text-align:center;font-weight:800">' + medal + '</span>'
+          + '<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">' + esc(r.nickname || ('#' + r.id)) + '</span>'
+          + '<span style="font-size:11px;color:var(--txt-lo)">' + (ROLE_LABELS[r.role] || r.role || '') + '</span>'
+          + '<b style="color:var(--blue-mid)">' + r.n + '명</b></div>';
+      }).join('');
+      el.innerHTML = '<div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 6px">👥 추천 랭킹 <span style="color:var(--txt-lo);font-weight:600">· 총 추천가입 ' + total + '명</span></div>' + rows;
     }
     async function changeMemberRole(memberId, role) {
       try {
