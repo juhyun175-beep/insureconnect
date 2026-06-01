@@ -7714,8 +7714,9 @@
       fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
         if(d.user){
           box.innerHTML='<div style="display:flex;align-items:center;gap:8px;padding:8px 10px;background:rgba(255,255,255,0.06);border-radius:10px;font-size:13px;color:#e6edf3;">'
+            +'<a href="/me" title="마이페이지" style="display:flex;align-items:center;gap:8px;flex:1;min-width:0;color:inherit;text-decoration:none;">'
             +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'<span>👤</span>')
-            +'<span style="font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span>'
+            +'<span style="font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span></a>'
             +'<button type="button" onclick="icLogout()" style="border:none;background:transparent;color:#94a3b8;font-size:12px;cursor:pointer;">로그아웃</button></div>';
         } else if(d.login_enabled){
           box.innerHTML='<a href="/api/auth/kakao/login" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#FEE500;color:#191600;text-decoration:none;font-weight:800;font-size:13.5px;padding:10px;border-radius:10px;">💬 카카오 로그인</a>';
@@ -8235,9 +8236,9 @@
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
       fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
         if(d && d.user){
-          box.innerHTML='<div style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.22);padding:5px 11px 5px 6px;border-radius:999px;font-size:12px;color:#fff;font-weight:800;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">'
+          box.innerHTML='<a href="/me" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.22);padding:5px 11px 5px 6px;border-radius:999px;font-size:12px;color:#fff;font-weight:800;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">'
             +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover">':'<span style="font-size:14px">👤</span>')
-            +'<span>'+e(d.user.nickname)+'</span></div>';
+            +'<span>'+e(d.user.nickname)+'</span></a>';
         } else if(d && d.login_enabled){
           box.innerHTML='<a href="/api/auth/kakao/login" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;background:#FEE500;color:#191600;text-decoration:none;font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">💬 로그인</a>';
         }
