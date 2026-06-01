@@ -3,7 +3,8 @@
  *   POST /api/board/posts/{id}/comments  (로그인 필수) body:{content}
  */
 import { json, error, handle, corsPreflight } from '../../../../_lib/http.js';
-import { getUserFromRequest } from '../../../../_lib/auth.js';
+import { getUserFromRequest, SITE } from '../../../../_lib/auth.js';
+import { sendMemoToMember } from '../../../../_lib/kakao-msg.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -11,7 +12,7 @@ const MAX_COMMENT = 1000;
 const DAILY_COMMENT_LIMIT = 100;
 const kstDate = () => new Date(Date.now() + 9 * 3600 * 1000).toISOString().slice(0, 10);
 
-export const onRequestPost = async ({ env, request, params }) => handle(async () => {
+export const onRequestPost = async ({ env, request, params, waitUntil }) => handle(async () => {
   const postId = parseInt(params.id, 10);
   if (!postId) return error('Not found', 404);
 
@@ -24,7 +25,7 @@ export const onRequestPost = async ({ env, request, params }) => handle(async ()
   if (!content) return error('댓글 내용을 입력해주세요.');
   if (content.length > MAX_COMMENT) return error(`댓글은 ${MAX_COMMENT}자 이내로 작성해주세요.`);
 
-  const post = await env.DB.prepare(`SELECT id FROM ic_board_posts WHERE id = ? AND deleted = 0`).bind(postId).first();
+  const post = await env.DB.prepare(`SELECT id, user_id FROM ic_board_posts WHERE id = ? AND deleted = 0`).bind(postId).first();
   if (!post) return error('삭제되었거나 없는 글입니다.', 404);
 
   const since = kstDate() + 'T00:00:00';
@@ -37,5 +38,25 @@ export const onRequestPost = async ({ env, request, params }) => handle(async ()
     `INSERT INTO ic_board_comments (post_id, user_id, nickname, content) VALUES (?, ?, ?, ?) RETURNING id`
   ).bind(postId, user.id, user.nickname || '회원', content).first();
   await env.DB.prepare(`UPDATE ic_board_posts SET comment_count = comment_count + 1 WHERE id = ?`).bind(postId).run().catch(() => {});
+
+  // v2.7.1: 내 글에 댓글 달리면 작성자에게 카톡 알림 (본인 댓글 제외 · 동의·토큰 보유 시 · 응답 비차단)
+  const notifyAuthor = async () => {
+    try {
+      if (!post.user_id || post.user_id === user.id) return;
+      const author = await env.DB.prepare(
+        `SELECT id, kakao_access_token, kakao_refresh_token, kakao_token_expires, alert_optin
+         FROM ic_members WHERE id = ?`
+      ).bind(post.user_id).first();
+      if (author && author.alert_optin === 1 && author.kakao_refresh_token) {
+        await sendMemoToMember(env, author, {
+          title: '💬 내 글에 새 댓글이 달렸어요',
+          description: `${(user.nickname || '회원')}: ${content.slice(0, 80)}`,
+          url: `${SITE}/board/${postId}`,
+        });
+      }
+    } catch (_) {}
+  };
+  if (typeof waitUntil === 'function') waitUntil(notifyAuthor()); else await notifyAuthor();
+
   return json({ ok: true, id: r?.id });
 });

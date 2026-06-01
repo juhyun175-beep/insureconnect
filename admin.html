@@ -3640,9 +3640,12 @@
               <span class="nl-file-name" id="cn-file-name">없음</span>
             </label>
           </div>
+          <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--txt-mid);cursor:pointer;white-space:nowrap;align-self:flex-end;padding-bottom:6px;">
+            <input type="checkbox" id="cn-notify" checked style="width:16px;height:16px;cursor:pointer;"> 📢 업로드 후 회원 알림
+          </label>
           <button class="nl-upload-btn" id="cn-upload-btn" onclick="uploadCardNews()">업로드</button>
         </div>
-        <p class="nl-status" id="cn-status" style="color:var(--txt-mid)">💡 선택 순서대로 번호가 매겨져 좌→우로 보여집니다.</p>
+        <p class="nl-status" id="cn-status" style="color:var(--txt-mid)">💡 선택 순서대로 번호가 매겨져 좌→우로 보여집니다. · 알림 체크 시 업로드 후 카톡·푸시 발송(세트당 1회).</p>
       </div>
 
       <div class="nl-list" id="cn-list">
@@ -6641,6 +6644,24 @@
         }
 
         status.textContent = `✅ ${files.length}장 업로드 완료!`;
+
+        // v2.7.1: 세트 업로드 완료 후 회원 알림 (세트당 1회 — 스팸 없음, 관리자 확인 후 발송)
+        const notifyEl = document.getElementById('cn-notify');
+        if (notifyEl && notifyEl.checked && confirm('업로드한 뉴스로 회원 전체에게 카톡·푸시 알림을 보낼까요?')) {
+          status.textContent = '✅ 업로드 완료 · 알림 발송 중…';
+          const nUrl = `/og/news/${setId}`;
+          const nPayload = { title: '📰 새 인슈어커넥트 뉴스', body: title, url: nUrl };
+          try {
+            const [kr, pr] = await Promise.all([
+              fetch('/api/admin/kakao-broadcast', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(nPayload) }).then(r => r.json()).catch(() => ({})),
+              fetch('/api/push/send', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ ...nPayload, type: 'cardnews', id: setId }) }).then(r => r.json()).catch(() => ({}))
+            ]);
+            status.textContent = `✅ 업로드 완료 · 카톡 ${kr.sent || 0}명 · 푸시 ${pr.sent || 0}명 알림 발송`;
+          } catch (_) {
+            status.textContent = '✅ 업로드 완료 (알림 발송 일부 실패)';
+          }
+        }
+
         fileEl.value = '';
         document.getElementById('cn-file-name').textContent = '없음';
         document.getElementById('cn-title').value = '';
