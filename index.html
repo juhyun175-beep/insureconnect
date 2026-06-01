@@ -7681,6 +7681,19 @@
   <div class="side-backdrop" id="side-backdrop"></div>
 
   <!-- 사이드 메뉴 -->
+  <!-- v2.8.0: 추천 초대링크(?ref=CODE) 방문 시 쿠키 저장 → 카카오 로그인 콜백에서 귀속 -->
+  <script>
+  (function(){
+    try{
+      var m = location.search.match(/[?&]ref=([A-Za-z0-9_-]{4,32})/);
+      if(m && m[1]){
+        document.cookie = 'ic_ref=' + encodeURIComponent(m[1]) + ';path=/;max-age=2592000;SameSite=Lax';
+        if(history.replaceState){ var u=new URL(location.href); u.searchParams.delete('ref'); history.replaceState(null,'',u.pathname+u.search+u.hash); }
+      }
+    }catch(e){}
+  })();
+  </script>
+
   <aside class="side-nav" id="side-nav">
     <!-- v2.7.8: 로고 클릭 → 홈 이동 -->
     <div class="side-nav-header">

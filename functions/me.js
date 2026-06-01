@@ -115,6 +115,11 @@ export const onRequestGet = async ({ env, request }) => {
   </div>
 
   <div class="card">
+    <h2>👥 동료 초대 — 초대할수록 등급 ↑</h2>
+    <div id="ref-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+  </div>
+
+  <div class="card">
     <div class="tabs">
       <button class="tab active" data-t="posts" type="button">내 글 (${posts.length})</button>
       <button class="tab" data-t="comments" type="button">내 댓글 (${comments.length})</button>
@@ -144,6 +149,32 @@ export const onRequestGet = async ({ env, request }) => {
         }).catch(function(){ opt.checked=!on; alert('네트워크 오류'); })
         .finally(function(){ opt.disabled=false; });
     });
+  })();
+
+  // v2.8.0: 추천 초대 현황
+  (function(){
+    var box=document.getElementById('ref-box'); if(!box) return;
+    fetch('/api/me/referral',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+      if(!d||!d.ok){ box.textContent='추천 정보를 불러오지 못했습니다.'; return; }
+      var nextTxt = d.next ? ('<b>'+(d.next.role==='premium'?'프리미엄':'인증설계사')+'</b>까지 <b>'+d.next.need+'명</b> 남음') : '최고 등급 달성 🎉';
+      box.innerHTML =
+        '<p style="margin:0 0 10px;line-height:1.6">내 초대로 가입한 동료 <b style="color:#1a3de8;font-size:16px">'+(d.count||0)+'명</b><br><span style="font-size:12px">'+nextTxt+'</span></p>'
+        + '<div style="display:flex;gap:6px;margin-bottom:8px">'
+        + '<input id="ref-link" readonly value="'+d.link+'" style="flex:1;min-width:0;border:1.5px solid #e2e8f0;border-radius:9px;padding:9px 11px;font-size:12.5px;color:#334155">'
+        + '<button id="ref-copy" type="button" style="background:#1a3de8;color:#fff;border:none;border-radius:9px;font-weight:800;font-size:13px;padding:0 14px;cursor:pointer">복사</button>'
+        + '</div>'
+        + '<button id="ref-share" type="button" style="width:100%;background:#FEE500;color:#191600;border:none;border-radius:10px;font-weight:800;font-size:13.5px;padding:11px;cursor:pointer">💬 동료에게 초대 보내기</button>'
+        + '<p style="font-size:11px;color:#94a3b8;margin:10px 0 0">동료 3명 초대 시 인증설계사, 10명 초대 시 프리미엄으로 자동 승급됩니다.</p>';
+      var link=d.link;
+      document.getElementById('ref-copy').addEventListener('click',function(){
+        var b=document.getElementById('ref-copy');
+        (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){ b.textContent='✓'; setTimeout(function(){b.textContent='복사';},1500); }).catch(function(){ var inp=document.getElementById('ref-link'); inp.select(); try{document.execCommand('copy'); b.textContent='✓'; setTimeout(function(){b.textContent='복사';},1500);}catch(e){} });
+      });
+      document.getElementById('ref-share').addEventListener('click',function(){
+        if(navigator.share){ navigator.share({title:'InsureConnect 초대', text:'보험설계사 통합 허브 인슈어커넥트에 초대합니다!', url:link}).catch(function(){}); }
+        else { (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert('초대 링크가 복사되었습니다. 동료에게 공유하세요.');}).catch(function(){ window.prompt('초대 링크', link); }); }
+      });
+    }).catch(function(){ box.textContent='추천 정보를 불러오지 못했습니다.'; });
   })();
   </script>`;
 

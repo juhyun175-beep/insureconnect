@@ -3,6 +3,7 @@
  *   code→token 교환 → 사용자 정보 → ic_users upsert → 세션 생성 → 쿠키 + 홈 리다이렉트
  */
 import { SITE, parseCookies, cookie, createSession } from '../../../_lib/auth.js';
+import { resolveReferrer, recordReferralAndMaybeUpgrade } from '../../../_lib/referral.js';
 
 const home = (reason) => new Response(null, { status: 302, headers: { 'Location': `${SITE}/?login=${reason}` } });
 
@@ -49,6 +50,10 @@ export const onRequestGet = async ({ env, request }) => {
     const profileImage = profile.thumbnail_image_url || profile.profile_image_url || null;
     const email = (me.kakao_account && me.kakao_account.email) || null;
 
+    // v2.8.0: 신규 가입 여부 (추천 귀속은 신규에만)
+    const existing = await env.DB.prepare(`SELECT id FROM ic_members WHERE kakao_id = ?`).bind(kakaoId).first();
+    const isNew = !existing;
+
     const now = new Date().toISOString();
     await env.DB.prepare(
       `INSERT INTO ic_members (kakao_id, nickname, profile_image, email, created_at, last_login, kakao_access_token, kakao_refresh_token, kakao_token_expires, alert_optin)
@@ -62,10 +67,18 @@ export const onRequestGet = async ({ env, request }) => {
     ).bind(kakaoId, nickname, profileImage, email, now, now, accessToken, refreshToken, tokenExpires, optin).run();
     const row = await env.DB.prepare(`SELECT id FROM ic_members WHERE kakao_id = ?`).bind(kakaoId).first();
 
+    // v2.8.0: 신규 회원이면 추천 귀속 + 임계값 도달 시 추천인 자동 등급업
+    const cookies = parseCookies(request);
+    if (isNew && cookies['ic_ref']) {
+      const referrerId = await resolveReferrer(env, cookies['ic_ref']);
+      if (referrerId) await recordReferralAndMaybeUpgrade(env, referrerId, row.id);
+    }
+
     const { token, maxAge } = await createSession(env, row.id, request.headers.get('User-Agent'));
     const headers = new Headers();
     headers.append('Set-Cookie', cookie('ic_sess', token, { maxAge }));
     headers.append('Set-Cookie', cookie('ic_oauth_state', '', { clear: true }));
+    headers.append('Set-Cookie', cookie('ic_ref', '', { clear: true }));
     headers.set('Location', `${SITE}/?login=success`);
     return new Response(null, { status: 302, headers });
   } catch (_) {
