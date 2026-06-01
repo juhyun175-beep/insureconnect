@@ -7277,6 +7277,11 @@
     .side-submit-single .sss-text { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
     .side-submit-single .sss-title { font-size: 12.5px; font-weight: 800; letter-spacing: -0.01em; }
     .side-submit-single .sss-sub   { font-size: 10.5px; font-weight: 600; opacity: 0.85; }
+    /* v2.8.1: 사이드바 계정 그룹 — 로그인/내공고등록/빠른검색을 한 묶음으로 정렬(좌우 인셋 통일) */
+    .side-account { margin: 10px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
+    .side-account #ic-auth { margin: 0; }
+    .side-account .side-search-btn,
+    .side-account .side-submit-single { width: 100%; margin: 0; }
     @media (max-width: 480px) {
       .side-submit-single { margin: 4px 14px 8px; padding: 12px 14px; }
       .side-submit-single .sss-title { font-size: 13.5px; }
@@ -7702,8 +7707,22 @@
       </a>
     </div>
 
-    <!-- v2.7.8: 로그인 / 마이페이지 -->
-    <div id="ic-auth" style="margin:8px 12px 0;"></div>
+    <!-- v2.8.1: 로그인/마이페이지 · 내 공고 등록 · 빠른 검색 — 한 그룹으로 정렬(들쭉날쭉 제거) -->
+    <div class="side-account">
+      <div id="ic-auth"></div>
+      <button type="button" class="side-submit-single" onclick="openSubmitModal()">
+        <span class="sss-icon">📤</span>
+        <span class="sss-text">
+          <span class="sss-title">내 공고 직접 등록</span>
+          <span class="sss-sub">💼 채용 · 🎓 강의</span>
+        </span>
+      </button>
+      <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
+        <span class="ssb-icon">🔍</span>
+        <span class="ssb-label">빠른 검색</span>
+        <span class="ssb-kbd">Ctrl K</span>
+      </button>
+    </div>
     <script>
     (function(){
       var box=document.getElementById('ic-auth'); if(!box) return;
@@ -7725,22 +7744,6 @@
     })();
     function icLogout(){ fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.reload();}); }
     </script>
-
-    <!-- v2.7.8: 내 공고 직접 등록 -->
-    <button type="button" class="side-submit-single" onclick="openSubmitModal()" style="margin:10px 0 0;">
-      <span class="sss-icon">📤</span>
-      <span class="sss-text">
-        <span class="sss-title">내 공고 직접 등록</span>
-        <span class="sss-sub">💼 채용 · 🎓 강의</span>
-      </span>
-    </button>
-
-    <!-- v2.7.8: 빠른 검색 -->
-    <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기" style="margin:10px 0 8px;">
-      <span class="ssb-icon">🔍</span>
-      <span class="ssb-label">빠른 검색</span>
-      <span class="ssb-kbd">Ctrl K</span>
-    </button>
 
     <!-- v2.7.8: 커뮤니티 링크 (「커뮤니티 참여」 라벨 제거, 강조 CREW300 버튼 유지) / 홈·보험정보·자유게시판 탭 제거 → 로고→홈·홈 내 링크·검색으로 접근 -->
     <div class="side-comm-section">
