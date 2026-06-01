@@ -133,6 +133,7 @@ ${seoCtaFooter(SITE)}
     var shareUrl=location.origin+'/og/board/'+POST_ID;
     shareBtn.addEventListener('click',async function(){
       var t=(document.querySelector('article h1')||{}).textContent||'InsureConnect 자유게시판';
+      try{ if(window.Kakao&&window.Kakao.Share&&window.Kakao.isInitialized&&window.Kakao.isInitialized()){ window.Kakao.Share.sendScrap({requestUrl:shareUrl}); return; } }catch(e){}
       try{ if(navigator.share){ await navigator.share({title:t,url:shareUrl}); return; } }
       catch(e){ if(e&&e.name==='AbortError') return; }
       try{ await navigator.clipboard.writeText(shareUrl); shareBtn.textContent='✓ 링크 복사됨'; setTimeout(function(){shareBtn.textContent='🔗 공유';},1800); }

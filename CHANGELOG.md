@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.8.4] - 2026-06-01
+### Added (카카오톡 직접전송 — 링크 unfurl → 1탭 카드 전송)
+- SPA에 Kakao JS SDK 로드 — **채용·강의·앱 공유**가 `Kakao.Share.sendScrap`(OG 카드 직접전송)으로 업그레이드(`nativeShareWithFallback` 1순위), 실패 시 기존 공유로 폴백
+- **마이페이지 동료 초대**: `Kakao.Share.sendDefault`(맞춤 초대 카드) 직접전송
+- **자유게시판 글 공유**: `sendScrap`(글 내용 OG 카드) 직접전송 (SDK는 SSR 푸터에서 로드)
+
 ## [2.8.3] - 2026-06-01
 ### Added (QR·UTM 캠페인 유입 추적 — 오프라인→온라인 채널)
 - **관리자 QR 캠페인 생성기**(유입 경로 패널): 캠페인 이름·도착 경로 입력 → **추적 링크 + QR 이미지(다운로드)** 생성 (명함·세미나·현수막용)

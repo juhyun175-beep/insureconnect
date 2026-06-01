@@ -54,6 +54,7 @@ input:checked + .slider::before{transform:translateX(22px)}
 <body>
 <nav class="crumb"><a href="/">← 홈</a> &raquo; <span>마이페이지</span></nav>
 <div class="wrap">${inner}</div>
+<script async src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous" onload="try{if(window.Kakao&&!window.Kakao.isInitialized())window.Kakao.init('ca87154629fc282e5202c66822514bd4');}catch(e){}"></script>
 </body></html>`;
 
 export const onRequestGet = async ({ env, request }) => {
@@ -171,6 +172,14 @@ export const onRequestGet = async ({ env, request }) => {
         (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){ b.textContent='✓'; setTimeout(function(){b.textContent='복사';},1500); }).catch(function(){ var inp=document.getElementById('ref-link'); inp.select(); try{document.execCommand('copy'); b.textContent='✓'; setTimeout(function(){b.textContent='복사';},1500);}catch(e){} });
       });
       document.getElementById('ref-share').addEventListener('click',function(){
+        try{
+          if(window.Kakao&&window.Kakao.Share&&window.Kakao.isInitialized&&window.Kakao.isInitialized()){
+            window.Kakao.Share.sendDefault({objectType:'feed',
+              content:{title:'InsureConnect 초대',description:'보험설계사 통합 허브 인슈어커넥트에 초대합니다! 가입하고 함께 활동해요.',imageUrl:'https://insureconnect-hub.pages.dev/logo-full.png',link:{mobileWebUrl:link,webUrl:link}},
+              buttons:[{title:'초대 수락하고 시작',link:{mobileWebUrl:link,webUrl:link}}]});
+            return;
+          }
+        }catch(e){}
         if(navigator.share){ navigator.share({title:'InsureConnect 초대', text:'보험설계사 통합 허브 인슈어커넥트에 초대합니다!', url:link}).catch(function(){}); }
         else { (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert('초대 링크가 복사되었습니다. 동료에게 공유하세요.');}).catch(function(){ window.prompt('초대 링크', link); }); }
       });

@@ -7699,6 +7699,10 @@
   })();
   </script>
 
+  <!-- v2.8.4: Kakao JS SDK — 카톡 직접전송(Share.sendScrap/sendDefault) · 키 미설정/실패 시 기존 공유로 자동 폴백 -->
+  <script async src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"
+          onload="try{if(window.Kakao&&!window.Kakao.isInitialized())window.Kakao.init('ca87154629fc282e5202c66822514bd4');}catch(e){}"></script>
+
   <aside class="side-nav" id="side-nav">
     <!-- v2.7.8: 로고 클릭 → 홈 이동 -->
     <div class="side-nav-header">
@@ -9266,6 +9270,16 @@
     function shareApp() {
       const url = 'https://insureconnect-hub.pages.dev/';
       const text = 'InsureConnect — 보험설계사를 위한 통합 포털';
+      // v2.8.4: 카카오 직접전송 우선 (SDK 초기화 시)
+      try {
+        if (window.Kakao && window.Kakao.Share && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
+          window.Kakao.Share.sendDefault({ objectType: 'feed',
+            content: { title: 'InsureConnect — 보험설계사 통합 포털', description: '보험사 전산·청구서류·소식지·채용을 한 곳에서', imageUrl: 'https://insureconnect-hub.pages.dev/logo-full.png', link: { mobileWebUrl: url, webUrl: url } },
+            buttons: [{ title: '바로가기', link: { mobileWebUrl: url, webUrl: url } }] });
+          try { trackClick('app_shared', 'app_copy'); } catch (_) {}
+          return;
+        }
+      } catch (e) { /* 폴백 진행 */ }
       const isMobileEnv = (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
         || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
         || ('ontouchstart' in window && navigator.maxTouchPoints > 1);
@@ -10250,6 +10264,14 @@
          - "다시 시도하세요. 공유할 수 있는 일부 방법만 표시됩니다" 에러 빈발
          → 데스크탑은 navigator.share 건너뛰고 즉시 clipboard 복사 */
     async function nativeShareWithFallback({ url, title, text, copyToast, trackEvent }) {
+      // v2.8.4: 카카오 직접전송 우선 (SDK 초기화 시) — 채팅으로 OG 카드 바로 전송
+      try {
+        if (window.Kakao && window.Kakao.Share && window.Kakao.isInitialized && window.Kakao.isInitialized()) {
+          window.Kakao.Share.sendScrap({ requestUrl: url });
+          try { trackClick(trackEvent.name, trackEvent.type); } catch (_) {}
+          return 'kakao';
+        }
+      } catch (e) { /* 실패 시 아래 폴백 */ }
       // v2.1.32: 모바일/태블릿에서만 OS 공유 시트 사용
       const isMobileEnv = (window.matchMedia && window.matchMedia('(max-width: 768px)').matches)
         || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)
