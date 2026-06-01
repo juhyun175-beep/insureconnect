@@ -3794,6 +3794,20 @@
       background: #fff;
     }
     .kn-comment-form textarea { min-height: 80px; }
+    /* v2.8.5: 보험지식 모달 다크모드 텍스트 — 앱 수동 테마 토글([data-theme])에 대응 (기존 prefers-color-scheme는 OS만 반응해 글씨가 안 보였음) */
+    [data-theme="dark"] .kn-modal-title,
+    [data-theme="dark"] .kn-comments-title { color: #e6edf3; }
+    [data-theme="dark"] .kn-modal-content { color: #c9d3e0; border-bottom-color: rgba(255,255,255,0.10); }
+    [data-theme="dark"] .kn-comment-item { border-bottom-color: rgba(255,255,255,0.08); }
+    [data-theme="dark"] .kn-comment-text { color: #c9d3e0; }
+    [data-theme="dark"] .kn-comment-author { color: #7dd3fc; }
+    [data-theme="dark"] .kn-comment-form input,
+    [data-theme="dark"] .kn-comment-form textarea { color: #e6edf3; background: #0d1117; border-color: rgba(255,255,255,0.12); }
+    [data-theme="dark"] .kn-comment-form input:focus,
+    [data-theme="dark"] .kn-comment-form textarea:focus { background: #161b22; border-color: #7dd3fc; }
+    [data-theme="dark"] .kn-table th, [data-theme="dark"] .kn-table td { border-color: rgba(125,211,252,0.2); color: #e2e8f0; }
+    [data-theme="dark"] .kn-table th { background: rgba(125,211,252,0.08); color: #7dd3fc; }
+    [data-theme="dark"] .kn-table tr:nth-child(even) td { background: rgba(255,255,255,0.02); }
     .kn-comment-submit {
       align-self: flex-end;
       padding: 10px 24px;
