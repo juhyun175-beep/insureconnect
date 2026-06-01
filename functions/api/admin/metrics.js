@@ -18,7 +18,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
     try { const r = await env.DB.prepare(sql).bind(...binds).first(); return r?.n ?? 0; } catch (_) { return 0; }
   };
 
-  const [members_total, members_today, mau, wau, returning, posts, comments, visits_total, visits_today] = await Promise.all([
+  const [members_total, members_today, mau, wau, returning, posts, comments, visits_total, visits_today, alert_optin, push_subs, posts_7d, comments_7d] = await Promise.all([
     one(`SELECT COUNT(*) n FROM ic_members`),
     one(`SELECT COUNT(*) n FROM ic_members WHERE created_at >= ?`, todayKst),
     one(`SELECT COUNT(*) n FROM ic_members WHERE last_login >= ?`, d30),
@@ -28,6 +28,10 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
     one(`SELECT COUNT(*) n FROM ic_board_comments WHERE deleted = 0`),
     one(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily`),
     one(`SELECT COALESCE(visits,0) n FROM ic_visits_daily WHERE date = ?`, todayKst),
+    one(`SELECT COUNT(*) n FROM ic_members WHERE alert_optin = 1`),
+    one(`SELECT COUNT(*) n FROM ic_push_subscriptions WHERE active = 1`),
+    one(`SELECT COUNT(*) n FROM ic_board_posts WHERE deleted = 0 AND created_at >= ?`, d7),
+    one(`SELECT COUNT(*) n FROM ic_board_comments WHERE deleted = 0 AND created_at >= ?`, d7),
   ]);
 
   let roles = {};
@@ -37,9 +41,21 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   } catch (_) {}
 
   const returning_rate = members_total ? Math.round(returning / members_total * 100) : 0;
+  const alert_rate = members_total ? Math.round(alert_optin / members_total * 100) : 0;
+
+  // v2.7.6: 최근 14일 추세 (KST 일자 라벨에 방문·신규가입 매핑)
+  const days = [];
+  for (let i = 13; i >= 0; i--) days.push(new Date(now - i * 86400000 + 9 * 3600000).toISOString().slice(0, 10));
+  const startDay = days[0];
+  const visitMap = {}, signupMap = {};
+  try { const rs = await env.DB.prepare(`SELECT date, visits FROM ic_visits_daily WHERE date >= ? ORDER BY date ASC`).bind(startDay).all(); (rs.results || []).forEach(r => { visitMap[r.date] = r.visits; }); } catch (_) {}
+  try { const rs = await env.DB.prepare(`SELECT substr(created_at,1,10) d, COUNT(*) n FROM ic_members WHERE created_at >= ? GROUP BY d`).bind(startDay).all(); (rs.results || []).forEach(r => { signupMap[r.d] = r.n; }); } catch (_) {}
+  const visit_series = days.map(d => ({ date: d, v: visitMap[d] || 0 }));
+  const signup_series = days.map(d => ({ date: d, v: signupMap[d] || 0 }));
 
   return json({
     members_total, members_today, mau, wau, returning, returning_rate,
-    posts, comments, visits_total, visits_today, roles,
+    alert_optin, alert_rate, push_subs, posts, comments, posts_7d, comments_7d,
+    visits_total, visits_today, roles, visit_series, signup_series,
   });
 });
