@@ -9,6 +9,12 @@
 - [보험금 청구서류 양식 다운로드](https://insureconnect-hub.pages.dev/company/claim-forms)
 - [GA 법인대리점 전산 바로가기](https://insureconnect-hub.pages.dev/ga)
 - [보험 정보 게시판(전체)](https://insureconnect-hub.pages.dev/insurance)
+- [보험설계사 채용·구인공고 모음](https://insureconnect-hub.pages.dev/recruit): 지점 리크루팅·GA 모집·정착지원 채용공고 집계
+- [보험설계사 교육·강의·세미나 일정](https://insureconnect-hub.pages.dev/lecture): 영업교육·상품교육·세미나·웨비나 강의 집계
+- [보험 카드뉴스·소식지 아카이브](https://insureconnect-hub.pages.dev/newsletter): InsureConnect 카드뉴스 및 보험사 소식지·영업자료
+- [보험설계사 커뮤니티 인기글](https://insureconnect-hub.pages.dev/community): 현장 설계사들의 영업 노하우·후기·정보공유 인기글
+- [보험설계사·법인 전용 리스·렌터카 우대 견적](https://insureconnect-hub.pages.dev/rental): 국산·수입 전 차종 무료 견적, 전문매니저 1:1 상담
+- [보험설계사·법인 전용 휴대폰·통신 우대 견적](https://insureconnect-hub.pages.dev/telecom): 단말기 성지 시세·요금제 컨설팅·법인폰 무료 견적
 
 ## 보험 정보 게시판 — 카테고리별 문서
 

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.8.16] - 2026-06-02
+### Improved (SEO/AEO/GEO 진단 + 보강)
+- **진단 결과**: 기반 양호 — robots.txt에 AI봇(GPTBot/OAI-SearchBot/ChatGPT-User/ClaudeBot/PerplexityBot/Google-Extended/CCBot 등) 명시 허용 + sitemap·llms.txt 연결, Organization/WebSite @graph, 페이지별 FAQPage/JobPosting/Course/Service/Breadcrumb/CollectionPage 스키마 모두 존재
+- **보강 1 (GEO)**: `llms.txt` 핵심 허브에 신규 6개 허브(채용·강의·소식지·커뮤니티·리스렌터카·통신) 추가 → AI 답변엔진이 사이트 구조 전체를 인용 가능
+- **보강 2 (AEO/E-E-A-T)**: 홈 Organization 스키마에 `knowsAbout`(전산·청구·실손·암·자동차·종신·약관·채용·교육·리스렌터카·통신 등 토픽 권위) + 서비스 범위 description 확장
+
 ## [2.8.15] - 2026-06-02
 ### Added (통신 메뉴 신설 — 렌트카 구조 미러링)
 - **D1**: `ic_telecom_devices`(단말기 라인업) + `ic_telecom_inquiries`(견적 신청) 테이블 신설(원격 적용)
