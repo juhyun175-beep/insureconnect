@@ -7310,8 +7310,9 @@
     .side-submit-single .sss-title { font-size: 12.5px; font-weight: 800; letter-spacing: -0.01em; }
     .side-submit-single .sss-sub   { font-size: 10.5px; font-weight: 600; opacity: 0.85; }
     /* v2.8.1: 사이드바 계정 그룹 — 로그인/내공고등록/빠른검색을 한 묶음으로 정렬(좌우 인셋 통일) */
-    .side-account { margin: 10px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
-    .side-account #ic-auth { margin: 0; }
+    /* v2.8.22: 로그인정보 + 내공고등록 + 빠른검색을 하나의 카드로 묶음 */
+    .side-account { margin: 10px 12px 2px; display: flex; flex-direction: column; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; box-shadow: var(--sh-sm); }
+    .side-account #ic-auth { margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
     .side-account .side-search-btn,
     .side-account .side-submit-single { width: 100%; margin: 0; }
     @media (max-width: 480px) {
@@ -7799,7 +7800,7 @@
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
       fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
         if(d.user){
-          box.innerHTML='<div style="padding:8px 10px;background:rgba(26,61,232,0.06);border:1px solid var(--border,rgba(12,31,184,0.10));border-radius:10px;">'
+          box.innerHTML='<div style="padding:0;">'
             +'<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-hi,#0f172a);">'
             +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'<span>👤</span>')
             +'<span style="font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span></div>'
