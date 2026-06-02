@@ -32,6 +32,8 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/rental`, today, 'weekly', 0.8),
     urlEntry(`${BASE}/recruit`, today, 'daily', 0.85),
     urlEntry(`${BASE}/lecture`, today, 'daily', 0.85),
+    urlEntry(`${BASE}/newsletter`, today, 'weekly', 0.7),
+    urlEntry(`${BASE}/community`, today, 'daily', 0.7),
   ];
 
   // v2.0.0 (master): SEO 게시판 카테고리 + 게시글
@@ -100,6 +102,20 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/og/news/${n.set_id}`, fmtDate(n.created_at), 'monthly', 0.7)
   );
 
+  // 커뮤니티 인기글 (품질 게이트 통과만 — og/board 색인 기준과 동일)
+  let boardPosts = [];
+  try {
+    const rs = await env.DB.prepare(
+      `SELECT id, created_at FROM ic_board_posts
+       WHERE deleted = 0 AND view_count >= 20 AND LENGTH(content) >= 150
+       ORDER BY created_at DESC LIMIT 500`
+    ).all();
+    boardPosts = rs.results || [];
+  } catch (_) {}
+  const boardUrls = boardPosts.map(p =>
+    urlEntry(`${BASE}/og/board/${p.id}`, fmtDate(p.created_at), 'weekly', 0.5)
+  );
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${[
@@ -110,6 +126,7 @@ ${[
   ...lectureUrls,
   ...knowledgeUrls,
   ...newsUrls,
+  ...boardUrls,
 ].join('\n')}
 </urlset>`;
 

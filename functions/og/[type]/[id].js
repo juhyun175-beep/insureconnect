@@ -188,7 +188,7 @@ export const onRequestGet = async ({ params, env, request }) => {
       }
     } else if (type === 'board') {
       const r = await env.DB.prepare(
-        `SELECT title, content, nickname, created_at FROM ic_board_posts WHERE id = ? AND deleted = 0`
+        `SELECT title, content, nickname, created_at, view_count, comment_count FROM ic_board_posts WHERE id = ? AND deleted = 0`
       ).bind(id).first();
       if (r) {
         title = r.title || title;
@@ -196,7 +196,8 @@ export const onRequestGet = async ({ params, env, request }) => {
         desc = (r.nickname ? `[${r.nickname}] ` : '') + clean.slice(0, 110);
         image = dynamicOgImage('board', id); // 글 내용이 보이는 카드 이미지
         target = `${SITE}/board/${encodeURIComponent(id)}`;
-        indexable = false; // 자유게시판은 noindex 유지
+        // UGC 전수 색인은 리스크 → 인기·충실 글만 선별 색인 (그 외 noindex 유지)
+        indexable = ((r.view_count || 0) >= 20 && clean.length >= 150);
         bodyContent = `<h1>${esc(r.title)}</h1><div style="white-space:pre-line">${esc(clean.slice(0, 1500))}</div>`;
         jsonLd = {
           '@context': 'https://schema.org',

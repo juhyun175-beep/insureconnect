@@ -73,6 +73,8 @@ export function seoCtaFooter(SITE) {
   <a href="/insurance">📚 보험 정보</a>
   <a href="/recruit">🟢 채용공고</a>
   <a href="/lecture">🎓 교육·강의</a>
+  <a href="/newsletter">🗞 소식·자료</a>
+  <a href="/community">💬 커뮤니티</a>
   <a href="/rental">🚗 렌트카·리스</a>
   <a href="/ga">🏢 GA 전산</a>
 </nav>

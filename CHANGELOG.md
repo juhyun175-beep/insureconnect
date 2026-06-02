@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.8.13] - 2026-06-02
+### Added (소식지 아카이브 + 커뮤니티 인기글 선별 색인)
+- **`/newsletter` SSR 소식·자료 아카이브**: InsureConnect 카드뉴스(/og/news/{set_id}) + 보험사 소식지(ic_newsletters) 집계, 카카오 구독(=가입→업로드 자동 알림) CTA, CollectionPage JSON-LD
+- **`/community` SSR 커뮤니티 인기글 허브**: 자유게시판 UGC 전수 색인 리스크를 피해 **품질 게이트(조회수≥20 AND 본문길이≥150)** 통과 글만 선별. 인기순(조회+댓글×5) 정렬, 개별 글은 /og/board/{id}로 연결
+- **og/board 조건부 색인**: 기존 `indexable=false` 하드코딩 → 동일 게이트로 인기·충실 글만 index, 그 외 noindex 유지
+- 동적 sitemap에 게이트 통과 커뮤니티 글 추가, 양쪽 sitemap에 /newsletter·/community 등록
+- 공통 허브 네비에 🗞 소식·자료 · 💬 커뮤니티 추가
+
 ## [2.8.12] - 2026-06-02
 ### Added (강의 허브 + 전 SSR 내부링크 통합)
 - **`/lecture` SSR 교육·강의 허브 신설**: 승인 강의공고 D1 집계 → 카드(강사 배지·NEW 배지·요약) → 개별 Course 페이지(/og/lecture/{id}) 내부링크. "보험설계사 교육·세미나·웨비나" 검색 유입. 양면 CTA(수강→회원 / 강사·교육기관→강의 무료등록). CollectionPage/ItemList·Breadcrumb JSON-LD + 공유 + 가입 전환 푸터
