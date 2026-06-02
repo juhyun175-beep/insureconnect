@@ -3479,6 +3479,7 @@
         <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
         <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
+        <button class="upload-tab" data-panel="up-telecom-devices">📱 단말기 라인업</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
@@ -4221,6 +4222,82 @@
         </div>
       </div><!-- /#up-rental-vehicles -->
 
+      <!-- v2.8.18: 통신 단말기 라인업 관리 패널 (렌트카 구조 미러링) -->
+      <div class="upload-panel" id="up-telecom-devices">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">📱 추천 단말기 라인업 관리</p>
+          <button type="button" onclick="loadTelecomDevicesAdmin()"
+                  style="padding:6px 12px;background:transparent;border:1px solid #10b981;color:#10b981;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
+            🔄 새로고침
+          </button>
+        </div>
+        <div style="background:rgba(0,255,200,0.04);border:1px solid rgba(0,255,200,0.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid,#9aa);line-height:1.6;">
+          <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px;">📱 단말기 라인업 안내</div>
+          <ul style="margin:0;padding-left:18px;">
+            <li>여기서 등록한 단말기가 <strong>통신/휴대폰 페이지</strong>(좌측 빨간 탭)에 카드로 표시됩니다</li>
+            <li>이용자가 카드를 누르면 견적 모달이 열리고, 신청 내역은 아래 <strong>견적 신청 내역</strong>에 들어옵니다</li>
+            <li>이미지는 1:1 비율 권장 (자동 cover crop) · 표시 순서는 정렬 오름차순</li>
+          </ul>
+        </div>
+        <!-- 등록 폼 -->
+        <div class="nl-upload-box">
+          <div class="nl-form">
+            <div class="nl-field">
+              <label>기종명 <span style="color:#ff3355">*</span></label>
+              <input type="text" id="td-name" maxlength="200" placeholder="예: 갤럭시 S24 256GB" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:140px;">
+                <label>통신사</label>
+                <select id="td-carrier" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="">선택</option>
+                  <option value="SKT">SKT</option>
+                  <option value="KT">KT</option>
+                  <option value="LGU+">LGU+</option>
+                  <option value="알뜰폰">알뜰폰</option>
+                </select>
+              </div>
+              <div style="flex:1;min-width:140px;">
+                <label>프로모션 배지</label>
+                <input type="text" id="td-promo" maxlength="60" placeholder="예: 공시+추가지원" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+              <div style="width:120px;">
+                <label>정렬 (낮을수록 앞)</label>
+                <input type="number" id="td-sort" value="100" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
+            </div>
+            <div class="nl-field">
+              <label>월 납부 안내 <span style="color:#9aa;font-weight:500;font-size:11px;">— 카드에 강조 표시</span></label>
+              <input type="text" id="td-monthly" maxlength="100" placeholder="예: 월 39,000원~" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field">
+              <label>옵션/요금제 설명</label>
+              <input type="text" id="td-options" maxlength="300" placeholder="예: 자급제, 5G, 데이터 무제한" style="width:100%;padding:8px 10px;font-size:13px;">
+            </div>
+            <div class="nl-field">
+              <label>단말기 이미지 (jpg/png/webp)</label>
+              <label class="nl-file-label">
+                📎 이미지 선택
+                <input type="file" id="td-file" accept="image/*">
+                <span class="nl-file-name" id="td-file-name">없음</span>
+              </label>
+              <div id="td-image-preview" style="margin-top:8px;display:none;">
+                <img id="td-image-preview-img" style="max-width:160px;max-height:160px;border-radius:8px;border:1px solid var(--border,#333);" alt="미리보기">
+              </div>
+            </div>
+            <button class="nl-upload-btn" id="td-upload-btn" onclick="uploadTelecomDevice()">등록</button>
+          </div>
+          <p class="nl-status" id="td-status"></p>
+        </div>
+        <div class="nl-list" id="td-list">
+          <p class="empty-msg">단말기 로딩 중…</p>
+        </div>
+        <p class="dash-section-title" style="margin:22px 0 10px;font-size:14px;">📨 견적 신청 내역</p>
+        <div class="nl-list" id="ti-list">
+          <p class="empty-msg">신청 로딩 중…</p>
+        </div>
+      </div><!-- /#up-telecom-devices -->
+
       <!-- v2.0.0 (master): SEO 게시판 관리 -->
       <div class="upload-panel" id="up-seo">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -4480,8 +4557,112 @@
         if (target === 'up-reports' && typeof loadBoardReports === 'function') {
           loadBoardReports();
         }
+        if (target === 'up-telecom-devices' && typeof loadTelecomDevicesAdmin === 'function') {
+          loadTelecomDevicesAdmin();
+          if (typeof loadTelecomInquiriesAdmin === 'function') loadTelecomInquiriesAdmin();
+        }
       });
     });
+
+    /* v2.8.18: 통신 단말기 라인업 관리 */
+    (function(){
+      const fileEl = document.getElementById('td-file');
+      if (fileEl) fileEl.addEventListener('change', function(){
+        const f = this.files[0];
+        const nm = document.getElementById('td-file-name'); if (nm) nm.textContent = f ? f.name : '없음';
+        const prev = document.getElementById('td-image-preview');
+        const img = document.getElementById('td-image-preview-img');
+        if (f && img) { img.src = URL.createObjectURL(f); prev.style.display = ''; }
+        else if (prev) prev.style.display = 'none';
+      });
+    })();
+    async function uploadTelecomDevice() {
+      const name = document.getElementById('td-name').value.trim();
+      const carrier = document.getElementById('td-carrier').value;
+      const promo = document.getElementById('td-promo').value.trim();
+      const monthly = document.getElementById('td-monthly').value.trim();
+      const options = document.getElementById('td-options').value.trim();
+      const sortRaw = document.getElementById('td-sort').value;
+      const sort = Number.isFinite(+sortRaw) ? +sortRaw : 100;
+      const fileEl = document.getElementById('td-file');
+      const status = document.getElementById('td-status');
+      const btn = document.getElementById('td-upload-btn');
+      if (!name) { alert('기종명을 입력해주세요.'); return; }
+      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; status.textContent = '';
+      try {
+        let image_url = null;
+        const f = fileEl.files[0];
+        if (f) {
+          const ext = (f.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
+          const path = `device_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const up = await fetch(`/api/files/telecom/${path}`, { method:'POST', headers: adminHeaders({ 'Content-Type': f.type || 'image/jpeg' }), body: f });
+          if (!up.ok) throw new Error('이미지 업로드 실패');
+          image_url = `/api/files/telecom/${path}`;
+        }
+        const res = await fetch('/api/telecom-devices', {
+          method:'POST', headers: adminHeaders({ 'Content-Type':'application/json' }),
+          body: JSON.stringify({ name, carrier: carrier||null, promo_text: promo||null, monthly_text: monthly||null, options: options||null, sort_order: sort, image_url, is_active: 1 })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
+        ['td-name','td-promo','td-monthly','td-options'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+        document.getElementById('td-carrier').value=''; document.getElementById('td-sort').value='100';
+        document.getElementById('td-file').value=''; document.getElementById('td-file-name').textContent='없음';
+        document.getElementById('td-image-preview').style.display='none';
+        loadTelecomDevicesAdmin();
+      } catch(e){ status.textContent = '❌ '+e.message; status.style.color='#ef4444'; }
+      finally { btn.disabled=false; btn.textContent='등록'; }
+    }
+    async function loadTelecomDevicesAdmin() {
+      const el = document.getElementById('td-list'); if(!el) return;
+      try {
+        const res = await fetch('/api/telecom-devices?status=all', { headers: adminHeaders() });
+        const items = await res.json();
+        if(!Array.isArray(items)||!items.length){ el.innerHTML='<p class="empty-msg">등록된 단말기가 없습니다.</p>'; return; }
+        el.innerHTML = items.map(it=>`
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;${it.is_active?'':'opacity:0.55;'}">
+            <div style="width:48px;height:48px;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+              ${it.image_url?`<img src="${esc(it.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='📱'">`:'📱'}
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)}</div>
+              <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">
+                ${it.carrier?`<span style="background:rgba(16,185,129,0.16);color:#10b981;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.carrier)}</span>`:''}
+                ${it.promo_text?`<span style="background:rgba(219,39,119,0.16);color:#db2777;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.promo_text)}</span>`:''}
+                ${it.monthly_text?`<span style="color:#0ea5e9;font-weight:700;margin-right:4px;">${esc(it.monthly_text)}</span>`:''}
+                ${esc(it.options||'')}
+              </div>
+              <div style="font-size:10.5px;color:var(--txt-lo);margin-top:2px;opacity:0.85;">정렬 ${it.sort_order}</div>
+            </div>
+            <button onclick="toggleTelecomDevice(${it.id}, ${it.is_active?0:1})" style="font-size:11px;padding:5px 10px;background:${it.is_active?'rgba(245,158,11,0.16)':'rgba(16,185,129,0.16)'};color:${it.is_active?'#f59e0b':'#10b981'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active?'비활성':'활성'}</button>
+            <button onclick="deleteTelecomDevice(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch(e){ el.innerHTML='<p class="empty-msg">로드 실패: '+esc(e.message)+'</p>'; }
+    }
+    async function toggleTelecomDevice(id, active) {
+      await fetch(`/api/telecom-devices/${id}`, { method:'PATCH', headers: adminHeaders({'Content-Type':'application/json'}), body: JSON.stringify({ is_active: active }) });
+      loadTelecomDevicesAdmin();
+    }
+    async function deleteTelecomDevice(id) {
+      if(!confirm('이 단말기를 삭제할까요?')) return;
+      await fetch(`/api/telecom-devices/${id}`, { method:'DELETE', headers: adminHeaders() });
+      loadTelecomDevicesAdmin();
+    }
+    async function loadTelecomInquiriesAdmin() {
+      const el = document.getElementById('ti-list'); if(!el) return;
+      try {
+        const res = await fetch('/api/telecom-inquiries', { headers: adminHeaders() });
+        const items = await res.json();
+        if(!Array.isArray(items)||!items.length){ el.innerHTML='<p class="empty-msg">아직 견적 신청이 없습니다.</p>'; return; }
+        el.innerHTML = items.map(it=>`
+          <div style="padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
+            <div style="font-size:13px;font-weight:700;color:var(--txt-hi);">${esc(it.customer_name)} · <a href="tel:${esc(it.customer_phone)}" style="color:#0ea5e9;">${esc(it.customer_phone)}</a></div>
+            <div style="font-size:11.5px;color:var(--txt-mid);margin-top:3px;">📱 ${esc(it.device_name_snapshot||'미지정')}${it.carrier_pref?` · 희망 ${esc(it.carrier_pref)}`:''}</div>
+            ${it.memo?`<div style="font-size:11.5px;color:var(--txt-lo);margin-top:3px;">📝 ${esc(it.memo)}</div>`:''}
+            <div style="font-size:10.5px;color:var(--txt-lo);margin-top:3px;opacity:0.8;">${esc(String(it.created_at||'').slice(0,16))}</div>
+          </div>`).join('');
+      } catch(e){ el.innerHTML='<p class="empty-msg">로드 실패: '+esc(e.message)+'</p>'; }
+    }
 
     /* v2.7.2: 자유게시판 신고 처리 */
     async function loadBoardReports() {

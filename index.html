@@ -7309,17 +7309,6 @@
     /* v2.8.1: 사이드바 계정 그룹 — 로그인/내공고등록/빠른검색을 한 묶음으로 정렬(좌우 인셋 통일) */
     .side-account { margin: 10px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
     .side-account #ic-auth { margin: 0; }
-    /* v2.8.16: 사이드바 제휴 강조 버튼 (리스/렌트카·통신) — 빨강 그라데이션 CTA */
-    .side-promo-cta { margin: 8px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
-    .side-promo-cta .spc { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; text-decoration: none; color: #fff; font-weight: 800; font-size: 13.5px; box-shadow: 0 4px 14px rgba(225,29,72,0.28); transition: transform .12s, box-shadow .12s; }
-    .side-promo-cta .spc:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(225,29,72,0.36); }
-    .side-promo-cta .spc-rental { background: linear-gradient(135deg,#e11d48,#f97316); }
-    .side-promo-cta .spc-telecom { background: linear-gradient(135deg,#dc2626,#fb7185); }
-    .side-promo-cta .spc-emo { font-size: 20px; line-height: 1; }
-    .side-promo-cta .spc-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
-    .side-promo-cta .spc-tt { font-size: 13.5px; font-weight: 900; letter-spacing: -0.01em; }
-    .side-promo-cta .spc-sb { font-size: 10.5px; font-weight: 700; opacity: 0.92; }
-    .side-promo-cta .spc-ar { margin-left: auto; font-size: 16px; opacity: 0.9; }
     .side-account .side-search-btn,
     .side-account .side-submit-single { width: 100%; margin: 0; }
     @media (max-width: 480px) {
@@ -7766,19 +7755,6 @@
         <span class="ssb-label">빠른 검색</span>
         <span class="ssb-kbd">Ctrl K</span>
       </button>
-    </div>
-    <!-- v2.8.16: 제휴 강조 버튼 — 리스/렌트카 · 통신 (빨강 CTA, 누르면 해당 페이지로) -->
-    <div class="side-promo-cta">
-      <a class="spc spc-rental" href="/rental" onclick="if(window.goToPage){event.preventDefault();goToPage('rental');}">
-        <span class="spc-emo">🚗</span>
-        <span class="spc-tx"><span class="spc-tt">리스 · 렌터카</span><span class="spc-sb">설계사 전용 우대 견적</span></span>
-        <span class="spc-ar">›</span>
-      </a>
-      <a class="spc spc-telecom" href="/telecom">
-        <span class="spc-emo">📱</span>
-        <span class="spc-tx"><span class="spc-tt">통신 · 휴대폰</span><span class="spc-sb">공짜폰 성지가 · 견적신청</span></span>
-        <span class="spc-ar">›</span>
-      </a>
     </div>
     <script>
     (function(){
@@ -8244,6 +8220,58 @@
     </div>
   </div>
 
+  <!-- v2.8.18: 통신 견적 모달 (단순 단계 — 렌트카 모달 클래스 재사용) -->
+  <div class="sm-overlay" id="telecom-inquiry-modal" onclick="if(event.target===this)closeTelecomInquiry()">
+    <div class="sm-modal">
+      <div class="sm-head">
+        <h3 class="sm-title">📱 견적 내기</h3>
+        <button class="sm-close" type="button" onclick="closeTelecomInquiry()" aria-label="닫기">✕</button>
+      </div>
+      <div class="sm-body">
+        <div id="tq-form-box">
+          <div class="rq-vehicle">
+            <div class="rq-vehicle-thumb" id="tq-device-thumb">📱</div>
+            <div class="rq-vehicle-info">
+              <div class="rq-vehicle-name" id="tq-device-name">선택 단말기</div>
+              <div class="rq-vehicle-meta">연락처를 남기시면 전문매니저가 그 시점 최저 시세로 연락드립니다.</div>
+            </div>
+          </div>
+          <div class="sm-field">
+            <label>이름 <span class="req">*</span></label>
+            <input type="text" id="tq-name" maxlength="30" placeholder="홍길동" autocomplete="name" />
+          </div>
+          <div class="sm-field">
+            <label>휴대폰 <span class="req">*</span></label>
+            <input type="tel" id="tq-phone" maxlength="20" placeholder="010-0000-0000" autocomplete="tel" />
+          </div>
+          <div class="sm-field">
+            <label>희망 통신사</label>
+            <select id="tq-carrier">
+              <option value="">상관없음</option>
+              <option>SKT</option><option>KT</option><option>LGU+</option><option>알뜰폰</option>
+            </select>
+          </div>
+          <div class="sm-field">
+            <label>요청사항 (선택)</label>
+            <textarea id="tq-memo" rows="2" maxlength="500" placeholder="예: 법인폰 3회선 / 데이터 무제한 희망"></textarea>
+          </div>
+          <p id="tq-err" style="display:none;color:#dc2626;font-size:12.5px;margin:4px 0 0;"></p>
+          <div class="sm-actions">
+            <button type="button" class="sm-btn sm-btn-secondary" onclick="closeTelecomInquiry()">취소</button>
+            <button type="button" class="sm-btn sm-btn-primary" id="tq-submit" onclick="submitTelecomInquiry()">견적 신청하기</button>
+          </div>
+          <p style="font-size:11px;color:var(--txt-lo);text-align:center;margin:8px 0 0;">📨 입력하신 번호로 견적서가 문자로 발송됩니다</p>
+        </div>
+        <div id="tq-done" style="display:none">
+          <div style="font-size:42px;text-align:center;margin:8px 0 6px">✅</div>
+          <h4 style="text-align:center;font-size:17px;font-weight:800;color:var(--txt-hi);margin:0 0 6px;">견적 신청이 접수되었습니다</h4>
+          <p style="text-align:center;font-size:13.5px;color:var(--txt-mid);line-height:1.6;">전문매니저가 입력하신 번호로 곧 연락드립니다.<br><strong>영업일 기준 1일 이내</strong> 답변 드립니다.</p>
+          <div class="sm-actions"><button type="button" class="sm-btn sm-btn-primary" onclick="closeTelecomInquiry()">확인</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 채용공고 상세 뷰어 -->
   <div class="rc-viewer" id="rc-viewer" onclick="if(event.target===this)closeRecruitViewer()">
     <div class="rc-viewer-body" id="rc-viewer-body"></div>
@@ -8297,8 +8325,8 @@
     </div>
 
     <!-- v2.8.15: 공짜폰·통신 강조 배너 (렌트카 배너 바로 아래) -->
-    <div class="ic-m-telecom-hero" role="button" tabindex="0" onclick="location.href='/telecom'"
-         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();location.href='/telecom';}">
+    <div class="ic-m-telecom-hero" role="button" tabindex="0" onclick="goToPage('telecom')"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToPage('telecom');}">
       <span class="rh-text">
         <span class="th-badge">보험설계사·법인 전용 · 공짜폰 성지가</span>
         <span class="th-title">휴대폰 · 통신 특별 우대</span>
@@ -8380,7 +8408,7 @@
         <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-lb">채용</span></button>
         <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">최신</span></button>
         <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
-        <a class="ic-m-core-card" href="/telecom"><span class="cc-lb">통신·폰</span></a>
+        <button class="ic-m-core-card" onclick="goToPage('telecom')"><span class="cc-lb">통신·폰</span></button>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-lb">운영자 문의</span></a>
@@ -8879,6 +8907,37 @@
         <div style="font-size:36px;margin-bottom:10px;">🚗</div>
         <div style="font-size:13.5px;font-weight:700;color:var(--txt-hi);margin-bottom:4px;">현재 등록된 차량이 없습니다</div>
         <div style="font-size:11.5px;opacity:0.8;">곧 새로운 차종이 업데이트될 예정입니다.</div>
+      </div>
+    </section>
+  </div>
+
+  <!-- ══════ PAGE: 통신/휴대폰 (v2.8.18 신설 — 렌트카 구조 미러링) ══════ -->
+  <div class="content" id="page-telecom" style="display:none">
+    <section class="ic-rental-section" id="telecom-section" aria-label="보험설계사 전용 통신·휴대폰 혜택">
+      <div class="ic-pb-banner" style="background:linear-gradient(120deg,#064e3b 0%,#0ea5e9 100%);">
+        <h2 class="ic-pb-title">
+          <span class="ic-pb-q">아직도 비싸게 쓰세요?</span>
+          <span class="ic-pb-a">보험설계사라면 우대해드립니다</span>
+        </h2>
+        <span class="ic-pb-pill">설계사 전용</span>
+      </div>
+      <div class="ic-rental-head">
+        <div class="ic-rental-title">
+          📱 추천 단말기
+          <span class="ic-rental-pill" style="background:linear-gradient(135deg,#059669,#10b981);">PARTNER</span>
+        </div>
+      </div>
+      <div class="ic-rental-grid" id="telecom-grid">
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+        <div class="ic-rental-skel"></div>
+      </div>
+      <div id="telecom-empty"
+           style="display:none;padding:36px 18px;text-align:center;color:var(--txt-mid);background:var(--bg-card);border:1px solid var(--border);border-radius:14px;margin-top:6px;">
+        <div style="font-size:36px;margin-bottom:10px;">📱</div>
+        <div style="font-size:13.5px;font-weight:700;color:var(--txt-hi);margin-bottom:4px;">현재 등록된 단말기가 없습니다</div>
+        <div style="font-size:11.5px;opacity:0.8;">곧 새로운 기종이 업데이트될 예정입니다.</div>
       </div>
     </section>
   </div>
@@ -9904,6 +9963,7 @@
       lecture:          '🎓 강의',
       tools:            '실무 도구',
       rental:           '🚗 리스/렌트카',
+      telecom:          '📱 통신/휴대폰',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
@@ -9956,6 +10016,7 @@
       if (page === 'claimform'  && _shouldReloadPage('claimform'))  { loadClaimFormPage(); }
       if (page === 'recruit'    && _shouldReloadPage('recruit'))    { loadRecruitPage(); }
       if (page === 'lecture'    && _shouldReloadPage('lecture'))    { loadLecturePage(); }
+      if (page === 'telecom'    && typeof loadTelecomLineup === 'function') { loadTelecomLineup(); }
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
@@ -13603,12 +13664,17 @@
     initHashRouting();
   </script>
 
-  <!-- v2.1.23: 좌측 고정 빨간 PILL nav — 리스/렌트카 통합 -->
-  <div class="left-nav-group" aria-label="리스 렌트카 진입">
+  <!-- v2.1.23: 좌측 고정 빨간 PILL nav — 리스/렌트카 + 통신 (v2.8.18) -->
+  <div class="left-nav-group" aria-label="리스 렌트카 · 통신 진입">
     <button class="left-nav-btn" type="button"
             onclick="trackCardClick('좌측버튼','리스/렌트카'); goToPage('rental');"
             title="리스 / 렌트카 — 인슈어커넥트 파트너사 혜택">
       <span class="lnb-icon">🚗</span>리스 / 렌트카
+    </button>
+    <button class="left-nav-btn left-nav-btn-tel" type="button"
+            onclick="trackCardClick('좌측버튼','통신'); goToPage('telecom');"
+            title="통신 / 휴대폰 — 보험설계사 우대 견적">
+      <span class="lnb-icon">📱</span>통신 / 휴대폰
     </button>
   </div>
 
@@ -14690,6 +14756,92 @@
             </div>
           </button>`;
       }
+
+      /* ════ 통신 단말기 라인업 + 견적 (v2.8.18 — 렌트카 미러링) ════ */
+      let _telDevices = [];
+      let _selectedDevice = null;
+      window.loadTelecomLineup = async function loadTelecomLineup() {
+        const grid = document.getElementById('telecom-grid');
+        const emptyEl = document.getElementById('telecom-empty');
+        try {
+          const res = await fetch('/api/telecom-devices?limit=24', { cache: 'no-store' });
+          if (!res.ok) throw new Error('load failed');
+          const rows = await res.json();
+          _telDevices = Array.isArray(rows) ? rows : [];
+        } catch (_) { _telDevices = []; }
+        const hasItems = _telDevices.length > 0;
+        if (grid) grid.style.display = hasItems ? '' : 'none';
+        if (emptyEl) emptyEl.style.display = hasItems ? 'none' : '';
+        if (hasItems && grid) grid.innerHTML = _telDevices.map(d => renderTelecomCard(d)).join('');
+      };
+      function renderTelecomCard(d) {
+        const promo = d.promo_text ? `<div class="ic-rental-card-promo">${escapeHtml(d.promo_text)}</div>` : '';
+        const carrier = d.carrier ? `<div class="ic-rental-card-cat">${escapeHtml(d.carrier)}</div>` : '';
+        const img = d.image_url
+          ? `<img src="${escapeHtml(d.image_url)}" alt="${escapeHtml(d.name)}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="ic-rental-card-thumb-fallback" style="display:none">📱</div>`
+          : `<div class="ic-rental-card-thumb-fallback">📱</div>`;
+        const sub = d.monthly_text
+          ? `<div class="ic-rental-card-opts" style="color:#0ea5e9;font-weight:700">${escapeHtml(d.monthly_text)}</div>`
+          : (d.options ? `<div class="ic-rental-card-opts">${escapeHtml(d.options)}</div>` : '');
+        return `
+          <button type="button" class="ic-rental-card" onclick="openTelecomInquiry(${d.id})" aria-label="${escapeHtml(d.name)} 견적내기">
+            <div class="ic-rental-card-thumb">${img}${promo}${carrier}</div>
+            <div class="ic-rental-card-body">
+              <div class="ic-rental-card-name">${escapeHtml(d.name)}</div>
+              ${sub}
+              <div class="ic-rental-card-actions">
+                <div class="ic-rental-card-cta">견적내기 →</div>
+                <div class="ic-rental-card-cta-note">📨 문자로 견적서 발송해드립니다</div>
+              </div>
+            </div>
+          </button>`;
+      }
+      window.openTelecomInquiry = function openTelecomInquiry(deviceId) {
+        const d = _telDevices.find(x => x.id === deviceId);
+        if (!d) return;
+        _selectedDevice = d;
+        document.getElementById('tq-device-name').textContent = d.name;
+        const cn = document.getElementById('tq-carrier'); if (cn) cn.value = d.carrier || '';
+        document.getElementById('tq-name').value = '';
+        document.getElementById('tq-phone').value = '';
+        document.getElementById('tq-memo').value = '';
+        const err = document.getElementById('tq-err'); if (err) err.style.display = 'none';
+        document.getElementById('tq-form-box').style.display = '';
+        document.getElementById('tq-done').style.display = 'none';
+        const sb = document.getElementById('tq-submit'); if (sb) { sb.disabled = false; sb.textContent = '견적 신청하기'; }
+        document.getElementById('telecom-inquiry-modal').classList.add('open');
+      };
+      window.closeTelecomInquiry = function closeTelecomInquiry() {
+        document.getElementById('telecom-inquiry-modal').classList.remove('open');
+      };
+      window.submitTelecomInquiry = async function submitTelecomInquiry() {
+        const name = (document.getElementById('tq-name').value || '').trim();
+        const phone = (document.getElementById('tq-phone').value || '').trim();
+        const err = document.getElementById('tq-err');
+        if (name.length < 2) { err.textContent = '이름을 입력해주세요.'; err.style.display = 'block'; return; }
+        if (phone.replace(/[^0-9]/g, '').length < 8) { err.textContent = '연락 가능한 휴대폰을 입력해주세요.'; err.style.display = 'block'; return; }
+        err.style.display = 'none';
+        const btn = document.getElementById('tq-submit'); btn.disabled = true; btn.textContent = '접수 중…';
+        try {
+          const res = await fetch('/api/telecom-inquiries', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              device_id: _selectedDevice ? _selectedDevice.id : null,
+              device_name: _selectedDevice ? _selectedDevice.name : '',
+              customer_name: name, customer_phone: phone,
+              carrier_pref: (document.getElementById('tq-carrier').value || ''),
+              memo: (document.getElementById('tq-memo').value || '')
+            })
+          });
+          const dd = await res.json();
+          if (!res.ok) throw new Error(dd.error || '접수 실패');
+          document.getElementById('tq-form-box').style.display = 'none';
+          document.getElementById('tq-done').style.display = '';
+        } catch (e) {
+          err.textContent = '❌ ' + (e.message || '접수 실패 — 잠시 후 다시 시도해주세요.'); err.style.display = 'block';
+          btn.disabled = false; btn.textContent = '견적 신청하기';
+        }
+      };
 
       /* ════ 견적 계산 (v2.1.9) ════
          base × 계약기간 × 주행거리 × 보험연령 × 보증금 × 선납금
