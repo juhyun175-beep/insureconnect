@@ -8351,28 +8351,7 @@
   <!-- ══════ PAGE: 홈 대시보드 ══════ -->
   <!-- ══════ MOBILE 전용 홈 (CSS로만 표시/숨김 제어 — 인라인 style 없음) ══════ -->
   <div class="content" id="page-home-mobile">
-    <!-- v2.6.5: 최상단 로고 배너 → 리스·렌터카 강조 광고 배너로 교체 -->
-    <div class="ic-m-rental-hero" role="button" tabindex="0" aria-label="리스·렌터카 우대 혜택 보기" onclick="goToPage('rental')"
-         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToPage('rental');}"></div>
-
-    <!-- v2.8.15: 공짜폰·통신 강조 배너 (렌트카 배너 바로 아래) -->
-    <div class="ic-m-telecom-hero" role="button" tabindex="0" aria-label="휴대폰·통신 우대 혜택 보기" onclick="goToPage('telecom')"
-         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();goToPage('telecom');}"></div>
-    <script>
-    (function(){
-      var box=document.getElementById('ic-m-auth'); if(!box) return;
-      function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
-      fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
-        if(d && d.user){
-          box.innerHTML='<a href="/me" style="display:flex;align-items:center;gap:6px;background:rgba(255,255,255,0.22);padding:5px 11px 5px 6px;border-radius:999px;font-size:12px;color:#fff;font-weight:800;text-decoration:none;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);">'
-            +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:20px;height:20px;border-radius:50%;object-fit:cover">':'<span style="font-size:14px">👤</span>')
-            +'<span>'+e(d.user.nickname)+'</span></a>';
-        } else if(d && d.login_enabled){
-          box.innerHTML='<a href="/api/auth/kakao/login" onclick="event.stopPropagation()" style="display:inline-flex;align-items:center;gap:5px;background:#FEE500;color:#191600;text-decoration:none;font-weight:800;font-size:12px;padding:7px 12px;border-radius:999px;box-shadow:0 2px 8px rgba(0,0,0,0.12);">💬 로그인</a>';
-        }
-      }).catch(function(){});
-    })();
-    </script>
+    <!-- v2.8.26: 모바일 상단 광고배너(리스/렌트·통신) 제거 — 플랫폼 본연 집중. 두 페이지는 빠른메뉴 카드(렌트카·통신·폰)로 접근 -->
 
     <!-- v2.6.1: 실시간 방문통계 — 검색창 위로 -->
     <div class="ic-visitor-strip" id="home-visitor-strip-mobile">
