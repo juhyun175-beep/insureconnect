@@ -7690,6 +7690,40 @@
       .alert-text .alert-msg { display: none; }
     }
   </style>
+
+  <!-- v2.8.19: 노션 폴리시 레이어 (라이트모드 전용·추가형·되돌리기 쉬움)
+       — 일반 컴포넌트만 다듬음. 브랜드 히어로·렌트카/통신 카드·다크모드는 영향 없음. -->
+  <style id="notion-polish-v1">
+    html:not([data-theme="dark"]) .side-nav { background:#fbfbfa; border-right:1px solid rgba(55,53,47,0.09); box-shadow:none; }
+    html:not([data-theme="dark"]) .side-nav-header { background:#fbfbfa; border-bottom:1px solid rgba(55,53,47,0.07); }
+    html:not([data-theme="dark"]) .back-bar { background:#ffffff; border-bottom:1px solid rgba(55,53,47,0.09); box-shadow:none; }
+    /* 모달/공통 버튼 — 노션풍 플랫(브랜드 블루 솔리드, 그라데이션·점프 제거) */
+    html:not([data-theme="dark"]) .sm-btn { border-radius:6px; }
+    html:not([data-theme="dark"]) .sm-btn-primary { background:#2f6ad9; box-shadow:none; }
+    html:not([data-theme="dark"]) .sm-btn-primary:hover { background:#2860c8; transform:none; }
+    html:not([data-theme="dark"]) .sm-btn-secondary { background:#f1f1ef; color:#37352f; }
+    html:not([data-theme="dark"]) .sm-btn-secondary:hover { background:#e9e9e7; }
+    /* 입력 컴포넌트 — 노션풍(은은한 보더 + 포커스 링) */
+    html:not([data-theme="dark"]) .contact-input,
+    html:not([data-theme="dark"]) .contact-select,
+    html:not([data-theme="dark"]) .contact-textarea,
+    html:not([data-theme="dark"]) .sm-field input[type="text"],
+    html:not([data-theme="dark"]) .sm-field input[type="tel"],
+    html:not([data-theme="dark"]) .sm-field textarea,
+    html:not([data-theme="dark"]) .kn-comment-form input,
+    html:not([data-theme="dark"]) .kn-comment-form textarea {
+      background:#ffffff; border:1px solid rgba(55,53,47,0.16); border-radius:6px;
+    }
+    html:not([data-theme="dark"]) .contact-input:focus,
+    html:not([data-theme="dark"]) .contact-select:focus,
+    html:not([data-theme="dark"]) .contact-textarea:focus,
+    html:not([data-theme="dark"]) .sm-field input:focus,
+    html:not([data-theme="dark"]) .sm-field textarea:focus,
+    html:not([data-theme="dark"]) .kn-comment-form input:focus,
+    html:not([data-theme="dark"]) .kn-comment-form textarea:focus {
+      border-color:#2f6ad9; box-shadow:0 0 0 2px rgba(47,106,217,0.18);
+    }
+  </style>
 </head>
 <body>
 
