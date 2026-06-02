@@ -43,32 +43,32 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
-      /* === CYBERPUNK PALETTE === */
-      --neon-cyan:    #00f0ff;
-      --neon-cyan-d:  #00b8cc;
-      --neon-pink:    #ff006e;
-      --neon-magenta: #ff2d92;
-      --neon-purple:  #b026ff;
-      --neon-violet:  #8b00ff;
-      --neon-green:   #00ff88;
-      --neon-yellow:  #fff200;
-      --neon-orange:  #ff9500;
-      --bg-void:      #050010;
-      --bg-deep:      #0a0420;
-      --bg-card:      #0f0a28;
-      --bg-card-hi:   #16113a;
-      --bg-input:     #0a0628;
-      --border:       rgba(0,240,255,0.22);
-      --border-pink:  rgba(255,0,110,0.30);
-      --txt-hi:       #e8e6ff;
-      --txt-mid:      #9b95d4;
-      --txt-lo:       #5e5a8a;
-      --txt-neon:     #00f0ff;
-      --glow-cyan:    0 0 10px rgba(0,240,255,0.55), 0 0 24px rgba(0,240,255,0.25);
-      --glow-pink:    0 0 10px rgba(255,0,110,0.55), 0 0 24px rgba(255,0,110,0.25);
-      --glow-purple:  0 0 10px rgba(176,38,255,0.55), 0 0 24px rgba(176,38,255,0.22);
-      --glow-green:   0 0 10px rgba(0,255,136,0.55), 0 0 22px rgba(0,255,136,0.22);
-      --sh-card:      0 0 0 1px rgba(0,240,255,0.18), 0 8px 32px rgba(0,0,0,0.55);
+      /* === NOTION-DARK PALETTE (v2.8.20: 사이버펑크 네온 → 차분한 노션 다크로 정돈) === */
+      --neon-cyan:    #6aa9e9;   /* 차분한 블루 액센트 */
+      --neon-cyan-d:  #4a86c5;
+      --neon-pink:    #e0608f;
+      --neon-magenta: #d96a9e;
+      --neon-purple:  #9b8cdb;
+      --neon-violet:  #8f7fd0;
+      --neon-green:   #5fb98a;
+      --neon-yellow:  #d6c277;
+      --neon-orange:  #d99a5a;
+      --bg-void:      #191919;   /* 노션 차콜 */
+      --bg-deep:      #1e1e1e;
+      --bg-card:      #242424;
+      --bg-card-hi:   #2c2c2c;
+      --bg-input:     #1c1c1c;
+      --border:       rgba(255,255,255,0.094);
+      --border-pink:  rgba(224,96,143,0.28);
+      --txt-hi:       #e6e6e4;
+      --txt-mid:      #9b9b97;
+      --txt-lo:       #6b6b69;
+      --txt-neon:     #6aa9e9;
+      --glow-cyan:    0 0 0 0 rgba(0,0,0,0);   /* 네온 글로우 제거(리스트 안전값) */
+      --glow-pink:    0 0 0 0 rgba(0,0,0,0);
+      --glow-purple:  0 0 0 0 rgba(0,0,0,0);
+      --glow-green:   0 0 0 0 rgba(0,0,0,0);
+      --sh-card:      0 0 0 1px rgba(255,255,255,0.06), 0 4px 16px rgba(0,0,0,0.40);
 
       /* legacy aliases (for compatibility with inline --accent) */
       --blue-deep:  var(--neon-purple);
@@ -3152,6 +3152,16 @@
       .upload-panel { max-width: 100%; }
       .upload-panel > * { max-width: 100%; box-sizing: border-box; }
     }
+  </style>
+
+  <!-- v2.8.20: 노션-다크 정돈 폴리시 (다크 유지 + 네온/스캔라인/글로우 완화). 추가형·되돌리기 쉬움. -->
+  <style id="notion-dark-polish">
+    /* 네온 텍스트 글로우 제거 */
+    body, body * { text-shadow: none !important; }
+    /* 사이버펑크 스캔라인/그리드 오버레이 제거 */
+    body::before, body::after { display: none !important; }
+    /* 카드 라운드 살짝 줄여 노션풍 (토큰 미사용 정의 대비, 과하지 않게) */
+    .upload-panel, .nl-upload-box { box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
   </style>
 </head>
 <body>
