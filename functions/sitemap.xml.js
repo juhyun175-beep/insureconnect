@@ -28,6 +28,8 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/`, today, 'daily', 1.0),
     urlEntry(`${BASE}/privacy.html`, today, 'yearly', 0.3),
     urlEntry(`${BASE}/insurance`, today, 'daily', 0.9),
+    urlEntry(`${BASE}/company`, today, 'weekly', 0.8),
+    urlEntry(`${BASE}/rental`, today, 'weekly', 0.8),
   ];
 
   // v2.0.0 (master): SEO 게시판 카테고리 + 게시글

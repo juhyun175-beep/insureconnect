@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.8.10] - 2026-06-02
+### Added (렌트카 — 검색 유입 → 매출 리드 전환)
+- **`/rental` SSR 랜딩 신설**: 그동안 렌트카는 SPA(#page-rental)에만 있어 검색 유입 0 → "보험설계사 렌트카/리스 할인·우대" 롱테일 검색을 잡는 SSR 페이지 신설
+  - 히어로(차량 사진 배너) + 신뢰 포인트 + 추천 차량 라인업(D1 server-fetch) + **인라인 견적 리드폼**(이름·연락처·관심차량·요청사항 → POST /api/rental-inquiries)
+  - Service·FAQPage·BreadcrumbList JSON-LD, OG, 카카오 공유 바, 가입 전환 푸터
+  - sitemap(both) 등록 + `/company`도 동적 sitemap에 추가
+- **봇 스팸 방지(honeypot)**: 공개 `POST /api/rental-inquiries`에 hidden `website` 필드 가드 추가 → 리드폼 봇 스팸 차단
+### 측정/전환
+- 견적 리드폼 제출 = 매출 리드(관리자 렌트카 신청에 자동 적재). 검색→리드 직접 경로 확보.
+
 ## [2.8.9] - 2026-06-01
 ### Changed (전산 — SEO 유입 → 회원 전환 레버)
 - 모든 SEO/SSR 페이지(전산·청구·보험정보·GA·게시판)의 전환 푸터 1순위 CTA를 **"홈" → "💬 카카오로 1초 가입"** 으로 변경 → 전산 검색 유입을 **회원으로 직접 전환**(가입 시 즐겨찾기·알림으로 재방문 고착)

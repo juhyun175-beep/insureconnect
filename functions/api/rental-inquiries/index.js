@@ -36,6 +36,9 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
 export const onRequestPost = async ({ request, env }) => handle(async () => {
   const body = await request.json();
 
+  // 봇 스팸 방지(honeypot): 사람에겐 안 보이는 website 필드가 채워졌으면 조용히 무시
+  if (body.website && String(body.website).trim()) return json({ ok: true });
+
   const name = (body.customer_name || '').trim();
   const phone = (body.customer_phone || '').trim();
   if (!name || name.length < 2) return error('이름을 입력해주세요');
