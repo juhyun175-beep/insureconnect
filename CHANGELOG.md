@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.8.17] - 2026-06-02
+### Changed (통신 사이드바 버튼 정정 + 노션 디자인 토큰 1단계)
+- **사이드바 통신 버튼**: 이전에 만든 작은 pill(리스/통신) 삭제 → **리스·렌터카 / 통신** 빨강 그라데이션 CTA 버튼으로 교체. 통신 클릭 → `/telecom`(관리자 업로드 단말기 카드 클릭 → 견적신청, 렌트카와 동일 구조)
+- **노션 디자인 토큰(1단계)**: 라이트모드 `:root` 중립 토큰을 노션 팔레트로 전환 — 배경 #f7f7f5, 텍스트 #37352f/#6b6a66/#9b9a97(노션 검증 대비), 보더 웜그레이, 라운드 16→10px, 그림자 은은하게. **브랜드 파랑 액센트는 유지**(하드코딩 일관성). 기능 변경 없음, 되돌리기 쉬움
+- ※ 다음 단계: 검토 확인 후 컴포넌트 레벨(버튼·카드·관리자) 노션 폴리시 확산
+
 ## [2.8.16] - 2026-06-02
 ### Improved (SEO/AEO/GEO 진단 + 보강)
 - **진단 결과**: 기반 양호 — robots.txt에 AI봇(GPTBot/OAI-SearchBot/ChatGPT-User/ClaudeBot/PerplexityBot/Google-Extended/CCBot 등) 명시 허용 + sitemap·llms.txt 연결, Organization/WebSite @graph, 페이지별 FAQPage/JobPosting/Course/Service/Breadcrumb/CollectionPage 스키마 모두 존재

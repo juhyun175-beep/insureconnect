@@ -75,21 +75,23 @@
     }
 
     :root {
+      /* v2.8.17: 노션 스타일 디자인 토큰 — 중립(배경·텍스트·보더·라운드·그림자)을 노션 팔레트로,
+         브랜드 파랑 액센트는 유지(점진 적용). 텍스트 대비는 노션 검증값 사용. */
       --blue-deep:  #0c1fb8;
-      --blue-mid:   #1a3de8;
+      --blue-mid:   #1a3de8;   /* 브랜드 블루 액센트 유지(하드코딩 일관성) */
       --blue-light: #4a70f5;
       --cyan:       #00c8ee;
       --cyan-light: #a0eeff;
-      --bg:         #f0f5ff;
+      --bg:         #f7f7f5;   /* 노션 따뜻한 라이트 그레이 */
       --bg-card:    #ffffff;
-      --border:     rgba(12,31,184,0.10);
-      --txt-hi:     #080f30;
-      --txt-mid:    #3d5080;
-      --txt-lo:     #8fa5cc;
-      --radius:     16px;
-      --sh-sm:      0 2px 12px rgba(12,31,184,0.07);
-      --sh-md:      0 8px 32px rgba(12,31,184,0.13);
-      --sh-lg:      0 20px 56px rgba(12,31,184,0.18);
+      --border:     rgba(55,53,47,0.10);  /* 노션 보더(웜그레이) */
+      --txt-hi:     #37352f;   /* 노션 본문 거의 검정(웜) */
+      --txt-mid:    #6b6a66;   /* 노션 보조 텍스트 */
+      --txt-lo:     #9b9a97;   /* 노션 옅은 텍스트 */
+      --radius:     10px;      /* 노션 모던 라운드(작게) */
+      --sh-sm:      0 1px 3px rgba(15,15,15,0.06);
+      --sh-md:      0 4px 16px rgba(15,15,15,0.10);
+      --sh-lg:      0 12px 40px rgba(15,15,15,0.14);
     }
     [data-theme="dark"] {
       --bg:         #0d1117;
@@ -7307,11 +7309,17 @@
     /* v2.8.1: 사이드바 계정 그룹 — 로그인/내공고등록/빠른검색을 한 묶음으로 정렬(좌우 인셋 통일) */
     .side-account { margin: 10px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
     .side-account #ic-auth { margin: 0; }
-    /* v2.8.15: 사이드바 제휴 Pill (리스/렌트카·통신) */
-    .side-promo-pills { margin: 8px 12px 2px; display: flex; gap: 8px; }
-    .side-promo-pills .spp { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; border-radius: 11px; text-decoration: none; background: rgba(26,61,232,0.06); border: 1px solid var(--border,rgba(12,31,184,0.10)); color: var(--txt-hi,#0f172a); font-size: 11.5px; font-weight: 800; transition: transform .12s, background .12s; }
-    .side-promo-pills .spp:hover { transform: translateY(-1px); background: rgba(26,61,232,0.12); }
-    .side-promo-pills .spp .spp-emo { font-size: 18px; }
+    /* v2.8.16: 사이드바 제휴 강조 버튼 (리스/렌트카·통신) — 빨강 그라데이션 CTA */
+    .side-promo-cta { margin: 8px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
+    .side-promo-cta .spc { display: flex; align-items: center; gap: 10px; padding: 12px 14px; border-radius: 12px; text-decoration: none; color: #fff; font-weight: 800; font-size: 13.5px; box-shadow: 0 4px 14px rgba(225,29,72,0.28); transition: transform .12s, box-shadow .12s; }
+    .side-promo-cta .spc:hover { transform: translateY(-1px); box-shadow: 0 8px 20px rgba(225,29,72,0.36); }
+    .side-promo-cta .spc-rental { background: linear-gradient(135deg,#e11d48,#f97316); }
+    .side-promo-cta .spc-telecom { background: linear-gradient(135deg,#dc2626,#fb7185); }
+    .side-promo-cta .spc-emo { font-size: 20px; line-height: 1; }
+    .side-promo-cta .spc-tx { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+    .side-promo-cta .spc-tt { font-size: 13.5px; font-weight: 900; letter-spacing: -0.01em; }
+    .side-promo-cta .spc-sb { font-size: 10.5px; font-weight: 700; opacity: 0.92; }
+    .side-promo-cta .spc-ar { margin-left: auto; font-size: 16px; opacity: 0.9; }
     .side-account .side-search-btn,
     .side-account .side-submit-single { width: 100%; margin: 0; }
     @media (max-width: 480px) {
@@ -7759,10 +7767,18 @@
         <span class="ssb-kbd">Ctrl K</span>
       </button>
     </div>
-    <!-- v2.8.15: 제휴 견적 Pill — 리스/렌트카 · 휴대폰/통신 -->
-    <div class="side-promo-pills">
-      <a class="spp" href="/rental" onclick="if(window.goToPage){event.preventDefault();goToPage('rental');}"><span class="spp-emo">🚗</span><span>리스·렌터카</span></a>
-      <a class="spp" href="/telecom"><span class="spp-emo">📱</span><span>휴대폰·통신</span></a>
+    <!-- v2.8.16: 제휴 강조 버튼 — 리스/렌트카 · 통신 (빨강 CTA, 누르면 해당 페이지로) -->
+    <div class="side-promo-cta">
+      <a class="spc spc-rental" href="/rental" onclick="if(window.goToPage){event.preventDefault();goToPage('rental');}">
+        <span class="spc-emo">🚗</span>
+        <span class="spc-tx"><span class="spc-tt">리스 · 렌터카</span><span class="spc-sb">설계사 전용 우대 견적</span></span>
+        <span class="spc-ar">›</span>
+      </a>
+      <a class="spc spc-telecom" href="/telecom">
+        <span class="spc-emo">📱</span>
+        <span class="spc-tx"><span class="spc-tt">통신 · 휴대폰</span><span class="spc-sb">공짜폰 성지가 · 견적신청</span></span>
+        <span class="spc-ar">›</span>
+      </a>
     </div>
     <script>
     (function(){
