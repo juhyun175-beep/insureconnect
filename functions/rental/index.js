@@ -114,12 +114,8 @@ h2{font-size:19px;color:#0f172a;margin:24px 0 12px}
 <body>
 <nav class="crumb"><a href="/">홈</a> &raquo; <span>리스·렌터카 우대 견적</span></nav>
 <div class="wrap">
-<div class="hero"><div class="hero-in">
-  <span class="badge">보험설계사·법인 전용 우대</span>
-  <h1>리스 · 렌터카, 설계사라면 우대받으세요</h1>
-  <p>국산·수입 전 차종 무료 견적 · 전문매니저 1:1 · 보증/선납 맞춤 설계</p>
-  <a class="cta" href="#lead">무료 견적 받기 ↓</a>
-</div></div>
+<img src="${SITE}/rental-promo.jpg?v=3" alt="삼따방 회원 전용 리스·렌트 우대 혜택 안내" style="width:100%;height:auto;display:block;border-radius:16px;margin-bottom:14px;box-shadow:0 8px 28px rgba(8,13,38,0.18);">
+<a class="cta" href="#lead" style="display:block;text-align:center;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;text-decoration:none;font-weight:800;font-size:16px;padding:15px;border-radius:12px;margin-bottom:18px;">무료 견적 받기 ↓</a>
 
 <div class="trust">
   <span>🏷 <b>설계사 전용</b> 우대 조건</span>

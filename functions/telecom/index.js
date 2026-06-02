@@ -120,12 +120,8 @@ h2{font-size:19px;color:#0f172a;margin:24px 0 12px}
 <body>
 <nav class="crumb"><a href="/">홈</a> &raquo; <span>휴대폰·통신 우대 견적</span></nav>
 <div class="wrap">
-<div class="hero"><div class="hero-in">
-  <span class="badge">보험설계사·법인 전용 우대</span>
-  <h1>휴대폰·통신, 설계사라면 우대받으세요</h1>
-  <p>최신 단말기 성지 시세 · 요금제 컨설팅 · 법인폰 · 전문매니저 1:1</p>
-  <a class="cta" href="#lead">무료 견적 받기 ↓</a>
-</div></div>
+<img src="${SITE}/telecom-promo.jpg?v=3" alt="삼따방 회원 전용 휴대폰·통신 우대 혜택 안내" style="width:100%;height:auto;display:block;border-radius:16px;margin-bottom:14px;box-shadow:0 8px 28px rgba(8,13,38,0.18);">
+<a class="cta" href="#lead" style="display:block;text-align:center;background:linear-gradient(135deg,#059669,#0ea5e9);color:#fff;text-decoration:none;font-weight:800;font-size:16px;padding:15px;border-radius:12px;margin-bottom:18px;">무료 견적 받기 ↓</a>
 
 <div class="trust">
   <span>🏷 <b>설계사·법인</b> 우대 시세</span>
