@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.8.11] - 2026-06-02
+### Added (채용 — 검색 유입 양면 전환: 구직→회원 / 구인→공고등록)
+- **`/recruit` SSR 채용 허브 신설**: 그동안 개별 OG 페이지(/og/recruit/{id})만 있고 집계 허브가 없어 "보험설계사 채용·구인·리크루팅·GA 모집" 검색을 못 잡던 빈틈 메움
+  - 승인 채용공고 D1 집계 → 카드 그리드(회사 배지·NEW 7일 배지·요약) → 개별 JobPosting 페이지로 내부링크(Google Jobs 인덱싱 강화)
+  - CollectionPage/ItemList·BreadcrumbList JSON-LD, OG, 카카오 공유, 가입 전환 푸터
+  - 양면 CTA: "구인 담당자세요? 무료로 공고 등록 →"(구인측 유입) + 카드 클릭→상세(구직측 유입)
+  - sitemap(both) `/recruit` 등록
+
 ## [2.8.10] - 2026-06-02
 ### Added (렌트카 — 검색 유입 → 매출 리드 전환)
 - **`/rental` SSR 랜딩 신설**: 그동안 렌트카는 SPA(#page-rental)에만 있어 검색 유입 0 → "보험설계사 렌트카/리스 할인·우대" 롱테일 검색을 잡는 SSR 페이지 신설
