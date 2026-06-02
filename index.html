@@ -94,15 +94,18 @@
       --sh-lg:      0 12px 40px rgba(15,15,15,0.14);
     }
     [data-theme="dark"] {
-      --bg:         #0d1117;
-      --bg-card:    #161b22;
-      --border:     rgba(255,255,255,0.08);
-      --txt-hi:     #e6edf3;
-      --txt-mid:    #8b949e;
-      --txt-lo:     #484f58;
-      --sh-sm:      0 2px 12px rgba(0,0,0,0.3);
-      --sh-md:      0 8px 32px rgba(0,0,0,0.4);
+      /* v2.8.21: 노션 다크(웜 차콜) — GitHub식 푸른-검정 → 따뜻한 차콜 + 또렷한 보더 */
+      --bg:         #191919;
+      --bg-card:    #242424;
+      --border:     rgba(255,255,255,0.11);
+      --txt-hi:     #e6e6e4;
+      --txt-mid:    #9b9b97;
+      --txt-lo:     #6b6b69;
+      --sh-sm:      0 1px 3px rgba(0,0,0,0.4);
+      --sh-md:      0 4px 16px rgba(0,0,0,0.5);
     }
+    /* v2.8.21: 노션 다크 — LIVE 방문배너를 파랑 그라데이션 → 플랫 차콜 카드(작은 색 액센트만 유지) */
+    [data-theme="dark"] .ic-visitor-strip { background: var(--bg-card); border: 1px solid var(--border); box-shadow: none; }
     [data-theme="dark"] .side-nav {
       background: #161b22;
       border-right-color: rgba(255,255,255,0.06);
