@@ -55,13 +55,13 @@ export function seoCtaFooter(SITE) {
 </style>
 <footer class="seo-cta" aria-label="InsureConnect 바로가기">
   <div class="seo-cta-inner">
-    <div class="seo-cta-title">보험설계사를 위한 통합 정보 허브</div>
-    <div class="seo-cta-desc">보험사 전산·청구서류·소식지·실무도구·채용공고를 한 곳에서.<br>InsureConnect에서 실무에 바로 쓰는 정보를 만나보세요.</div>
+    <div class="seo-cta-title">무료 회원가입하고 전부 이용하세요</div>
+    <div class="seo-cta-desc">보험사 전산·청구서류·소식지·실무도구·채용공고 + 설계사 커뮤니티까지.<br>카카오로 1초 가입하면 자주 쓰는 전산을 즐겨찾기·알림으로 더 빠르게 쓸 수 있어요.</div>
     <div class="seo-cta-links">
-      <a class="primary" href="/">🏠 InsureConnect 홈</a>
+      <a class="primary" href="/api/auth/kakao/login">💬 카카오로 1초 가입 →</a>
       <a href="/company">🖥 보험사 전산·청구</a>
-      <a href="/insurance">📚 보험 정보 게시판</a>
-      <a href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener nofollow">💬 설계사 오픈채팅</a>
+      <a href="/insurance">📚 보험 정보</a>
+      <a href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener nofollow">💬 오픈채팅</a>
     </div>
   </div>
 </footer>
