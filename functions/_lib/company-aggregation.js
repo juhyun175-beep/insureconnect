@@ -59,15 +59,23 @@ export async function renderClaimFormsHub(env, SITE) {
     byCompany.get(r.company).push(r);
   }
 
-  const cardsHtml = [...byCompany.entries()].map(([company, forms]) => {
-    const slug = NAME_TO_SLUG[company] || NAME_TO_SLUG[CF_ALIAS_TO_NAME[company]] || null;
-    const nameHtml = slug ? `<a href="/company/${slug}">${esc(company)}</a>` : esc(company);
-    const items = forms.map(f => {
-      const label = (f.title || '청구서').trim();
-      const ft = String(f.file_type || 'pdf').toUpperCase();
-      return `<li><a href="${esc(f.file_url)}" target="_blank" rel="noopener" download>📎 ${esc(label)} 청구서 양식 <span class="ft">${esc(ft)}</span></a></li>`;
-    }).join('');
-    return `<div class="cf-card"><h3>${nameHtml}</h3><ul>${items}</ul></div>`;
+  // v2.8.7(성장): 32개 전 보험사 표시 — 허브→상세 내부링크 극대화(SEO 분배·롱테일 커버리지)
+  const CANON_TO_ALIAS = Object.fromEntries(Object.entries(CF_ALIAS_TO_NAME).map(([alias, canon]) => [canon, alias]));
+  const ordered = [...INSURERS].sort((a, b) => (a.type === b.type ? 0 : a.type === 'life' ? -1 : 1));
+  let withForms = 0;
+  const cardsHtml = ordered.map(ins => {
+    const forms = byCompany.get(ins.name) || byCompany.get(CANON_TO_ALIAS[ins.name]) || [];
+    const nameHtml = `<a href="/company/${ins.slug}">${esc(ins.name)}</a>`;
+    if (forms.length) {
+      withForms++;
+      const items = forms.map(f => {
+        const label = (f.title || '청구서').trim();
+        const ft = String(f.file_type || 'pdf').toUpperCase();
+        return `<li><a href="${esc(f.file_url)}" target="_blank" rel="noopener" download>📎 ${esc(label)} 청구서 양식 <span class="ft">${esc(ft)}</span></a></li>`;
+      }).join('');
+      return `<div class="cf-card"><h3>${nameHtml}</h3><ul>${items}</ul></div>`;
+    }
+    return `<div class="cf-card cf-empty"><h3>${nameHtml}</h3><p class="cf-na">청구서류 양식 준비중 · <a href="/company/${ins.slug}">전산·청구 안내 →</a></p></div>`;
   }).join('');
 
   const faq = [
@@ -114,6 +122,9 @@ header.h h1{margin:0 0 8px;font-size:25px;letter-spacing:-0.02em}header.h p{marg
 .cf-card li{padding:7px 0;border-top:1px solid #f1f5f9}
 .cf-card a{color:#374151;text-decoration:none;font-size:13.5px;font-weight:600;display:flex;align-items:center;gap:6px}
 .ft{font-size:10px;font-weight:800;color:#fff;background:#ef4444;padding:1px 6px;border-radius:5px}
+.cf-empty{opacity:0.92}
+.cf-na{margin:6px 0 0;font-size:12.5px;color:#94a3b8}
+.cf-na a{color:#1a3de8;font-weight:600;text-decoration:none}
 .faq{background:#eff6ff;border-left:4px solid #1a3de8;border-radius:14px;padding:22px 24px;margin:22px 0}
 .faq h2{margin-top:0;color:#1e3a8a}.faq dt{font-weight:700;color:#1e3a8a;margin-bottom:4px}.faq dd{margin:0 0 12px;color:#374151}
 @media(max-width:640px){header.h{border-radius:0}.wrap{padding:0 12px}}

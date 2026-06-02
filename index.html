@@ -7743,13 +7743,13 @@
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
       fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
         if(d.user){
-          box.innerHTML='<div style="padding:8px 10px;background:rgba(255,255,255,0.06);border-radius:10px;">'
-            +'<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:#e6edf3;">'
+          box.innerHTML='<div style="padding:8px 10px;background:rgba(26,61,232,0.06);border:1px solid var(--border,rgba(12,31,184,0.10));border-radius:10px;">'
+            +'<div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--txt-hi,#0f172a);">'
             +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:24px;height:24px;border-radius:50%;object-fit:cover">':'<span>👤</span>')
             +'<span style="font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span></div>'
             +'<div style="display:flex;gap:8px;margin-top:8px;">'
-            +'<a href="/me" style="flex:1;text-align:center;background:rgba(125,211,252,0.16);color:#7dd3fc;text-decoration:none;font-weight:700;font-size:12px;padding:7px;border-radius:7px;">👤 마이페이지</a>'
-            +'<button type="button" onclick="icLogout()" style="background:transparent;border:1px solid rgba(148,163,184,0.3);color:#94a3b8;font-size:12px;cursor:pointer;padding:7px 12px;border-radius:7px;">로그아웃</button>'
+            +'<a href="/me" style="flex:1;text-align:center;background:var(--blue-mid,#1a3de8);color:#fff;text-decoration:none;font-weight:700;font-size:12px;padding:7px;border-radius:7px;">👤 마이페이지</a>'
+            +'<button type="button" onclick="icLogout()" style="background:transparent;border:1px solid var(--border,rgba(148,163,184,0.4));color:var(--txt-mid,#3d5080);font-size:12px;cursor:pointer;padding:7px 12px;border-radius:7px;">로그아웃</button>'
             +'</div></div>';
         } else if(d.login_enabled){
           box.innerHTML='<a href="/api/auth/kakao/login" style="display:flex;align-items:center;justify-content:center;gap:8px;background:#FEE500;color:#191600;text-decoration:none;font-weight:800;font-size:13.5px;padding:10px;border-radius:10px;">💬 카카오 로그인</a>';
