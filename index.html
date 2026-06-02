@@ -4523,6 +4523,23 @@
     .ic-m-rental-hero .rh-sub { font-size: 12px; font-weight: 700; opacity: 0.96; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
     .ic-m-rental-hero:active { transform: scale(0.99); }
 
+    /* v2.8.15: 모바일 공짜폰·통신 강조 배너 (렌트카 배너 아래) */
+    .ic-m-telecom-hero {
+      position: relative; margin: 0 0 18px; padding: 20px 18px 22px; min-height: 92px;
+      border-radius: 18px;
+      background:
+        linear-gradient(100deg, rgba(4,40,34,0.93) 0%, rgba(4,40,34,0.56) 48%, rgba(4,40,34,0.12) 100%),
+        url('/telecom-banner.jpg') center / cover no-repeat,
+        linear-gradient(135deg,#059669,#0ea5e9);
+      color: #fff; display: flex; flex-direction: column; justify-content: center; gap: 6px;
+      text-align: left; cursor: pointer; font-family: inherit;
+      box-shadow: 0 10px 26px rgba(4,40,34,0.30); overflow: hidden;
+    }
+    .ic-m-telecom-hero .th-badge { align-self: flex-start; font-size: 10px; font-weight: 800; letter-spacing: 0.04em; color: #fff; background: linear-gradient(135deg,#059669,#10b981); padding: 3px 10px; border-radius: 999px; box-shadow: 0 2px 8px rgba(5,150,105,0.45); }
+    .ic-m-telecom-hero .th-title { font-size: 19px; font-weight: 900; letter-spacing: -0.02em; line-height: 1.15; text-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .ic-m-telecom-hero .th-sub { font-size: 12px; font-weight: 700; opacity: 0.96; text-shadow: 0 1px 6px rgba(0,0,0,0.5); }
+    .ic-m-telecom-hero:active { transform: scale(0.99); }
+
     .ic-m-hero {
       padding: 18px 16px 18px;
       background: linear-gradient(135deg, #1a3de8 0%, #00c8ee 100%);
@@ -7290,6 +7307,11 @@
     /* v2.8.1: 사이드바 계정 그룹 — 로그인/내공고등록/빠른검색을 한 묶음으로 정렬(좌우 인셋 통일) */
     .side-account { margin: 10px 12px 2px; display: flex; flex-direction: column; gap: 8px; }
     .side-account #ic-auth { margin: 0; }
+    /* v2.8.15: 사이드바 제휴 Pill (리스/렌트카·통신) */
+    .side-promo-pills { margin: 8px 12px 2px; display: flex; gap: 8px; }
+    .side-promo-pills .spp { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 6px; border-radius: 11px; text-decoration: none; background: rgba(26,61,232,0.06); border: 1px solid var(--border,rgba(12,31,184,0.10)); color: var(--txt-hi,#0f172a); font-size: 11.5px; font-weight: 800; transition: transform .12s, background .12s; }
+    .side-promo-pills .spp:hover { transform: translateY(-1px); background: rgba(26,61,232,0.12); }
+    .side-promo-pills .spp .spp-emo { font-size: 18px; }
     .side-account .side-search-btn,
     .side-account .side-submit-single { width: 100%; margin: 0; }
     @media (max-width: 480px) {
@@ -7736,6 +7758,11 @@
         <span class="ssb-label">빠른 검색</span>
         <span class="ssb-kbd">Ctrl K</span>
       </button>
+    </div>
+    <!-- v2.8.15: 제휴 견적 Pill — 리스/렌트카 · 휴대폰/통신 -->
+    <div class="side-promo-pills">
+      <a class="spp" href="/rental" onclick="if(window.goToPage){event.preventDefault();goToPage('rental');}"><span class="spp-emo">🚗</span><span>리스·렌터카</span></a>
+      <a class="spp" href="/telecom"><span class="spp-emo">📱</span><span>휴대폰·통신</span></a>
     </div>
     <script>
     (function(){
@@ -8252,6 +8279,16 @@
         <span class="rh-sub">설계사라면 최우대 조건 — 무료 견적받기 →</span>
       </span>
     </div>
+
+    <!-- v2.8.15: 공짜폰·통신 강조 배너 (렌트카 배너 바로 아래) -->
+    <div class="ic-m-telecom-hero" role="button" tabindex="0" onclick="location.href='/telecom'"
+         onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();location.href='/telecom';}">
+      <span class="rh-text">
+        <span class="th-badge">보험설계사·법인 전용 · 공짜폰 성지가</span>
+        <span class="th-title">휴대폰 · 통신 특별 우대</span>
+        <span class="th-sub">최신폰 성지 시세 + 요금제 컨설팅 — 무료 견적받기 →</span>
+      </span>
+    </div>
     <script>
     (function(){
       var box=document.getElementById('ic-m-auth'); if(!box) return;
@@ -8327,6 +8364,7 @@
         <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-lb">채용</span></button>
         <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">최신</span></button>
         <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
+        <a class="ic-m-core-card" href="/telecom"><span class="cc-lb">통신·폰</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-lb">운영자 문의</span></a>

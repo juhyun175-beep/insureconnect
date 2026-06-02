@@ -64,6 +64,7 @@ export async function onRequestGet(context) {
     urlTag(`${BASE}/insurance`, today, 'daily', '0.9'),
     urlTag(`${BASE}/company`, today, 'weekly', '0.9'),
     urlTag(`${BASE}/rental`, today, 'weekly', '0.85'),
+    urlTag(`${BASE}/telecom`, today, 'weekly', '0.85'),
     urlTag(`${BASE}/recruit`, today, 'daily', '0.85'),
     urlTag(`${BASE}/lecture`, today, 'daily', '0.85'),
     urlTag(`${BASE}/newsletter`, today, 'weekly', '0.7'),

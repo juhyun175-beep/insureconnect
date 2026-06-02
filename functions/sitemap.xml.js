@@ -30,6 +30,7 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/insurance`, today, 'daily', 0.9),
     urlEntry(`${BASE}/company`, today, 'weekly', 0.8),
     urlEntry(`${BASE}/rental`, today, 'weekly', 0.8),
+    urlEntry(`${BASE}/telecom`, today, 'weekly', 0.8),
     urlEntry(`${BASE}/recruit`, today, 'daily', 0.85),
     urlEntry(`${BASE}/lecture`, today, 'daily', 0.85),
     urlEntry(`${BASE}/newsletter`, today, 'weekly', 0.7),

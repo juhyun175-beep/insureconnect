@@ -76,6 +76,7 @@ export function seoCtaFooter(SITE) {
   <a href="/newsletter">🗞 소식·자료</a>
   <a href="/community">💬 커뮤니티</a>
   <a href="/rental">🚗 렌트카·리스</a>
+  <a href="/telecom">📱 휴대폰·통신</a>
   <a href="/ga">🏢 GA 전산</a>
 </nav>
 <div class="seo-foot">
