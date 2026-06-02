@@ -4068,6 +4068,7 @@
         <div id="mt-referrals" style="margin:0 0 18px;"></div>
         <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;">회원 목록 · 등급 변경</div>
         <table class="mlist"><thead><tr><th>순번</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th></tr></thead><tbody id="mt-members"><tr><td colspan="5">불러오는 중…</td></tr></tbody></table>
+        <div id="mt-pager" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;font-size:12.5px;color:var(--txt-mid,#9fb0c8);"></div>
       </div><!-- /#up-members -->
 
       <!-- ══════════════════ 강의 관리 패널 ══════════════════ -->
@@ -4524,17 +4525,25 @@
 
     /* ── v2.4.0: 회원/지표 대시보드 ── */
     const ROLE_LABELS = { member: '일반회원', certified: '인증설계사', premium: '프리미엄', admin: '관리자' };
-    async function loadMembersDash() {
+    var MEMBER_PAGE = 1;
+    var MEMBER_PER = 50;
+    function gotoMemberPage(p) {
+      if (p < 1) p = 1;
+      MEMBER_PAGE = p;
+      loadMembersDash(p);
+    }
+    async function loadMembersDash(page) {
+      MEMBER_PAGE = Math.max(1, parseInt(page || MEMBER_PAGE || 1, 10));
       try {
         const [mRes, lRes, rRes] = await Promise.all([
           fetch('/api/admin/metrics', { headers: adminHeaders() }),
-          fetch('/api/admin/members', { headers: adminHeaders() }),
+          fetch('/api/admin/members?page=' + MEMBER_PAGE, { headers: adminHeaders() }),
           fetch('/api/admin/referrals', { headers: adminHeaders() }),
         ]);
         const m = await mRes.json();
         const l = await lRes.json();
         renderMetrics(m);
-        renderMemberList(l.members || [], l.total || 0);
+        renderMemberList(l.members || [], l.total || 0, l.page || MEMBER_PAGE);
         try { renderReferrals(await rRes.json()); } catch (_) {}
       } catch (e) {
         const el = document.getElementById('mt-cards');
@@ -4581,12 +4590,19 @@
       const el = document.getElementById('mt-chart'); if (!el) return;
       el.innerHTML = _trendBars(m.visit_series, '#1a3de8', '📈 일별 방문') + _trendBars(m.signup_series, '#16a34a', '🆕 일별 신규가입');
     }
-    function renderMemberList(members, total) {
+    function renderMemberList(members, total, page) {
       const tb = document.getElementById('mt-members');
       if (!tb) return;
-      if (!members.length) { tb.innerHTML = '<tr><td colspan="5">아직 가입 회원이 없습니다.</td></tr>'; return; }
-      // 표시는 순번(1…N) — id DESC 정렬이라 첫 행(최신)이 가장 큰 번호. 실제 DB id는 등급변경에만 사용(+툴팁)
-      const base = (typeof total === 'number' && total >= members.length) ? total : members.length;
+      page = Math.max(1, parseInt(page || 1, 10));
+      const pager = document.getElementById('mt-pager');
+      if (!members.length) {
+        tb.innerHTML = '<tr><td colspan="5">' + (page > 1 ? '이 페이지에는 회원이 없습니다.' : '아직 가입 회원이 없습니다.') + '</td></tr>';
+        if (pager && page > 1) { pager.innerHTML = ''; gotoMemberPage(page - 1); }
+        return;
+      }
+      // 표시는 순번(1…N) — id DESC 정렬이라 첫 행(최신)이 가장 큰 번호. 페이지 오프셋 반영.
+      const totalNum = (typeof total === 'number' && total >= members.length) ? total : members.length;
+      const base = totalNum - (page - 1) * MEMBER_PER; // 이 페이지 첫 행의 순번
       tb.innerHTML = members.map(function (u, i) {
         const seq = base - i;
         const opts = ['member', 'certified', 'premium', 'admin'].map(function (r) {
@@ -4597,6 +4613,18 @@
           + '<td>' + esc(String(u.created_at || '').slice(0, 10)) + '</td>'
           + '<td>' + esc(String(u.last_login || '').slice(0, 10)) + '</td></tr>';
       }).join('');
+      // 페이지네이션 컨트롤
+      if (pager) {
+        const totalPages = Math.max(1, Math.ceil(totalNum / MEMBER_PER));
+        const btn = function (label, target, disabled) {
+          return '<button type="button" ' + (disabled ? 'disabled' : 'onclick="gotoMemberPage(' + target + ')"')
+            + ' style="background:' + (disabled ? 'transparent' : 'var(--card-bg,#141b2e)') + ';color:' + (disabled ? 'var(--txt-lo,#5b6b85)' : 'var(--blue-mid,#4a70f5)')
+            + ';border:1px solid var(--border,#2a3550);border-radius:7px;padding:5px 11px;font-size:12px;font-weight:700;cursor:' + (disabled ? 'default' : 'pointer') + '">' + label + '</button>';
+        };
+        pager.innerHTML = btn('← 이전', page - 1, page <= 1)
+          + '<span>' + page + ' / ' + totalPages + ' 페이지 · 총 ' + totalNum.toLocaleString() + '명</span>'
+          + btn('다음 →', page + 1, page >= totalPages);
+      }
     }
     function renderReferrals(d) {
       const el = document.getElementById('mt-referrals'); if (!el) return;

@@ -8634,10 +8634,16 @@
         <div class="cn-head">
           <span class="cn-title-txt" id="cn-current-title">인슈어커넥트 뉴스</span>
           <span class="cn-sub" id="cn-current-date"></span>
-          <button class="cn-share-btn sb-link cn-share-top" onclick="shareCardNews('copy', event)" title="링크 복사">
-            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-            <span>링크 복사</span>
-          </button>
+          <span class="cn-share-group" style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+            <button class="cn-share-btn sb-link" onclick="shareCardNews('copy', event)" title="링크 복사">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+              <span>링크 복사</span>
+            </button>
+            <button class="cn-share-btn cn-share-kakao" onclick="shareCardNews('kakao', event)" title="카카오톡 공유" style="background:#FEE500;border-color:#FEE500;color:#191600;">
+              <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true"><path d="M12 3C6.5 3 2 6.5 2 10.8c0 2.8 1.9 5.2 4.7 6.6-.2.7-.7 2.6-.8 3-.1.5.2.5.4.4.2-.1 2.6-1.8 3.7-2.5.6.1 1.3.1 2 .1 5.5 0 10-3.5 10-7.8S17.5 3 12 3z"/></svg>
+              <span>카카오톡</span>
+            </button>
+          </span>
         </div>
         <div class="cn-stage">
           <div class="cn-viewport">
@@ -10849,33 +10855,50 @@
     async function shareCardNews(target, evt) {
       const set = cardNewsState.sets[cardNewsState.currentSet];
       if (!set) return;
-      // OG meta 동적 share URL (카카오톡 첫 페이지 이미지 미리보기)
+      // OG meta 동적 share URL (카카오톡 첫 표지 이미지 미리보기)
       const url = `${location.origin}/og/news/${encodeURIComponent(set.set_id || '')}`;
-      const title = set.title || '카드뉴스';
+      const title = set.title || '인슈어커넥트 카드뉴스';
 
-      const btn = (evt && evt.currentTarget) || document.querySelector('.cn-share-top');
-      const updateBtn = (status) => {
+      const btn = evt && evt.currentTarget;
+      const flash = (ok) => {
         if (!btn) return;
         const label = btn.querySelector('span');
-        const origText = label ? label.textContent : '';
-        if (label) label.textContent = status === 'ok' ? '✓ 완료' : '실패';
-        btn.classList.add(status === 'ok' ? 'copied' : 'copy-fail');
+        const orig = label ? label.textContent : '';
+        if (label) label.textContent = ok ? '✓ 완료' : '실패';
+        btn.classList.add(ok ? 'copied' : 'copy-fail');
         clearTimeout(btn._resetTimer);
         btn._resetTimer = setTimeout(() => {
-          if (label) label.textContent = origText || '공유';
+          if (label) label.textContent = orig;
           btn.classList.remove('copied', 'copy-fail');
-        }, 2000);
+        }, 1800);
       };
 
-      if (target === 'copy') {
-        const result = await nativeShareWithFallback({
-          url, title, text: '인슈어커넥트 카드뉴스 확인하세요',
-          copyToast: '✓ 링크가 복사되었습니다',
-          trackEvent: { name: title, type: 'cardnews_copy' }
-        });
-        if (result === 'native' || result === 'copy') updateBtn('ok');
-        else if (result === 'fail') updateBtn('fail');
-        // abort 는 아무 표시 X
+      if (target === 'kakao') {
+        // 첫 표지(첫 카드) 이미지를 카드 미리보기에 명시 지정 → 로고 대신 표지 노출
+        const abs = (u) => !u ? '' : (/^https?:\/\//.test(u) ? u : location.origin + (u.charAt(0) === '/' ? '' : '/') + u);
+        const cover = abs((set.items && set.items[0] && set.items[0].file_url) || '') || (location.origin + '/logo-full.png');
+        if (window.Kakao && window.Kakao.Share) {
+          try {
+            window.Kakao.Share.sendDefault({
+              objectType: 'feed',
+              content: { title: title, description: '인슈어커넥트 카드뉴스 보러가기', imageUrl: cover, link: { mobileWebUrl: url, webUrl: url } },
+              buttons: [{ title: '카드뉴스 보기', link: { mobileWebUrl: url, webUrl: url } }]
+            });
+            flash(true); return;
+          } catch (e) {}
+        }
+        // 폴백: 네이티브 공유 → 링크 복사
+        if (navigator.share) { try { await navigator.share({ title: title, url: url }); flash(true); } catch (e) {} return; }
+        try { await navigator.clipboard.writeText(url); flash(true); } catch (e) { window.prompt('아래 링크를 복사하세요', url); }
+        return;
+      }
+
+      // target === 'copy' : 순수 일반 링크 복사 (카카오 X)
+      try {
+        await navigator.clipboard.writeText(url);
+        flash(true);
+      } catch (e) {
+        try { window.prompt('아래 링크를 복사하세요', url); } catch (_) { flash(false); }
       }
     }
 
