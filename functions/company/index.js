@@ -3,7 +3,7 @@
  *   생보/손보 전 보험사 전산·연락처 랜딩으로 연결 (내부링크 허브)
  */
 import { INSURERS } from '../_lib/insurers.js';
-import { seoCtaFooter } from '../_lib/seo-cta.js';
+import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
 
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
@@ -80,6 +80,7 @@ header.h h1{margin:0 0 8px;font-size:27px;letter-spacing:-0.02em}header.h p{marg
 </header>
 <div class="sec"><h2>🟦 생명보험</h2><div class="grid">${cardsOf(life)}</div></div>
 <div class="sec"><h2>🟧 손해보험</h2><div class="grid">${cardsOf(nonlife)}</div></div>
+${seoShareBar(url, '보험사 전산·고객센터·청구 안내 모음', '생보·손보 전 보험사 전산 바로가기·고객센터·청구를 한 곳에서', `${SITE}/logo-full.png`)}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

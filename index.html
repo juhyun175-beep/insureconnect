@@ -15494,11 +15494,43 @@
   (function() {
     let _prompt = null;
 
+    // v2.8.8(성장-재방문): 방문 횟수 카운트(세션당 1회) — 관심 사용자(재방문)에게만 설치 유도
+    try {
+      if (!sessionStorage.getItem('ic_visit_counted')) {
+        sessionStorage.setItem('ic_visit_counted', '1');
+        const vc = (parseInt(localStorage.getItem('ic_visits_count') || '0', 10) || 0) + 1;
+        localStorage.setItem('ic_visits_count', String(vc));
+      }
+    } catch (_) {}
+
+    function maybeShowInstallToast() {
+      try {
+        if (!_prompt) return;
+        if ((window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone) return; // 이미 설치
+        const visits = parseInt(localStorage.getItem('ic_visits_count') || '0', 10) || 0;
+        if (visits < 2) return; // 재방문 사용자만
+        const dis = parseInt(localStorage.getItem('ic_pwa_toast_dismissed') || '0', 10) || 0;
+        if (Date.now() - dis < 7 * 864e5) return; // 7일 스누즈
+        if (document.getElementById('pwa-install-toast')) return;
+        const t = document.createElement('div');
+        t.id = 'pwa-install-toast';
+        t.style.cssText = 'position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:9000;max-width:420px;width:calc(100% - 24px);background:var(--bg-card,#fff);color:var(--txt-hi,#0f172a);border:1px solid var(--border,rgba(0,0,0,0.1));border-radius:14px;box-shadow:0 10px 30px rgba(0,0,0,0.18);padding:13px 14px;display:flex;align-items:center;gap:12px;font-family:inherit';
+        t.innerHTML = '<span style="font-size:26px;flex-shrink:0">📲</span>'
+          + '<span style="flex:1;min-width:0;font-size:13px;line-height:1.4">인슈어커넥트를 <b>홈 화면에 설치</b>하고<br>전산·청구를 1탭으로 빠르게 여세요.</span>'
+          + '<button id="pwa-toast-install" style="background:var(--blue-mid,#1a3de8);color:#fff;border:none;border-radius:9px;font-weight:800;font-size:13px;padding:9px 14px;cursor:pointer;white-space:nowrap">설치</button>'
+          + '<button id="pwa-toast-close" aria-label="닫기" style="background:transparent;border:none;color:var(--txt-lo,#94a3b8);font-size:20px;line-height:1;cursor:pointer;padding:0 2px">×</button>';
+        document.body.appendChild(t);
+        document.getElementById('pwa-toast-install').addEventListener('click', function () { try { installPWA(); } catch (_) {} t.remove(); });
+        document.getElementById('pwa-toast-close').addEventListener('click', function () { try { localStorage.setItem('ic_pwa_toast_dismissed', String(Date.now())); } catch (_) {} t.remove(); });
+      } catch (_) {}
+    }
+
     window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       _prompt = e;
       const btn = document.getElementById('pwa-install-btn');
       if (btn) btn.style.display = '';
+      setTimeout(maybeShowInstallToast, 1200);
     });
 
     window.addEventListener('appinstalled', () => {
