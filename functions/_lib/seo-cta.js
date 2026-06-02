@@ -49,6 +49,9 @@ export function seoCtaFooter(SITE) {
 .seo-cta-links a{display:inline-block;background:rgba(255,255,255,0.16);color:#fff;text-decoration:none;font-weight:700;font-size:14px;padding:10px 18px;border-radius:10px;transition:background .15s}
 .seo-cta-links a:hover{background:rgba(255,255,255,0.28)}
 .seo-cta-links a.primary{background:#fff;color:#1a3de8}
+.seo-hubnav{max-width:760px;margin:0 auto 14px;padding:0 16px;display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.seo-hubnav a{font-size:12.5px;font-weight:700;color:#475569;text-decoration:none;background:#fff;border:1px solid #e5e7eb;padding:7px 13px;border-radius:999px;transition:border-color .15s,color .15s}
+.seo-hubnav a:hover{border-color:#1a3de8;color:#1a3de8}
 .seo-foot{max-width:760px;margin:0 auto 32px;padding:0 16px;text-align:center;font-size:12px;color:#9ca3af}
 .seo-foot a{color:#6b7280;text-decoration:none}
 @media(max-width:640px){.seo-cta{padding:0}.seo-cta-inner{border-radius:0}}
@@ -65,6 +68,14 @@ export function seoCtaFooter(SITE) {
     </div>
   </div>
 </footer>
+<nav class="seo-hubnav" aria-label="InsureConnect 서비스 바로가기">
+  <a href="/company">🖥 보험사 전산</a>
+  <a href="/insurance">📚 보험 정보</a>
+  <a href="/recruit">🟢 채용공고</a>
+  <a href="/lecture">🎓 교육·강의</a>
+  <a href="/rental">🚗 렌트카·리스</a>
+  <a href="/ga">🏢 GA 전산</a>
+</nav>
 <div class="seo-foot">
   © InsureConnect · <a href="/about.html">서비스 소개</a> · <a href="/disclaimer.html">면책조항</a> · <a href="/privacy.html">개인정보처리방침</a>
 </div>
