@@ -88,6 +88,7 @@ textarea:focus{outline:none;border-color:#1a3de8}
         <div id="cq-evidence" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
         <div class="out-head"><h3>답변</h3><button class="copy-btn" id="cq-copy" type="button">📋 복사</button></div>
         <div class="output" id="cq-output"></div>
+        <div id="cq-sources" style="margin-top:14px;"></div>
       </div>
     </div>
   </div>
@@ -170,7 +171,8 @@ textarea:focus{outline:none;border-color:#1a3de8}
   if(cqAsk){
     var cqInput=document.getElementById('cq-input'), cqErr=document.getElementById('cq-err'),
         cqOutWrap=document.getElementById('cq-out-wrap'), cqOut=document.getElementById('cq-output'),
-        cqEv=document.getElementById('cq-evidence'), cqHint=document.getElementById('cq-hint');
+        cqEv=document.getElementById('cq-evidence'), cqHint=document.getElementById('cq-hint'),
+        cqSrc=document.getElementById('cq-sources');
     document.getElementById('cq-copy').addEventListener('click',function(){
       navigator.clipboard&&navigator.clipboard.writeText(cqOut.textContent).then(function(){
         var b=document.getElementById('cq-copy');var s=b.textContent;b.textContent='✅ 복사됨';setTimeout(function(){b.textContent=s;},1500);
@@ -194,6 +196,7 @@ textarea:focus{outline:none;border-color:#1a3de8}
           if(ev.reject) chips.push(cqChip('❌ 거절/제한 '+ev.reject,'#dc2626'));
           if(ev.insurers&&ev.insurers.length) chips.push(cqChip('🏢 '+ev.insurers.slice(0,4).join(', '),'#7c3aed'));
           cqEv.innerHTML=chips.join('');
+          if(cqSrc){ var ss=d.sources||[]; if(ss.length){ var CAT={underwrite:'인수',disclosure:'고지',claim:'보상'}; var esc2=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]);});}; cqSrc.innerHTML='<div style="font-size:13px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:8px;">📚 이 답변의 근거 사례 '+ss.length+'건</div>'+ss.map(function(c){return '<div style="border:1px solid var(--border);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:var(--bg,#f8fafc);"><div style="font-size:13px;color:var(--txt-hi,#0f172a);"><span style="font-size:10.5px;font-weight:800;color:#1a3de8;background:rgba(26,61,232,0.12);padding:1px 7px;border-radius:999px;">'+(CAT[c.category]||'사례')+'</span> <b>'+esc2(c.disease||'')+'</b>'+(c.insurer?' · '+esc2(c.insurer):'')+(c.age?' · '+c.age+'세':'')+(c.elapsed_period?' · '+esc2(c.elapsed_period):'')+'</div>'+(c.result?'<div style="font-size:12.5px;color:#16a34a;font-weight:700;margin-top:4px;">→ '+esc2(c.result)+'</div>':'')+(c.summary?'<div style="font-size:12.5px;color:var(--txt-mid,#475569);margin-top:4px;line-height:1.55;">'+esc2(c.summary)+'</div>':'')+'</div>';}).join(''); } else { cqSrc.innerHTML=''; } }
           cqOutWrap.style.display='block'; cqOutWrap.scrollIntoView({behavior:'smooth',block:'nearest'});
           if(d.points_used){ cqHint.textContent='⭐ 포인트 '+d.points_used+'P 사용 (무료 한도 초과)'; cqHint.style.color='#b45309'; }
           else if(typeof d.remaining==='number') cqHint.textContent='오늘 '+d.remaining+'회 남음';

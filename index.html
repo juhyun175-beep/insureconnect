@@ -8639,6 +8639,17 @@
         [data-theme="dark"] .aii-answer{color:#e6edf3;}
         .aii-ev{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
         .aii-hint{font-size:11px;color:#94a3b8;margin-top:8px;}
+        .aii-src{margin-top:8px;}
+        .aii-src-toggle{background:none;border:none;color:#1a3de8;font-size:12px;font-weight:800;cursor:pointer;padding:3px 0;font-family:inherit;}
+        [data-theme="dark"] .aii-src-toggle{color:#8ab4ff;}
+        .aii-src-list{margin-top:6px;flex-direction:column;gap:6px;}
+        .aii-src-card{border:1px solid var(--border);border-radius:9px;padding:8px 10px;background:var(--bg);}
+        .aii-src-head{font-size:12px;color:var(--txt-hi,#0f172a);}
+        [data-theme="dark"] .aii-src-head{color:#e6edf3;}
+        .aii-src-cat{font-size:10px;font-weight:800;color:#1a3de8;background:rgba(26,61,232,0.12);padding:1px 6px;border-radius:999px;}
+        .aii-src-result{font-size:11.5px;color:#16a34a;font-weight:700;margin-top:3px;}
+        .aii-src-sum{font-size:11.5px;color:var(--txt-mid,#475569);margin-top:3px;line-height:1.5;}
+        [data-theme="dark"] .aii-src-sum{color:#9aa7b4;}
       </style>
       <section class="ibh" aria-label="자유게시판">
       <style>
@@ -8697,6 +8708,7 @@
         <div class="aii-out" id="home-aii-out" style="display:none;">
           <div class="aii-answer" id="home-aii-answer"></div>
           <div class="aii-ev" id="home-aii-ev"></div>
+          <div class="aii-src" id="home-aii-src"></div>
           <div class="aii-hint" id="home-aii-hint"></div>
         </div>
       </section>
@@ -8708,7 +8720,7 @@
       async function homeAiRun(){
         var inp=document.getElementById('home-aii-q'), btn=document.getElementById('home-aii-btn'),
             err=document.getElementById('home-aii-err'), out=document.getElementById('home-aii-out'),
-            ans=document.getElementById('home-aii-answer'), ev=document.getElementById('home-aii-ev'), hint=document.getElementById('home-aii-hint');
+            ans=document.getElementById('home-aii-answer'), ev=document.getElementById('home-aii-ev'), src=document.getElementById('home-aii-src'), hint=document.getElementById('home-aii-hint');
         if(!inp||!btn) return;
         var q=(inp.value||'').trim(); if(err) err.innerHTML='';
         if(!q){ if(err) err.textContent='질문을 입력해주세요.'; return; }
@@ -8726,6 +8738,7 @@
             if(e2.reject) chips.push(c('❌ 거절/제한 '+e2.reject,'#dc2626'));
             if(e2.insurers&&e2.insurers.length) chips.push(c('🏢 '+e2.insurers.slice(0,3).join(', '),'#7c3aed'));
             if(ev) ev.innerHTML=chips.join('');
+            if(src){ var ss=d.sources||[]; if(ss.length){ var CAT={underwrite:'인수',disclosure:'고지',claim:'보상'}; var escS=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]);});}; src.innerHTML='<button type="button" class="aii-src-toggle" onclick="var n=this.nextElementSibling;n.style.display=(n.style.display===\'none\'?\'flex\':\'none\');">📚 근거 사례 '+ss.length+'건 ▾</button><div class="aii-src-list" style="display:none">'+ss.map(function(c){return '<div class="aii-src-card"><div class="aii-src-head"><span class="aii-src-cat">'+(CAT[c.category]||'사례')+'</span> <b>'+escS(c.disease||'')+'</b>'+(c.insurer?' · '+escS(c.insurer):'')+(c.age?' · '+c.age+'세':'')+'</div>'+(c.result?'<div class="aii-src-result">→ '+escS(c.result)+'</div>':'')+(c.summary?'<div class="aii-src-sum">'+escS(c.summary)+'</div>':'')+'</div>';}).join('')+'</div>'; } else { src.innerHTML=''; } }
             if(hint) hint.textContent=d.points_used?('⭐ 포인트 '+d.points_used+'P 사용'):(typeof d.remaining==='number'?('오늘 '+d.remaining+'회 남음'):'');
             if(out){ out.style.display='block'; out.scrollTop=0; }
           }

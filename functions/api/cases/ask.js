@@ -121,9 +121,18 @@ ${covCtx || '(관련 담보 없음)'}`;
   const r = await callLLM(env, SYSTEM, question, { maxTokens: 900 });
   if (!r.ok) return json({ error: 'AI 응답 생성 실패', code: r.error }, 502);
 
+  // v2.12.4: 답변 근거가 된 실제 사례(상위 5건)도 반환 → 프론트에서 '근거 사례 카드'로 노출(투명성·신뢰·데이터 과시)
+  //   PII는 수집 단계(mask.js)에서 마스킹된 승인 공개 사례만 — 안전
+  const sources = cases.slice(0, 5).map((c) => ({
+    category: c.category, disease: c.disease, insurer: c.insurer,
+    age: c.age, elapsed_period: c.elapsed_period, result: c.result,
+    summary: c.summary, reliability: c.reliability,
+  }));
+
   return json({
     answer: r.text,
     evidence: { case_count: cases.length, coverage_count: coverages.length, insurers, approve, reject },
+    sources,
     remaining: Math.max(0, limit - count),
     points_used: usedPoints,
   });
