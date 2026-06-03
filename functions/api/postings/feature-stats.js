@@ -17,16 +17,17 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     try {
       const rs = await env.DB.prepare(
         `SELECT p.id, p.title, p.featured_until,
-                COALESCE(SUM(d.clicks), 0) AS engagement
+                COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
+                          WHERE company_name = '${prefix}' || p.id
+                            AND company_type IN ('${base}_view','${base}_copy','${base}_shared')), 0) AS engagement,
+                COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
+                          WHERE company_name = '${prefix}' || p.id
+                            AND company_type = '${base}_form'), 0) AS form_clicks
            FROM ${table} p
-           LEFT JOIN ic_link_clicks_daily d
-             ON d.company_name = ('${prefix}' || p.id)
-            AND d.company_type IN ('${base}_view','${base}_copy','${base}_shared')
           WHERE p.featured_until IS NOT NULL AND p.featured_until > datetime('now')
-          GROUP BY p.id, p.title, p.featured_until
           ORDER BY p.featured_until DESC`
       ).all();
-      return (rs.results || []).map((r) => ({ id: r.id, title: r.title, featured_until: r.featured_until, engagement: r.engagement || 0, type: base }));
+      return (rs.results || []).map((r) => ({ id: r.id, title: r.title, featured_until: r.featured_until, engagement: r.engagement || 0, form_clicks: r.form_clicks || 0, type: base }));
     } catch (_) { return []; }
   };
 
@@ -36,6 +37,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   ]);
   const featured = [...rec, ...lec].sort((a, b) => String(b.featured_until).localeCompare(String(a.featured_until)));
   const total_engagement = featured.reduce((s, f) => s + (f.engagement || 0), 0);
+  const total_conversion = featured.reduce((s, f) => s + (f.form_clicks || 0), 0);
 
   let purchases = 0, points_spent = 0;
   try {
@@ -54,5 +56,6 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     purchases,        // 포인트로 구매한 상단노출 횟수 (무료 3일 맛보기 제외)
     points_spent,     // 소진된 포인트 합계
     total_engagement, // 현재 노출중 공고들의 누적 조회·공유 합
+    total_conversion, // 현재 노출중 공고들의 누적 폼클릭(전환) 합
   });
 });

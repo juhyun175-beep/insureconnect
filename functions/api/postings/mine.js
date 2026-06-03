@@ -11,16 +11,22 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
 
-  const sel = async (table, type) => {
+  // v2.13.2: 공고별 조회수(view+copy+shared) + 폼클릭(전환) 리포트 — table/type/prefix 는 코드 고정값
+  const sel = async (table, type, prefix) => {
     const rs = await env.DB.prepare(
-      `SELECT id, title, status, featured_until, created_at,
-              CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured
-       FROM ${table} WHERE submitter_id = ? ORDER BY created_at DESC LIMIT 50`
+      `SELECT p.id, p.title, p.status, p.featured_until, p.created_at,
+              CASE WHEN p.featured_until IS NOT NULL AND p.featured_until > datetime('now') THEN 1 ELSE 0 END AS featured,
+              COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
+                        WHERE company_name = '${prefix}' || p.id
+                          AND company_type IN ('${type}_view','${type}_copy','${type}_shared')), 0) AS views,
+              COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
+                        WHERE company_name = '${prefix}' || p.id
+                          AND company_type = '${type}_form'), 0) AS form_clicks
+       FROM ${table} p WHERE p.submitter_id = ? ORDER BY p.created_at DESC LIMIT 50`
     ).bind(user.id).all();
     return (rs.results || []).map((r) => ({ ...r, type }));
   };
-  // table/type 은 코드 내부 고정값 — 사용자 입력 아님
-  const [rec, lec] = await Promise.all([sel('ic_recruitments', 'recruit'), sel('ic_lectures', 'lecture')]);
+  const [rec, lec] = await Promise.all([sel('ic_recruitments', 'recruit', 'recruit_'), sel('ic_lectures', 'lecture', 'lecture_')]);
   const items = [...rec, ...lec].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
 
   return json({ ok: true, items, cost: 50, days: 7 });

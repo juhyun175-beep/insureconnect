@@ -6716,10 +6716,10 @@
         if(!d||!d.ok){ box.textContent='불러오지 못했습니다.'; return; }
         var head='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
           +_featChip('노출중', d.featured_now+'건')+_featChip('포인트 구매', d.purchases+'회')
-          +_featChip('소진 P', d.points_spent+'P')+_featChip('누적 조회·공유', d.total_engagement+'회')+'</div>';
+          +_featChip('소진 P', d.points_spent+'P')+_featChip('누적 조회·공유', d.total_engagement+'회')+_featChip('전환(폼클릭)', (d.total_conversion||0)+'회')+'</div>';
         var rows=(d.featured||[]).map(function(f){
           var t=f.type==='lecture'?'🎓':'💼'; var until=String(f.featured_until||'').slice(0,10);
-          return '<div style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--border);"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+t+' '+esc(f.title||'')+'</span><span style="color:#f59e0b;font-weight:700;white-space:nowrap;">👁 '+(f.engagement||0)+'</span><span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">~'+until+'</span></div>';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--border);"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+t+' '+esc(f.title||'')+'</span><span style="color:#f59e0b;font-weight:700;white-space:nowrap;">👁 '+(f.engagement||0)+'</span><span style="color:#16a34a;font-weight:700;white-space:nowrap;">📝 '+(f.form_clicks||0)+'</span><span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">~'+until+'</span></div>';
         }).join('');
         box.innerHTML=head+(rows||'<div style="color:var(--txt-lo);">현재 노출중인 공고가 없습니다. (5만원 게시 승인 시 3일 무료 노출이 자동 적용됩니다)</div>');
       }catch(e){ box.textContent='불러오지 못했습니다.'; }

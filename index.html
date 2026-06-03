@@ -7,7 +7,15 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <meta name="version" content="2.1.0" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
-  <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고까지 한 곳에서." />
+  <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고, 사례 기반 AI(삼따AI)까지 한 곳에서." />
+  <!-- v2.13.3: 구조화 데이터(JSON-LD) — AEO/GEO (AI·답변엔진이 브랜드·서비스 이해) -->
+  <script type="application/ld+json">
+  {"@context":"https://schema.org","@graph":[
+    {"@type":"Organization","@id":"https://insureconnect-hub.pages.dev/#org","name":"InsureConnect","alternateName":"인슈어커넥트","url":"https://insureconnect-hub.pages.dev/","logo":"https://insureconnect-hub.pages.dev/logo-full.png","description":"보험설계사를 위한 통합 허브 — 보험사 전산·청구서류·소식지·채용공고와 실제 사례 기반 AI '삼따AI'를 한 곳에서 제공합니다."},
+    {"@type":"WebSite","@id":"https://insureconnect-hub.pages.dev/#website","url":"https://insureconnect-hub.pages.dev/","name":"InsureConnect","alternateName":"인슈어커넥트","inLanguage":"ko","publisher":{"@id":"https://insureconnect-hub.pages.dev/#org"}},
+    {"@type":"WebApplication","name":"삼따AI","applicationCategory":"BusinessApplication","operatingSystem":"Web","url":"https://insureconnect-hub.pages.dev/ai","description":"실제 인수·고지·보상 사례를 근거로 답하는 보험설계사 전용 AI. 사례 질문·공유로 데이터를 함께 축적합니다.","offers":{"@type":"Offer","price":"0","priceCurrency":"KRW"},"publisher":{"@id":"https://insureconnect-hub.pages.dev/#org"}}
+  ]}
+  </script>
   <!-- PWA 일시 비활성화 (SW 캐시 문제 안정화 후 재활성화 예정) -->
   <meta name="theme-color" content="#1a3de8">
   <link rel="apple-touch-icon" href="/logo.png">
@@ -8717,6 +8725,8 @@
       // v2.12.1: 홈에서 바로 사례 기반 답변 (인라인 RAG)
       function homeAiChip(q){ var i=document.getElementById('home-aii-q'); if(i) i.value=q; homeAiRun(); }
       function homeAiAsk(e){ if(e&&e.preventDefault)e.preventDefault(); homeAiRun(); return false; }
+      var _homeAiHist=[];
+      function homeAiReset(){ _homeAiHist=[]; var o=document.getElementById('home-aii-out'); if(o)o.style.display='none'; var h=document.getElementById('home-aii-hint'); if(h)h.textContent=''; var i=document.getElementById('home-aii-q'); if(i){i.value='';i.focus();} }
       async function homeAiRun(){
         var inp=document.getElementById('home-aii-q'), btn=document.getElementById('home-aii-btn'),
             err=document.getElementById('home-aii-err'), out=document.getElementById('home-aii-out'),
@@ -8726,7 +8736,7 @@
         if(!q){ if(err) err.textContent='질문을 입력해주세요.'; return; }
         btn.disabled=true; var ot=btn.textContent; btn.textContent='검색 중…';
         try{
-          var res=await fetch('/api/cases/ask',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({question:q})});
+          var res=await fetch('/api/cases/ask',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({question:q, history:_homeAiHist.slice(-3)})});
           var d=await res.json();
           if(res.status===401){ if(err) err.innerHTML='로그인 후 이용할 수 있어요. <a href="/api/auth/kakao/login" style="color:#1a3de8;font-weight:700;">카카오 로그인 →</a>'; if(out) out.style.display='none'; }
           else if(!res.ok){ if(err) err.textContent=(d&&d.error)||'답변 생성에 실패했어요.'; if(out) out.style.display='none'; }
@@ -8738,9 +8748,12 @@
             if(e2.reject) chips.push(c('❌ 거절/제한 '+e2.reject,'#dc2626'));
             if(e2.insurers&&e2.insurers.length) chips.push(c('🏢 '+e2.insurers.slice(0,3).join(', '),'#7c3aed'));
             if(ev) ev.innerHTML=chips.join('');
-            if(src){ var ss=d.sources||[]; if(ss.length){ var CAT={underwrite:'인수',disclosure:'고지',claim:'보상'}; var escS=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]);});}; src.innerHTML='<button type="button" class="aii-src-toggle" onclick="var n=this.nextElementSibling;n.style.display=(n.style.display===\'none\'?\'flex\':\'none\');">📚 근거 사례 '+ss.length+'건 ▾</button><div class="aii-src-list" style="display:none">'+ss.map(function(c){return '<div class="aii-src-card"><div class="aii-src-head"><span class="aii-src-cat">'+(CAT[c.category]||'사례')+'</span> <b>'+escS(c.disease||'')+'</b>'+(c.insurer?' · '+escS(c.insurer):'')+(c.age?' · '+c.age+'세':'')+'</div>'+(c.result?'<div class="aii-src-result">→ '+escS(c.result)+'</div>':'')+(c.summary?'<div class="aii-src-sum">'+escS(c.summary)+'</div>':'')+'</div>';}).join('')+'</div>'; } else { src.innerHTML=''; } }
+            if(src){ var ss=d.sources||[]; if(ss.length){ var CAT={underwrite:'인수',disclosure:'고지',claim:'보상'}; var escS=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]);});}; src.innerHTML='<button type="button" class="aii-src-toggle" onclick="var n=this.nextElementSibling;n.style.display=(n.style.display===\'none\'?\'flex\':\'none\');">📚 근거 사례 '+ss.length+'건 ▾</button><div class="aii-src-list" style="display:none">'+ss.map(function(c,ix){return '<div class="aii-src-card"><div class="aii-src-head"><span style="font-size:10px;font-weight:800;color:#64748b;margin-right:4px;">사례 '+(ix+1)+'</span><span class="aii-src-cat">'+(CAT[c.category]||'사례')+'</span> <b>'+escS(c.disease||'')+'</b>'+(c.insurer?' · '+escS(c.insurer):'')+(c.age?' · '+c.age+'세':'')+'</div>'+(c.result?'<div class="aii-src-result">→ '+escS(c.result)+'</div>':'')+(c.summary?'<div class="aii-src-sum">'+escS(c.summary)+'</div>':'')+'</div>';}).join('')+'</div>'; } else { src.innerHTML=''; } }
             if(hint) hint.textContent=d.points_used?('⭐ 포인트 '+d.points_used+'P 사용'):(typeof d.remaining==='number'?('오늘 '+d.remaining+'회 남음'):'');
             if(out){ out.style.display='block'; out.scrollTop=0; }
+            _homeAiHist.push({q:q, a:d.answer||''}); if(_homeAiHist.length>5)_homeAiHist=_homeAiHist.slice(-5);
+            if(inp) inp.value='';
+            if(hint && _homeAiHist.length>1) hint.innerHTML+=' · 💬 이어지는 대화('+_homeAiHist.length+') <a href="#" onclick="homeAiReset();return false;" style="color:#1a3de8;font-weight:700;">새 대화</a>';
           }
         }catch(_){ if(err) err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
         finally{ btn.disabled=false; btn.textContent=ot; }
@@ -9099,24 +9112,39 @@
         .partner-card-ico{font-size:34px;line-height:1;}
         .partner-card-tit{font-size:17px;font-weight:800;color:var(--txt-hi);}
         .partner-card-desc{font-size:13px;color:var(--txt-mid);line-height:1.5;}
-        .partner-card-go{margin-top:4px;font-size:13px;font-weight:700;color:var(--blue-mid);}
+        .partner-card-feats{list-style:none;padding:0;margin:4px 0 0;display:flex;flex-direction:column;gap:5px;}
+        .partner-card-feats li{font-size:12.5px;color:var(--txt-mid);}
+        .partner-card-go{margin-top:12px;align-self:flex-start;font-size:13.5px;font-weight:800;color:#fff;padding:10px 18px;border-radius:11px;background:var(--blue-mid);box-shadow:0 4px 14px rgba(26,61,232,0.22);}
         .partner-card.rent{background:linear-gradient(135deg,rgba(225,29,72,0.06),rgba(244,63,94,0.04));}
         .partner-card.tel{background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(79,109,240,0.04));}
+        .partner-card.rent .partner-card-go{background:linear-gradient(135deg,#e11d48,#f43f5e);box-shadow:0 4px 14px rgba(225,29,72,0.25);}
+        .partner-card.tel .partner-card-go{background:linear-gradient(135deg,#1a3de8,#4f6df0);}
+        .partner-card:hover .partner-card-go{filter:brightness(1.06);}
       </style>
       <div class="partner-hub-head">🤝 인슈어커넥트 파트너사</div>
-      <p class="partner-hub-sub">보험설계사 전용 우대 혜택 — 원하는 서비스를 선택하세요.</p>
+      <p class="partner-hub-sub">복잡한 비교는 그만 — <b>보험설계사 인증만으로</b> 받는 전용 우대 혜택. 견적은 <b>무료</b>이고 가입 의무는 없습니다.</p>
       <div class="partner-hub-grid">
         <button class="partner-card rent" type="button" onclick="trackCardClick('파트너사','리스/렌트카'); goToPage('rental');">
           <span class="partner-card-ico">🚗</span>
           <span class="partner-card-tit">리스 / 렌트카</span>
-          <span class="partner-card-desc">설계사 전용 장기렌트·리스 우대 견적</span>
-          <span class="partner-card-go">바로가기 →</span>
+          <span class="partner-card-desc">신차 장기렌트·리스를 <b>보험설계사 전용 우대 조건</b>으로.</span>
+          <ul class="partner-card-feats">
+            <li>✓ 설계사 전용 특별 우대가</li>
+            <li>✓ 전 차종 · 전국 출고 · 인수 대행</li>
+            <li>✓ 1:1 무료 상담 · 간편 견적</li>
+          </ul>
+          <span class="partner-card-go">🚗 무료 견적 받기 →</span>
         </button>
         <button class="partner-card tel" type="button" onclick="trackCardClick('파트너사','통신/휴대폰'); goToPage('telecom');">
           <span class="partner-card-ico">📱</span>
           <span class="partner-card-tit">통신 / 휴대폰</span>
-          <span class="partner-card-desc">보험설계사 우대 통신·단말기 견적</span>
-          <span class="partner-card-go">바로가기 →</span>
+          <span class="partner-card-desc">최신 단말기·요금제를 <b>보험설계사 우대가</b>로.</span>
+          <ul class="partner-card-feats">
+            <li>✓ 설계사 전용 추가 혜택</li>
+            <li>✓ 아이폰 · 갤럭시 전 기종</li>
+            <li>✓ 1:1 무료 견적 상담</li>
+          </ul>
+          <span class="partner-card-go">📱 무료 견적 받기 →</span>
         </button>
       </div>
     </section>
@@ -10607,7 +10635,7 @@
         : (it.file_url ? '' : '<div class="rc-viewer-empty">상세 내용이 등록되지 않았습니다.</div>');
       // v2.1.29: 외부 신청 폼 (구글폼/네이버폼 등)
       const formBlock = it.form_url
-        ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer">📝 신청 폼 작성하기 →</a>`
+        ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('lecture_${it.id}','lecture_form')}catch(_){}">📝 신청 폼 작성하기 →</a>`
         : '';
       document.getElementById('rc-viewer-body').innerHTML = `
         <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
@@ -10772,7 +10800,7 @@
         : (it.file_url ? '' : '<div class="rc-viewer-empty">상세 내용이 등록되지 않았습니다.</div>');
       // v2.1.29: 외부 신청 폼 (구글폼/네이버폼 등)
       const formBlock = it.form_url
-        ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer">📝 채용 지원 폼 작성하기 →</a>`
+        ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('recruit_${it.id}','recruit_form')}catch(_){}">📝 채용 지원 폼 작성하기 →</a>`
         : '';
       document.getElementById('rc-viewer-body').innerHTML = `
         <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
