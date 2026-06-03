@@ -5356,8 +5356,8 @@
     /* 다시 열기용 FAB */
     .fav-float-reopener {
       position: fixed;
-      top: 96px;
-      right: 28px;
+      top: 120px;
+      right: 16px;
       width: 48px;
       height: 48px;
       border-radius: 50%;
@@ -13932,7 +13932,7 @@
     .menu-pill-ai:hover{color:#fff;filter:brightness(1.08);}
     .menu-pill-red{background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;border:none;}
     .menu-pill-red:hover{color:#fff;filter:brightness(1.06);}
-    .menu-float-launcher{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:248;display:flex;flex-direction:column;align-items:center;gap:2px;width:46px;padding:11px 0;border-radius:24px;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border:none;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(26,61,232,0.4);}
+    .menu-float-launcher{position:fixed;top:176px;right:16px;z-index:248;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border:none;font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(26,61,232,0.4);}
     .menu-float-launcher:hover{filter:brightness(1.1);}
     .menu-float-launcher .mfl-ico{font-size:18px;}
     body.ic-mobile .menu-float-popup, body.ic-mobile .menu-float-launcher{display:none !important;}
@@ -15745,8 +15745,9 @@
         opener.style.display = 'none';
         return;
       }
-      let hidden = false;
-      try { hidden = localStorage.getItem(FAV_POPUP_HIDDEN_KEY) === '1'; } catch (_) {}
+      // v2.13.1: 기본 접힘(깔끔) — 사용자가 ⭐를 눌러 열면 '0' 저장되어 유지(겹침 정리)
+      let hidden = true;
+      try { hidden = localStorage.getItem(FAV_POPUP_HIDDEN_KEY) !== '0'; } catch (_) {}
       popup.style.display  = hidden ? 'none' : '';
       opener.style.display = hidden ? '' : 'none';
     }
