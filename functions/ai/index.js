@@ -73,6 +73,24 @@ textarea:focus{outline:none;border-color:#1a3de8}
   <p>상담 스크립트 · 마케팅 문구 · 보장분석 · 보험 개념을 AI가 즉시 생성</p>
 </header>
 <div class="wrap">
+  <div class="panel" style="margin-bottom:18px;border:2px solid #1a3de8;">
+    <div style="padding:14px 18px 0;">
+      <div style="font-size:15px;font-weight:800;color:#1a3de8;">💬 사례 기반 질문 <span style="font-size:11px;font-weight:600;color:#64748b;">— 축적된 실제 인수·고지·보상 사례로 답합니다</span></div>
+    </div>
+    <div class="body">
+      <textarea id="cq-input" placeholder="예) 갑상선암 진단 후 2년인데 종신보험 가입 될까요? / 디스크 수술 이력 고지하면 부담보 잡히나요?"></textarea>
+      <div class="row">
+        <button class="gen-btn" id="cq-ask" type="button">🔎 사례로 물어보기</button>
+        <span class="hint" id="cq-hint">로그인 필요 · 등급별 일일 한도</span>
+      </div>
+      <div class="err" id="cq-err"></div>
+      <div class="out-wrap" id="cq-out-wrap">
+        <div id="cq-evidence" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;"></div>
+        <div class="out-head"><h3>답변</h3><button class="copy-btn" id="cq-copy" type="button">📋 복사</button></div>
+        <div class="output" id="cq-output"></div>
+      </div>
+    </div>
+  </div>
   <div class="panel">
     <div class="modes">${tabsHtml}</div>
     <div class="body">
@@ -127,6 +145,43 @@ textarea:focus{outline:none;border-color:#1a3de8}
     }catch(e){ err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
     finally{ gen.disabled=false; gen.innerHTML=orig; }
   });
+
+  // 사례 기반 질문 (RAG)
+  var cqAsk=document.getElementById('cq-ask');
+  if(cqAsk){
+    var cqInput=document.getElementById('cq-input'), cqErr=document.getElementById('cq-err'),
+        cqOutWrap=document.getElementById('cq-out-wrap'), cqOut=document.getElementById('cq-output'),
+        cqEv=document.getElementById('cq-evidence'), cqHint=document.getElementById('cq-hint');
+    document.getElementById('cq-copy').addEventListener('click',function(){
+      navigator.clipboard&&navigator.clipboard.writeText(cqOut.textContent).then(function(){
+        var b=document.getElementById('cq-copy');var s=b.textContent;b.textContent='✅ 복사됨';setTimeout(function(){b.textContent=s;},1500);
+      });
+    });
+    function cqChip(label,color){ return '<span style="font-size:11.5px;font-weight:700;padding:4px 10px;border-radius:999px;background:'+color+'1f;color:'+color+';border:1px solid '+color+'55;">'+label+'</span>'; }
+    cqAsk.addEventListener('click',async function(){
+      var q=(cqInput.value||'').trim(); cqErr.textContent='';
+      if(!q){ cqErr.textContent='질문을 입력해주세요.'; return; }
+      cqAsk.disabled=true; var o=cqAsk.innerHTML; cqAsk.innerHTML='<span class="spin"></span>사례 검색·분석 중…';
+      try{
+        var res=await fetch('/api/cases/ask',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({question:q})});
+        var d=await res.json();
+        if(res.status===401){ cqErr.innerHTML='로그인 후 이용할 수 있어요. <a href="/api/auth/kakao/login" style="color:#1a3de8;font-weight:700;">카카오 로그인 →</a>'; }
+        else if(!res.ok){ cqErr.textContent=d.error||'답변 생성 실패'; }
+        else{
+          cqOut.textContent=d.answer; var ev=d.evidence||{}; var chips=[];
+          chips.push(cqChip('📚 근거 사례 '+(ev.case_count||0)+'건','#1a3de8'));
+          if(ev.coverage_count) chips.push(cqChip('📑 담보 '+ev.coverage_count+'건','#0ea5e9'));
+          if(ev.approve) chips.push(cqChip('✅ 가입/지급 '+ev.approve,'#16a34a'));
+          if(ev.reject) chips.push(cqChip('❌ 거절/제한 '+ev.reject,'#dc2626'));
+          if(ev.insurers&&ev.insurers.length) chips.push(cqChip('🏢 '+ev.insurers.slice(0,4).join(', '),'#7c3aed'));
+          cqEv.innerHTML=chips.join('');
+          cqOutWrap.style.display='block'; cqOutWrap.scrollIntoView({behavior:'smooth',block:'nearest'});
+          if(typeof d.remaining==='number') cqHint.textContent='오늘 '+d.remaining+'회 남음';
+        }
+      }catch(e){ cqErr.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
+      finally{ cqAsk.disabled=false; cqAsk.innerHTML=o; }
+    });
+  }
 })();
 </script>
 </body>
