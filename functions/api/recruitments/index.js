@@ -1,5 +1,6 @@
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
+import { getUserFromRequest } from '../../_lib/auth.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -21,10 +22,14 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
 
   const where = statusParam === 'all' ? '1=1' : 'status = ?';
   const params = statusParam === 'all' ? [] : [statusParam];
+  // v2.11.0: 상단노출(featured_until > now) 공고를 최상단으로 정렬 + featured 플래그 반환
   const rs = await env.DB.prepare(
     `SELECT id, title, company_name, description, file_url, file_type, form_url, created_at,
-            status, submitter_name, submitter_contact, reject_reason, approved_at
-     FROM ic_recruitments WHERE ${where} ORDER BY created_at ${order} LIMIT ?`
+            status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
+            CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured
+     FROM ic_recruitments WHERE ${where}
+     ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
+              created_at ${order} LIMIT ?`
   ).bind(...params, limit).all();
   return json(rs.results || []);
 });
@@ -55,6 +60,8 @@ export { sanitizeFormUrl };
 export const onRequestPost = async ({ request, env }) => handle(async () => {
   const body = await request.json();
   const isAdmin = verifyAdmin(request, env);
+  // v2.11.0: 로그인 사용자면 등록 회원으로 연결(submitter_id) → 본인 공고 상단노출(포인트) 가능
+  const user = isAdmin ? null : await getUserFromRequest(env, request);
 
   if (!body.title || !body.title.trim()) return error('title is required');
 
@@ -76,8 +83,8 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const r = await env.DB.prepare(
     `INSERT INTO ic_recruitments
        (title, company_name, description, file_url, file_type, form_url, status,
-        submitter_name, submitter_contact, approved_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+        submitter_name, submitter_contact, approved_at, submitter_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     body.title.trim().slice(0, 200),
     body.company_name ? String(body.company_name).slice(0, 80) : null,
@@ -88,7 +95,8 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     status,
     submitterName,
     submitterContact,
-    approvedAt
+    approvedAt,
+    user ? user.id : null
   ).first();
   return json({ id: r.id, status });
 });

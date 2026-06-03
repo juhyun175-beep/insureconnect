@@ -106,7 +106,13 @@ export const onRequestGet = async ({ env, request }) => {
   <div class="card">
     <h2>⭐ 내 포인트</h2>
     <div id="pt-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
-    <p class="note">사례 등록 +10 · 승인 +20 · 우수 +50 · 삼따AI 추가질문 −5 · 100P 인증설계사 / 500P 프리미엄 자동 승급</p>
+    <p class="note">사례 등록 +10 · 승인 +20 · 우수 +50 · 삼따AI 추가질문 −5 · 공고 상단노출 −50 · 100P 인증설계사 / 500P 프리미엄 자동 승급</p>
+  </div>
+
+  <div class="card">
+    <h2>🔝 내 공고 상단노출</h2>
+    <div id="mypost-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+    <p class="note">직접 등록한 <b>채용·강의 공고</b>를 <b>50P</b>로 <b>7일간</b> 목록 맨 위에 노출합니다. 포인트는 삼따AI 사례 공유·승인으로 적립돼요.</p>
   </div>
 
   <div class="card">
@@ -192,10 +198,10 @@ export const onRequestGet = async ({ env, request }) => {
     }).catch(function(){ box.textContent='추천 정보를 불러오지 못했습니다.'; });
   })();
 
-  // 포인트 내역
-  (function(){
+  // 포인트 내역 (window.__reloadPt 로 노출 — 상단노출 결제 후 갱신)
+  window.__reloadPt=function(){
     var box=document.getElementById('pt-box'); if(!box) return;
-    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',ai_extra:'삼따AI 추가질문'};
+    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출'};
     fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
       if(!d||d.points==null){ box.textContent='포인트 정보를 불러오지 못했습니다.'; return; }
       var log=(d.log||[]).map(function(l){
@@ -205,6 +211,41 @@ export const onRequestGet = async ({ env, request }) => {
       box.innerHTML='<div style="font-size:30px;font-weight:900;color:#b45309;margin-bottom:6px;">'+Number(d.points).toLocaleString()+'<span style="font-size:16px;">P</span></div>'
         +(log?'<div style="margin-top:6px;">'+log+'</div>':'<div class="empty">아직 포인트 내역이 없습니다. 삼따AI에서 사례를 공유해보세요.</div>');
     }).catch(function(){ box.textContent='포인트 정보를 불러오지 못했습니다.'; });
+  };
+  window.__reloadPt();
+
+  // v2.11.0: 내 공고 상단노출 (포인트 사용처)
+  (function(){
+    var box=document.getElementById('mypost-box'); if(!box) return;
+    var ST={pending:['검수중','#b45309','#fef3c7'],approved:['게시중','#16a34a','#dcfce7'],rejected:['반려','#dc2626','#fee2e2']};
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+    function fmtUntil(s){ if(!s) return ''; var d=new Date(String(s).replace(' ','T')+'Z'); if(isNaN(d.getTime())) return ''; return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'); }
+    function render(items, cost){
+      if(!items.length){ box.innerHTML='<div class="empty">직접 등록한 공고가 없습니다. 홈의 「내 공고 직접 등록」으로 채용·강의 공고를 올려보세요.</div>'; return; }
+      box.innerHTML=items.map(function(it){
+        var st=ST[it.status]||ST.pending; var typeL=it.type==='lecture'?'🎓':'💼';
+        var right;
+        if(it.featured){ right='<span style="font-size:11.5px;font-weight:800;color:#1a3de8;white-space:nowrap;flex-shrink:0">🔝 노출중 ~'+fmtUntil(it.featured_until)+'</span>'; }
+        else if(it.status==='approved'){ right='<button class="feat-btn" data-type="'+it.type+'" data-id="'+it.id+'" style="background:#1a3de8;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12px;padding:7px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0">🔝 상단노출 '+cost+'P</button>'; }
+        else { right='<span style="font-size:11.5px;color:#94a3b8;white-space:nowrap;flex-shrink:0">'+st[0]+'</span>'; }
+        return '<div style="display:flex;align-items:center;gap:9px;padding:9px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:11px;font-weight:800;color:'+st[1]+';background:'+st[2]+';padding:2px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0;">'+st[0]+'</span><span style="flex:1;min-width:0;font-size:13px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+typeL+' '+esc(it.title)+'</span>'+right+'</div>';
+      }).join('');
+      box.querySelectorAll('.feat-btn').forEach(function(b){
+        b.addEventListener('click',function(){
+          if(!confirm(cost+'P를 사용해 이 공고를 7일간 목록 맨 위에 노출할까요?')) return;
+          b.disabled=true; var old=b.textContent; b.textContent='처리중…';
+          fetch('/api/postings/feature',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({type:b.dataset.type,id:+b.dataset.id})})
+            .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+            .then(function(o){
+              if(o.s===200&&o.j.ok){ alert('✅ 상단노출 적용! 남은 포인트 '+o.j.remaining+'P'); load(); if(window.__reloadPt)window.__reloadPt(); }
+              else if(o.s===402){ alert('포인트가 부족합니다. (보유 '+(o.j.points||0)+'P / 필요 '+o.j.need+'P) — 삼따AI에서 사례를 공유하면 적립돼요.'); b.disabled=false; b.textContent=old; }
+              else { alert((o.j&&o.j.error)||'처리 실패'); b.disabled=false; b.textContent=old; }
+            }).catch(function(){ alert('네트워크 오류'); b.disabled=false; b.textContent=old; });
+        });
+      });
+    }
+    function load(){ fetch('/api/postings/mine',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d||!d.ok){ box.textContent='공고를 불러오지 못했습니다.'; return; } render(d.items||[], d.cost||50); }).catch(function(){ box.textContent='공고를 불러오지 못했습니다.'; }); }
+    window.__reloadMyPost=load; load();
   })();
   </script>`;
 

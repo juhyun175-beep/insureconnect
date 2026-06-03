@@ -3500,6 +3500,26 @@
       border-radius: 100px;
       backdrop-filter: blur(6px);
     }
+    /* v2.11.0: 공고 상단노출(featured) 배지(좌상단) + 카드 골드 강조 */
+    .rc-card-feat-badge {
+      position: absolute;
+      top: 10px; left: 10px; z-index: 2;
+      background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: #fff;
+      font-family: 'Pretendard', sans-serif;
+      font-size: 10px; font-weight: 800;
+      letter-spacing: 0.02em;
+      padding: 4px 10px;
+      border-radius: 100px;
+      box-shadow: 0 3px 10px rgba(245,158,11,0.45);
+    }
+    .rc-card.rc-featured {
+      border-color: #f59e0b !important;
+      box-shadow: 0 0 0 2px rgba(245,158,11,0.35), 0 12px 28px rgba(245,158,11,0.18);
+    }
+    [data-theme="dark"] .rc-card.rc-featured {
+      box-shadow: 0 0 0 2px rgba(245,158,11,0.45), 0 12px 28px rgba(0,0,0,0.45);
+    }
     .rc-card-body {
       padding: 14px 16px 16px;
       display: flex; flex-direction: column; gap: 6px;
@@ -4552,6 +4572,9 @@
     .m-account-card { display: flex; flex-direction: column; gap: 10px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; box-shadow: var(--sh-sm); margin: 0 0 14px; }
     .m-account-card #ic-auth-m { padding-bottom: 10px; border-bottom: 1px solid var(--border); }
     .m-account-card .side-submit-single, .m-account-card .side-search-btn { width: 100%; margin: 0; }
+    /* v2.11.0 fix: body.ic-mobile .side-submit-single(특이도 0,2,1)가 위 규칙(0,2,0)을 이겨 좌우 14px 마진+width:100%로 카드 밖 이탈 → 더 높은 특이도(0,3,1)로 마진 0 강제 */
+    body.ic-mobile .m-account-card .side-submit-single,
+    body.ic-mobile .m-account-card .side-search-btn { width: 100%; margin: 0; }
 
     .ic-m-hero {
       padding: 18px 16px 18px;
@@ -10370,12 +10393,13 @@
             typeBadge = '<span class="rc-card-type-badge">✍ 텍스트</span>';
           }
           html += `
-            <button class="rc-card" type="button" onclick="openRecruitViewer(${i})">
+            <button class="rc-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="openRecruitViewer(${i})">
               <span class="rc-card-copy" role="button" tabindex="0" title="링크 복사" onclick="shareRecruit(${it.id}, event)">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
               </span>
               <div class="rc-card-thumb">
                 ${thumb}
+                ${it.featured ? '<span class="rc-card-feat-badge">🔝 상단노출</span>' : ''}
                 ${typeBadge}
                 ${_shareBadge('recruit', it.id)}
               </div>
@@ -10425,11 +10449,11 @@
             thumb = `<span class="rc-card-thumb-fallback">🎓<small>강의</small></span>`;
             typeBadge = '<span class="rc-card-type-badge">📝 일반</span>';
           }
-          return `<button class="rc-card" type="button" onclick="openLectureViewer(${i})">
+          return `<button class="rc-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="openLectureViewer(${i})">
             <span class="rc-card-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="rc-card-thumb">${thumb}${typeBadge}${_shareBadge('lecture', it.id)}</div>
+            <div class="rc-card-thumb">${thumb}${it.featured ? '<span class="rc-card-feat-badge">🔝 상단노출</span>' : ''}${typeBadge}${_shareBadge('lecture', it.id)}</div>
             <div class="rc-card-body">
               ${instr ? `<span class="rc-card-company">${instr}</span>` : ''}
               <div class="rc-card-title">${esc(it.title)}</div>
@@ -10851,6 +10875,7 @@
         const insRes = await fetch(apiPath, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',   // v2.11.0: 로그인 세션 쿠키 전송 → 서버가 submitter_id 기록(본인 공고 상단노출 가능)
           body: JSON.stringify(payload)
         });
         if (!insRes.ok) {
