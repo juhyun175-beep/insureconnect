@@ -6482,6 +6482,15 @@
       gap: 5px;
       pointer-events: none;
     }
+    /* v2.9.9: Pill 네비 접기 토글 */
+    .nav-pills-toggle { position: fixed; top: 12px; right: 10px; z-index: 1200; width: 32px; height: 32px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border); color: var(--txt-mid); cursor: pointer; font-size: 17px; font-weight: 800; line-height: 1; display: flex; align-items: center; justify-content: center; box-shadow: var(--sh-sm); transition: background .15s, color .15s, border-color .15s; }
+    .nav-pills-toggle:hover { color: var(--blue-mid); border-color: var(--blue-mid); }
+    .right-nav-group, .left-nav-group { transition: opacity .2s ease, transform .2s ease; }
+    body.nav-pills-collapsed .right-nav-group { opacity: 0; transform: translateX(60px); }
+    body.nav-pills-collapsed .left-nav-group { opacity: 0; transform: translateX(-60px); }
+    body.nav-pills-collapsed .right-nav-btn, body.nav-pills-collapsed .left-nav-btn { pointer-events: none; }
+    body.ic-mobile .nav-pills-toggle { display: none !important; }
+    @media (max-width: 1024px) { .nav-pills-toggle { display: none; } }
     /* v2.1.22: 좌측 빨간 PILL nav — 사이드바 오른쪽 / 홈 콘텐츠 왼쪽 */
     .left-nav-group {
       position: fixed;
@@ -8491,7 +8500,6 @@
         <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">최신</span></button>
         <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
         <button class="ic-m-core-card" onclick="goToPage('telecom')"><span class="cc-lb">통신·폰</span></button>
-        <button class="ic-m-core-card" onclick="openCaseSubmit()"><span class="cc-lb">사례공유</span></button>
         <a class="ic-m-core-card" href="/ai"><span class="cc-lb">삼따AI</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
@@ -13751,6 +13759,11 @@
   </div>
 
   <!-- ══ 우측 고정 네비게이션 필버튼 그룹 ══ -->
+  <button class="nav-pills-toggle" id="nav-pills-toggle" type="button" onclick="toggleNavPills()" title="메뉴 펼치기/접기" aria-label="메뉴 토글">›</button>
+  <script>
+    function toggleNavPills(){ var c=document.body.classList.toggle('nav-pills-collapsed'); try{localStorage.setItem('ic_nav_collapsed',c?'1':'0');}catch(e){} var t=document.getElementById('nav-pills-toggle'); if(t)t.textContent=c?'‹':'›'; }
+    (function(){ try{ if(localStorage.getItem('ic_nav_collapsed')==='1'){ document.body.classList.add('nav-pills-collapsed'); var t=document.getElementById('nav-pills-toggle'); if(t)t.textContent='‹'; } }catch(e){} })();
+  </script>
   <div class="right-nav-group">
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','최신콘텐츠'); goToPage('latest');" title="최신 콘텐츠" type="button">최신</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">전산</button>
@@ -13760,7 +13773,6 @@
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">청구</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">채용</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','강의'); goToPage('lecture');" title="강의" type="button">강의</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','사례공유'); openCaseSubmit();" title="보험 사례 공유 (+10P)" type="button" style="background:linear-gradient(135deg,#9333ea,#a855f7);">사례</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','삼따AI'); location.href='/ai';" title="삼따AI — 사례 기반 질문·공유" type="button" style="background:linear-gradient(135deg,#1a3de8,#4a70f5);">삼따AI</button>
     <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">실무도구</button>
   </div>
