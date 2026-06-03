@@ -3489,6 +3489,7 @@
         <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
         <button class="upload-tab" data-panel="up-cases" style="border-color:#a855f7;color:#a855f7;">🗂 보험 사례</button>
+        <button class="upload-tab" data-panel="up-coverages" style="border-color:#0ea5e9;color:#0ea5e9;">📑 담보분석(PDF)</button>
         <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
         <button class="upload-tab" data-panel="up-telecom-devices">📱 단말기 라인업</button>
 
@@ -4380,6 +4381,30 @@
         <div class="nl-list" id="cs-list"><p class="empty-msg">불러오는 중…</p></div>
       </div><!-- /#up-cases -->
 
+      <!-- v2.9.2: 보험 상품/담보 PDF 분석 -->
+      <div class="upload-panel" id="up-coverages">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">📑 보험 상품/담보 분석 (PDF)</p>
+          <button type="button" onclick="loadCoverages()" style="padding:6px 12px;background:transparent;border:1px solid #0ea5e9;color:#0ea5e9;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 새로고침</button>
+        </div>
+        <div style="background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.18);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid);line-height:1.6;">
+          <div style="font-weight:700;color:#38bdf8;margin-bottom:4px;">상품요약서·가입설계서 PDF → AI가 담보별 스펙 추출</div>
+          PDF를 올리면 브라우저에서 텍스트를 추출해 AI가 <strong>보험사·상품·담보·가입금액·보험료·가입나이·납입/만기</strong>를 표로 정리 → 검수 후 비교 레퍼런스로 축적됩니다. (텍스트가 없는 스캔본은 추출이 어려울 수 있어요)
+        </div>
+        <div class="nl-upload-box" style="border:1px solid rgba(14,165,233,0.28);">
+          <div style="font-size:12.5px;font-weight:700;color:#38bdf8;margin-bottom:8px;">＋ PDF 업로드 → AI 분석</div>
+          <input type="file" id="cv-file" accept="application/pdf,.pdf" style="margin-bottom:8px;font-size:12px;color:var(--txt-mid);">
+          <button class="nl-upload-btn" id="cv-analyze-btn" onclick="analyzeCoverages()" style="background:linear-gradient(135deg,#0284c7,#0ea5e9);">🤖 PDF 분석 → 검수 대기</button>
+          <p class="nl-status" id="cv-status"></p>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0 10px;">
+          <input type="text" id="cv-q" placeholder="보험사·담보·상품명 검색" style="flex:1;min-width:160px;padding:8px 10px;font-size:13px;" onkeydown="if(event.key==='Enter')loadCoverages();">
+          <select id="cv-fstatus" style="padding:8px 10px;font-size:13px;"><option value="pending">검수 대기</option><option value="approved">승인됨</option><option value="rejected">반려</option><option value="all">전체</option></select>
+          <button type="button" onclick="loadCoverages()" style="padding:8px 14px;font-size:12px;font-weight:700;background:#0ea5e9;color:#fff;border:none;border-radius:6px;cursor:pointer;">검색</button>
+        </div>
+        <div class="nl-list" id="cv-list"><p class="empty-msg">불러오는 중…</p></div>
+      </div><!-- /#up-coverages -->
+
       <!-- v2.0.0 (master): SEO 게시판 관리 -->
       <div class="upload-panel" id="up-seo">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -4644,6 +4669,7 @@
           if (typeof loadTelecomInquiriesAdmin === 'function') loadTelecomInquiriesAdmin();
         }
         if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
+        if (target === 'up-coverages' && typeof loadCoverages === 'function') { loadCoverages(); }
       });
     });
 
@@ -4754,6 +4780,70 @@
       } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
       finally { btn.disabled = false; btn.textContent = '🤖 AI 분석 → 검수 대기 적재'; }
     }
+
+    /* v2.9.2: 보험 상품/담보 PDF 분석 (pdf.js 텍스트 추출 → AI) */
+    async function extractPdfText(file) {
+      const lib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs');
+      lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
+      const buf = await file.arrayBuffer();
+      const pdf = await lib.getDocument({ data: buf }).promise;
+      const maxP = Math.min(pdf.numPages, 40);
+      let text = '';
+      for (let i = 1; i <= maxP; i++) {
+        const pg = await pdf.getPage(i);
+        const tc = await pg.getTextContent();
+        text += tc.items.map(function (it) { return it.str; }).join(' ') + '\n';
+      }
+      return text;
+    }
+    async function analyzeCoverages() {
+      var fe = document.getElementById('cv-file'); var f = fe && fe.files[0];
+      var st = document.getElementById('cv-status'); var btn = document.getElementById('cv-analyze-btn');
+      if (!f) { alert('PDF 파일을 선택해주세요.'); return; }
+      btn.disabled = true; btn.textContent = '📄 PDF 읽는 중…'; st.textContent = '';
+      try {
+        var text = await extractPdfText(f);
+        if (!text || text.trim().length < 30) throw new Error('PDF에서 텍스트를 추출하지 못했습니다(스캔본일 수 있어요).');
+        btn.textContent = '🤖 AI 분석 중… (수십 초)';
+        var res = await fetch('/api/coverages/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ text: text, source_file: f.name }) });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || '분석 실패');
+        st.innerHTML = '✅ 담보 추출 <b>' + d.extracted + '</b>건 (AI 인식 ' + d.found + '건) → 검수 대기';
+        st.style.color = '#10b981'; fe.value = ''; loadCoverages();
+      } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
+      finally { btn.disabled = false; btn.textContent = '🤖 PDF 분석 → 검수 대기'; }
+    }
+    async function loadCoverages() {
+      var el = document.getElementById('cv-list'); if (!el) return;
+      var q = (document.getElementById('cv-q') || {}).value || ''; var status = (document.getElementById('cv-fstatus') || {}).value || 'pending';
+      el.innerHTML = '<p class="empty-msg">불러오는 중…</p>';
+      try {
+        var r = await fetch('/api/coverages?status=' + status + '&q=' + encodeURIComponent(q) + '&limit=200', { headers: adminHeaders() });
+        var d = await r.json(); var items = d.coverages || [];
+        if (!items.length) { el.innerHTML = '<p class="empty-msg">담보가 없습니다.</p>'; return; }
+        el.innerHTML = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;"><thead><tr>'
+          + ['보험사', '상품', '담보', '가입금액', '보험료', '가입나이', '상태', ''].map(function (h) { return '<th style="text-align:left;padding:6px 8px;color:var(--txt-mid);border-bottom:1px solid var(--border);white-space:nowrap;">' + h + '</th>'; }).join('')
+          + '</tr></thead><tbody>'
+          + items.map(function (c) {
+            var stat = ({ pending: ['대기', '#f59e0b'], approved: ['승인', '#10b981'], rejected: ['반려', '#ef4444'] })[c.verify_status] || ['?', '#888'];
+            return '<tr style="border-bottom:1px solid rgba(120,140,180,0.1);">'
+              + '<td style="padding:6px 8px;color:var(--txt-hi);white-space:nowrap;">' + esc(c.insurer || '') + '</td>'
+              + '<td style="padding:6px 8px;color:var(--txt-mid);">' + esc(c.product_name || '') + '</td>'
+              + '<td style="padding:6px 8px;color:var(--txt-hi);font-weight:700;">' + esc(c.coverage_name || '') + '</td>'
+              + '<td style="padding:6px 8px;color:var(--txt-mid);white-space:nowrap;">' + esc(c.join_amount || '') + '</td>'
+              + '<td style="padding:6px 8px;color:var(--txt-mid);white-space:nowrap;">' + esc(c.premium || '') + '</td>'
+              + '<td style="padding:6px 8px;color:var(--txt-mid);white-space:nowrap;">' + esc(c.join_age || '') + '</td>'
+              + '<td style="padding:6px 8px;"><span style="font-size:10px;font-weight:800;padding:2px 6px;border-radius:4px;color:#fff;background:' + stat[1] + ';">' + stat[0] + '</span></td>'
+              + '<td style="padding:6px 8px;white-space:nowrap;">'
+              + (c.verify_status !== 'approved' ? '<button onclick="patchCov(' + c.id + ",{verify_status:'approved'})\" style=\"font-size:10px;padding:3px 7px;background:rgba(16,185,129,0.16);color:#10b981;border:none;border-radius:5px;cursor:pointer;margin-right:3px;\">승인</button>" : '')
+              + (c.verify_status !== 'rejected' ? '<button onclick="patchCov(' + c.id + ",{verify_status:'rejected'})\" style=\"font-size:10px;padding:3px 7px;background:rgba(245,158,11,0.16);color:#f59e0b;border:none;border-radius:5px;cursor:pointer;margin-right:3px;\">반려</button>" : '')
+              + '<button onclick="deleteCov(' + c.id + ')" style="font-size:10px;padding:3px 7px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:5px;cursor:pointer;">삭제</button>'
+              + '</td></tr>';
+          }).join('') + '</tbody></table></div>';
+      } catch (e) { el.innerHTML = '<p class="empty-msg">로드 실패: ' + esc(e.message) + '</p>'; }
+    }
+    async function patchCov(id, b) { await fetch('/api/coverages/' + id, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(b) }); loadCoverages(); }
+    async function deleteCov(id) { if (!confirm('이 담보를 삭제할까요?')) return; await fetch('/api/coverages/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCoverages(); }
 
     /* v2.8.18: 통신 단말기 라인업 관리 */
     (function(){
