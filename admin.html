@@ -4320,6 +4320,15 @@
           수집(회원 등록·TXT) → <strong>검수/승인</strong> → 축적 → 검색 → AI 답변 근거. 회원 등록 사례는 검수 대기로 들어오며, 승인 시 등록 회원에게 포인트가 지급됩니다.
         </div>
 
+        <!-- TXT 자동 분석 (#3+#4) -->
+        <div class="nl-upload-box" style="border:1px solid rgba(168,85,247,0.28);margin-bottom:16px;">
+          <div style="font-size:12.5px;font-weight:700;color:#c084fc;margin-bottom:8px;">🤖 카톡/단톡 TXT 자동 분석 <span style="color:var(--txt-lo);font-weight:500;font-size:11px;">— 개인정보 자동 마스킹 후 AI가 보험 사례만 추출 → 검수 대기로</span></div>
+          <input type="file" id="cs-txt-file" accept=".txt,text/plain" style="margin-bottom:8px;font-size:12px;color:var(--txt-mid);">
+          <textarea id="cs-txt" rows="5" placeholder="카톡 대화 내보내기(.txt)를 선택하거나 텍스트를 붙여넣으세요. 전송 전 개인정보(전화·주민·계좌·이메일·차량번호·이름 등)가 자동 마스킹됩니다." style="width:100%;padding:8px 10px;font-size:12.5px;"></textarea>
+          <button class="nl-upload-btn" id="cs-analyze-btn" onclick="analyzeTxt()" style="background:linear-gradient(135deg,#9333ea,#a855f7);margin-top:8px;">🤖 AI 분석 → 검수 대기 적재</button>
+          <p class="nl-status" id="cs-analyze-status"></p>
+        </div>
+
         <!-- 통계 -->
         <div class="mt-cards" id="cs-stats" style="margin-bottom:16px;"></div>
 
@@ -4718,6 +4727,33 @@
     async function rejectCase(id) { await patchCase(id, { verify_status: 'rejected' }); loadCasesPanel(); }
     async function setCaseReliability(id, v) { await patchCase(id, { reliability: parseInt(v, 10) }); searchCases(); }
     async function deleteCase(id) { if (!confirm('이 사례를 삭제할까요?')) return; await fetch('/api/cases/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCasesPanel(); }
+    /* TXT 자동 분석 (#3+#4) */
+    (function () {
+      var f = document.getElementById('cs-txt-file');
+      if (f) f.addEventListener('change', function () {
+        var file = this.files[0]; if (!file) return;
+        var rd = new FileReader();
+        rd.onload = function (e) { var ta = document.getElementById('cs-txt'); if (ta) ta.value = String(e.target.result || '').slice(0, 200000); };
+        rd.readAsText(file, 'utf-8');
+      });
+    })();
+    async function analyzeTxt() {
+      var ta = document.getElementById('cs-txt'); var text = (ta.value || '').trim();
+      var st = document.getElementById('cs-analyze-status'); var btn = document.getElementById('cs-analyze-btn');
+      if (text.length < 20) { alert('분석할 텍스트가 너무 짧습니다.'); return; }
+      btn.disabled = true; btn.textContent = '🤖 분석 중… (수십 초 소요)'; st.textContent = '';
+      try {
+        var res = await fetch('/api/cases/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ text: text }) });
+        var d = await res.json();
+        if (!res.ok) throw new Error(d.error || '분석 실패');
+        var mk = Object.keys(d.masked || {}).map(function (k) { return k + '×' + d.masked[k]; }).join(' ');
+        st.innerHTML = '✅ 추출 <b>' + d.extracted + '건</b> (AI 인식 ' + d.found + '건) → 검수 대기 적재' + (mk ? '<br><span style="color:var(--txt-lo)">마스킹: ' + esc(mk) + '</span>' : '');
+        st.style.color = '#10b981';
+        ta.value = ''; var fe = document.getElementById('cs-txt-file'); if (fe) fe.value = '';
+        loadCasesPanel();
+      } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
+      finally { btn.disabled = false; btn.textContent = '🤖 AI 분석 → 검수 대기 적재'; }
+    }
 
     /* v2.8.18: 통신 단말기 라인업 관리 */
     (function(){
