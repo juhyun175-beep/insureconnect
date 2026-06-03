@@ -4764,10 +4764,10 @@
       });
     })();
     function filterInsuranceLines(text) {
-      var KW = /(가입|부담보|할증|거절|인수|심사|고지|청구|지급|진단|보험|실손|암|수술|후유장해|면책|보장|특약|손해|생명|화재|해상|메리츠|삼성|한화|현대|흥국|교보|농협|신한|라이나|보상|보험금|병력|유병|간편|표준체|할증률|승인|부결)/;
+      var KW = /(가입|부담보|할증|거절|부결|승인|인수|심사|고지|청구|지급|삭감|감액|면책|한정|제한|진단|진단비|수술|수술비|입원|통원|후유장해|보험|보장|보험금|특약|갱신|한도|자부담|실손|암|뇌|심장|간|신장|갑상선|고혈압|당뇨|용종|디스크|골절|화상|병력|유병|간편|표준체|종신|정기|연금|변액|운전자|배상|손해|생명|화재|해상|메리츠|삼성|한화|현대|흥국|교보|농협|신한|라이나|동양|미래에셋|KB|DB|AIA|하나)/;
       var lines = String(text).split(/\r?\n/);
       var keep = new Array(lines.length).fill(false);
-      for (var i = 0; i < lines.length; i++) { if (KW.test(lines[i])) { keep[i] = true; if (i > 0) keep[i - 1] = true; if (i < lines.length - 1) keep[i + 1] = true; } }
+      for (var i = 0; i < lines.length; i++) { if (KW.test(lines[i])) { for (var k = Math.max(0, i - 2); k <= Math.min(lines.length - 1, i + 2); k++) keep[k] = true; } }
       var out = []; for (var j = 0; j < lines.length; j++) { if (keep[j]) out.push(lines[j]); }
       return out.join('\n');
     }
@@ -4828,7 +4828,7 @@
         btn.textContent = '🤖 AI 비전 분석 중… (수십 초)';
         var res = await fetch('/api/coverages/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ images: images, source_file: f.name }) });
         var d = await res.json();
-        if (!res.ok) throw new Error((d.error || '분석 실패') + (d.code ? ' (' + d.code + ')' : ''));
+        if (!res.ok) throw new Error((d.error || '분석 실패') + (d.code ? ' [' + d.code + ']' : '') + (d.detail ? ' — ' + d.detail : ''));
         st.innerHTML = '✅ 담보 추출 <b>' + d.extracted + '</b>건 (AI 인식 ' + d.found + '건' + (d.mode ? ', ' + d.mode : '') + ') → 검수 대기'
           + (d.extracted === 0 && d.raw ? '<br><span style="color:var(--txt-lo)">AI응답: ' + esc(d.raw) + '</span>' : '');
         st.style.color = d.extracted > 0 ? '#10b981' : '#f59e0b'; fe.value = ''; loadCoverages();

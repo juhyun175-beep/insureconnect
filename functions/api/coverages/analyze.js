@@ -48,7 +48,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   } else {
     return error('분석할 PDF 이미지/텍스트가 없습니다. (스캔본이면 페이지 이미지로 분석됩니다)');
   }
-  if (!r.ok) return json({ error: 'AI 분석 실패', code: r.error, mode }, 502);
+  if (!r.ok) return json({ error: 'AI 분석 실패', code: r.error, detail: r.detail || null, mode }, 502);
 
   const rows = parseRows(r.text);
   const clip = (v, n) => (v == null || v === '') ? null : String(v).slice(0, n);

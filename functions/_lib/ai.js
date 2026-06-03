@@ -103,10 +103,14 @@ export async function callVision(env, system, userText, images, { maxTokens = 40
       body: JSON.stringify({
         model: model || env.OPENAI_VISION_MODEL || 'gpt-4o-mini',
         messages: [{ role: 'system', content: system }, { role: 'user', content }],
-        max_tokens: maxTokens, temperature: 0,
+        max_completion_tokens: maxTokens,  // 2026 모델: max_tokens 대신 / temperature 미지정(기본값)
       }),
     });
-    if (!res.ok) return { ok: false, error: `openai_${res.status}` };
+    if (!res.ok) {
+      let detail = '';
+      try { detail = (await res.text()).replace(/\s+/g, ' ').slice(0, 400); } catch (_) {}
+      return { ok: false, error: `openai_${res.status}`, detail };
+    }
     const d = await res.json();
     const text = d?.choices?.[0]?.message?.content?.trim();
     return text ? { ok: true, text } : { ok: false, error: 'empty' };
