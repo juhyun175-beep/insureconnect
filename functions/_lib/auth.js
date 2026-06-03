@@ -74,3 +74,19 @@ export async function deleteSession(env, request) {
     await env.DB.prepare(`DELETE FROM ic_member_sessions WHERE token_hash = ?`).bind(hash).run();
   } catch (_) {}
 }
+
+/** 포인트 임계치 기반 등급 자동승급 (상향만, admin 제외). 100P→인증, 500P→프리미엄 */
+export async function maybePromoteByPoints(env, memberId) {
+  if (!memberId) return;
+  try {
+    const m = await env.DB.prepare(`SELECT points, role FROM ic_members WHERE id = ?`).bind(memberId).first();
+    if (!m || m.role === 'admin') return;
+    const pts = m.points || 0;
+    let target = 'member';
+    if (pts >= 500) target = 'premium';
+    else if (pts >= 100) target = 'certified';
+    if (roleRank(target) > roleRank(m.role || 'member')) {
+      await env.DB.prepare(`UPDATE ic_members SET role = ? WHERE id = ?`).bind(target, memberId).run();
+    }
+  } catch (_) {}
+}

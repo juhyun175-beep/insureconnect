@@ -4,6 +4,7 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
+import { maybePromoteByPoints } from '../../_lib/auth.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -57,6 +58,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
     try {
       await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 20 WHERE id = ?`).bind(cur.submitter_id).run();
       await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 20, 'case_approve')`).bind(cur.submitter_id).run();
+      await maybePromoteByPoints(env, cur.submitter_id);
     } catch (_) {}
   }
   // 우수 사례 +50 (최초 1회)
@@ -64,6 +66,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
     try {
       await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 50 WHERE id = ?`).bind(cur.submitter_id).run();
       await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 50, 'case_excellent')`).bind(cur.submitter_id).run();
+      await maybePromoteByPoints(env, cur.submitter_id);
     } catch (_) {}
   }
   return json({ ok: true, approved: approving, excellent: markExcellent });

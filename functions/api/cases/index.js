@@ -5,7 +5,7 @@
  */
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { verifyAdmin } from '../../_lib/admin.js';
-import { getUserFromRequest } from '../../_lib/auth.js';
+import { getUserFromRequest, maybePromoteByPoints } from '../../_lib/auth.js';
 
 const CATEGORIES = ['underwrite', 'disclosure', 'claim'];
 
@@ -88,9 +88,13 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     reliability, source, status, submitterId, approvedAt
   ).first();
 
-  // 회원 등록 시 포인트 +10 (실패해도 등록 성공)
+  // 회원 등록 시 포인트 +10 (실패해도 등록 성공) + 등급 자동승급
   if (!admin && user) {
-    try { await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 10 WHERE id = ?`).bind(user.id).run(); } catch (_) {}
+    try {
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 10 WHERE id = ?`).bind(user.id).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 10, 'case_submit')`).bind(user.id).run();
+      await maybePromoteByPoints(env, user.id);
+    } catch (_) {}
   }
   return json({ id: r.id, ok: true, points_awarded: admin ? 0 : 10 });
 });

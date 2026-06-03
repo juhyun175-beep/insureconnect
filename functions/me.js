@@ -104,6 +104,12 @@ export const onRequestGet = async ({ env, request }) => {
   </div>
 
   <div class="card">
+    <h2>⭐ 내 포인트</h2>
+    <div id="pt-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+    <p class="note">사례 등록 +10 · 승인 +20 · 우수 +50 · 삼따AI 추가질문 −5 · 100P 인증설계사 / 500P 프리미엄 자동 승급</p>
+  </div>
+
+  <div class="card">
     <h2>🔔 알림 설정</h2>
     <div class="tg">
       <div>
@@ -184,6 +190,21 @@ export const onRequestGet = async ({ env, request }) => {
         else { (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert('초대 링크가 복사되었습니다. 동료에게 공유하세요.');}).catch(function(){ window.prompt('초대 링크', link); }); }
       });
     }).catch(function(){ box.textContent='추천 정보를 불러오지 못했습니다.'; });
+  })();
+
+  // 포인트 내역
+  (function(){
+    var box=document.getElementById('pt-box'); if(!box) return;
+    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',ai_extra:'삼따AI 추가질문'};
+    fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
+      if(!d||d.points==null){ box.textContent='포인트 정보를 불러오지 못했습니다.'; return; }
+      var log=(d.log||[]).map(function(l){
+        var pos=l.delta>=0; var dt=(l.created_at||'').slice(0,10);
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:13px;color:#334155;">'+(RL[l.reason]||l.reason||'')+'</span><span style="font-size:13px;font-weight:800;color:'+(pos?'#16a34a':'#dc2626')+'">'+(pos?'+':'')+l.delta+'P <span style="color:#94a3b8;font-weight:500;font-size:11px;margin-left:4px;">'+dt+'</span></span></div>';
+      }).join('');
+      box.innerHTML='<div style="font-size:30px;font-weight:900;color:#b45309;margin-bottom:6px;">'+Number(d.points).toLocaleString()+'<span style="font-size:16px;">P</span></div>'
+        +(log?'<div style="margin-top:6px;">'+log+'</div>':'<div class="empty">아직 포인트 내역이 없습니다. 삼따AI에서 사례를 공유해보세요.</div>');
+    }).catch(function(){ box.textContent='포인트 정보를 불러오지 못했습니다.'; });
   })();
   </script>`;
 

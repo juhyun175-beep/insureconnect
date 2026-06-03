@@ -4676,6 +4676,7 @@
 
     /* v2.9.0: 보험 사례 데이터센터 */
     var CASE_CAT = { underwrite: '인수심사', disclosure: '고지', claim: '보상' };
+    var CS_ITEMS = [];
     var CASE_STAT = { pending: ['검수대기', '#f59e0b'], approved: ['승인', '#10b981'], rejected: ['반려', '#ef4444'] };
     async function casesCount(status) {
       try { const r = await fetch('/api/cases?status=' + status + '&limit=1', { headers: adminHeaders() }); const d = await r.json(); return d.total || 0; } catch (_) { return 0; }
@@ -4732,12 +4733,12 @@
       try {
         const r = await fetch('/api/cases?status=' + status + '&category=' + cat + '&q=' + encodeURIComponent(q) + '&limit=100', { headers: adminHeaders() });
         const d = await r.json();
-        const items = d.cases || [];
+        const items = d.cases || []; CS_ITEMS = items;
         if (!items.length) { el.innerHTML = '<p class="empty-msg">사례가 없습니다.</p>'; return; }
         el.innerHTML = items.map(function (c) {
           const stat = CASE_STAT[c.verify_status] || ['?', '#888'];
           const meta = [CASE_CAT[c.category] || c.category, c.insurer, c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : '', c.age ? c.age + '세' : '', c.elapsed_period].filter(Boolean).join(' · ');
-          return '<div style="padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">'
+          return '<div id="cs-row-' + c.id + '" style="padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">'
             + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;">'
             + '<span style="font-size:13.5px;font-weight:800;color:var(--txt-hi);">' + esc(c.disease || '(질병 미기재)') + '</span>'
             + '<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;color:#fff;background:' + stat[1] + ';">' + stat[0] + '</span>'
@@ -4752,7 +4753,8 @@
             + [20, 40, 60, 80, 100].map(function (v) { return '<option value="' + v + '"' + (c.reliability === v ? ' selected' : '') + '>신뢰도 ' + v + '</option>'; }).join('')
             + '</select>'
             + (c.verify_status === 'approved' ? '<button onclick="markExcellent(' + c.id + ')" style="font-size:11px;padding:5px 10px;background:' + (c.excellent ? 'rgba(245,158,11,0.30)' : 'rgba(245,158,11,0.14)') + ';color:#d97706;border:none;border-radius:6px;cursor:pointer;font-weight:700;">' + (c.excellent ? '⭐ 우수됨' : '⭐ 우수+50P') + '</button>' : '')
-            + '<button onclick="deleteCase(' + c.id + ')" style="font-size:11px;padding:5px 11px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;margin-left:auto;">삭제</button>'
+            + '<button onclick="editCase(' + c.id + ')" style="font-size:11px;padding:5px 10px;background:rgba(99,102,241,0.16);color:#818cf8;border:none;border-radius:6px;cursor:pointer;font-weight:700;margin-left:auto;">✏ 수정</button>'
+            + '<button onclick="deleteCase(' + c.id + ')" style="font-size:11px;padding:5px 11px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>'
             + '</div></div>';
         }).join('');
       } catch (e) { el.innerHTML = '<p class="empty-msg">로드 실패: ' + esc(e.message) + '</p>'; }
@@ -4765,6 +4767,27 @@
     async function rejectCase(id) { await patchCase(id, { verify_status: 'rejected' }); loadCasesPanel(); }
     async function setCaseReliability(id, v) { await patchCase(id, { reliability: parseInt(v, 10) }); searchCases(); }
     async function deleteCase(id) { if (!confirm('이 사례를 삭제할까요?')) return; await fetch('/api/cases/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCasesPanel(); }
+    function editCase(id) {
+      var c = CS_ITEMS.filter(function (x) { return x.id === id; })[0]; if (!c) return;
+      var row = document.getElementById('cs-row-' + id); if (!row) return;
+      var iStyle = 'width:100%;padding:6px 8px;font-size:12.5px;background:var(--bg-input);color:var(--txt-hi);border:1px solid var(--border);border-radius:6px;';
+      var lStyle = 'font-size:10.5px;color:var(--txt-lo);display:block;margin-bottom:2px;';
+      var inp = function (f, v, ph, w) { return '<div style="margin-bottom:6px;' + (w ? 'width:' + w + ';' : 'flex:1;') + '"><label style="' + lStyle + '">' + ph + '</label><input id="ce-' + f + '-' + id + '" value="' + esc(v == null ? '' : v) + '" style="' + iStyle + '"></div>'; };
+      var catSel = '<div style="flex:1;"><label style="' + lStyle + '">카테고리</label><select id="ce-category-' + id + '" style="' + iStyle + '">' + ['underwrite', 'disclosure', 'claim'].map(function (k) { return '<option value="' + k + '"' + (c.category === k ? ' selected' : '') + '>' + CASE_CAT[k] + '</option>'; }).join('') + '</select></div>';
+      var genSel = '<div style="width:90px;"><label style="' + lStyle + '">성별</label><select id="ce-gender-' + id + '" style="' + iStyle + '">' + [['', '무관'], ['M', '남'], ['F', '여']].map(function (g) { return '<option value="' + g[0] + '"' + ((c.gender || '') === g[0] ? ' selected' : '') + '>' + g[1] + '</option>'; }).join('') + '</select></div>';
+      row.innerHTML = '<div style="font-size:11px;font-weight:700;color:#818cf8;margin-bottom:8px;">✏ 사례 수정 (#' + id + ')</div>'
+        + '<div style="display:flex;gap:8px;margin-bottom:6px;">' + catSel + genSel + '</div>'
+        + '<div style="display:flex;gap:8px;">' + inp('disease', c.disease, '질병/사유') + inp('insurer', c.insurer, '보험사') + '</div>'
+        + '<div style="display:flex;gap:8px;">' + inp('age', c.age, '연령', '90px') + inp('elapsed_period', c.elapsed_period, '경과기간') + inp('join_condition', c.join_condition, '가입조건') + '</div>'
+        + inp('result', c.result, '결과')
+        + '<div style="margin-bottom:6px;"><label style="' + lStyle + '">사례 요약</label><textarea id="ce-summary-' + id + '" rows="2" style="' + iStyle + '">' + esc(c.summary || '') + '</textarea></div>'
+        + '<div style="display:flex;gap:6px;margin-top:4px;"><button onclick="saveCaseEdit(' + id + ')" style="font-size:11px;padding:6px 16px;background:#10b981;color:#fff;border:none;border-radius:6px;cursor:pointer;font-weight:700;">💾 저장</button><button onclick="searchCases()" style="font-size:11px;padding:6px 14px;background:transparent;color:var(--txt-mid);border:1px solid var(--border);border-radius:6px;cursor:pointer;">취소</button></div>';
+    }
+    async function saveCaseEdit(id) {
+      var g = function (f) { var e = document.getElementById('ce-' + f + '-' + id); return e ? e.value : ''; };
+      await patchCase(id, { category: g('category'), disease: g('disease'), insurer: g('insurer'), gender: g('gender'), age: g('age'), elapsed_period: g('elapsed_period'), join_condition: g('join_condition'), result: g('result'), summary: g('summary') });
+      searchCases();
+    }
     /* TXT 자동 분석 (#3+#4) */
     (function () {
       var f = document.getElementById('cs-txt-file');

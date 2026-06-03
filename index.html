@@ -765,6 +765,14 @@
     /* ── 사이드 메뉴 ── */
     :root { --side-w: 240px; }
     body { padding-left: var(--side-w); transition: padding-left .28s ease; }
+    /* v2.10.1: PC 사이드바 접기 (#1) — 콘텐츠 영역 확장, localStorage 유지, 모바일 무영향 */
+    body.sidebar-collapsed:not(.ic-mobile) { padding-left: 0; }
+    body.sidebar-collapsed:not(.ic-mobile) .side-nav { transform: translateX(-100%); }
+    body.sidebar-collapsed:not(.ic-mobile) .left-nav-group { left: 0; }
+    .pc-side-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 260; width: 34px; height: 34px; border-radius: 9px; background: var(--bg-card); border: 1px solid var(--border); color: var(--txt-mid); cursor: pointer; align-items: center; justify-content: center; font-size: 16px; box-shadow: var(--sh-sm); transition: background .15s, color .15s; }
+    .pc-side-toggle:hover { color: var(--blue-mid); border-color: var(--blue-mid); }
+    @media (min-width: 1025px) { body:not(.ic-mobile) .pc-side-toggle { display: flex; } }
+    body.ic-mobile .pc-side-toggle { display: none !important; }
     .side-nav {
       position: fixed;
       top: 0; left: 0; bottom: 0;
@@ -7782,6 +7790,11 @@
   <script async src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.min.js" crossorigin="anonymous"
           onload="try{if(window.Kakao&&!window.Kakao.isInitialized())window.Kakao.init('ca87154629fc282e5202c66822514bd4');}catch(e){}"></script>
 
+  <button class="pc-side-toggle" id="pc-side-toggle" type="button" onclick="toggleSidebar()" title="사이드바 접기/펼치기" aria-label="사이드바 토글">☰</button>
+  <script>
+    function toggleSidebar(){ var c=document.body.classList.toggle('sidebar-collapsed'); try{localStorage.setItem('ic_sidebar_collapsed',c?'1':'0');}catch(e){} }
+    (function(){ try{ if(localStorage.getItem('ic_sidebar_collapsed')==='1'){ document.body.classList.add('sidebar-collapsed'); } }catch(e){} })();
+  </script>
   <aside class="side-nav" id="side-nav">
     <!-- v2.7.8: 로고 클릭 → 홈 이동 -->
     <div class="side-nav-header">
