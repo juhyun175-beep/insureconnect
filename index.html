@@ -766,8 +766,8 @@
     :root { --side-w: 240px; }
     body { padding-left: var(--side-w); transition: padding-left .28s ease; }
     /* v2.10.1: PC 사이드바 접기 (#1) — 콘텐츠 영역 확장, localStorage 유지, 모바일 무영향 */
-    body.sidebar-collapsed:not(.ic-mobile) { padding-left: 0; }
-    body.sidebar-collapsed:not(.ic-mobile) .side-nav { transform: translateX(-100%); }
+    body.sidebar-collapsed:not(.ic-mobile) { padding-left: 0 !important; }
+    body.sidebar-collapsed:not(.ic-mobile) .side-nav { transform: translateX(-100%) !important; }
     body.sidebar-collapsed:not(.ic-mobile) .left-nav-group { left: 0; }
     .pc-side-toggle { display: none; position: fixed; top: 12px; left: 12px; z-index: 260; width: 34px; height: 34px; border-radius: 9px; background: var(--bg-card); border: 1px solid var(--border); color: var(--txt-mid); cursor: pointer; align-items: center; justify-content: center; font-size: 16px; box-shadow: var(--sh-sm); transition: background .15s, color .15s; }
     .pc-side-toggle:hover { color: var(--blue-mid); border-color: var(--blue-mid); }
