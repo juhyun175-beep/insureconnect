@@ -4389,7 +4389,7 @@
         </div>
         <div style="background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.18);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid);line-height:1.6;">
           <div style="font-weight:700;color:#38bdf8;margin-bottom:4px;">상품요약서·가입설계서 PDF → AI가 담보별 스펙 추출</div>
-          PDF 페이지를 <strong>이미지로 변환해 AI 비전(GPT-4o)이 표를 직접 읽어</strong> <strong>보험사·상품·담보·가입금액·보험료·가입나이·납입/만기</strong>를 정리 → 검수 후 비교 레퍼런스로 축적됩니다. (표·스캔본도 인식. 앞 8페이지 분석)
+          PDF 페이지를 <strong>이미지로 변환해 AI 비전(GPT-4o)이 표를 직접 읽어</strong> <strong>보험사·상품·담보·가입금액·보험료·가입나이·납입/만기</strong>를 표의 모든 행으로 정리 → 검수 후 축적. (표·스캔본 인식. **전체 페이지를 4장씩 나눠 순차 분석**, 최대 40p)
         </div>
         <div class="nl-upload-box" style="border:1px solid rgba(14,165,233,0.28);">
           <div style="font-size:12.5px;font-weight:700;color:#38bdf8;margin-bottom:8px;">＋ PDF 업로드 → AI 분석</div>
@@ -4799,19 +4799,20 @@
     }
 
     /* v2.9.2: 보험 상품/담보 PDF 분석 (pdf.js 텍스트 추출 → AI) */
-    async function pdfToImages(file, maxPages) {
+    async function pdfToImages(file, maxPages, onProgress) {
       const lib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs');
       lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
       const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
-      const n = Math.min(pdf.numPages, maxPages || 8);
+      const n = Math.min(pdf.numPages, maxPages || 40);
       const imgs = [];
       for (let i = 1; i <= n; i++) {
+        if (onProgress) onProgress(i, n);
         const page = await pdf.getPage(i);
-        const vp = page.getViewport({ scale: 1.6 });
+        const vp = page.getViewport({ scale: 1.5 });
         const canvas = document.createElement('canvas');
         canvas.width = vp.width; canvas.height = vp.height;
         await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
-        imgs.push(canvas.toDataURL('image/jpeg', 0.78));
+        imgs.push(canvas.toDataURL('image/jpeg', 0.75));
       }
       return { imgs: imgs, total: pdf.numPages };
     }
@@ -4819,19 +4820,27 @@
       var fe = document.getElementById('cv-file'); var f = fe && fe.files[0];
       var st = document.getElementById('cv-status'); var btn = document.getElementById('cv-analyze-btn');
       if (!f) { alert('PDF 파일을 선택해주세요.'); return; }
-      btn.disabled = true; btn.textContent = '📄 PDF 이미지화…'; st.textContent = '';
+      btn.disabled = true; st.textContent = '';
       try {
-        var res0 = await pdfToImages(f, 8);
+        var res0 = await pdfToImages(f, 40, function (i, n) { btn.textContent = '📄 PDF 이미지화 ' + i + '/' + n + '…'; });
         var images = res0.imgs;
         if (!images.length) throw new Error('PDF 페이지를 읽지 못했습니다.');
-        if (res0.total > 8) { st.innerHTML = '※ ' + res0.total + '페이지 중 앞 8페이지만 분석합니다.'; st.style.color = 'var(--txt-lo)'; }
-        btn.textContent = '🤖 AI 비전 분석 중… (수십 초)';
-        var res = await fetch('/api/coverages/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ images: images, source_file: f.name }) });
-        var d = await res.json();
-        if (!res.ok) throw new Error((d.error || '분석 실패') + (d.code ? ' [' + d.code + ']' : '') + (d.detail ? ' — ' + d.detail : ''));
-        st.innerHTML = '✅ 담보 추출 <b>' + d.extracted + '</b>건 (AI 인식 ' + d.found + '건' + (d.mode ? ', ' + d.mode : '') + ') → 검수 대기'
-          + (d.extracted === 0 && d.raw ? '<br><span style="color:var(--txt-lo)">AI응답: ' + esc(d.raw) + '</span>' : '');
-        st.style.color = d.extracted > 0 ? '#10b981' : '#f59e0b'; fe.value = ''; loadCoverages();
+        var BATCH = 4;
+        var batches = []; for (var i = 0; i < images.length; i += BATCH) batches.push(images.slice(i, i + BATCH));
+        var totalE = 0, totalF = 0, failed = 0, lastErr = '';
+        for (var b = 0; b < batches.length; b++) {
+          btn.textContent = '🤖 비전 분석 ' + (b + 1) + '/' + batches.length + '…';
+          st.innerHTML = '페이지 ' + Math.min((b + 1) * BATCH, images.length) + '/' + images.length + ' 분석 중 · 누적 담보 <b>' + totalE + '</b>건'; st.style.color = 'var(--txt-mid)';
+          var res = await fetch('/api/coverages/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ images: batches[b], source_file: f.name }) });
+          var d = await res.json().catch(function () { return {}; });
+          if (res.ok) { totalE += (d.extracted || 0); totalF += (d.found || 0); }
+          else { failed++; lastErr = (d && d.error || res.status) + (d && d.detail ? ' — ' + d.detail : ''); }
+        }
+        st.innerHTML = '✅ 완료 — 총 담보 <b>' + totalE + '건</b> (' + images.length + '페이지 / ' + batches.length + '배치, AI인식 ' + totalF + ') → 검수 대기'
+          + (res0.total > images.length ? '<br>※ ' + res0.total + '페이지 중 ' + images.length + '페이지 분석(많으면 분할 업로드)' : '')
+          + (failed ? '<br><span style="color:#ef4444">배치 ' + failed + '개 실패: ' + esc(lastErr) + '</span>' : '');
+        st.style.color = totalE > 0 ? '#10b981' : '#f59e0b';
+        fe.value = ''; loadCoverages();
       } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
       finally { btn.disabled = false; btn.textContent = '🤖 PDF 분석 → 검수 대기'; }
     }
