@@ -4575,6 +4575,16 @@
     /* v2.11.0 fix: body.ic-mobile .side-submit-single(특이도 0,2,1)가 위 규칙(0,2,0)을 이겨 좌우 14px 마진+width:100%로 카드 밖 이탈 → 더 높은 특이도(0,3,1)로 마진 0 강제 */
     body.ic-mobile .m-account-card .side-submit-single,
     body.ic-mobile .m-account-card .side-search-btn { width: 100%; margin: 0; }
+    /* v2.12.2: 계정카드 — 유틸 3열(앱공유·운영자문의·파트너전용) + 하단(빠른검색·방문통계) 2열 */
+    .m-acc-util3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
+    .m-acc-util { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 9px 4px; border-radius: 9px; background: var(--bg); border: 1px solid var(--border); color: var(--txt-mid); font-size: 11px; font-weight: 700; text-decoration: none; cursor: pointer; font-family: inherit; text-align: center; }
+    .m-acc-util span { font-size: 16px; line-height: 1; }
+    .m-acc-util:hover { border-color: var(--blue-mid); color: var(--blue-mid); }
+    .m-acc-bottom2 { display: grid; grid-template-columns: 1.05fr 1fr; gap: 6px; align-items: stretch; }
+    .m-acc-bottom2 .side-search-btn { margin: 0 !important; width: 100% !important; height: 100%; }
+    .m-acc-visit { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 9px 8px; border-radius: 9px; background: var(--bg); border: 1px solid var(--border); font-size: 11.5px; color: var(--txt-mid); white-space: nowrap; }
+    .m-acc-visit strong { color: var(--txt-hi); font-weight: 800; }
+    .m-acc-visit .ic-m-stats-dot { flex-shrink: 0; }
 
     .ic-m-hero {
       padding: 18px 16px 18px;
@@ -8442,17 +8452,21 @@
     <!-- v2.8.27: 모바일 로그인 계정 카드 (PC 사이드바 계정 카드 이식 — 로그인 시에만 표시) -->
     <div class="m-account-card" id="m-account-card" style="display:none;">
       <div id="ic-auth-m"></div>
-      <button type="button" class="side-submit-single" onclick="openSubmitModal()">
-        <span class="sss-icon">📤</span>
-        <span class="sss-text">
-          <span class="sss-title">내 공고 직접 등록</span>
-          <span class="sss-sub">💼 채용 · 🎓 강의</span>
-        </span>
-      </button>
-      <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
-        <span class="ssb-icon">🔍</span>
-        <span class="ssb-label">빠른 검색</span>
-      </button>
+      <!-- v2.12.2: 앱공유 · 운영자문의 · 파트너전용 (3열) — 내공고등록은 로그인정보 버튼줄로 이동 -->
+      <div class="m-acc-util3">
+        <button type="button" class="m-acc-util" onclick="shareApp()"><span>🔗</span>앱 공유</button>
+        <a class="m-acc-util" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','account-card')"><span>💬</span>운영자 문의</a>
+        <a class="m-acc-util" href="/admin.html"><span>🔧</span>파트너 전용</a>
+      </div>
+      <!-- v2.12.2: 빠른검색 + 방문통계 (2열) -->
+      <div class="m-acc-bottom2">
+        <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
+          <span class="ssb-icon">🔍</span><span class="ssb-label">빠른 검색</span>
+        </button>
+        <div class="m-acc-visit">
+          <span class="ic-m-stats-dot"></span>오늘 <strong id="m-stat-today">—</strong> · 누적 <strong id="m-stat-total">—</strong>
+        </div>
+      </div>
     </div>
     <script>
     (function(){
@@ -8467,9 +8481,10 @@
             +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover">':'<span style="font-size:18px">👤</span>')
             +'<span style="font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span>'
             +'<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0;color:'+rl[1]+';background:'+rl[2]+';">'+rl[0]+'</span>'+(d.user.points>0?'<span style="font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(245,158,11,0.18);color:#b45309;white-space:nowrap;flex-shrink:0;margin-left:4px;">⭐'+Number(d.user.points).toLocaleString()+'P</span>':'')+'</div>'
-            +'<div style="display:flex;gap:8px;margin-top:9px;">'
-            +'<a href="/me" style="flex:1;text-align:center;background:var(--blue-mid,#1a3de8);color:#fff;text-decoration:none;font-weight:700;font-size:13px;padding:9px;border-radius:8px;">👤 마이페이지</a>'
-            +'<button type="button" onclick="icLogout()" style="background:transparent;border:1px solid var(--border);color:var(--txt-mid);font-size:13px;cursor:pointer;padding:9px 14px;border-radius:8px;">로그아웃</button>'
+            +'<div style="display:flex;gap:6px;margin-top:9px;">'
+            +'<a href="/me" style="flex:1;text-align:center;background:var(--blue-mid,#1a3de8);color:#fff;text-decoration:none;font-weight:700;font-size:12.5px;padding:9px 4px;border-radius:8px;white-space:nowrap;">👤 마이페이지</a>'
+            +'<button type="button" onclick="openSubmitModal()" style="flex:1;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;padding:9px 4px;border-radius:8px;white-space:nowrap;">📤 공고 등록</button>'
+            +'<button type="button" onclick="icLogout()" style="flex:0 0 auto;background:transparent;border:1px solid var(--border);color:var(--txt-mid);font-size:12.5px;cursor:pointer;padding:9px 12px;border-radius:8px;white-space:nowrap;">로그아웃</button>'
             +'</div>';
           if(card) card.style.display='';
         } else {
@@ -8495,20 +8510,15 @@
         <button class="ic-m-core-card" onclick="goToPage('payment')"><span class="cc-lb">수납</span></button>
         <button class="ic-m-core-card" onclick="goToPage('newsletter')"><span class="cc-new" data-mnew="newsletter"></span><span class="cc-lb">소식지</span></button>
         <button class="ic-m-core-card" onclick="if(window.icMarkSeen)icMarkSeen('board');location.href='/board'"><span class="cc-new" data-mnew="board"></span><span class="cc-lb">자유게시판</span></button>
-        <button class="ic-m-core-card" onclick="location.href='/me'"><span class="cc-lb">마이페이지</span></button>
         <button class="ic-m-core-card" onclick="goToPage('knowledge')"><span class="cc-lb">보험지식</span></button>
         <button class="ic-m-core-card" onclick="goToPage('tools')"><span class="cc-lb">실무도구</span></button>
         <button class="ic-m-core-card" onclick="goToPage('lecture')"><span class="cc-new" data-mnew="lecture"></span><span class="cc-lb">강의</span></button>
         <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-lb">채용</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">최신</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('telecom')"><span class="cc-lb">통신·폰</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">인슈어커넥트 뉴스</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('partner')"><span class="cc-lb">파트너사</span></button>
         <a class="ic-m-core-card" href="/ai"><span class="cc-lb">삼따AI</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
-        <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-lb">운영자 문의</span></a>
-        <button class="ic-m-core-card" type="button" onclick="shareApp()"><span class="cc-lb">앱 공유</span></button>
-        <a class="ic-m-core-card" href="/admin.html"><span class="cc-lb">파트너 전용</span></a>
       </div>
     </section>
 
@@ -8565,12 +8575,6 @@
 
     <!-- 통계 + 테마 -->
     <section class="ic-m-section ic-m-bottom">
-      <div class="ic-m-stats-row">
-        <span class="ic-m-stats-dot"></span>
-        오늘 <strong id="m-stat-today">—</strong>명
-        &nbsp;·&nbsp;
-        누적 <strong id="m-stat-total">—</strong>명
-      </div>
       <div class="ic-m-theme-row" role="group" aria-label="테마 선택">
         <button type="button" class="ic-m-theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
         <button type="button" class="ic-m-theme-btn" data-theme-val="system" onclick="setTheme('system')">🖥</button>
@@ -8602,8 +8606,8 @@
     <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
     <div class="ibh-aii-row">
       <style>
-        .ibh-aii-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;margin:18px 0 24px;}
-        .ibh-aii-row .ibh{margin:0;height:100%;}
+        .ibh-aii-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin:18px 0 24px;}
+        .ibh-aii-row .ibh{margin:0;}
         @media(max-width:900px){ .ibh-aii-row{grid-template-columns:1fr;} }
         .home-aii{display:flex;flex-direction:column;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid rgba(26,61,232,0.18);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
@@ -8626,6 +8630,12 @@
         .aii-chip{font-size:12px;font-weight:700;color:#1a3de8;background:rgba(26,61,232,0.08);border:1px solid rgba(26,61,232,0.2);border-radius:999px;padding:6px 11px;cursor:pointer;font-family:inherit;}
         [data-theme="dark"] .aii-chip{color:#8ab4ff;background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3);}
         .aii-chip:hover{background:rgba(26,61,232,0.16);}
+        .aii-err{font-size:12px;color:#dc2626;margin-top:8px;line-height:1.5;}
+        .aii-out{margin-top:10px;border-top:1px solid rgba(26,61,232,0.16);padding-top:10px;max-height:300px;overflow-y:auto;}
+        .aii-answer{font-size:13px;line-height:1.65;color:var(--txt-hi,#0f172a);white-space:pre-wrap;word-break:break-word;}
+        [data-theme="dark"] .aii-answer{color:#e6edf3;}
+        .aii-ev{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
+        .aii-hint{font-size:11px;color:#94a3b8;margin-top:8px;}
       </style>
       <section class="ibh" aria-label="자유게시판">
       <style>
@@ -8673,18 +8683,52 @@
         <p class="aii-desc">실제 인수·보상·고지 <b>사례로 답하는</b> 보험 AI. 궁금한 점을 여기서 바로 물어보세요.</p>
         <form class="aii-form" onsubmit="return homeAiAsk(event)">
           <input class="aii-input" id="home-aii-q" type="text" maxlength="200" autocomplete="off" placeholder="예: 갑상선 결절 고지 후 인수 사례 있나요?">
-          <button class="aii-btn" type="submit">물어보기</button>
+          <button class="aii-btn" id="home-aii-btn" type="submit">물어보기</button>
         </form>
-        <div class="aii-chips">
-          <button type="button" class="aii-chip" onclick="homeAiGo('고혈압 약 복용 중 보험 가입 가능한가요?')">고혈압 가입</button>
-          <button type="button" class="aii-chip" onclick="homeAiGo('갑상선 결절 고지 후 인수 사례')">갑상선 결절</button>
-          <button type="button" class="aii-chip" onclick="homeAiGo('뇌출혈 진단비 지급 거절 사례')">뇌출혈 보상</button>
+        <div class="aii-chips" id="home-aii-chips">
+          <button type="button" class="aii-chip" onclick="homeAiChip('고혈압 약 복용 중 보험 가입 가능한가요?')">고혈압 가입</button>
+          <button type="button" class="aii-chip" onclick="homeAiChip('갑상선 결절 고지 후 인수 사례')">갑상선 결절</button>
+          <button type="button" class="aii-chip" onclick="homeAiChip('뇌출혈 진단비 지급 거절 사례')">뇌출혈 보상</button>
+        </div>
+        <div class="aii-err" id="home-aii-err"></div>
+        <div class="aii-out" id="home-aii-out" style="display:none;">
+          <div class="aii-answer" id="home-aii-answer"></div>
+          <div class="aii-ev" id="home-aii-ev"></div>
+          <div class="aii-hint" id="home-aii-hint"></div>
         </div>
       </section>
     </div>
     <script>
-      function homeAiGo(q){ location.href='/ai?q=' + encodeURIComponent(q); }
-      function homeAiAsk(e){ if(e&&e.preventDefault)e.preventDefault(); var v=(document.getElementById('home-aii-q').value||'').trim(); if(v) homeAiGo(v); return false; }
+      // v2.12.1: 홈에서 바로 사례 기반 답변 (인라인 RAG)
+      function homeAiChip(q){ var i=document.getElementById('home-aii-q'); if(i) i.value=q; homeAiRun(); }
+      function homeAiAsk(e){ if(e&&e.preventDefault)e.preventDefault(); homeAiRun(); return false; }
+      async function homeAiRun(){
+        var inp=document.getElementById('home-aii-q'), btn=document.getElementById('home-aii-btn'),
+            err=document.getElementById('home-aii-err'), out=document.getElementById('home-aii-out'),
+            ans=document.getElementById('home-aii-answer'), ev=document.getElementById('home-aii-ev'), hint=document.getElementById('home-aii-hint');
+        if(!inp||!btn) return;
+        var q=(inp.value||'').trim(); if(err) err.innerHTML='';
+        if(!q){ if(err) err.textContent='질문을 입력해주세요.'; return; }
+        btn.disabled=true; var ot=btn.textContent; btn.textContent='검색 중…';
+        try{
+          var res=await fetch('/api/cases/ask',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({question:q})});
+          var d=await res.json();
+          if(res.status===401){ if(err) err.innerHTML='로그인 후 이용할 수 있어요. <a href="/api/auth/kakao/login" style="color:#1a3de8;font-weight:700;">카카오 로그인 →</a>'; if(out) out.style.display='none'; }
+          else if(!res.ok){ if(err) err.textContent=(d&&d.error)||'답변 생성에 실패했어요.'; if(out) out.style.display='none'; }
+          else{
+            if(ans) ans.textContent=d.answer||''; var e2=d.evidence||{}; var chips=[];
+            function c(l,col){ return '<span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px;background:'+col+'1f;color:'+col+';border:1px solid '+col+'55;">'+l+'</span>'; }
+            if(e2.case_count>0) chips.push(c('📚 근거 '+e2.case_count+'건','#1a3de8'));
+            if(e2.approve) chips.push(c('✅ 가입/지급 '+e2.approve,'#16a34a'));
+            if(e2.reject) chips.push(c('❌ 거절/제한 '+e2.reject,'#dc2626'));
+            if(e2.insurers&&e2.insurers.length) chips.push(c('🏢 '+e2.insurers.slice(0,3).join(', '),'#7c3aed'));
+            if(ev) ev.innerHTML=chips.join('');
+            if(hint) hint.textContent=d.points_used?('⭐ 포인트 '+d.points_used+'P 사용'):(typeof d.remaining==='number'?('오늘 '+d.remaining+'회 남음'):'');
+            if(out){ out.style.display='block'; out.scrollTop=0; }
+          }
+        }catch(_){ if(err) err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
+        finally{ btn.disabled=false; btn.textContent=ot; }
+      }
     </script>
     <script>
     (function(){
@@ -9025,6 +9069,43 @@
   </div>
 
   <!-- ══════ PAGE: 리스/렌트카 (v2.1.22 신설) ══════ -->
+  <!-- ══════ PAGE: 파트너사 (렌트카·통신 진입 허브) v2.12.2 ══════ -->
+  <div class="content" id="page-partner" style="display:none">
+    <section class="partner-hub" aria-label="파트너사 혜택">
+      <style>
+        .partner-hub{max-width:760px;margin:8px auto;}
+        .partner-hub-head{font-size:20px;font-weight:800;color:var(--txt-hi);margin:6px 2px 4px;}
+        .partner-hub-sub{font-size:13.5px;color:var(--txt-mid);margin:0 2px 18px;line-height:1.5;}
+        .partner-hub-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+        @media(max-width:640px){.partner-hub-grid{grid-template-columns:1fr;}}
+        .partner-card{display:flex;flex-direction:column;gap:7px;padding:22px 20px;border-radius:16px;border:1px solid var(--border);background:var(--bg-card);cursor:pointer;text-align:left;font-family:inherit;transition:transform .12s,box-shadow .12s,border-color .12s;}
+        .partner-card:hover{transform:translateY(-2px);box-shadow:var(--sh-md);border-color:var(--blue-mid);}
+        .partner-card-ico{font-size:34px;line-height:1;}
+        .partner-card-tit{font-size:17px;font-weight:800;color:var(--txt-hi);}
+        .partner-card-desc{font-size:13px;color:var(--txt-mid);line-height:1.5;}
+        .partner-card-go{margin-top:4px;font-size:13px;font-weight:700;color:var(--blue-mid);}
+        .partner-card.rent{background:linear-gradient(135deg,rgba(225,29,72,0.06),rgba(244,63,94,0.04));}
+        .partner-card.tel{background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(79,109,240,0.04));}
+      </style>
+      <div class="partner-hub-head">🤝 인슈어커넥트 파트너사</div>
+      <p class="partner-hub-sub">보험설계사 전용 우대 혜택 — 원하는 서비스를 선택하세요.</p>
+      <div class="partner-hub-grid">
+        <button class="partner-card rent" type="button" onclick="trackCardClick('파트너사','리스/렌트카'); goToPage('rental');">
+          <span class="partner-card-ico">🚗</span>
+          <span class="partner-card-tit">리스 / 렌트카</span>
+          <span class="partner-card-desc">설계사 전용 장기렌트·리스 우대 견적</span>
+          <span class="partner-card-go">바로가기 →</span>
+        </button>
+        <button class="partner-card tel" type="button" onclick="trackCardClick('파트너사','통신/휴대폰'); goToPage('telecom');">
+          <span class="partner-card-ico">📱</span>
+          <span class="partner-card-tit">통신 / 휴대폰</span>
+          <span class="partner-card-desc">보험설계사 우대 통신·단말기 견적</span>
+          <span class="partner-card-go">바로가기 →</span>
+        </button>
+      </div>
+    </section>
+  </div>
+
   <div class="content" id="page-rental" style="display:none">
     <section class="ic-rental-section" id="rental-section" aria-label="보험설계사 전용 렌트카 혜택">
       <img src="/rental-promo.jpg?v=3" alt="삼따방 회원 전용 리스·렌트 우대 혜택 안내" loading="lazy" style="width:100%;height:auto;display:block;border-radius:16px;margin-bottom:14px;box-shadow:0 8px 28px rgba(8,13,38,0.18);">
@@ -10097,6 +10178,7 @@
       tools:            '실무 도구',
       rental:           '🚗 리스/렌트카',
       telecom:          '📱 통신/휴대폰',
+      partner:          '🤝 파트너사',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
@@ -10132,6 +10214,8 @@
 
       /* v2.1.25: 즐겨찾기 floating popup — 홈에서만 노출 */
       if (typeof _applyFavPopupVisibility === 'function') _applyFavPopupVisibility(page);
+      /* v2.12.2: 빠른 메뉴 floating popup — 홈에서만 노출 */
+      if (typeof _applyMenuPopupVisibility === 'function') _applyMenuPopupVisibility(page);
 
       /* 뒤로가기 바 */
       const backBar   = document.getElementById('back-bar');
@@ -10154,11 +10238,12 @@
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
         window._adsPushed = true;
-        (window.requestIdleCallback || setTimeout)(() => {
+        // v2.12.2 fix: requestIdleCallback 의 2번째 인자는 옵션객체여야 함(숫자 전달 시 Chrome 에서 throw) → setTimeout 폴백을 함수로 분리
+        (window.requestIdleCallback || function(fn){ return setTimeout(fn, 500); })(() => {
           try {
             (window.adsbygoogle = window.adsbygoogle || []).push({});
           } catch (_) {}
-        }, 500);
+        });
       }
 
       // 홈 진입 시 자동 공지 팝업 (초기 load의 자동 호출이 끝난 뒤 이후 진입에만)
@@ -13813,38 +13898,83 @@
     initHashRouting();
   </script>
 
-  <!-- v2.1.23: 좌측 고정 빨간 PILL nav — 리스/렌트카 + 통신 (v2.8.18) -->
-  <div class="left-nav-group" aria-label="리스 렌트카 · 통신 진입">
-    <button class="left-nav-btn" type="button"
-            onclick="trackCardClick('좌측버튼','리스/렌트카'); goToPage('rental');"
-            title="리스 / 렌트카 — 인슈어커넥트 파트너사 혜택">
-      <span class="lnb-icon">🚗</span>리스 / 렌트카
-    </button>
-    <button class="left-nav-btn left-nav-btn-tel" type="button"
-            onclick="trackCardClick('좌측버튼','통신'); goToPage('telecom');"
-            title="통신 / 휴대폰 — 보험설계사 우대 견적">
-      <span class="lnb-icon">📱</span>통신 / 휴대폰
-    </button>
+  <!-- v2.12.2: 빠른 메뉴 — 드래그 이동·접기 가능한 플로팅 팝업 (구 좌/우 PILL nav + 토글 통합) -->
+  <style>
+    .menu-float-popup{position:fixed;top:120px;right:18px;z-index:248;width:214px;background:var(--bg-card);border:1px solid var(--border);border-radius:14px;box-shadow:0 16px 48px rgba(0,0,0,0.22);overflow:hidden;user-select:none;}
+    .menu-float-popup.dragging{box-shadow:0 24px 64px rgba(0,0,0,0.34);opacity:.96;}
+    .menu-float-handle{display:flex;align-items:center;gap:6px;padding:8px 10px;background:linear-gradient(135deg,rgba(26,61,232,0.10),rgba(159,122,234,0.08));border-bottom:1px solid var(--border);cursor:grab;touch-action:none;}
+    .menu-float-popup.dragging .menu-float-handle{cursor:grabbing;}
+    .menu-float-grip{font-size:12px;letter-spacing:-2px;color:var(--txt-lo);}
+    .menu-float-title{font-size:12px;font-weight:800;color:var(--txt-hi);flex:1;}
+    .menu-float-close{background:none;border:none;color:var(--txt-lo);font-size:17px;line-height:1;cursor:pointer;padding:0 2px;}
+    .menu-float-close:hover{color:var(--txt-hi);}
+    .menu-float-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;}
+    .menu-pill{font-size:12.5px;font-weight:700;color:var(--txt-hi);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 6px;cursor:pointer;font-family:inherit;text-align:center;transition:background .12s,border-color .12s,color .12s;}
+    .menu-pill:hover{border-color:var(--blue-mid);color:var(--blue-mid);}
+    .menu-pill-wide{grid-column:span 2;}
+    .menu-pill-ai{background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border:none;}
+    .menu-pill-ai:hover{color:#fff;filter:brightness(1.08);}
+    .menu-pill-red{background:linear-gradient(135deg,#e11d48,#f43f5e);color:#fff;border:none;}
+    .menu-pill-red:hover{color:#fff;filter:brightness(1.06);}
+    .menu-float-launcher{position:fixed;top:50%;right:14px;transform:translateY(-50%);z-index:248;display:flex;flex-direction:column;align-items:center;gap:2px;width:46px;padding:11px 0;border-radius:24px;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border:none;font-size:11px;font-weight:800;cursor:pointer;box-shadow:0 8px 24px rgba(26,61,232,0.4);}
+    .menu-float-launcher:hover{filter:brightness(1.1);}
+    .menu-float-launcher .mfl-ico{font-size:18px;}
+    body.ic-mobile .menu-float-popup, body.ic-mobile .menu-float-launcher{display:none !important;}
+    @media (max-width:1024px){.menu-float-popup,.menu-float-launcher{display:none !important;}}
+  </style>
+  <div id="menu-float-popup" class="menu-float-popup" role="dialog" aria-label="빠른 메뉴" style="display:none;">
+    <div class="menu-float-handle" id="menu-float-handle">
+      <span class="menu-float-grip" aria-hidden="true">⋮⋮</span>
+      <span class="menu-float-title">⚡ 빠른 메뉴</span>
+      <button class="menu-float-close" type="button" onclick="collapseMenuPopup()" title="접기" aria-label="빠른 메뉴 접기">×</button>
+    </div>
+    <div class="menu-float-grid">
+      <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인슈어커넥트뉴스'); goToPage('latest');">📰 인슈어커넥트 뉴스</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','전산'); goToPage('jeonsan');">전산</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','GA전산'); goToPage('ga');">GA</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','수납전산'); goToPage('payment');">수납</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','소식지'); goToPage('newsletter');">소식지</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','청구서류'); goToPage('claimform');">청구</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','채용공고'); goToPage('recruit');">채용</button>
+      <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
+      <button class="menu-pill" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
+      <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
+      <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
+    </div>
   </div>
-
-  <!-- ══ 우측 고정 네비게이션 필버튼 그룹 ══ -->
-  <button class="nav-pills-toggle" id="nav-pills-toggle" type="button" onclick="toggleNavPills()" title="메뉴 펼치기/접기" aria-label="메뉴 토글">›</button>
+  <button id="menu-float-launcher" class="menu-float-launcher" type="button" onclick="expandMenuPopup()" title="빠른 메뉴 열기" aria-label="빠른 메뉴 열기" style="display:none;"><span class="mfl-ico">⚡</span>메뉴</button>
   <script>
-    function toggleNavPills(){ var c=document.body.classList.toggle('nav-pills-collapsed'); try{localStorage.setItem('ic_nav_collapsed',c?'1':'0');}catch(e){} var t=document.getElementById('nav-pills-toggle'); if(t)t.textContent=c?'‹':'›'; }
-    (function(){ try{ if(localStorage.getItem('ic_nav_collapsed')==='1'){ document.body.classList.add('nav-pills-collapsed'); var t=document.getElementById('nav-pills-toggle'); if(t)t.textContent='‹'; } }catch(e){} })();
+  (function(){
+    function $(id){ return document.getElementById(id); }
+    function _isMenuCollapsed(){ try{ return localStorage.getItem('ic_menu_collapsed') !== '0'; }catch(e){ return true; } }  // 기본 접힘(깔끔) — 0이면 펼침
+    window._applyMenuPopupVisibility=function(page){
+      var isHome=(page==='home'), collapsed=_isMenuCollapsed();
+      var p=$('menu-float-popup'), l=$('menu-float-launcher');
+      if(p) p.style.display=(isHome && !collapsed)?'':'none';
+      if(l) l.style.display=(isHome && collapsed)?'':'none';
+    };
+    window.collapseMenuPopup=function(){ try{localStorage.setItem('ic_menu_collapsed','1');}catch(e){} window._applyMenuPopupVisibility('home'); };
+    window.expandMenuPopup=function(){ try{localStorage.setItem('ic_menu_collapsed','0');}catch(e){} window._applyMenuPopupVisibility('home'); };
+    var popup=$('menu-float-popup'), handle=$('menu-float-handle');
+    if(popup && handle){
+      var KEY='ic_menu_popup_pos';
+      function clamp(l,t){ var w=popup.offsetWidth||214,h=popup.offsetHeight||320; var mL=Math.max(4,window.innerWidth-w-4),mT=Math.max(4,window.innerHeight-h-4); return {left:Math.min(Math.max(4,l),mL),top:Math.min(Math.max(4,t),mT)}; }
+      try{ var s=JSON.parse(localStorage.getItem(KEY)||'null'); if(s&&isFinite(s.left)&&isFinite(s.top)){ var c=clamp(s.left,s.top); popup.style.left=c.left+'px'; popup.style.top=c.top+'px'; popup.style.right='auto'; } }catch(e){}
+      var drag=false,ox=0,oy=0;
+      function stt(x,y,t){ if(t&&t.closest&&t.closest('.menu-float-close'))return false; drag=true; var r=popup.getBoundingClientRect(); ox=x-r.left; oy=y-r.top; popup.classList.add('dragging'); return true; }
+      function mv(x,y){ if(!drag)return; var c=clamp(x-ox,y-oy); popup.style.left=c.left+'px'; popup.style.top=c.top+'px'; popup.style.right='auto'; }
+      function en(){ if(!drag)return; drag=false; popup.classList.remove('dragging'); try{localStorage.setItem(KEY,JSON.stringify({left:popup.offsetLeft,top:popup.offsetTop}));}catch(e){} }
+      handle.addEventListener('mousedown',function(e){ if(stt(e.clientX,e.clientY,e.target))e.preventDefault(); });
+      document.addEventListener('mousemove',function(e){ mv(e.clientX,e.clientY); });
+      document.addEventListener('mouseup',en);
+      handle.addEventListener('touchstart',function(e){ if(e.touches.length!==1)return; stt(e.touches[0].clientX,e.touches[0].clientY,e.target); },{passive:true});
+      document.addEventListener('touchmove',function(e){ if(!drag||e.touches.length!==1)return; e.preventDefault(); mv(e.touches[0].clientX,e.touches[0].clientY); },{passive:false});
+      document.addEventListener('touchend',en);
+      window.addEventListener('resize',function(){ var c=clamp(popup.offsetLeft,popup.offsetTop); popup.style.left=c.left+'px'; popup.style.top=c.top+'px'; });
+    }
+    window._applyMenuPopupVisibility('home');
+  })();
   </script>
-  <div class="right-nav-group">
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','최신콘텐츠'); goToPage('latest');" title="최신 콘텐츠" type="button">최신</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','전산'); goToPage('jeonsan');" title="보험사 전산" type="button">전산</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','GA전산'); goToPage('ga');" title="GA 법인대리점 전산" type="button">GA</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','수납전산'); goToPage('payment');" title="보험사 수납 전산" type="button">수납</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','소식지'); goToPage('newsletter');" title="보험사 소식지" type="button">소식지</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">청구</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">채용</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','강의'); goToPage('lecture');" title="강의" type="button">강의</button>
-    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','삼따AI'); location.href='/ai';" title="삼따AI — 사례 기반 질문·공유" type="button" style="background:linear-gradient(135deg,#1a3de8,#4a70f5);">삼따AI</button>
-    <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">실무도구</button>
-  </div>
 
   <!-- 모바일 하단 네비 바 (≤480px에서만 표시) -->
   <nav class="mobile-bottom-nav" aria-label="빠른 메뉴">
