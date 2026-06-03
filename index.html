@@ -4581,7 +4581,11 @@
     .m-acc-util span { font-size: 16px; line-height: 1; }
     .m-acc-util:hover { border-color: var(--blue-mid); color: var(--blue-mid); }
     .m-acc-bottom2 { display: grid; grid-template-columns: 1.05fr 1fr; gap: 6px; align-items: stretch; }
-    .m-acc-bottom2 .side-search-btn { margin: 0 !important; width: 100% !important; height: 100%; }
+    body.ic-mobile .m-acc-bottom2 .side-search-btn { margin: 0 !important; width: 100% !important; height: 100%; box-sizing: border-box; padding: 9px 10px !important; justify-content: center; gap: 6px !important; }
+    .m-acc-bottom2 .side-search-btn .ssb-label { flex: 0 0 auto; text-align: center; }
+    /* v2.12.3: 로그인 행 우측 테마(화면전환) 미니 토글 */
+    .m-acc-theme { display: inline-flex; gap: 3px; flex-shrink: 0; margin-left: 6px; }
+    .m-acc-theme .ic-m-theme-btn { width: 26px; height: 26px; font-size: 12.5px; border-radius: 7px; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
     .m-acc-visit { display: flex; align-items: center; justify-content: center; gap: 4px; padding: 9px 8px; border-radius: 9px; background: var(--bg); border: 1px solid var(--border); font-size: 11.5px; color: var(--txt-mid); white-space: nowrap; }
     .m-acc-visit strong { color: var(--txt-hi); font-weight: 800; }
     .m-acc-visit .ic-m-stats-dot { flex-shrink: 0; }
@@ -8480,7 +8484,13 @@
           box.innerHTML='<div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--txt-hi);">'
             +(d.user.profile_image?'<img src="'+e(d.user.profile_image)+'" alt="" style="width:26px;height:26px;border-radius:50%;object-fit:cover">':'<span style="font-size:18px">👤</span>')
             +'<span style="font-weight:700;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(d.user.nickname)+' 님</span>'
-            +'<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0;color:'+rl[1]+';background:'+rl[2]+';">'+rl[0]+'</span>'+(d.user.points>0?'<span style="font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(245,158,11,0.18);color:#b45309;white-space:nowrap;flex-shrink:0;margin-left:4px;">⭐'+Number(d.user.points).toLocaleString()+'P</span>':'')+'</div>'
+            +'<span style="font-size:10px;font-weight:800;padding:2px 8px;border-radius:999px;white-space:nowrap;flex-shrink:0;color:'+rl[1]+';background:'+rl[2]+';">'+rl[0]+'</span>'+(d.user.points>0?'<span style="font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:999px;background:rgba(245,158,11,0.18);color:#b45309;white-space:nowrap;flex-shrink:0;margin-left:4px;">⭐'+Number(d.user.points).toLocaleString()+'P</span>':'')
+            +'<span class="m-acc-theme">'
+            +'<button type="button" class="ic-m-theme-btn" data-theme-val="light" onclick="setTheme(\'light\')" title="라이트">☀️</button>'
+            +'<button type="button" class="ic-m-theme-btn" data-theme-val="system" onclick="setTheme(\'system\')" title="시스템">🖥</button>'
+            +'<button type="button" class="ic-m-theme-btn" data-theme-val="dark" onclick="setTheme(\'dark\')" title="다크">🌙</button>'
+            +'</span>'
+            +'</div>'
             +'<div style="display:flex;gap:6px;margin-top:9px;">'
             +'<a href="/me" style="flex:1;text-align:center;background:var(--blue-mid,#1a3de8);color:#fff;text-decoration:none;font-weight:700;font-size:12.5px;padding:9px 4px;border-radius:8px;white-space:nowrap;">👤 마이페이지</a>'
             +'<button type="button" onclick="openSubmitModal()" style="flex:1;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;padding:9px 4px;border-radius:8px;white-space:nowrap;">📤 공고 등록</button>'
@@ -8573,14 +8583,7 @@
 
     <!-- (기타 메뉴 → 상단 메뉴 그룹으로 이동) -->
 
-    <!-- 통계 + 테마 -->
-    <section class="ic-m-section ic-m-bottom">
-      <div class="ic-m-theme-row" role="group" aria-label="테마 선택">
-        <button type="button" class="ic-m-theme-btn" data-theme-val="light" onclick="setTheme('light')">☀️</button>
-        <button type="button" class="ic-m-theme-btn" data-theme-val="system" onclick="setTheme('system')">🖥</button>
-        <button type="button" class="ic-m-theme-btn" data-theme-val="dark" onclick="setTheme('dark')">🌙</button>
-      </div>
-    </section>
+    <!-- v2.12.3: 하단 통계·테마 섹션 제거 — 방문통계는 빠른검색 옆(2열), 테마(화면전환) 토글은 로그인 행 우측으로 이동 -->
   </div>
 
   <div class="content" id="page-home">
