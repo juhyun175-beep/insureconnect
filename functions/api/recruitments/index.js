@@ -29,6 +29,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
             CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured
      FROM ic_recruitments WHERE ${where}
      ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
+              (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN featured_until END) DESC,
               created_at ${order} LIMIT ?`
   ).bind(...params, limit).all();
   return json(rs.results || []);

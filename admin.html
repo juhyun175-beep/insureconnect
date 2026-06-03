@@ -6213,9 +6213,10 @@
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
             <span style="font-size:18px;">🎓</span>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.title)}</div>
-              <div style="font-size:11px;color:var(--txt-lo);">${esc(it.instructor||'')} · ${fmt(it.created_at)}</div>
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.title)}${it.featured ? ' <span style="color:#f59e0b;font-weight:800">🔝</span>' : ''}</div>
+              <div style="font-size:11px;color:var(--txt-lo);">${esc(it.instructor||'')} · ${fmt(it.created_at)}${it.featured && it.featured_until ? ' · 노출~' + String(it.featured_until).slice(0,10) : ''}</div>
             </div>
+            <button onclick="featureAdmin('lecture',${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(245,158,11,0.14);color:#b45309;border:none;border-radius:6px;cursor:pointer;font-weight:600;">🔝 노출</button>
             <button onclick="deleteLecture(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`).join('');
       } catch (_) {
@@ -6723,11 +6724,12 @@
             <div class="nl-item">
               <div class="nl-thumb">${icon}</div>
               <div class="nl-meta">
-                <div class="nl-meta-company">${company}</div>
+                <div class="nl-meta-company">${company}${it.featured ? ' <span style="color:#f59e0b;font-weight:800">🔝 노출중</span>' : ''}</div>
                 <div class="nl-meta-title">${esc(it.title)}</div>
-                <div class="nl-meta-date">${dateStr}</div>
+                <div class="nl-meta-date">${dateStr}${it.featured && it.featured_until ? ' · 노출~' + String(it.featured_until).slice(0,10) : ''}</div>
               </div>
               <a href="${esc(it.file_url)}" target="_blank" style="font-size:12px;color:var(--blue-mid);text-decoration:none">보기</a>
+              <button class="nl-del-btn" style="background:rgba(245,158,11,0.14);color:#b45309" onclick="featureAdmin('recruit',${it.id})">🔝 노출</button>
               <button class="nl-del-btn" onclick="deleteRecruit(${it.id},'${jsStr(it.file_url)}')">삭제</button>
             </div>`;
         }).join('');
@@ -6755,6 +6757,20 @@
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
+    }
+
+    /* v2.11.1: 관리자 수동 상단노출 (레거시·컴프용). 회원 셀프서비스(50P)와 별개로 일수 직접 지정 */
+    async function featureAdmin(type, id) {
+      const ans = prompt('상단노출 일수를 입력하세요 (오늘부터 N일, 0=해제)', '7');
+      if (ans === null) return;
+      const days = parseInt(ans, 10);
+      if (!Number.isFinite(days)) { alert('숫자를 입력하세요.'); return; }
+      const path = type === 'lecture' ? `/api/lectures/${id}` : `/api/recruitments/${id}`;
+      try {
+        const r = await fetch(path, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ feature_days: days }) });
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        if (type === 'lecture') loadLectures(); else loadRecruitList();
+      } catch (e) { alert('상단노출 변경 실패: ' + e.message); }
     }
 
     /* ══════ 표 직렬화 유틸리티 ══════ */

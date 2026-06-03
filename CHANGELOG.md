@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.11.1] - 2026-06-03
+### Added (공고 상단노출 운영 통합 — 현금 게시 ↔ 포인트 노출)
+- **운영 모델 확정**: **현금(5만원)=게시 자격 / 포인트(50P)=상단노출**. 승인 가드(`status='approved'`)로 무임승차 차단 → 사례 기여→포인트→노출의 데이터 플라이휠
+- **승인 시 3일 무료 상단노출 자동 부여**: 5만원 게시가 관리자 승인(pending→approved)되면 `featured_until=+3일` 자동(노출 없을 때만) → 효과 체감 → 50P 연장 유도 퍼널. `recruitments/[id].js`·`lectures/[id].js`
+- **관리자 수동 상단노출 제어**: 채용·강의 관리 목록에 「🔝 노출」 버튼(일수 지정, 0=해제) + 노출중 표시(레거시·컴프용). PATCH `feature_days` 파라미터
+- **노출중 정렬 고도화**: featured 그룹 내 `featured_until DESC`(최근 결제·연장순) → 포인트 부스트(7일)가 무료 맛보기(3일)보다 상위
+- **결제 모델 문구 통합**: 제출 모달 입금안내·완료 화면 「승인 시 3일 무료 노출 + 50P 7일 연장」 명시, 마이페이지 카드 문구 갱신
+### Verified
+- D1 라이브: `datetime('now','+3 days')`→2026-06-06 정상, `featured_until` 컬럼 OK · API featured 필드·정렬 회귀 없음(recruit n=3) · admin.html·me.js 스크립트 정상(featureAdmin/loadRecruitList/approveItem=function) · 제출모달·마이페이지 문구 노출 · 보안 스캔 HIGH 0
+
 ## [2.11.0] - 2026-06-03
 ### Added (공고 상단노출 — 포인트 사용처 + 회원 연결)
 - **공고 상단노출(포인트 사용처)**: 직접 등록한 **채용·강의 공고**를 **50P로 7일간** 목록 최상단에 노출. `/api/postings/feature`(본인·승인 공고만, 포인트 차감+`featured_until` 연장+`ic_point_log` 기록)

@@ -112,7 +112,7 @@ export const onRequestGet = async ({ env, request }) => {
   <div class="card">
     <h2>🔝 내 공고 상단노출</h2>
     <div id="mypost-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
-    <p class="note">직접 등록한 <b>채용·강의 공고</b>를 <b>50P</b>로 <b>7일간</b> 목록 맨 위에 노출합니다. 포인트는 삼따AI 사례 공유·승인으로 적립돼요.</p>
+    <p class="note">5만원 게시 <b>승인 시 3일간 무료 상단노출</b> 제공 · 이후 <b>50P로 7일씩 연장</b>합니다. 포인트는 삼따AI 사례 공유·승인으로 적립돼요.</p>
   </div>
 
   <div class="card">
