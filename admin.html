@@ -3671,6 +3671,12 @@
       <!-- 채용공고 관리 패널 -->
       <div class="upload-panel" id="up-recruit">
 
+      <!-- v2.12.0(B안): 상단노출 효과 통계 -->
+      <div id="feat-stats-box" style="margin:0 0 16px;padding:14px 16px;border-radius:12px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.25);">
+        <div style="font-size:13px;font-weight:800;color:#b45309;margin-bottom:8px;display:flex;align-items:center;gap:8px;">🔝 상단노출 효과 <button type="button" onclick="loadFeatureStats()" style="font-size:11px;background:none;border:1px solid rgba(245,158,11,0.4);color:#b45309;border-radius:6px;padding:2px 8px;cursor:pointer;">새로고침</button></div>
+        <div id="feat-stats-body" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
+      </div>
+
       <div class="nl-upload-box">
         <div class="nl-form" id="rc-form">
           <div class="nl-field" style="flex:1; min-width:180px;">
@@ -6700,7 +6706,26 @@
       }
     }
 
+    /* v2.12.0(B안): 상단노출 효과 통계 */
+    function _featChip(label, val){ return '<div style="background:var(--bg);border:1px solid var(--border);border-radius:8px;padding:6px 10px;min-width:74px;"><div style="font-size:10px;color:var(--txt-lo);">'+label+'</div><div style="font-size:15px;font-weight:800;color:var(--txt-hi);">'+val+'</div></div>'; }
+    async function loadFeatureStats(){
+      var box=document.getElementById('feat-stats-body'); if(!box) return;
+      try{
+        var r=await fetch('/api/postings/feature-stats',{headers:adminHeaders()});
+        var d=await r.json();
+        if(!d||!d.ok){ box.textContent='불러오지 못했습니다.'; return; }
+        var head='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
+          +_featChip('노출중', d.featured_now+'건')+_featChip('포인트 구매', d.purchases+'회')
+          +_featChip('소진 P', d.points_spent+'P')+_featChip('누적 조회·공유', d.total_engagement+'회')+'</div>';
+        var rows=(d.featured||[]).map(function(f){
+          var t=f.type==='lecture'?'🎓':'💼'; var until=String(f.featured_until||'').slice(0,10);
+          return '<div style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--border);"><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+t+' '+esc(f.title||'')+'</span><span style="color:#f59e0b;font-weight:700;white-space:nowrap;">👁 '+(f.engagement||0)+'</span><span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">~'+until+'</span></div>';
+        }).join('');
+        box.innerHTML=head+(rows||'<div style="color:var(--txt-lo);">현재 노출중인 공고가 없습니다. (5만원 게시 승인 시 3일 무료 노출이 자동 적용됩니다)</div>');
+      }catch(e){ box.textContent='불러오지 못했습니다.'; }
+    }
     async function loadRecruitList() {
+      loadFeatureStats();   // 상단노출 효과 통계 동시 로드
       const el = document.getElementById('rc-list');
       if (!el) return;
       try {

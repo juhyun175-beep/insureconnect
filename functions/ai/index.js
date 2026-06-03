@@ -201,6 +201,11 @@ textarea:focus{outline:none;border-color:#1a3de8}
       }catch(e){ cqErr.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
       finally{ cqAsk.disabled=false; cqAsk.innerHTML=o; }
     });
+    // v2.12.0: 홈 위젯에서 ?q= 로 들어온 질문 자동 입력·실행 ("바로 이용")
+    try{
+      var _hq=new URLSearchParams(location.search).get('q');
+      if(_hq && _hq.trim()){ cqInput.value=_hq.trim().slice(0,200); setTimeout(function(){ try{ cqAsk.click(); cqInput.scrollIntoView({behavior:'smooth',block:'center'}); }catch(_){} }, 350); }
+    }catch(_){}
   }
 
   // 사례 공유 (삼따AI 내 등록 → +10P)

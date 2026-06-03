@@ -63,6 +63,8 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const isAdmin = verifyAdmin(request, env);
   // v2.11.0: 로그인 사용자면 등록 회원으로 연결(submitter_id) → 본인 공고 상단노출(포인트) 가능
   const user = isAdmin ? null : await getUserFromRequest(env, request);
+  // v2.12.0(A안): 공고 등록은 로그인 필수 — 소유권 연결로 상단노출(연장) 루프 보장
+  if (!isAdmin && !user) return error('로그인 후 공고를 등록할 수 있습니다.', 401);
 
   if (!body.title || !body.title.trim()) return error('title is required');
 

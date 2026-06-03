@@ -8479,47 +8479,11 @@
     })();
     </script>
 
-    <!-- v2.6.1: 실시간 방문통계 — 검색창 위로 -->
-    <div class="ic-visitor-strip" id="home-visitor-strip-mobile">
-      <span class="vs-live">LIVE</span>
-      <div class="vs-main">
-        <span class="vs-main-text">오늘</span>
-        <span class="vs-num" id="vs-today-m">—</span>
-        <span class="vs-main-text">명 방문 중</span>
-      </div>
-      <div class="vs-stats">
-        <span class="vs-stat-item">누적 <strong id="vs-total-m">—</strong>명</span>
-      </div>
-    </div>
+    <!-- v2.12.0: 모바일 실시간 방문통계 제거 (로그인정보 카드로 대체 / 방문수는 하단 통계행에 유지) -->
 
-    <!-- v2.6.4: CREW300 강조 배너 — 실시간 방문통계 바로 아래로 이동 -->
-    <a class="crew-hero-cta" href="https://open.kakao.com/o/gSN4EEoh"
-       target="_blank" rel="noopener noreferrer"
-       onclick="trackClick('CREW300 오픈채팅 참여','home-hero-mobile'); armCommunityFallback('CREW 300');">
-      <span class="crew-hero-icon">
-        <picture><source srcset="crew300.webp" type="image/webp"><img src="crew300.png" alt="CREW 300" loading="lazy" decoding="async"></picture>
-      </span>
-      <span class="crew-hero-body">
-        <span class="crew-hero-top">
-          <span class="crew-hero-live">LIVE</span>
-          <span class="crew-hero-count">👥 300+</span>
-        </span>
-        <span class="crew-hero-title">CREW 300 — 보험설계사 오픈채팅</span>
-        <span class="crew-hero-sub">동료들과 실시간 정보 공유</span>
-      </span>
-      <span class="crew-hero-action">
-        <span class="cha-text">참여</span>
-        <span aria-hidden="true">→</span>
-      </span>
-    </a>
+    <!-- v2.12.0: 모바일 CREW300 강조 배너 제거 (빠른 메뉴 'CREW 300' 카드로 접근) -->
 
-    <!-- 빠른 검색 -->
-    <section class="ic-m-section ic-m-search-section">
-      <button class="ic-m-search-bar" type="button" onclick="openGlobalSearch()">
-        <span class="ic-m-search-icon">🔍</span>
-        <span class="ic-m-search-text">전산·실무도구·페이지 검색…</span>
-      </button>
-    </section>
+    <!-- v2.12.0: 모바일 빠른검색 섹션 제거 (로그인정보 카드의 '빠른 검색' 버튼으로 대체) -->
 
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section">
@@ -8635,8 +8599,35 @@
       </div>
     </div>
 
-    <!-- v2.6.5: 홈 자유게시판 섹션 — 실시간 방문기록 바로 아래로 이동 (참여·리텐션) -->
-    <section class="ibh" aria-label="자유게시판">
+    <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
+    <div class="ibh-aii-row">
+      <style>
+        .ibh-aii-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;margin:18px 0 24px;}
+        .ibh-aii-row .ibh{margin:0;height:100%;}
+        @media(max-width:900px){ .ibh-aii-row{grid-template-columns:1fr;} }
+        .home-aii{display:flex;flex-direction:column;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid rgba(26,61,232,0.18);}
+        [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
+        .aii-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap;}
+        .aii-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);}
+        [data-theme="dark"] .aii-title{color:#e6edf3;}
+        .aii-badge{font-size:11px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#7c3aed);padding:3px 9px;border-radius:999px;}
+        .aii-all{margin-left:auto;font-size:13px;font-weight:700;color:#1a3de8;text-decoration:none;}
+        [data-theme="dark"] .aii-all{color:#8ab4ff;}
+        .aii-all:hover{text-decoration:underline;}
+        .aii-desc{font-size:12.5px;color:var(--txt-mid,#475569);margin:0 0 12px;line-height:1.5;}
+        [data-theme="dark"] .aii-desc{color:#9aa7b4;}
+        .aii-form{display:flex;gap:7px;margin-bottom:10px;}
+        .aii-input{flex:1;min-width:0;border:1.5px solid rgba(26,61,232,0.25);border-radius:10px;padding:11px 13px;font-size:13.5px;font-family:inherit;background:#fff;color:#0f172a;}
+        [data-theme="dark"] .aii-input{background:#0f1420;border-color:rgba(99,102,241,0.35);color:#e6edf3;}
+        .aii-input:focus{outline:none;border-color:#1a3de8;}
+        .aii-btn{flex-shrink:0;background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:13.5px;padding:0 16px;cursor:pointer;white-space:nowrap;}
+        .aii-btn:hover{filter:brightness(1.06);}
+        .aii-chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:auto;}
+        .aii-chip{font-size:12px;font-weight:700;color:#1a3de8;background:rgba(26,61,232,0.08);border:1px solid rgba(26,61,232,0.2);border-radius:999px;padding:6px 11px;cursor:pointer;font-family:inherit;}
+        [data-theme="dark"] .aii-chip{color:#8ab4ff;background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3);}
+        .aii-chip:hover{background:rgba(26,61,232,0.16);}
+      </style>
+      <section class="ibh" aria-label="자유게시판">
       <style>
         .ibh{margin:18px 0 24px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,0.07),rgba(249,115,22,0.05));border:1px solid rgba(245,158,11,0.18);}
         [data-theme="dark"] .ibh{background:linear-gradient(135deg,rgba(245,158,11,0.12),rgba(249,115,22,0.08));border-color:rgba(245,158,11,0.22);}
@@ -8671,7 +8662,30 @@
       <div class="ibh-foot">
         바로가기: <a href="/insurance">보험 정보 게시판</a> · <a href="/company">보험사 전산·청구</a> · <a href="/ga">GA 전산</a>
       </div>
-    </section>
+      </section>
+      <!-- 삼따AI 퀵 위젯 -->
+      <section class="home-aii" aria-label="삼따AI">
+        <div class="aii-head">
+          <span class="aii-title">🤖 삼따AI</span>
+          <span class="aii-badge">사례 기반</span>
+          <a class="aii-all" href="/ai">전체 →</a>
+        </div>
+        <p class="aii-desc">실제 인수·보상·고지 <b>사례로 답하는</b> 보험 AI. 궁금한 점을 여기서 바로 물어보세요.</p>
+        <form class="aii-form" onsubmit="return homeAiAsk(event)">
+          <input class="aii-input" id="home-aii-q" type="text" maxlength="200" autocomplete="off" placeholder="예: 갑상선 결절 고지 후 인수 사례 있나요?">
+          <button class="aii-btn" type="submit">물어보기</button>
+        </form>
+        <div class="aii-chips">
+          <button type="button" class="aii-chip" onclick="homeAiGo('고혈압 약 복용 중 보험 가입 가능한가요?')">고혈압 가입</button>
+          <button type="button" class="aii-chip" onclick="homeAiGo('갑상선 결절 고지 후 인수 사례')">갑상선 결절</button>
+          <button type="button" class="aii-chip" onclick="homeAiGo('뇌출혈 진단비 지급 거절 사례')">뇌출혈 보상</button>
+        </div>
+      </section>
+    </div>
+    <script>
+      function homeAiGo(q){ location.href='/ai?q=' + encodeURIComponent(q); }
+      function homeAiAsk(e){ if(e&&e.preventDefault)e.preventDefault(); var v=(document.getElementById('home-aii-q').value||'').trim(); if(v) homeAiGo(v); return false; }
+    </script>
     <script>
     (function(){
       var el=document.getElementById('home-board-list'); if(!el) return;
@@ -10741,6 +10755,16 @@
     /* v2.1.27: mode 인자 생략 가능 — 마지막 선택 기억 + 모달 안에서 토글
        v2.1.30: 1시간 쿨다운 제거 — 어차피 관리자 승인 게이트가 있어서 불필요한 마찰 */
     function openSubmitModal(mode) {
+      // v2.12.0(A안): 공고 등록 로그인 필수 — 미로그인 시 카카오 로그인 유도(소유권 연결로 상단노출 연장 가능)
+      fetch('/api/auth/me', { credentials: 'same-origin' })
+        .then(function (r) { return r.json(); })
+        .then(function (d) {
+          if (d && d.user) { _openSubmitModalInner(mode); }
+          else if (confirm('공고 등록은 로그인 후 이용할 수 있어요.\n카카오로 로그인하시겠어요?')) { location.href = '/api/auth/kakao/login'; }
+        })
+        .catch(function () { _openSubmitModalInner(mode); });   // 네트워크 오류 시 진행(백엔드가 최종 가드)
+    }
+    function _openSubmitModalInner(mode) {
       if (!mode) {
         // 마지막 선택 모드 복원, 없으면 recruit
         try { mode = localStorage.getItem('ic_submit_last_mode') || 'recruit'; } catch (_) { mode = 'recruit'; }
@@ -10881,6 +10905,10 @@
           body: JSON.stringify(payload)
         });
         if (!insRes.ok) {
+          if (insRes.status === 401) {
+            if (confirm('로그인 후 공고를 등록할 수 있어요.\n카카오로 로그인하시겠어요?')) location.href = '/api/auth/kakao/login';
+            throw new Error('로그인이 필요합니다.');
+          }
           const errText = await insRes.text();
           throw new Error('신청 접수 실패: ' + errText.slice(0, 200));
         }
