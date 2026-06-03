@@ -201,7 +201,7 @@ export const onRequestGet = async ({ env, request }) => {
   // 포인트 내역 (window.__reloadPt 로 노출 — 상단노출 결제 후 갱신)
   window.__reloadPt=function(){
     var box=document.getElementById('pt-box'); if(!box) return;
-    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출',board_post:'✍️ 글 작성',board_comment:'💬 댓글 작성'};
+    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',case_extract:'🤖 카톡 사례 자동등록',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출',board_post:'✍️ 글 작성',board_comment:'💬 댓글 작성'};
     fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
       if(!d||d.points==null){ box.textContent='포인트 정보를 불러오지 못했습니다.'; return; }
       var log=(d.log||[]).map(function(l){

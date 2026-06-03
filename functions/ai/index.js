@@ -106,9 +106,17 @@ textarea:focus{outline:none;border-color:#1a3de8}
   </div>
   <div class="panel" style="margin-bottom:18px;">
     <div style="padding:14px 18px 0;">
-      <div style="font-size:15px;font-weight:800;color:#7c3aed;">📝 사례 공유 <span style="font-size:11px;font-weight:600;color:#64748b;">— 실제 인수·고지·보상 사례 등록 시 +10P · 검수 후 삼따AI 답변에 반영됩니다</span></div>
+      <div style="font-size:15px;font-weight:800;color:#7c3aed;">📝 사례 공유 <span style="font-size:11px;font-weight:600;color:#64748b;">— 카톡 대화 붙여넣기 한 번으로 자동 등록 · 검수 후 삼따AI에 반영 (+10P)</span></div>
     </div>
     <div class="body">
+      <div style="font-size:13px;font-weight:700;color:#1a3de8;margin-bottom:6px;">🤖 카톡 대화 붙여넣기 → AI 자동 등록 <span style="font-weight:600;color:#64748b;font-size:11px;">(개인정보 자동 마스킹)</span></div>
+      <textarea id="sc-txt" placeholder="단톡방·상담 대화를 그대로 붙여넣으세요. 여러 사례가 섞여 있어도 AI가 각각 분리해 등록합니다. 이름·연락처 등 개인정보는 자동으로 가려집니다."></textarea>
+      <div class="row">
+        <button class="gen-btn" id="sc-extract" type="button" style="background:linear-gradient(135deg,#1a3de8,#4a70f5);">🤖 AI로 자동 추출·등록 (+10P)</button>
+        <span class="hint" id="sc-extract-hint">로그인 필요 · 검수 후 삼따AI에 반영</span>
+      </div>
+      <div class="err" id="sc-extract-err"></div>
+      <div style="text-align:center;color:#94a3b8;font-size:12px;margin:14px 0 12px;border-top:1px solid #eef2f7;padding-top:14px;">— 또는 직접 입력 —</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
         <select id="sc-category" style="min-width:120px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;color:#0f172a;"><option value="underwrite">인수심사</option><option value="disclosure">고지</option><option value="claim">보상</option></select>
         <input id="sc-disease" placeholder="질병/사유 (예: 갑상선암)" style="flex:1;min-width:130px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;">
@@ -254,6 +262,28 @@ textarea:focus{outline:none;border-color:#1a3de8}
           ['sc-disease','sc-insurer','sc-result','sc-summary'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';}); }
       }catch(e){ err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
       finally{ scSubmit.disabled=false; scSubmit.innerHTML=o; }
+    });
+  }
+
+  // v2.13.0: 카톡 TXT 사례 자동수집 (회원)
+  var scExtract=document.getElementById('sc-extract');
+  if(scExtract){
+    scExtract.addEventListener('click',async function(){
+      var txt=((document.getElementById('sc-txt')||{}).value||'').trim();
+      var err=document.getElementById('sc-extract-err'), hint=document.getElementById('sc-extract-hint');
+      err.textContent='';
+      if(txt.length<20){ err.textContent='대화 내용을 붙여넣어 주세요. (최소 20자)'; return; }
+      scExtract.disabled=true; var o=scExtract.innerHTML; scExtract.innerHTML='<span class="spin"></span>AI가 사례를 추출하는 중…';
+      try{
+        var res=await fetch('/api/cases/extract',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({text:txt.slice(0,12000)})});
+        var d=await res.json();
+        if(res.status===401){ err.innerHTML='로그인 후 이용할 수 있어요. <a href="/api/auth/kakao/login" style="color:#1a3de8;font-weight:700;">카카오 로그인 →</a>'; }
+        else if(res.status===429){ err.textContent=d.error||'오늘 자동추출 한도를 다 썼어요.'; }
+        else if(!res.ok){ err.textContent=d.error||'추출에 실패했어요.'; }
+        else if(d.extracted>0){ hint.textContent='✅ '+d.extracted+'건 추출! 검수 후 삼따AI에 반영됩니다 · +'+(d.points_awarded||10)+'P (오늘 '+d.remaining+'회 남음)'; hint.style.color='#16a34a'; var t=document.getElementById('sc-txt'); if(t)t.value=''; }
+        else{ err.textContent='사례로 인식할 내용을 찾지 못했어요. 인수·고지·보상 관련 대화를 붙여넣어 주세요.'; }
+      }catch(e){ err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
+      finally{ scExtract.disabled=false; scExtract.innerHTML=o; }
     });
   }
 })();
