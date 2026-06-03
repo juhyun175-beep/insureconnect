@@ -4389,7 +4389,7 @@
         </div>
         <div style="background:rgba(14,165,233,0.06);border:1px solid rgba(14,165,233,0.18);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid);line-height:1.6;">
           <div style="font-weight:700;color:#38bdf8;margin-bottom:4px;">상품요약서·가입설계서 PDF → AI가 담보별 스펙 추출</div>
-          PDF를 올리면 브라우저에서 텍스트를 추출해 AI가 <strong>보험사·상품·담보·가입금액·보험료·가입나이·납입/만기</strong>를 표로 정리 → 검수 후 비교 레퍼런스로 축적됩니다. (텍스트가 없는 스캔본은 추출이 어려울 수 있어요)
+          PDF 페이지를 <strong>이미지로 변환해 AI 비전(GPT-4o)이 표를 직접 읽어</strong> <strong>보험사·상품·담보·가입금액·보험료·가입나이·납입/만기</strong>를 정리 → 검수 후 비교 레퍼런스로 축적됩니다. (표·스캔본도 인식. 앞 8페이지 분석)
         </div>
         <div class="nl-upload-box" style="border:1px solid rgba(14,165,233,0.28);">
           <div style="font-size:12.5px;font-weight:700;color:#38bdf8;margin-bottom:8px;">＋ PDF 업로드 → AI 분석</div>
@@ -4763,53 +4763,75 @@
         rd.readAsText(file, 'utf-8');
       });
     })();
+    function filterInsuranceLines(text) {
+      var KW = /(가입|부담보|할증|거절|인수|심사|고지|청구|지급|진단|보험|실손|암|수술|후유장해|면책|보장|특약|손해|생명|화재|해상|메리츠|삼성|한화|현대|흥국|교보|농협|신한|라이나|보상|보험금|병력|유병|간편|표준체|할증률|승인|부결)/;
+      var lines = String(text).split(/\r?\n/);
+      var keep = new Array(lines.length).fill(false);
+      for (var i = 0; i < lines.length; i++) { if (KW.test(lines[i])) { keep[i] = true; if (i > 0) keep[i - 1] = true; if (i < lines.length - 1) keep[i + 1] = true; } }
+      var out = []; for (var j = 0; j < lines.length; j++) { if (keep[j]) out.push(lines[j]); }
+      return out.join('\n');
+    }
+    function chunkText(text, size) { var out = []; for (var i = 0; i < text.length; i += size) out.push(text.slice(i, i + size)); return out; }
     async function analyzeTxt() {
-      var ta = document.getElementById('cs-txt'); var text = (ta.value || '').trim();
+      var ta = document.getElementById('cs-txt'); var raw = (ta.value || '').trim();
       var st = document.getElementById('cs-analyze-status'); var btn = document.getElementById('cs-analyze-btn');
-      if (text.length < 20) { alert('분석할 텍스트가 너무 짧습니다.'); return; }
-      btn.disabled = true; btn.textContent = '🤖 분석 중… (수십 초 소요)'; st.textContent = '';
+      if (raw.length < 20) { alert('분석할 텍스트가 너무 짧습니다.'); return; }
+      var filtered = filterInsuranceLines(raw);
+      var text = (filtered.trim().length >= 20) ? filtered : raw;
+      var chunks = chunkText(text, 25000);
+      if (chunks.length > 60 && !confirm('보험 관련 줄만 추렸을 때 분석 청크가 ' + chunks.length + '개입니다 (수 분 소요·API 비용↑).\n계속할까요?')) return;
+      btn.disabled = true; var totalE = 0, totalF = 0;
       try {
-        var res = await fetch('/api/cases/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ text: text }) });
-        var d = await res.json();
-        if (!res.ok) throw new Error(d.error || '분석 실패');
-        var mk = Object.keys(d.masked || {}).map(function (k) { return k + '×' + d.masked[k]; }).join(' ');
-        st.innerHTML = '✅ 추출 <b>' + d.extracted + '건</b> (AI 인식 ' + d.found + '건) → 검수 대기 적재' + (mk ? '<br><span style="color:var(--txt-lo)">마스킹: ' + esc(mk) + '</span>' : '');
+        for (var i = 0; i < chunks.length; i++) {
+          btn.textContent = '🤖 분석 ' + (i + 1) + '/' + chunks.length + '…';
+          st.innerHTML = '진행 ' + (i + 1) + '/' + chunks.length + ' · 누적 추출 <b>' + totalE + '</b>건'; st.style.color = 'var(--txt-mid)';
+          var res = await fetch('/api/cases/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ text: chunks[i] }) });
+          var d = await res.json().catch(function () { return {}; });
+          if (res.ok) { totalE += (d.extracted || 0); totalF += (d.found || 0); }
+          else if (res.status === 429) { await new Promise(function (r) { setTimeout(r, 3500); }); i--; continue; }
+        }
+        st.innerHTML = '✅ 완료 — 총 추출 <b>' + totalE + '건</b> (AI 인식 ' + totalF + '건 / ' + chunks.length + '청크, 보험줄 ' + Math.round(text.length / 1000) + 'K자) → 검수 대기';
         st.style.color = '#10b981';
         ta.value = ''; var fe = document.getElementById('cs-txt-file'); if (fe) fe.value = '';
         loadCasesPanel();
-      } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
+      } catch (e) { st.textContent = '❌ ' + e.message + ' (누적 ' + totalE + '건 저장됨)'; st.style.color = '#ef4444'; }
       finally { btn.disabled = false; btn.textContent = '🤖 AI 분석 → 검수 대기 적재'; }
     }
 
     /* v2.9.2: 보험 상품/담보 PDF 분석 (pdf.js 텍스트 추출 → AI) */
-    async function extractPdfText(file) {
+    async function pdfToImages(file, maxPages) {
       const lib = await import('https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.min.mjs');
       lib.GlobalWorkerOptions.workerSrc = 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.0.379/build/pdf.worker.min.mjs';
-      const buf = await file.arrayBuffer();
-      const pdf = await lib.getDocument({ data: buf }).promise;
-      const maxP = Math.min(pdf.numPages, 40);
-      let text = '';
-      for (let i = 1; i <= maxP; i++) {
-        const pg = await pdf.getPage(i);
-        const tc = await pg.getTextContent();
-        text += tc.items.map(function (it) { return it.str; }).join(' ') + '\n';
+      const pdf = await lib.getDocument({ data: await file.arrayBuffer() }).promise;
+      const n = Math.min(pdf.numPages, maxPages || 8);
+      const imgs = [];
+      for (let i = 1; i <= n; i++) {
+        const page = await pdf.getPage(i);
+        const vp = page.getViewport({ scale: 1.6 });
+        const canvas = document.createElement('canvas');
+        canvas.width = vp.width; canvas.height = vp.height;
+        await page.render({ canvasContext: canvas.getContext('2d'), viewport: vp }).promise;
+        imgs.push(canvas.toDataURL('image/jpeg', 0.78));
       }
-      return text;
+      return { imgs: imgs, total: pdf.numPages };
     }
     async function analyzeCoverages() {
       var fe = document.getElementById('cv-file'); var f = fe && fe.files[0];
       var st = document.getElementById('cv-status'); var btn = document.getElementById('cv-analyze-btn');
       if (!f) { alert('PDF 파일을 선택해주세요.'); return; }
-      btn.disabled = true; btn.textContent = '📄 PDF 읽는 중…'; st.textContent = '';
+      btn.disabled = true; btn.textContent = '📄 PDF 이미지화…'; st.textContent = '';
       try {
-        var text = await extractPdfText(f);
-        if (!text || text.trim().length < 30) throw new Error('PDF에서 텍스트를 추출하지 못했습니다(스캔본일 수 있어요).');
-        btn.textContent = '🤖 AI 분석 중… (수십 초)';
-        var res = await fetch('/api/coverages/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ text: text, source_file: f.name }) });
+        var res0 = await pdfToImages(f, 8);
+        var images = res0.imgs;
+        if (!images.length) throw new Error('PDF 페이지를 읽지 못했습니다.');
+        if (res0.total > 8) { st.innerHTML = '※ ' + res0.total + '페이지 중 앞 8페이지만 분석합니다.'; st.style.color = 'var(--txt-lo)'; }
+        btn.textContent = '🤖 AI 비전 분석 중… (수십 초)';
+        var res = await fetch('/api/coverages/analyze', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ images: images, source_file: f.name }) });
         var d = await res.json();
-        if (!res.ok) throw new Error(d.error || '분석 실패');
-        st.innerHTML = '✅ 담보 추출 <b>' + d.extracted + '</b>건 (AI 인식 ' + d.found + '건) → 검수 대기';
-        st.style.color = '#10b981'; fe.value = ''; loadCoverages();
+        if (!res.ok) throw new Error((d.error || '분석 실패') + (d.code ? ' (' + d.code + ')' : ''));
+        st.innerHTML = '✅ 담보 추출 <b>' + d.extracted + '</b>건 (AI 인식 ' + d.found + '건' + (d.mode ? ', ' + d.mode : '') + ') → 검수 대기'
+          + (d.extracted === 0 && d.raw ? '<br><span style="color:var(--txt-lo)">AI응답: ' + esc(d.raw) + '</span>' : '');
+        st.style.color = d.extracted > 0 ? '#10b981' : '#f59e0b'; fe.value = ''; loadCoverages();
       } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
       finally { btn.disabled = false; btn.textContent = '🤖 PDF 분석 → 검수 대기'; }
     }

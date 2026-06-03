@@ -90,3 +90,25 @@ export async function callLLM(env, system, user, { maxTokens = 900 } = {}) {
     return { ok: false, error: 'fetch_fail' };
   }
 }
+
+/** 비전(이미지) 호출 — OpenAI gpt-4o(-mini). images: dataURL 배열. {ok, text, error} */
+export async function callVision(env, system, userText, images, { maxTokens = 4000, model } = {}) {
+  if (!env.OPENAI_API_KEY) return { ok: false, error: 'no_key' };
+  const content = [{ type: 'text', text: userText }];
+  for (const img of (images || [])) content.push({ type: 'image_url', image_url: { url: img, detail: 'high' } });
+  try {
+    const res = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.OPENAI_API_KEY}` },
+      body: JSON.stringify({
+        model: model || env.OPENAI_VISION_MODEL || 'gpt-4o-mini',
+        messages: [{ role: 'system', content: system }, { role: 'user', content }],
+        max_tokens: maxTokens, temperature: 0,
+      }),
+    });
+    if (!res.ok) return { ok: false, error: `openai_${res.status}` };
+    const d = await res.json();
+    const text = d?.choices?.[0]?.message?.content?.trim();
+    return text ? { ok: true, text } : { ok: false, error: 'empty' };
+  } catch (e) { return { ok: false, error: 'exception' }; }
+}

@@ -8,7 +8,7 @@ import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { callLLM, aiProvider } from '../../_lib/ai.js';
 import { maskPII } from '../../_lib/mask.js';
 
-const MAX_TEXT = 12000;
+const MAX_TEXT = 30000;
 const CATS = ['underwrite', 'disclosure', 'claim'];
 
 const SYSTEM = `너는 보험 사례 추출기다. 주어진 채팅/커뮤니티 텍스트에서 보험 "실제 사례"만 추출한다.
@@ -43,9 +43,9 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const { text: masked, masked: maskStats } = maskPII(raw.slice(0, MAX_TEXT));
 
   // 2) AI 추출 (1회)
-  const r = await callLLM(env, SYSTEM, masked, { maxTokens: 2000 });
+  const r = await callLLM(env, SYSTEM, masked, { maxTokens: 4000 });
   if (!r.ok) return json({ error: 'AI 분석 실패', code: r.error }, 502);
-  const cases = parseCases(r.text).slice(0, 50);
+  const cases = parseCases(r.text).slice(0, 80);
 
   // 3) pending 적재
   const clip = (v, n) => (v == null || v === '') ? null : String(v).slice(0, n);
@@ -71,5 +71,5 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     } catch (_) {}
   }
 
-  return json({ ok: true, extracted: inserted, found: cases.length, masked: maskStats });
+  return json({ ok: true, extracted: inserted, found: cases.length, masked: maskStats, raw: inserted === 0 ? String(r.text || '').slice(0, 300) : undefined });
 });
