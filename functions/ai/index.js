@@ -19,15 +19,15 @@ export const onRequestGet = async ({ env }) => {
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<title>AI 보험비서 — 보험설계사를 위한 AI 도구 | InsureConnect</title>
-<meta name="description" content="보험설계사를 위한 AI 도구. 상담 스크립트·마케팅 문구·보장분석 요약·보험 개념 설명을 AI가 즉시 생성합니다.">
+<title>삼따AI — 사례 기반 보험 AI | InsureConnect</title>
+<meta name="description" content="삼따AI — 실제 인수·고지·보상 사례를 근거로 답하는 보험설계사 전용 AI. 사례 질문·공유, 상담 스크립트·보장분석까지.">
 <meta name="robots" content="noindex,nofollow">
 <link rel="canonical" href="${SITE}/ai">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="InsureConnect">
-<meta property="og:title" content="AI 보험비서 — 보험설계사를 위한 AI 도구">
-<meta property="og:description" content="상담 스크립트·마케팅 문구·보장분석·보험 개념을 AI가 즉시 생성">
+<meta property="og:title" content="삼따AI — 사례 기반 보험 AI">
+<meta property="og:description" content="실제 보험 사례를 근거로 답하는 보험설계사 전용 AI">
 <meta property="og:url" content="${SITE}/ai">
 <meta property="og:image" content="${SITE}/logo-full.png">
 <style>
@@ -68,9 +68,9 @@ textarea:focus{outline:none;border-color:#1a3de8}
 <body>
 <div class="bg">
 <header class="h">
-  <span class="badge">BETA · 보험산업 특화 AI</span>
-  <h1>🤖 AI 보험비서</h1>
-  <p>상담 스크립트 · 마케팅 문구 · 보장분석 · 보험 개념을 AI가 즉시 생성</p>
+  <span class="badge">삼따방 전용 · 실제 사례 기반 AI</span>
+  <h1>🤖 삼따AI</h1>
+  <p>실제 인수·고지·보상 사례로 답하고, 사례를 함께 쌓는 보험설계사 AI</p>
 </header>
 <div class="wrap">
   <div class="panel" style="margin-bottom:18px;border:2px solid #1a3de8;">
@@ -89,6 +89,25 @@ textarea:focus{outline:none;border-color:#1a3de8}
         <div class="out-head"><h3>답변</h3><button class="copy-btn" id="cq-copy" type="button">📋 복사</button></div>
         <div class="output" id="cq-output"></div>
       </div>
+    </div>
+  </div>
+  <div class="panel" style="margin-bottom:18px;">
+    <div style="padding:14px 18px 0;">
+      <div style="font-size:15px;font-weight:800;color:#7c3aed;">📝 사례 공유 <span style="font-size:11px;font-weight:600;color:#64748b;">— 실제 인수·고지·보상 사례 등록 시 +10P · 검수 후 삼따AI 답변에 반영됩니다</span></div>
+    </div>
+    <div class="body">
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">
+        <select id="sc-category" style="min-width:120px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;background:#fff;color:#0f172a;"><option value="underwrite">인수심사</option><option value="disclosure">고지</option><option value="claim">보상</option></select>
+        <input id="sc-disease" placeholder="질병/사유 (예: 갑상선암)" style="flex:1;min-width:130px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;">
+        <input id="sc-insurer" placeholder="보험사 (예: 삼성생명)" style="flex:1;min-width:120px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;">
+        <input id="sc-result" placeholder="결과 (예: 부담보 5년 / 거절)" style="flex:1;min-width:150px;padding:10px 12px;border:1.5px solid #e2e8f0;border-radius:10px;font-size:14px;font-family:inherit;">
+      </div>
+      <textarea id="sc-summary" placeholder="사례 요약 — 개인정보(이름·연락처 등)는 빼고 작성해주세요."></textarea>
+      <div class="row">
+        <button class="gen-btn" id="sc-submit" type="button" style="background:linear-gradient(135deg,#7c3aed,#a855f7);">＋ 사례 등록 (+10P)</button>
+        <span class="hint" id="sc-hint">로그인 필요</span>
+      </div>
+      <div class="err" id="sc-err"></div>
     </div>
   </div>
   <div class="panel">
@@ -169,7 +188,7 @@ textarea:focus{outline:none;border-color:#1a3de8}
         else if(!res.ok){ cqErr.textContent=d.error||'답변 생성 실패'; }
         else{
           cqOut.textContent=d.answer; var ev=d.evidence||{}; var chips=[];
-          chips.push(cqChip('📚 근거 사례 '+(ev.case_count||0)+'건','#1a3de8'));
+          if(ev.case_count>0) chips.push(cqChip('📚 근거 사례 '+ev.case_count+'건','#1a3de8'));
           if(ev.coverage_count) chips.push(cqChip('📑 담보 '+ev.coverage_count+'건','#0ea5e9'));
           if(ev.approve) chips.push(cqChip('✅ 가입/지급 '+ev.approve,'#16a34a'));
           if(ev.reject) chips.push(cqChip('❌ 거절/제한 '+ev.reject,'#dc2626'));
@@ -180,6 +199,28 @@ textarea:focus{outline:none;border-color:#1a3de8}
         }
       }catch(e){ cqErr.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
       finally{ cqAsk.disabled=false; cqAsk.innerHTML=o; }
+    });
+  }
+
+  // 사례 공유 (삼따AI 내 등록 → +10P)
+  var scSubmit=document.getElementById('sc-submit');
+  if(scSubmit){
+    scSubmit.addEventListener('click',async function(){
+      var get=function(id){return (document.getElementById(id)||{}).value||'';};
+      var summary=get('sc-summary').trim(), disease=get('sc-disease').trim();
+      var err=document.getElementById('sc-err'), hint=document.getElementById('sc-hint');
+      err.textContent='';
+      if(!summary&&!disease){ err.textContent='질병/사유 또는 사례 요약을 입력해주세요.'; return; }
+      scSubmit.disabled=true; var o=scSubmit.innerHTML; scSubmit.innerHTML='<span class="spin"></span>등록 중…';
+      try{
+        var res=await fetch('/api/cases',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({category:get('sc-category'),disease:disease,insurer:get('sc-insurer'),result:get('sc-result'),summary:summary})});
+        var d=await res.json();
+        if(res.status===401){ err.innerHTML='로그인 후 등록할 수 있어요. <a href="/api/auth/kakao/login" style="color:#1a3de8;font-weight:700;">카카오 로그인 →</a>'; }
+        else if(!res.ok){ err.textContent=d.error||'등록 실패'; }
+        else{ hint.textContent='✅ 접수 — 검수 후 반영 · +10P 지급'; hint.style.color='#16a34a';
+          ['sc-disease','sc-insurer','sc-result','sc-summary'].forEach(function(id){var e=document.getElementById(id);if(e)e.value='';}); }
+      }catch(e){ err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
+      finally{ scSubmit.disabled=false; scSubmit.innerHTML=o; }
     });
   }
 })();
