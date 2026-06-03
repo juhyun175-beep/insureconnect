@@ -8315,6 +8315,39 @@
     </div>
   </div>
 
+  <!-- v2.9.0: 보험 사례 공유 모달 (회원 등록 → 검수 → +10P) -->
+  <div class="sm-overlay" id="case-submit-modal" onclick="if(event.target===this)closeCaseSubmit()">
+    <div class="sm-modal">
+      <div class="sm-head">
+        <h3 class="sm-title">💡 보험 사례 공유 <span style="font-size:12px;color:var(--blue-mid);font-weight:700;">+10P</span></h3>
+        <button class="sm-close" type="button" onclick="closeCaseSubmit()" aria-label="닫기">✕</button>
+      </div>
+      <div class="sm-body">
+        <div id="cm-form-box">
+          <p style="font-size:12.5px;color:var(--txt-mid);line-height:1.55;margin:0 0 12px;">실제 <strong>인수심사·고지·보상</strong> 사례를 공유해주세요. 검수 후 등록되며 포인트가 지급됩니다.<br><span style="color:#dc2626;">※ 이름·연락처 등 개인정보는 빼고 작성해주세요.</span></p>
+          <div class="sm-field"><label>카테고리</label>
+            <select id="cm-category"><option value="underwrite">인수심사</option><option value="disclosure">고지(알릴의무)</option><option value="claim">보상</option></select></div>
+          <div class="sm-field" style="display:flex;gap:8px;"><div style="flex:1;"><label>질병/사유</label><input type="text" id="cm-disease" maxlength="80" placeholder="예: 갑상선암"></div><div style="flex:1;"><label>보험사</label><input type="text" id="cm-insurer" maxlength="60" placeholder="예: 삼성생명"></div></div>
+          <div class="sm-field" style="display:flex;gap:8px;"><div style="width:90px;"><label>성별</label><select id="cm-gender"><option value="">무관</option><option value="M">남</option><option value="F">여</option></select></div><div style="width:90px;"><label>연령</label><input type="number" id="cm-age" min="0" max="120" placeholder="45"></div><div style="flex:1;"><label>경과기간</label><input type="text" id="cm-elapsed" maxlength="60" placeholder="진단 후 2년"></div></div>
+          <div class="sm-field"><label>결과</label><input type="text" id="cm-result" maxlength="80" placeholder="예: 부담보 5년 / 정상가입 / 거절"></div>
+          <div class="sm-field"><label>사례 요약 <span class="req">*</span></label><textarea id="cm-summary" maxlength="500" rows="2" placeholder="어떤 상황에서 어떤 결과였는지 요약"></textarea></div>
+          <div class="sm-field"><label>특이사항 (선택)</label><textarea id="cm-notes" maxlength="500" rows="2"></textarea></div>
+          <p class="note" id="cm-err" style="display:none;color:#dc2626;font-size:12.5px;"></p>
+          <div class="sm-actions">
+            <button type="button" class="sm-btn sm-btn-secondary" onclick="closeCaseSubmit()">취소</button>
+            <button type="button" class="sm-btn sm-btn-primary" id="cm-submit" onclick="submitMemberCase()">사례 등록 (+10P)</button>
+          </div>
+        </div>
+        <div id="cm-done" style="display:none;text-align:center;padding:22px 10px;">
+          <div style="font-size:42px;">✅</div>
+          <h4 style="font-size:17px;font-weight:800;color:var(--txt-hi);margin:6px 0;">사례가 접수되었습니다</h4>
+          <p style="font-size:13.5px;color:var(--txt-mid);line-height:1.6;">검수 후 데이터센터에 등록됩니다.<br><strong style="color:var(--blue-mid);">+10P</strong> 지급되었습니다. 감사합니다!</p>
+          <div class="sm-actions"><button type="button" class="sm-btn sm-btn-primary" onclick="closeCaseSubmit()">확인</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- 채용공고 상세 뷰어 -->
   <div class="rc-viewer" id="rc-viewer" onclick="if(event.target===this)closeRecruitViewer()">
     <div class="rc-viewer-body" id="rc-viewer-body"></div>
@@ -8458,6 +8491,7 @@
         <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">최신</span></button>
         <button class="ic-m-core-card" onclick="goToPage('rental')"><span class="cc-lb">렌트카</span></button>
         <button class="ic-m-core-card" onclick="goToPage('telecom')"><span class="cc-lb">통신·폰</span></button>
+        <button class="ic-m-core-card" onclick="openCaseSubmit()"><span class="cc-lb">사례공유</span></button>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','sidebar-footer')"><span class="cc-lb">운영자 문의</span></a>
@@ -13725,6 +13759,7 @@
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','청구서류'); goToPage('claimform');" title="보험사 청구서류" type="button">청구</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','채용공고'); goToPage('recruit');" title="채용공고" type="button">채용</button>
     <button class="right-nav-btn" onclick="trackCardClick('우측버튼','강의'); goToPage('lecture');" title="강의" type="button">강의</button>
+    <button class="right-nav-btn" onclick="trackCardClick('우측버튼','사례공유'); openCaseSubmit();" title="보험 사례 공유 (+10P)" type="button" style="background:linear-gradient(135deg,#9333ea,#a855f7);">사례</button>
     <button class="right-nav-btn" onclick="toggleToolsPanel();" title="실무도구" type="button" id="tools-float-btn" aria-label="실무도구 패널 열기">실무도구</button>
   </div>
 
@@ -14878,6 +14913,34 @@
           err.textContent = '❌ ' + (e.message || '접수 실패 — 잠시 후 다시 시도해주세요.'); err.style.display = 'block';
           btn.disabled = false; btn.textContent = '견적 신청하기';
         }
+      };
+
+      /* ════ 보험 사례 공유 (v2.9.0) ════ */
+      window.openCaseSubmit = function(){
+        ['cm-disease','cm-insurer','cm-age','cm-elapsed','cm-result','cm-summary','cm-notes'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+        var err=document.getElementById('cm-err'); if(err) err.style.display='none';
+        var fb=document.getElementById('cm-form-box'); if(fb) fb.style.display='';
+        var dn=document.getElementById('cm-done'); if(dn) dn.style.display='none';
+        var sb=document.getElementById('cm-submit'); if(sb){sb.disabled=false;sb.textContent='사례 등록 (+10P)';}
+        var m=document.getElementById('case-submit-modal'); if(m) m.classList.add('open');
+      };
+      window.closeCaseSubmit = function(){ var m=document.getElementById('case-submit-modal'); if(m) m.classList.remove('open'); };
+      window.submitMemberCase = async function(){
+        var get=function(id){return (document.getElementById(id)||{}).value||'';};
+        var summary=get('cm-summary').trim(), disease=get('cm-disease').trim();
+        var err=document.getElementById('cm-err');
+        if(!summary && !disease){ err.textContent='질병/사유 또는 사례 요약을 입력해주세요.'; err.style.display='block'; return; }
+        err.style.display='none';
+        var btn=document.getElementById('cm-submit'); btn.disabled=true; btn.textContent='등록 중…';
+        try{
+          var res=await fetch('/api/cases',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',
+            body:JSON.stringify({category:get('cm-category'),disease:disease,insurer:get('cm-insurer'),gender:get('cm-gender'),age:get('cm-age'),elapsed_period:get('cm-elapsed'),result:get('cm-result'),summary:summary,special_notes:get('cm-notes')})});
+          if(res.status===401){ err.innerHTML='로그인 후 등록할 수 있어요. <a href="/api/auth/kakao/login" style="color:var(--blue-mid);font-weight:700;">카카오 로그인 →</a>'; err.style.display='block'; btn.disabled=false; btn.textContent='사례 등록 (+10P)'; return; }
+          var d=await res.json();
+          if(!res.ok) throw new Error(d.error||'등록 실패');
+          document.getElementById('cm-form-box').style.display='none';
+          document.getElementById('cm-done').style.display='block';
+        }catch(e){ err.textContent='❌ '+(e.message||'등록 실패'); err.style.display='block'; btn.disabled=false; btn.textContent='사례 등록 (+10P)'; }
       };
 
       /* ════ 견적 계산 (v2.1.9) ════

@@ -3488,6 +3488,7 @@
         <!-- 공고·판매 등록 -->
         <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
+        <button class="upload-tab" data-panel="up-cases" style="border-color:#a855f7;color:#a855f7;">🗂 보험 사례</button>
         <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
         <button class="upload-tab" data-panel="up-telecom-devices">📱 단말기 라인업</button>
 
@@ -4308,6 +4309,68 @@
         </div>
       </div><!-- /#up-telecom-devices -->
 
+      <!-- v2.9.0: 보험 사례 데이터센터 -->
+      <div class="upload-panel" id="up-cases">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">🗂 보험 사례 데이터센터</p>
+          <button type="button" onclick="loadCasesPanel()" style="padding:6px 12px;background:transparent;border:1px solid #a855f7;color:#a855f7;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 새로고침</button>
+        </div>
+        <div style="background:rgba(168,85,247,0.06);border:1px solid rgba(168,85,247,0.18);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid);line-height:1.6;">
+          <div style="font-weight:700;color:#c084fc;margin-bottom:4px;">국내 최대 보험 사례 DB — 대체 불가능한 자산</div>
+          수집(회원 등록·TXT) → <strong>검수/승인</strong> → 축적 → 검색 → AI 답변 근거. 회원 등록 사례는 검수 대기로 들어오며, 승인 시 등록 회원에게 포인트가 지급됩니다.
+        </div>
+
+        <!-- 통계 -->
+        <div class="mt-cards" id="cs-stats" style="margin-bottom:16px;"></div>
+
+        <!-- 사례 직접 등록 (관리자 = 즉시 승인) -->
+        <div class="nl-upload-box">
+          <div style="font-size:12.5px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">＋ 사례 직접 등록 <span style="color:var(--txt-lo);font-weight:500;font-size:11px;">(관리자 등록은 즉시 승인)</span></div>
+          <div class="nl-form">
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:150px;"><label>카테고리 *</label>
+                <select id="cs-category" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="underwrite">인수심사</option>
+                  <option value="disclosure">고지(알릴의무)</option>
+                  <option value="claim">보상</option>
+                </select></div>
+              <div style="flex:1;min-width:150px;"><label>질병/사유</label><input type="text" id="cs-disease" maxlength="80" placeholder="예: 갑상선암" style="width:100%;padding:8px 10px;font-size:13px;"></div>
+              <div style="flex:1;min-width:130px;"><label>보험사</label><input type="text" id="cs-insurer" maxlength="60" placeholder="예: 삼성생명" style="width:100%;padding:8px 10px;font-size:13px;"></div>
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="width:110px;"><label>성별</label><select id="cs-gender" style="width:100%;padding:8px 10px;font-size:13px;"><option value="">무관</option><option value="M">남</option><option value="F">여</option></select></div>
+              <div style="width:100px;"><label>연령</label><input type="number" id="cs-age" min="0" max="120" placeholder="45" style="width:100%;padding:8px 10px;font-size:13px;"></div>
+              <div style="flex:1;min-width:130px;"><label>경과기간</label><input type="text" id="cs-elapsed" maxlength="60" placeholder="예: 진단 후 2년" style="width:100%;padding:8px 10px;font-size:13px;"></div>
+              <div style="flex:1;min-width:130px;"><label>가입조건</label><input type="text" id="cs-join" maxlength="80" placeholder="예: 간편심사" style="width:100%;padding:8px 10px;font-size:13px;"></div>
+            </div>
+            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
+              <div style="flex:1;min-width:150px;"><label>결과</label><input type="text" id="cs-result" maxlength="80" placeholder="예: 부담보 5년 / 정상가입 / 거절" style="width:100%;padding:8px 10px;font-size:13px;"></div>
+              <div style="width:210px;"><label>신뢰도</label>
+                <select id="cs-reliability" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="20">20 · 단순 의견</option>
+                  <option value="40" selected>40 · 추정 답변</option>
+                  <option value="60">60 · 복수 의견 일치</option>
+                  <option value="80">80 · 실제 심사 결과</option>
+                  <option value="100">100 · 증빙자료 존재</option>
+                </select></div>
+            </div>
+            <div class="nl-field"><label>사례 요약 *</label><textarea id="cs-summary" maxlength="500" rows="2" placeholder="한두 줄 요약" style="width:100%;padding:8px 10px;font-size:13px;"></textarea></div>
+            <div class="nl-field"><label>특이사항/상세 (개인정보 제외)</label><textarea id="cs-notes" maxlength="500" rows="2" style="width:100%;padding:8px 10px;font-size:13px;"></textarea></div>
+            <button class="nl-upload-btn" id="cs-add-btn" onclick="submitCaseAdmin()">사례 등록</button>
+          </div>
+          <p class="nl-status" id="cs-status"></p>
+        </div>
+
+        <!-- 검색/필터 -->
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin:18px 0 10px;">
+          <input type="text" id="cs-q" placeholder="질병·보험사·요약 검색" style="flex:1;min-width:160px;padding:8px 10px;font-size:13px;" onkeydown="if(event.key==='Enter')searchCases();">
+          <select id="cs-fcat" style="padding:8px 10px;font-size:13px;"><option value="">전체 카테고리</option><option value="underwrite">인수심사</option><option value="disclosure">고지</option><option value="claim">보상</option></select>
+          <select id="cs-fstatus" style="padding:8px 10px;font-size:13px;"><option value="pending">검수 대기</option><option value="approved">승인됨</option><option value="rejected">반려</option><option value="all">전체</option></select>
+          <button type="button" onclick="searchCases()" style="padding:8px 14px;font-size:12px;font-weight:700;background:#a855f7;color:#fff;border:none;border-radius:6px;cursor:pointer;">검색</button>
+        </div>
+        <div class="nl-list" id="cs-list"><p class="empty-msg">불러오는 중…</p></div>
+      </div><!-- /#up-cases -->
+
       <!-- v2.0.0 (master): SEO 게시판 관리 -->
       <div class="upload-panel" id="up-seo">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
@@ -4571,8 +4634,90 @@
           loadTelecomDevicesAdmin();
           if (typeof loadTelecomInquiriesAdmin === 'function') loadTelecomInquiriesAdmin();
         }
+        if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
       });
     });
+
+    /* v2.9.0: 보험 사례 데이터센터 */
+    var CASE_CAT = { underwrite: '인수심사', disclosure: '고지', claim: '보상' };
+    var CASE_STAT = { pending: ['검수대기', '#f59e0b'], approved: ['승인', '#10b981'], rejected: ['반려', '#ef4444'] };
+    async function casesCount(status) {
+      try { const r = await fetch('/api/cases?status=' + status + '&limit=1', { headers: adminHeaders() }); const d = await r.json(); return d.total || 0; } catch (_) { return 0; }
+    }
+    async function loadCasesPanel() {
+      const el = document.getElementById('cs-stats');
+      if (el) {
+        const [all, pend, appr, uw, dc, cl] = await Promise.all([
+          casesCount('all'), casesCount('pending'), casesCount('approved'),
+          fetch('/api/cases?status=all&category=underwrite&limit=1', { headers: adminHeaders() }).then(r => r.json()).then(d => d.total || 0).catch(() => 0),
+          fetch('/api/cases?status=all&category=disclosure&limit=1', { headers: adminHeaders() }).then(r => r.json()).then(d => d.total || 0).catch(() => 0),
+          fetch('/api/cases?status=all&category=claim&limit=1', { headers: adminHeaders() }).then(r => r.json()).then(d => d.total || 0).catch(() => 0),
+        ]);
+        el.innerHTML = [
+          ['총 사례', all], ['검수 대기', pend], ['승인', appr],
+          ['인수심사', uw], ['고지', dc], ['보상', cl],
+        ].map(function (c) { return '<div class="mt-card"><div class="mt-num">' + Number(c[1]).toLocaleString() + '</div><div class="mt-lbl">' + c[0] + '</div></div>'; }).join('');
+      }
+      searchCases();
+    }
+    async function submitCaseAdmin() {
+      const get = id => (document.getElementById(id) || {}).value || '';
+      const summary = get('cs-summary').trim(), disease = get('cs-disease').trim();
+      if (!summary && !disease) { alert('질병/사유 또는 사례 요약을 입력해주세요.'); return; }
+      const btn = document.getElementById('cs-add-btn'), st = document.getElementById('cs-status');
+      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; st.textContent = '';
+      try {
+        const res = await fetch('/api/cases', { method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ category: get('cs-category'), disease, insurer: get('cs-insurer'), gender: get('cs-gender'),
+            age: get('cs-age'), elapsed_period: get('cs-elapsed'), join_condition: get('cs-join'), result: get('cs-result'),
+            reliability: get('cs-reliability'), summary, special_notes: get('cs-notes'), verify_status: 'approved' }) });
+        if (!res.ok) throw new Error(await res.text());
+        st.textContent = '✅ 등록 완료'; st.style.color = '#10b981';
+        ['cs-disease', 'cs-insurer', 'cs-age', 'cs-elapsed', 'cs-join', 'cs-result', 'cs-summary', 'cs-notes'].forEach(id => { const e = document.getElementById(id); if (e) e.value = ''; });
+        loadCasesPanel();
+      } catch (e) { st.textContent = '❌ ' + e.message; st.style.color = '#ef4444'; }
+      finally { btn.disabled = false; btn.textContent = '사례 등록'; }
+    }
+    async function searchCases() {
+      const el = document.getElementById('cs-list'); if (!el) return;
+      const q = (document.getElementById('cs-q') || {}).value || '';
+      const cat = (document.getElementById('cs-fcat') || {}).value || '';
+      const status = (document.getElementById('cs-fstatus') || {}).value || 'pending';
+      el.innerHTML = '<p class="empty-msg">불러오는 중…</p>';
+      try {
+        const r = await fetch('/api/cases?status=' + status + '&category=' + cat + '&q=' + encodeURIComponent(q) + '&limit=100', { headers: adminHeaders() });
+        const d = await r.json();
+        const items = d.cases || [];
+        if (!items.length) { el.innerHTML = '<p class="empty-msg">사례가 없습니다.</p>'; return; }
+        el.innerHTML = items.map(function (c) {
+          const stat = CASE_STAT[c.verify_status] || ['?', '#888'];
+          const meta = [CASE_CAT[c.category] || c.category, c.insurer, c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : '', c.age ? c.age + '세' : '', c.elapsed_period].filter(Boolean).join(' · ');
+          return '<div style="padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">'
+            + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;">'
+            + '<span style="font-size:13.5px;font-weight:800;color:var(--txt-hi);">' + esc(c.disease || '(질병 미기재)') + '</span>'
+            + '<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;color:#fff;background:' + stat[1] + ';">' + stat[0] + '</span>'
+            + '<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(168,85,247,0.16);color:#c084fc;">신뢰도 ' + (c.reliability || 0) + '</span>'
+            + (c.result ? '<span style="font-size:11px;color:var(--txt-mid);">→ ' + esc(c.result) + '</span>' : '') + '</div>'
+            + '<div style="font-size:11.5px;color:var(--txt-lo);margin-bottom:4px;">' + esc(meta) + '</div>'
+            + '<div style="font-size:12.5px;color:var(--txt-mid);line-height:1.5;">' + esc(c.summary || '') + '</div>'
+            + '<div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:9px;align-items:center;">'
+            + (c.verify_status !== 'approved' ? '<button onclick="approveCase(' + c.id + ')" style="font-size:11px;padding:5px 11px;background:rgba(16,185,129,0.16);color:#10b981;border:none;border-radius:6px;cursor:pointer;font-weight:700;">✓ 승인</button>' : '')
+            + (c.verify_status !== 'rejected' ? '<button onclick="rejectCase(' + c.id + ')" style="font-size:11px;padding:5px 11px;background:rgba(245,158,11,0.16);color:#f59e0b;border:none;border-radius:6px;cursor:pointer;font-weight:700;">반려</button>' : '')
+            + '<select onchange="setCaseReliability(' + c.id + ',this.value)" style="font-size:11px;padding:4px 6px;background:var(--bg-input);color:var(--txt-hi);border:1px solid var(--border);border-radius:6px;">'
+            + [20, 40, 60, 80, 100].map(function (v) { return '<option value="' + v + '"' + (c.reliability === v ? ' selected' : '') + '>신뢰도 ' + v + '</option>'; }).join('')
+            + '</select>'
+            + '<button onclick="deleteCase(' + c.id + ')" style="font-size:11px;padding:5px 11px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;margin-left:auto;">삭제</button>'
+            + '</div></div>';
+        }).join('');
+      } catch (e) { el.innerHTML = '<p class="empty-msg">로드 실패: ' + esc(e.message) + '</p>'; }
+    }
+    async function patchCase(id, body) {
+      await fetch('/api/cases/' + id, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
+    }
+    async function approveCase(id) { await patchCase(id, { verify_status: 'approved' }); loadCasesPanel(); }
+    async function rejectCase(id) { await patchCase(id, { verify_status: 'rejected' }); loadCasesPanel(); }
+    async function setCaseReliability(id, v) { await patchCase(id, { reliability: parseInt(v, 10) }); searchCases(); }
+    async function deleteCase(id) { if (!confirm('이 사례를 삭제할까요?')) return; await fetch('/api/cases/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCasesPanel(); }
 
     /* v2.8.18: 통신 단말기 라인업 관리 */
     (function(){
