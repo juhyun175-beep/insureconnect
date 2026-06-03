@@ -3,7 +3,7 @@
  *   POST /api/board/posts/{id}/comments  (로그인 필수) body:{content}
  */
 import { json, error, handle, corsPreflight } from '../../../../_lib/http.js';
-import { getUserFromRequest, SITE } from '../../../../_lib/auth.js';
+import { getUserFromRequest, SITE, maybePromoteByPoints } from '../../../../_lib/auth.js';
 import { sendMemoToMember } from '../../../../_lib/kakao-msg.js';
 import { findProfanity, isSpammy, isBanned } from '../../../../_lib/moderation.js';
 
@@ -43,6 +43,17 @@ export const onRequestPost = async ({ env, request, params, waitUntil }) => hand
   ).bind(postId, user.id, user.nickname || '회원', content).first();
   await env.DB.prepare(`UPDATE ic_board_posts SET comment_count = comment_count + 1 WHERE id = ?`).bind(postId).run().catch(() => {});
 
+  // v2.12.5: 댓글 포인트 (+2P, 타인 글에 하루 최초 5건까지 — 자기글·도배 적립 방지)
+  let pointsAwarded = 0;
+  if (post.user_id !== user.id && (today?.n || 0) < 5) {
+    try {
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 2 WHERE id = ?`).bind(user.id).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 2, 'board_comment')`).bind(user.id).run();
+      await maybePromoteByPoints(env, user.id);
+      pointsAwarded = 2;
+    } catch (_) {}
+  }
+
   // v2.7.1: 내 글에 댓글 달리면 작성자에게 카톡 알림 (본인 댓글 제외 · 동의·토큰 보유 시 · 응답 비차단)
   const notifyAuthor = async () => {
     try {
@@ -62,5 +73,5 @@ export const onRequestPost = async ({ env, request, params, waitUntil }) => hand
   };
   if (typeof waitUntil === 'function') waitUntil(notifyAuthor()); else await notifyAuthor();
 
-  return json({ ok: true, id: r?.id });
+  return json({ ok: true, id: r?.id, points_awarded: pointsAwarded });
 });

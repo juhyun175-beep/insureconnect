@@ -4,7 +4,7 @@
  *   POST /api/board/posts          (로그인 필수) body:{title, content}
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
-import { getUserFromRequest } from '../../_lib/auth.js';
+import { getUserFromRequest, maybePromoteByPoints } from '../../_lib/auth.js';
 import { findProfanity, isSpammy, isBanned } from '../../_lib/moderation.js';
 
 export const onRequestOptions = () => corsPreflight();
@@ -52,5 +52,16 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
   const r = await env.DB.prepare(
     `INSERT INTO ic_board_posts (user_id, nickname, title, content) VALUES (?, ?, ?, ?) RETURNING id`
   ).bind(user.id, user.nickname || '회원', title, content).first();
-  return json({ ok: true, id: r?.id });
+
+  // v2.12.5: 글 작성 포인트 (+5P, 하루 최초 3건까지 — 도배 적립 방지)
+  let pointsAwarded = 0;
+  if ((today?.n || 0) < 3) {
+    try {
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 5 WHERE id = ?`).bind(user.id).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 5, 'board_post')`).bind(user.id).run();
+      await maybePromoteByPoints(env, user.id);
+      pointsAwarded = 5;
+    } catch (_) {}
+  }
+  return json({ ok: true, id: r?.id, points_awarded: pointsAwarded });
 });

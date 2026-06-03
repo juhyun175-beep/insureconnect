@@ -29,6 +29,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     where.push("verify_status = 'approved'");
   }
   if (category && CATEGORIES.includes(category)) { where.push('category = ?'); binds.push(category); }
+  if (url.searchParams.get('excellent') === '1') where.push('excellent = 1');  // v2.12.5: 우수사례 큐레이션
   if (q) { where.push('(disease LIKE ? OR insurer LIKE ? OR summary LIKE ?)'); binds.push(`%${q}%`, `%${q}%`, `%${q}%`); }
   const whereSql = where.length ? `WHERE ${where.join(' AND ')}` : '';
 

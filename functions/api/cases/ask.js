@@ -118,7 +118,14 @@ ${caseCtx || '(관련 사례 없음)'}
 [관련 담보 스펙]
 ${covCtx || '(관련 담보 없음)'}`;
 
-  const r = await callLLM(env, SYSTEM, question, { maxTokens: 900 });
+  // v2.12.5(A): 멀티턴 — 이전 대화(최근 3턴)를 컨텍스트로 포함 (사례 검색은 현재 질문 기준)
+  const history = Array.isArray(body?.history) ? body.history.slice(-3) : [];
+  let userMsg = question;
+  if (history.length) {
+    const hist = history.map((h) => 'Q: ' + String((h && h.q) || '').slice(0, 300) + '\nA: ' + String((h && h.a) || '').slice(0, 500)).join('\n\n');
+    userMsg = '[이전 대화]\n' + hist + '\n\n[현재 질문]\n' + question;
+  }
+  const r = await callLLM(env, SYSTEM, userMsg, { maxTokens: 900 });
   if (!r.ok) return json({ error: 'AI 응답 생성 실패', code: r.error }, 502);
 
   // v2.12.4: 답변 근거가 된 실제 사례(상위 5건)도 반환 → 프론트에서 '근거 사례 카드'로 노출(투명성·신뢰·데이터 과시)
