@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.9.5] - 2026-06-03
+### Fixed (PDF "invalid model ID")
+- 원인: 비전 모델 시크릿 값에 줄바꿈/공백(`gpt-4o\n`)이 섞여 OpenAI가 `invalid model ID`(400)로 거부 → 모델명을 코드에서 **trim** 처리(callVision·callLLM). 시크릿이 어떻게 들어가도 안전
+
 ## [2.9.4] - 2026-06-03
 ### Fixed (PDF openai_400 / 사례 추출 튜닝)
 - **PDF 비전 400 해결 시도**: `callVision`을 `max_tokens`→**`max_completion_tokens`** 로 변경 + `temperature` 미지정(2026 모델이 거부하던 두 파라미터 정리). 실패 시 **OpenAI 에러 바디를 화면에 표시**(정확 원인 노출)

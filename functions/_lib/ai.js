@@ -58,7 +58,7 @@ export async function callLLM(env, system, user, { maxTokens = 900 } = {}) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.OPENAI_API_KEY}` },
         body: JSON.stringify({
-          model: env.OPENAI_MODEL || 'gpt-4o-mini',
+          model: String(env.OPENAI_MODEL || 'gpt-4o-mini').trim(),
           messages: [{ role: 'system', content: system }, { role: 'user', content: user }],
           max_tokens: maxTokens, temperature: 0.6,
         }),
@@ -101,7 +101,7 @@ export async function callVision(env, system, userText, images, { maxTokens = 40
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${env.OPENAI_API_KEY}` },
       body: JSON.stringify({
-        model: model || env.OPENAI_VISION_MODEL || 'gpt-4o-mini',
+        model: String(model || env.OPENAI_VISION_MODEL || 'gpt-4o-mini').trim(),  // trim: 시크릿 값 줄바꿈/공백 방지
         messages: [{ role: 'system', content: system }, { role: 'user', content }],
         max_completion_tokens: maxTokens,  // 2026 모델: max_tokens 대신 / temperature 미지정(기본값)
       }),
