@@ -48,7 +48,22 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
     ).bind(date, `m${user.id}`).first();
     count = r?.count || 1;
   } catch (_) {}
-  if (count > limit) return json({ error: `오늘 이용 한도(${limit}회)를 초과했습니다. 등급을 올리면 더 많이 이용할 수 있어요.`, code: 'rate_limit' }, 429);
+  // 무료 한도 초과 → 포인트(5P)로 추가 질문 (#10 포인트 사용처)
+  const EXTRA_COST = 5;
+  let usedPoints = 0;
+  if (count > limit) {
+    const m = await env.DB.prepare(`SELECT points FROM ic_members WHERE id = ?`).bind(user.id).first();
+    const pts = m?.points || 0;
+    if (pts >= EXTRA_COST) {
+      try {
+        await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ?`).bind(EXTRA_COST, user.id).run();
+        await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, ?, 'ai_extra')`).bind(user.id, -EXTRA_COST).run();
+      } catch (_) {}
+      usedPoints = EXTRA_COST;
+    } else {
+      return json({ error: `오늘 무료 한도(${limit}회)를 다 썼어요. 포인트 ${EXTRA_COST}P로 추가 질문할 수 있어요(보유 ${pts}P). 사례를 공유하면 포인트가 쌓입니다.`, code: 'rate_limit' }, 429);
+    }
+  }
 
   // 1) 사례 검색 (키워드 LIKE, 신뢰도순)
   const terms = extractTerms(question);
@@ -110,5 +125,6 @@ ${covCtx || '(관련 담보 없음)'}`;
     answer: r.text,
     evidence: { case_count: cases.length, coverage_count: coverages.length, insurers, approve, reject },
     remaining: Math.max(0, limit - count),
+    points_used: usedPoints,
   });
 });

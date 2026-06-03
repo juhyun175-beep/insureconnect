@@ -195,7 +195,8 @@ textarea:focus{outline:none;border-color:#1a3de8}
           if(ev.insurers&&ev.insurers.length) chips.push(cqChip('🏢 '+ev.insurers.slice(0,4).join(', '),'#7c3aed'));
           cqEv.innerHTML=chips.join('');
           cqOutWrap.style.display='block'; cqOutWrap.scrollIntoView({behavior:'smooth',block:'nearest'});
-          if(typeof d.remaining==='number') cqHint.textContent='오늘 '+d.remaining+'회 남음';
+          if(d.points_used){ cqHint.textContent='⭐ 포인트 '+d.points_used+'P 사용 (무료 한도 초과)'; cqHint.style.color='#b45309'; }
+          else if(typeof d.remaining==='number') cqHint.textContent='오늘 '+d.remaining+'회 남음';
         }
       }catch(e){ cqErr.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
       finally{ cqAsk.disabled=false; cqAsk.innerHTML=o; }

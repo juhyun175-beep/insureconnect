@@ -6,7 +6,10 @@ import { getUserFromRequest } from '../../_lib/auth.js';
 
 export const onRequestOptions = () => corsPreflight();
 export const onRequestGet = async ({ env, request }) => {
-  const user = await getUserFromRequest(env, request);
+  let user = await getUserFromRequest(env, request);
+  if (user) {
+    try { const m = await env.DB.prepare(`SELECT points FROM ic_members WHERE id = ?`).bind(user.id).first(); user = { ...user, points: m?.points || 0 }; } catch (_) {}
+  }
   // login_enabled=false 면 프론트에서 로그인 버튼 숨김 (미설정 기능 노출 방지)
   return json({ user: user || null, login_enabled: !!env.KAKAO_REST_KEY });
 };

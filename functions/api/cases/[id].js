@@ -15,7 +15,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   const body = await request.json();
 
   const cur = await env.DB.prepare(
-    `SELECT verify_status, submitter_id FROM ic_insurance_cases WHERE id = ?`
+    `SELECT verify_status, submitter_id, excellent FROM ic_insurance_cases WHERE id = ?`
   ).bind(params.id).first();
   if (!cur) return error('Not found', 404);
 
@@ -40,6 +40,12 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
       sets.push("approved_at = datetime('now')");
     }
   }
+  let markExcellent = false;
+  if ('excellent' in body) {
+    const ex = (body.excellent === 1 || body.excellent === true) ? 1 : 0;
+    sets.push('excellent = ?'); binds.push(ex);
+    if (ex === 1 && cur.excellent !== 1) markExcellent = true;
+  }
   if (!sets.length) return error('No fields to update');
 
   await env.DB.prepare(
@@ -48,9 +54,19 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
 
   // 승인 시 등록 회원 +20 (최초 승인 1회)
   if (approving && cur.submitter_id) {
-    try { await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 20 WHERE id = ?`).bind(cur.submitter_id).run(); } catch (_) {}
+    try {
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 20 WHERE id = ?`).bind(cur.submitter_id).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 20, 'case_approve')`).bind(cur.submitter_id).run();
+    } catch (_) {}
   }
-  return json({ ok: true, approved: approving });
+  // 우수 사례 +50 (최초 1회)
+  if (markExcellent && cur.submitter_id) {
+    try {
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + 50 WHERE id = ?`).bind(cur.submitter_id).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 50, 'case_excellent')`).bind(cur.submitter_id).run();
+    } catch (_) {}
+  }
+  return json({ ok: true, approved: approving, excellent: markExcellent });
 });
 
 export const onRequestDelete = async ({ params, request, env }) => handle(async () => {

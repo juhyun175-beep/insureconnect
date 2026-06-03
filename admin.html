@@ -4330,8 +4330,9 @@
           <p class="nl-status" id="cs-analyze-status"></p>
         </div>
 
-        <!-- 통계 -->
-        <div class="mt-cards" id="cs-stats" style="margin-bottom:16px;"></div>
+        <!-- 통계 (#12 대시보드) -->
+        <div class="mt-cards" id="cs-stats" style="margin-bottom:12px;"></div>
+        <div class="roledist" id="cs-top" style="margin-bottom:16px;flex-wrap:wrap;gap:6px;"></div>
 
         <!-- 사례 직접 등록 (관리자 = 즉시 승인) -->
         <div class="nl-upload-box">
@@ -4680,18 +4681,27 @@
       try { const r = await fetch('/api/cases?status=' + status + '&limit=1', { headers: adminHeaders() }); const d = await r.json(); return d.total || 0; } catch (_) { return 0; }
     }
     async function loadCasesPanel() {
-      const el = document.getElementById('cs-stats');
+      const el = document.getElementById('cs-stats'), topEl = document.getElementById('cs-top');
       if (el) {
-        const [all, pend, appr, uw, dc, cl] = await Promise.all([
-          casesCount('all'), casesCount('pending'), casesCount('approved'),
-          fetch('/api/cases?status=all&category=underwrite&limit=1', { headers: adminHeaders() }).then(r => r.json()).then(d => d.total || 0).catch(() => 0),
-          fetch('/api/cases?status=all&category=disclosure&limit=1', { headers: adminHeaders() }).then(r => r.json()).then(d => d.total || 0).catch(() => 0),
-          fetch('/api/cases?status=all&category=claim&limit=1', { headers: adminHeaders() }).then(r => r.json()).then(d => d.total || 0).catch(() => 0),
-        ]);
-        el.innerHTML = [
-          ['총 사례', all], ['검수 대기', pend], ['승인', appr],
-          ['인수심사', uw], ['고지', dc], ['보상', cl],
-        ].map(function (c) { return '<div class="mt-card"><div class="mt-num">' + Number(c[1]).toLocaleString() + '</div><div class="mt-lbl">' + c[0] + '</div></div>'; }).join('');
+        try {
+          const s = await fetch('/api/cases/stats', { headers: adminHeaders() }).then(r => r.json());
+          const c = s.cases || {}, ai = s.ai || {}, mem = s.members || {}, cov = s.coverages || {}, bc = c.by_category || {};
+          const card = function (num, lbl, sub) { return '<div class="mt-card"><div class="mt-num">' + (num != null ? (typeof num === 'string' ? num : Number(num).toLocaleString()) : '—') + '</div><div class="mt-lbl">' + lbl + '</div>' + (sub ? '<div class="mt-sub">' + sub + '</div>' : '') + '</div>'; };
+          el.innerHTML = [
+            card(c.total, '총 사례', '오늘 +' + (c.new_today || 0)),
+            card(c.pending, '검수 대기'), card(c.approved, '승인'), card(c.excellent, '⭐ 우수'),
+            card(bc.underwrite, '인수심사'), card(bc.disclosure, '고지'), card(bc.claim, '보상'),
+            card(cov.approved, '담보(승인)', '전체 ' + (cov.total || 0)),
+            card(ai.total, 'AI 질의', '오늘 ' + (ai.today || 0)),
+            card('$' + (ai.est_cost_usd || 0), '예상 API비용'),
+            card(mem.total_points, '누적 포인트'),
+          ].join('');
+          if (topEl) {
+            const ins = (c.top_insurers || []).map(function (r) { return '<span class="rd">' + esc(r.insurer) + ' <b>' + r.n + '</b></span>'; }).join('');
+            const dis = (c.top_diseases || []).map(function (r) { return '<span class="rd">' + esc(r.disease) + ' <b>' + r.n + '</b></span>'; }).join('');
+            topEl.innerHTML = (ins ? '<span style="font-size:11px;color:var(--txt-lo);align-self:center;">보험사</span> ' + ins : '') + (dis ? '<span style="font-size:11px;color:var(--txt-lo);align-self:center;margin-left:8px;">질병</span> ' + dis : '');
+          }
+        } catch (e) { el.innerHTML = '<div class="mt-card"><div class="mt-lbl">통계 로드 실패</div></div>'; }
       }
       searchCases();
     }
@@ -4741,6 +4751,7 @@
             + '<select onchange="setCaseReliability(' + c.id + ',this.value)" style="font-size:11px;padding:4px 6px;background:var(--bg-input);color:var(--txt-hi);border:1px solid var(--border);border-radius:6px;">'
             + [20, 40, 60, 80, 100].map(function (v) { return '<option value="' + v + '"' + (c.reliability === v ? ' selected' : '') + '>신뢰도 ' + v + '</option>'; }).join('')
             + '</select>'
+            + (c.verify_status === 'approved' ? '<button onclick="markExcellent(' + c.id + ')" style="font-size:11px;padding:5px 10px;background:' + (c.excellent ? 'rgba(245,158,11,0.30)' : 'rgba(245,158,11,0.14)') + ';color:#d97706;border:none;border-radius:6px;cursor:pointer;font-weight:700;">' + (c.excellent ? '⭐ 우수됨' : '⭐ 우수+50P') + '</button>' : '')
             + '<button onclick="deleteCase(' + c.id + ')" style="font-size:11px;padding:5px 11px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;margin-left:auto;">삭제</button>'
             + '</div></div>';
         }).join('');
@@ -4750,6 +4761,7 @@
       await fetch('/api/cases/' + id, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(body) });
     }
     async function approveCase(id) { await patchCase(id, { verify_status: 'approved' }); loadCasesPanel(); }
+    async function markExcellent(id) { await patchCase(id, { excellent: 1 }); loadCasesPanel(); }
     async function rejectCase(id) { await patchCase(id, { verify_status: 'rejected' }); loadCasesPanel(); }
     async function setCaseReliability(id, v) { await patchCase(id, { reliability: parseInt(v, 10) }); searchCases(); }
     async function deleteCase(id) { if (!confirm('이 사례를 삭제할까요?')) return; await fetch('/api/cases/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCasesPanel(); }

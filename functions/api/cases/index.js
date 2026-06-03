@@ -35,7 +35,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const rs = await env.DB.prepare(
     `SELECT id, category, disease, insurer, gender, age, elapsed_period, join_condition,
             result, summary, special_notes, reliability, source, verify_status, submitter_id,
-            created_at, approved_at
+            created_at, approved_at, excellent
      FROM ic_insurance_cases
      ${whereSql}
      ORDER BY reliability DESC, created_at DESC
