@@ -1,35 +1,26 @@
 /**
- * v2.14.2: 홈 보험뉴스 (카드형·실시간) — GET /api/news?cat=all|sonbo|saengbo|policy
- *   보험 전문지(보험신보) + 연합뉴스·한국경제(보험 필터) RSS 합쳐 → 정리·썸네일 추출·중복제거·최신순
- *   → D1 캐시(10분) + stale-while-revalidate(방문 시 백그라운드 갱신 → 계속 최신화) → 홈 카드 위젯
- *   소스/카테고리 코드 고정. 헤드라인+썸네일+출처+원문 링크만(전문 복제 X). 키 불필요.
- *   (구글 뉴스 RSS는 Cloudflare 데이터센터 IP를 503 차단 → 한국 언론사 RSS 직접 사용)
+ * v2.14.4: 홈 종합 뉴스 (네이버식·카드형) — GET /api/news?cat=all|economy|society|politics|it|world|health
+ *   연합뉴스 분야별 RSS(전부 썸네일 제공) → 정리·썸네일 추출·중복제거·최신순 → D1 캐시(10분)+SWR(방문 시 백그라운드 갱신)
+ *   카테고리=코드 고정(변조 차단). 헤드라인+썸네일+출처+원문 링크만(전문 복제 X). 키 불필요.
  */
 import { json, corsPreflight, handle } from '../_lib/http.js';
 
-// 보험 관련 필터(일반지 거를 때)
-const INS_RE = /보험|손해|생명|실손|연금|보장|약관|금감원|금융위|손보|생보|공제|배상|보험사|보험료|보험금/;
+const NAME = '연합뉴스';
+const Y = (s) => `https://www.yna.co.kr/rss/${s}.xml`;
 
-// 뉴스 소스(코드 고정) — insOnly=true 면 보험 관련 제목만 (false=전체 기사)
-const SOURCES = [
-  { url: 'https://www.insnews.co.kr/rss/allArticle.xml', name: '보험신보', insOnly: false },
-  { url: 'https://www.yna.co.kr/rss/economy.xml',        name: '연합뉴스', insOnly: false }, // 썸네일 O
-  { url: 'https://www.yna.co.kr/rss/market.xml',         name: '연합뉴스', insOnly: false }, // 썸네일 O
-  { url: 'https://www.yna.co.kr/rss/industry.xml',       name: '연합뉴스', insOnly: false }, // 산업·썸네일 O
-  { url: 'https://www.hankyung.com/feed/economy',        name: '한국경제', insOnly: false },
-  { url: 'https://www.hankyung.com/feed/finance',        name: '한국경제', insOnly: false },
-];
-
-const CAT_KW = {
-  all: null,
-  sonbo:   /손해보험|손보|자동차보험|화재|배상|실손|다이렉트|펫보험|여행자|운전자/,
-  saengbo: /생명보험|생보|종신|정기보험|변액|연금|건강보험|치매|간병|어린이|상해/,
-  policy:  /금융위|금감원|금융감독원|감독원|당국|보험업법|제도|개정|시행|가이드|분쟁|소비자|약관/,
+// 카테고리 → 피드(연합뉴스 분야별 — 전부 썸네일 제공)
+const CATS = {
+  all:      [Y('news')],
+  economy:  [Y('economy'), Y('market')],
+  society:  [Y('society')],
+  politics: [Y('politics')],
+  it:       [Y('it')],
+  world:    [Y('international')],
+  health:   [Y('health')],
 };
 
-const TTL_MS = 10 * 60 * 1000; // 10분(짧게 → 자주 최신화)
-const POOL_KEY = '_pool';
-const MAX_POOL = 40, MAX_OUT = 12;
+const TTL_MS = 10 * 60 * 1000; // 10분 + SWR
+const MAX_OUT = 12, MAX_CACHE = 30;
 
 function decodeEntities(s) {
   return String(s || '')
@@ -54,21 +45,21 @@ function pickImage(block) {
   return /^https:\/\//.test(u) ? u : null;
 }
 
-function parseFeed(xml, name) {
+function parseFeed(xml) {
   const out = [];
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/g) || [];
   for (const b of blocks) {
     const title = decodeEntities(pick(b, 'title'));
     const link = decodeEntities(pick(b, 'link')) || decodeEntities(pick(b, 'guid'));
     const pubDate = (pick(b, 'pubDate') || pick(b, 'dc:date') || '').trim();
-    if (title && link && /^https?:/.test(link)) out.push({ title, link, source: name, pubDate, image: pickImage(b) });
+    if (title && link && /^https?:/.test(link)) out.push({ title, link, source: NAME, pubDate, image: pickImage(b) });
   }
   return out;
 }
 
-async function fetchFeed(src) {
+async function fetchFeed(url) {
   try {
-    const r = await fetch(src.url, {
+    const r = await fetch(url, {
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; InsureConnectBot/1.0; +https://insureconnect-hub.pages.dev)',
         'Accept': 'application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8',
@@ -76,50 +67,35 @@ async function fetchFeed(src) {
       },
       cf: { cacheTtl: 300, cacheEverything: true },
     });
-    if (!r.ok) return { items: [] };
-    let items = parseFeed(await r.text(), src.name);
-    if (src.insOnly) items = items.filter((it) => INS_RE.test(it.title));
-    return { items };
-  } catch (_) { return { items: [] }; }
+    if (!r.ok) return [];
+    return parseFeed(await r.text());
+  } catch (_) { return []; }
 }
 
-function buildPool(results) {
-  // 각 소스 내부는 최신순 정렬
-  const lists = results.map((r) => {
-    const s = (r.items || []).slice();
-    s.sort((a, b) => (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0));
-    return s;
-  });
-  // 소스 라운드로빈 인터리브 — 다발 게시 매체(보험신보)가 풀을 독식하지 않게 + 이미지 소스(연합) 고루 노출
-  const seen = new Set(); const pool = [];
-  for (let i = 0; pool.length < MAX_POOL; i++) {
-    let any = false;
-    for (const lst of lists) {
-      if (i >= lst.length) continue;
-      any = true;
-      const it = lst[i];
-      const key = it.title.slice(0, 40);
-      if (seen.has(key)) continue;
-      seen.add(key); pool.push(it);
-      if (pool.length >= MAX_POOL) break;
-    }
-    if (!any) break;
+function buildList(lists) {
+  const seen = new Set(); const out = [];
+  for (const items of lists) for (const it of items) {
+    const key = it.title.slice(0, 40);
+    if (seen.has(key)) continue;
+    seen.add(key); out.push(it);
   }
-  return pool;
+  out.sort((a, b) => (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0));
+  return out;
 }
 
-async function refreshPool(env) {
-  const results = await Promise.all(SOURCES.map(fetchFeed));
-  const pool = buildPool(results);
-  if (pool.length) {
+async function refreshCat(env, cat) {
+  const feeds = CATS[cat] || CATS.all;
+  const lists = await Promise.all(feeds.map((u) => fetchFeed(u)));
+  const list = buildList(lists).slice(0, MAX_CACHE);
+  if (list.length) {
     try {
       await env.DB.prepare(
         `INSERT INTO ic_news_cache (cat, payload, fetched_at) VALUES (?, ?, ?)
          ON CONFLICT(cat) DO UPDATE SET payload = excluded.payload, fetched_at = excluded.fetched_at`
-      ).bind(POOL_KEY, JSON.stringify(pool), new Date().toISOString()).run();
+      ).bind(cat, JSON.stringify(list), new Date().toISOString()).run();
     } catch (_) {}
   }
-  return pool;
+  return list;
 }
 
 export const onRequestOptions = () => corsPreflight();
@@ -128,30 +104,24 @@ export const onRequestGet = async (context) => handle(async () => {
   const { env, request } = context;
   const url = new URL(request.url);
   const reqCat = url.searchParams.get('cat');
-  const cat = Object.prototype.hasOwnProperty.call(CAT_KW, reqCat) ? reqCat : 'all';
+  const cat = Object.prototype.hasOwnProperty.call(CATS, reqCat) ? reqCat : 'all';
   const now = Date.now();
 
-  // 캐시 로드
-  let pool = null, fetchedAt = 0;
+  // 캐시 로드(카테고리별)
+  let list = null, fetchedAt = 0;
   try {
-    const c = await env.DB.prepare(`SELECT payload, fetched_at FROM ic_news_cache WHERE cat = ?`).bind(POOL_KEY).first();
-    if (c) { pool = JSON.parse(c.payload); fetchedAt = Date.parse(c.fetched_at) || 0; }
+    const c = await env.DB.prepare(`SELECT payload, fetched_at FROM ic_news_cache WHERE cat = ?`).bind(cat).first();
+    if (c) { list = JSON.parse(c.payload); fetchedAt = Date.parse(c.fetched_at) || 0; }
   } catch (_) {}
 
-  const stale = !pool || (now - fetchedAt) >= TTL_MS;
-  if (!pool) {
-    pool = await refreshPool(env);                 // 캐시 없음 → 동기 갱신
+  const stale = !list || (now - fetchedAt) >= TTL_MS;
+  if (!list) {
+    list = await refreshCat(env, cat);                 // 캐시 없음 → 동기
   } else if (stale) {
-    // stale-while-revalidate: 즉시 stale 제공 + 백그라운드 갱신(다음 방문자는 최신)
-    if (context.waitUntil) { try { context.waitUntil(refreshPool(env)); } catch (_) {} }
-    else pool = await refreshPool(env);
+    if (context.waitUntil) { try { context.waitUntil(refreshCat(env, cat)); } catch (_) {} } // SWR
+    else list = await refreshCat(env, cat);
   }
-  pool = pool || [];
+  list = list || [];
 
-  // 카테고리 필터(제목 키워드) — 비면 전체로 폴백
-  const kw = CAT_KW[cat];
-  let items = kw ? pool.filter((it) => kw.test(it.title)) : pool;
-  if (!items.length) items = pool;
-
-  return json({ ok: pool.length > 0, cat, items: items.slice(0, MAX_OUT) });
+  return json({ ok: list.length > 0, cat, items: list.slice(0, MAX_OUT) });
 });
