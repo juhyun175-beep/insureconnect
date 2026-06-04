@@ -35,15 +35,21 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     return json({ error: '승인(게시)된 공고만 상단노출할 수 있습니다.', code: 'not_approved' }, 400);
   }
 
-  // 포인트 확인
-  const me = await env.DB.prepare(`SELECT points FROM ic_members WHERE id = ?`).bind(user.id).first();
+  // v2.13.9: 상단노출권(크레딧) 우선 사용 — 없으면 포인트(COST)
+  const me = await env.DB.prepare(`SELECT points, feature_credit FROM ic_members WHERE id = ?`).bind(user.id).first();
   const points = me?.points || 0;
-  if (points < COST) {
-    return json({ error: '포인트가 부족합니다.', code: 'insufficient_points', need: COST, points }, 402);
+  const credit = me?.feature_credit || 0;
+  const useCredit = credit > 0;
+  if (!useCredit && points < COST) {
+    return json({ error: '포인트가 부족합니다.', code: 'insufficient_points', need: COST, points, feature_credit: credit }, 402);
   }
 
-  // 차감 + 노출기간 연장(이미 노출중이면 그 만료시점에서 +DAYS, 아니면 now+DAYS)
-  await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ?`).bind(COST, user.id).run();
+  // 차감(크레딧 1장 우선, 없으면 포인트 COST) + 노출기간 연장(이미 노출중이면 그 만료시점에서 +DAYS, 아니면 now+DAYS)
+  if (useCredit) {
+    await env.DB.prepare(`UPDATE ic_members SET feature_credit = feature_credit - 1 WHERE id = ?`).bind(user.id).run();
+  } else {
+    await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ?`).bind(COST, user.id).run();
+  }
   await env.DB.prepare(
     `UPDATE ${table}
         SET featured_until = datetime(
@@ -54,10 +60,10 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   ).bind(DAYS, id).run();
   try {
     await env.DB.prepare(
-      `INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, ?, 'feature_posting')`
-    ).bind(user.id, -COST).run();
+      `INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, ?, ?)`
+    ).bind(user.id, useCredit ? 0 : -COST, useCredit ? 'feature_credit_use' : 'feature_posting').run();
   } catch (_) {}
 
   const upd = await env.DB.prepare(`SELECT featured_until FROM ${table} WHERE id = ?`).bind(id).first();
-  return json({ ok: true, featured_until: upd?.featured_until || null, days: DAYS, points_used: COST, remaining: points - COST });
+  return json({ ok: true, featured_until: upd?.featured_until || null, days: DAYS, used_credit: useCredit, points_used: useCredit ? 0 : COST, remaining: useCredit ? points : points - COST, feature_credit: useCredit ? credit - 1 : credit });
 });

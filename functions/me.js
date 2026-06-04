@@ -207,7 +207,7 @@ export const onRequestGet = async ({ env, request }) => {
   // 포인트 내역 (window.__reloadPt 로 노출 — 상단노출 결제 후 갱신)
   window.__reloadPt=function(){
     var box=document.getElementById('pt-box'); if(!box) return;
-    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',case_extract:'🤖 카톡 사례 자동등록',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출',board_post:'✍️ 글 작성',board_comment:'💬 댓글 작성'};
+    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',case_extract:'🤖 카톡 사례 자동등록',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출',board_post:'✍️ 글 작성',board_comment:'💬 댓글 작성',shop_ai10:'🛒 질문권 10회 교환',shop_ai30:'🛒 질문권 30회 교환',shop_feature1:'🛒 상단노출권 교환',feature_credit_use:'🔝 상단노출권 사용'};
     fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
       if(!d||d.points==null){ box.textContent='포인트 정보를 불러오지 못했습니다.'; return; }
       var log=(d.log||[]).map(function(l){
@@ -226,61 +226,65 @@ export const onRequestGet = async ({ env, request }) => {
     var ST={pending:['검수중','#b45309','#fef3c7'],approved:['게시중','#16a34a','#dcfce7'],rejected:['반려','#dc2626','#fee2e2']};
     function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
     function fmtUntil(s){ if(!s) return ''; var d=new Date(String(s).replace(' ','T')+'Z'); if(isNaN(d.getTime())) return ''; return d.getFullYear()+'.'+String(d.getMonth()+1).padStart(2,'0')+'.'+String(d.getDate()).padStart(2,'0'); }
-    function render(items, cost){
+    function render(items, cost, credit){
       if(!items.length){ box.innerHTML='<div class="empty">직접 등록한 공고가 없습니다. 홈의 「내 공고 직접 등록」으로 채용·강의 공고를 올려보세요.</div>'; return; }
       box.innerHTML=items.map(function(it){
         var st=ST[it.status]||ST.pending; var typeL=it.type==='lecture'?'🎓':'💼';
         var right;
         if(it.featured){ right='<span style="font-size:11.5px;font-weight:800;color:#1a3de8;white-space:nowrap;flex-shrink:0">🔝 노출중 ~'+fmtUntil(it.featured_until)+'</span>'; }
-        else if(it.status==='approved'){ right='<button class="feat-btn" data-type="'+it.type+'" data-id="'+it.id+'" style="background:#1a3de8;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12px;padding:7px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0">🔝 상단노출 '+cost+'P</button>'; }
+        else if(it.status==='approved'){ var fl=credit>0?'🔝 노출권 사용':'🔝 상단노출 '+cost+'P'; var fbg=credit>0?'#16a34a':'#1a3de8'; right='<button class="feat-btn" data-type="'+it.type+'" data-id="'+it.id+'" style="background:'+fbg+';color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12px;padding:7px 11px;cursor:pointer;white-space:nowrap;flex-shrink:0">'+fl+'</button>'; }
         else { right='<span style="font-size:11.5px;color:#94a3b8;white-space:nowrap;flex-shrink:0">'+st[0]+'</span>'; }
         return '<div style="padding:9px 2px;border-bottom:1px solid #f1f5f9;"><div style="display:flex;align-items:center;gap:9px;"><span style="font-size:11px;font-weight:800;color:'+st[1]+';background:'+st[2]+';padding:2px 7px;border-radius:999px;white-space:nowrap;flex-shrink:0;">'+st[0]+'</span><span style="flex:1;min-width:0;font-size:13px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+typeL+' '+esc(it.title)+'</span>'+right+'</div><div style="font-size:11px;color:#94a3b8;margin-top:4px;">👁 조회 '+(it.views||0)+' · 📝 폼클릭 '+(it.form_clicks||0)+'</div></div>';
       }).join('');
       box.querySelectorAll('.feat-btn').forEach(function(b){
         b.addEventListener('click',function(){
-          if(!confirm(cost+'P를 사용해 이 공고를 7일간 목록 맨 위에 노출할까요?')) return;
+          if(!confirm(credit>0?'보유한 상단노출권 1장으로 이 공고를 7일간 최상단 노출할까요? (포인트 차감 없음)':cost+'P를 사용해 이 공고를 7일간 목록 맨 위에 노출할까요?')) return;
           b.disabled=true; var old=b.textContent; b.textContent='처리중…';
           fetch('/api/postings/feature',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({type:b.dataset.type,id:+b.dataset.id})})
             .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
             .then(function(o){
-              if(o.s===200&&o.j.ok){ alert('✅ 상단노출 적용! 남은 포인트 '+o.j.remaining+'P'); load(); if(window.__reloadPt)window.__reloadPt(); }
+              if(o.s===200&&o.j.ok){ alert(o.j.used_credit?'✅ 상단노출권 사용! 7일 노출 · 남은 권 '+(o.j.feature_credit||0)+'장':'✅ 상단노출 적용! 남은 포인트 '+o.j.remaining+'P'); load(); if(window.__reloadPt)window.__reloadPt(); if(window.__reloadShop)window.__reloadShop(); }
               else if(o.s===402){ alert('포인트가 부족합니다. (보유 '+(o.j.points||0)+'P / 필요 '+o.j.need+'P) — 삼따AI에서 사례를 공유하면 적립돼요.'); b.disabled=false; b.textContent=old; }
               else { alert((o.j&&o.j.error)||'처리 실패'); b.disabled=false; b.textContent=old; }
             }).catch(function(){ alert('네트워크 오류'); b.disabled=false; b.textContent=old; });
         });
       });
     }
-    function load(){ fetch('/api/postings/mine',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d||!d.ok){ box.textContent='공고를 불러오지 못했습니다.'; return; } render(d.items||[], d.cost||50); }).catch(function(){ box.textContent='공고를 불러오지 못했습니다.'; }); }
+    function load(){ fetch('/api/postings/mine',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d||!d.ok){ box.textContent='공고를 불러오지 못했습니다.'; return; } render(d.items||[], d.cost||50, d.feature_credit||0); }).catch(function(){ box.textContent='공고를 불러오지 못했습니다.'; }); }
     window.__reloadMyPost=load; load();
   })();
 
-  // v2.13.8: 포인트 상점
+  // v2.13.9: 포인트 상점 (확장 — 질문권 10/30회 · 상단노출권)
   (function(){
     var box=document.getElementById('shop-box'); if(!box) return;
-    function item(ico,title,desc,priceHtml){ return '<div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:22px;flex-shrink:0;">'+ico+'</span><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:800;color:#334155;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;line-height:1.4;">'+desc+'</div></div>'+priceHtml+'</div>'; }
-    function render(points, bonus){
-      var aiBtn = points>=30
-        ? '<button id="shop-ai10" style="background:#1a3de8;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;">30P 교환</button>'
-        : '<button disabled style="background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;white-space:nowrap;flex-shrink:0;cursor:not-allowed;">30P</button>';
+    function row(ico,title,desc,right){ return '<div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:22px;flex-shrink:0;">'+ico+'</span><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:800;color:#334155;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;line-height:1.4;">'+desc+'</div></div>'+right+'</div>'; }
+    function buyBtn(it,cost,points){ return points>=cost
+      ? '<button class="shop-buy" data-item="'+it+'" data-cost="'+cost+'" style="background:#1a3de8;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;">'+cost+'P 교환</button>'
+      : '<button disabled style="background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;white-space:nowrap;flex-shrink:0;cursor:not-allowed;">'+cost+'P</button>'; }
+    function render(points, bonus, credit){
       box.innerHTML =
-        '<div style="font-size:12px;color:#475569;margin-bottom:10px;">보유 <b style="color:#b45309;">'+points+'P</b> · 삼따AI 질문권 <b style="color:#1a3de8;">'+bonus+'회</b></div>'
-        + item('🤖','삼따AI 질문권 10회','무료 한도 초과 시 포인트(5P) 대신 사용',aiBtn)
-        + item('🔝','공고 상단노출 7일','내 채용·강의 공고를 목록 최상단에','<a href="#mypost-section" style="background:rgba(26,61,232,0.1);color:#1a3de8;text-decoration:none;border-radius:8px;font-weight:800;font-size:12px;padding:8px 12px;white-space:nowrap;flex-shrink:0;">내 공고 →</a>')
-        + '<div style="opacity:.5;">'+item('⭐','프리미엄 체험 · 프로필 뱃지','곧 추가됩니다','<span style="font-size:11px;color:#94a3b8;white-space:nowrap;">준비중</span>')+'</div>';
-      var b=document.getElementById('shop-ai10');
-      if(b) b.addEventListener('click',function(){
-        if(!confirm('30P로 삼따AI 질문권 10회를 교환할까요?')) return;
-        b.disabled=true; b.textContent='처리중…';
-        fetch('/api/points/redeem',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({item:'ai10'})})
-          .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
-          .then(function(o){
-            if(o.s===200&&o.j.ok){ alert('✅ 질문권 10회 교환! 남은 포인트 '+o.j.remaining+'P · 질문권 '+o.j.ai_bonus+'회'); load(); if(window.__reloadPt)window.__reloadPt(); }
-            else if(o.s===402){ alert('포인트가 부족합니다. (보유 '+(o.j.points||0)+'P / 필요 '+o.j.need+'P)'); b.disabled=false; b.textContent='30P 교환'; }
-            else { alert((o.j&&o.j.error)||'교환 실패'); b.disabled=false; b.textContent='30P 교환'; }
-          }).catch(function(){ alert('네트워크 오류'); b.disabled=false; b.textContent='30P 교환'; });
+        '<div style="font-size:12px;color:#475569;margin-bottom:10px;">보유 <b style="color:#b45309;">'+points+'P</b> · 질문권 <b style="color:#1a3de8;">'+bonus+'회</b> · 상단노출권 <b style="color:#1a3de8;">'+credit+'장</b></div>'
+        + row('🤖','삼따AI 질문권 10회','무료 한도 초과 시 포인트(5P) 대신 사용',buyBtn('ai10',30,points))
+        + row('🚀','삼따AI 질문권 30회 <span style="color:#16a34a;font-size:10.5px;font-weight:800;">특가 -15P</span>','자주 쓰면 더 이득 (10회 3개=90P → 75P)',buyBtn('ai30',75,points))
+        + row('🔝','공고 상단노출 7일권 <span style="color:#16a34a;font-size:10.5px;font-weight:800;">특가 -10P</span>','구매 후 「내 공고」에서 무료로 노출(직접 50P → 권 40P)',buyBtn('feature1',40,points))
+        + '<div style="opacity:.5;">'+row('⭐','프리미엄 체험 · 프로필 뱃지','곧 추가됩니다','<span style="font-size:11px;color:#94a3b8;white-space:nowrap;">준비중</span>')+'</div>';
+      box.querySelectorAll('.shop-buy').forEach(function(b){
+        b.addEventListener('click',function(){
+          var it=b.dataset.item, cost=+b.dataset.cost, old=b.textContent;
+          var nm={ai10:'삼따AI 질문권 10회',ai30:'삼따AI 질문권 30회',feature1:'공고 상단노출 7일권'};
+          if(!confirm(cost+'P로 '+(nm[it]||'상품')+'을(를) 교환할까요?')) return;
+          b.disabled=true; b.textContent='처리중…';
+          fetch('/api/points/redeem',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({item:it})})
+            .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+            .then(function(o){
+              if(o.s===200&&o.j.ok){ alert('✅ 교환 완료! 남은 '+o.j.remaining+'P · 질문권 '+o.j.ai_bonus+'회 · 상단노출권 '+(o.j.feature_credit||0)+'장'); load(); if(window.__reloadPt)window.__reloadPt(); if(window.__reloadMyPost)window.__reloadMyPost(); }
+              else if(o.s===402){ alert('포인트가 부족합니다. (보유 '+(o.j.points||0)+'P / 필요 '+o.j.need+'P)'); b.disabled=false; b.textContent=old; }
+              else { alert((o.j&&o.j.error)||'교환 실패'); b.disabled=false; b.textContent=old; }
+            }).catch(function(){ alert('네트워크 오류'); b.disabled=false; b.textContent=old; });
+        });
       });
     }
-    function load(){ fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d){ box.textContent='불러오지 못했습니다.'; return; } render(d.points||0, d.ai_bonus||0); }).catch(function(){ box.textContent='불러오지 못했습니다.'; }); }
+    function load(){ fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d){ box.textContent='불러오지 못했습니다.'; return; } render(d.points||0, d.ai_bonus||0, d.feature_credit||0); }).catch(function(){ box.textContent='불러오지 못했습니다.'; }); }
     window.__reloadShop=load; load();
   })();
   </script>`;

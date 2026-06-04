@@ -10,7 +10,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
 
-  const me = await env.DB.prepare(`SELECT points, role, ai_bonus FROM ic_members WHERE id = ?`).bind(user.id).first();
+  const me = await env.DB.prepare(`SELECT points, role, ai_bonus, feature_credit FROM ic_members WHERE id = ?`).bind(user.id).first();
   let log = [];
   try {
     const rs = await env.DB.prepare(
@@ -19,5 +19,5 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
     log = rs.results || [];
   } catch (_) {}
 
-  return json({ points: me?.points || 0, role: me?.role || 'member', ai_bonus: me?.ai_bonus || 0, log });
+  return json({ points: me?.points || 0, role: me?.role || 'member', ai_bonus: me?.ai_bonus || 0, feature_credit: me?.feature_credit || 0, log });
 });

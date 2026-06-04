@@ -29,5 +29,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const [rec, lec] = await Promise.all([sel('ic_recruitments', 'recruit', 'recruit_'), sel('ic_lectures', 'lecture', 'lecture_')]);
   const items = [...rec, ...lec].sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
 
-  return json({ ok: true, items, cost: 50, days: 7 });
+  // v2.13.9: 보유 상단노출권(크레딧) — 있으면 프론트에서 '권 사용(무료)' 버튼으로 표시
+  const me = await env.DB.prepare(`SELECT feature_credit FROM ic_members WHERE id = ?`).bind(user.id).first();
+
+  return json({ ok: true, items, cost: 50, days: 7, feature_credit: me?.feature_credit || 0 });
 });
