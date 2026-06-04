@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.13.8] - 2026-06-04
+### Added (포인트 상점 — 포인트 사용처 확장 → 데이터 해자)
+- **🛒 포인트 상점(마이페이지)**: 적립한 포인트를 혜택으로 교환하는 상점 카드 신설. 1차 상품 **「🤖 삼따AI 질문권 10회 = 30P」** → 무료 한도 초과 시 5P 차감 대신 보너스 질문권 우선 소진. 「🔝 공고 상단노출(내 공고로 이동)」·「⭐ 추가 혜택 준비중」 안내 포함
+- **보너스 질문권(`ai_bonus`)**: `ic_members.ai_bonus` 컬럼 추가(마이그레이션 `d1_v2_13_7_pointshop.sql`). `ask.js`가 한도 초과 시 `ai_bonus`가 있으면 1회 차감(포인트 보존)·없으면 5P·둘 다 없으면 429. 응답에 `bonus_used`·`bonus_left` 추가
+- **교환 API**: `POST /api/points/redeem` 신설 — 상품/가격/효과는 서버 코드 고정(입력 변조·인젝션 차단), 포인트 검증(부족 시 402)·차감·`ai_bonus` 적립·`ic_point_log`(reason `shop_ai10`) 기록. `/api/points/history`가 `ai_bonus` 반환
+- **포인트 경제 완성**: 적립(사례·게시판·카톡수집) ↔ 사용(삼따AI·상단노출·상점) 순환 → 포인트 가치↑ → 기여 동기↑ → 사례 데이터 축적 가속
+### Verified
+- 원격 D1 직접 검증: `ic_members.ai_bonus` 컬럼 존재 ✓ / 라이브 교환 실행됨 — 운영자 50P→**20P** 차감·`ai_bonus` 0→**10** 적립·`ic_point_log`에 `shop_ai10 -30` 기록(적립 case_extract+10·case_approve+20×2 ↔ 사용 −30 순환 실증)
+- curl: `/api/points/redeem`·`/api/points/history` 401 게이트(로그인 필수) ✓ / 보안 스캔 HIGH 0
+
 ## [2.13.7] - 2026-06-04
 ### Added (B안 — 삼따AI 데이터 해자)
 - **카톡 TXT 수집 사용 유도(#5)**: 홈 삼따AI 위젯에 「💬 단톡방 대화 붙여넣기 → AI 사례 자동등록 +10P」 CTA + `/ai#share` 앵커로 사례 공유 패널 직행 → 데이터 축적 플라이휠

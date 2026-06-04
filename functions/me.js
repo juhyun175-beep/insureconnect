@@ -110,6 +110,12 @@ export const onRequestGet = async ({ env, request }) => {
   </div>
 
   <div class="card">
+    <h2>🛒 포인트 상점</h2>
+    <div id="shop-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+    <p class="note">모은 포인트로 혜택을 교환하세요. 포인트는 사례 공유·승인·게시판 활동·카톡 사례수집으로 쌓입니다.</p>
+  </div>
+
+  <div class="card" id="mypost-section">
     <h2>🔝 내 공고 상단노출</h2>
     <div id="mypost-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
     <p class="note">5만원 게시 <b>승인 시 3일간 무료 상단노출</b> 제공 · 이후 <b>50P로 7일씩 연장</b>합니다. 포인트는 삼따AI 사례 공유·승인으로 적립돼요.</p>
@@ -246,6 +252,36 @@ export const onRequestGet = async ({ env, request }) => {
     }
     function load(){ fetch('/api/postings/mine',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d||!d.ok){ box.textContent='공고를 불러오지 못했습니다.'; return; } render(d.items||[], d.cost||50); }).catch(function(){ box.textContent='공고를 불러오지 못했습니다.'; }); }
     window.__reloadMyPost=load; load();
+  })();
+
+  // v2.13.8: 포인트 상점
+  (function(){
+    var box=document.getElementById('shop-box'); if(!box) return;
+    function item(ico,title,desc,priceHtml){ return '<div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:22px;flex-shrink:0;">'+ico+'</span><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:800;color:#334155;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;line-height:1.4;">'+desc+'</div></div>'+priceHtml+'</div>'; }
+    function render(points, bonus){
+      var aiBtn = points>=30
+        ? '<button id="shop-ai10" style="background:#1a3de8;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;">30P 교환</button>'
+        : '<button disabled style="background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;white-space:nowrap;flex-shrink:0;cursor:not-allowed;">30P</button>';
+      box.innerHTML =
+        '<div style="font-size:12px;color:#475569;margin-bottom:10px;">보유 <b style="color:#b45309;">'+points+'P</b> · 삼따AI 질문권 <b style="color:#1a3de8;">'+bonus+'회</b></div>'
+        + item('🤖','삼따AI 질문권 10회','무료 한도 초과 시 포인트(5P) 대신 사용',aiBtn)
+        + item('🔝','공고 상단노출 7일','내 채용·강의 공고를 목록 최상단에','<a href="#mypost-section" style="background:rgba(26,61,232,0.1);color:#1a3de8;text-decoration:none;border-radius:8px;font-weight:800;font-size:12px;padding:8px 12px;white-space:nowrap;flex-shrink:0;">내 공고 →</a>')
+        + '<div style="opacity:.5;">'+item('⭐','프리미엄 체험 · 프로필 뱃지','곧 추가됩니다','<span style="font-size:11px;color:#94a3b8;white-space:nowrap;">준비중</span>')+'</div>';
+      var b=document.getElementById('shop-ai10');
+      if(b) b.addEventListener('click',function(){
+        if(!confirm('30P로 삼따AI 질문권 10회를 교환할까요?')) return;
+        b.disabled=true; b.textContent='처리중…';
+        fetch('/api/points/redeem',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({item:'ai10'})})
+          .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+          .then(function(o){
+            if(o.s===200&&o.j.ok){ alert('✅ 질문권 10회 교환! 남은 포인트 '+o.j.remaining+'P · 질문권 '+o.j.ai_bonus+'회'); load(); if(window.__reloadPt)window.__reloadPt(); }
+            else if(o.s===402){ alert('포인트가 부족합니다. (보유 '+(o.j.points||0)+'P / 필요 '+o.j.need+'P)'); b.disabled=false; b.textContent='30P 교환'; }
+            else { alert((o.j&&o.j.error)||'교환 실패'); b.disabled=false; b.textContent='30P 교환'; }
+          }).catch(function(){ alert('네트워크 오류'); b.disabled=false; b.textContent='30P 교환'; });
+      });
+    }
+    function load(){ fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d){ box.textContent='불러오지 못했습니다.'; return; } render(d.points||0, d.ai_bonus||0); }).catch(function(){ box.textContent='불러오지 못했습니다.'; }); }
+    window.__reloadShop=load; load();
   })();
   </script>`;
 

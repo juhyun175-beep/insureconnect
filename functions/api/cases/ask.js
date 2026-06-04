@@ -50,18 +50,23 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
   } catch (_) {}
   // 무료 한도 초과 → 포인트(5P)로 추가 질문 (#10 포인트 사용처)
   const EXTRA_COST = 5;
-  let usedPoints = 0;
+  let usedPoints = 0, usedBonus = 0, bonusLeft = 0;
   if (count > limit) {
-    const m = await env.DB.prepare(`SELECT points FROM ic_members WHERE id = ?`).bind(user.id).first();
+    const m = await env.DB.prepare(`SELECT points, ai_bonus FROM ic_members WHERE id = ?`).bind(user.id).first();
     const pts = m?.points || 0;
-    if (pts >= EXTRA_COST) {
+    const bonus = m?.ai_bonus || 0;
+    if (bonus > 0) {
+      // v2.13.8: 포인트 상점에서 구매한 질문권 우선 사용(포인트 차감 없음)
+      try { await env.DB.prepare(`UPDATE ic_members SET ai_bonus = ai_bonus - 1 WHERE id = ?`).bind(user.id).run(); } catch (_) {}
+      usedBonus = 1; bonusLeft = bonus - 1;
+    } else if (pts >= EXTRA_COST) {
       try {
         await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ?`).bind(EXTRA_COST, user.id).run();
         await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, ?, 'ai_extra')`).bind(user.id, -EXTRA_COST).run();
       } catch (_) {}
       usedPoints = EXTRA_COST;
     } else {
-      return json({ error: `오늘 무료 한도(${limit}회)를 다 썼어요. 포인트 ${EXTRA_COST}P로 추가 질문할 수 있어요(보유 ${pts}P). 사례를 공유하면 포인트가 쌓입니다.`, code: 'rate_limit' }, 429);
+      return json({ error: `오늘 무료 한도(${limit}회)를 다 썼어요. 포인트 상점에서 질문권을 구매하거나(보유 ${pts}P), 사례를 공유하면 포인트가 쌓여요.`, code: 'rate_limit' }, 429);
     }
   }
 
@@ -146,5 +151,7 @@ ${covCtx || '(관련 담보 없음)'}`;
     sources,
     remaining: Math.max(0, limit - count),
     points_used: usedPoints,
+    bonus_used: usedBonus,
+    bonus_left: bonusLeft,
   });
 });
