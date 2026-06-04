@@ -1,21 +1,23 @@
 /**
- * v2.14.0: 홈 보험뉴스 (네이버식) — GET /api/news?cat=all|sonbo|saengbo|policy
- *   보험 전문지(보험신보) + 연합뉴스(보험 필터) RSS를 합쳐 → 정리·중복제거·최신순 → D1 30분 캐시 → 홈 위젯
- *   소스/카테고리는 코드 고정(변조 차단). 헤드라인+출처+원문 링크만(전문 복제 X). 키 불필요.
- *   (구글 뉴스 RSS는 Cloudflare 데이터센터 IP를 503으로 차단 → 한국 언론사 RSS 직접 사용)
+ * v2.14.2: 홈 보험뉴스 (카드형·실시간) — GET /api/news?cat=all|sonbo|saengbo|policy
+ *   보험 전문지(보험신보) + 연합뉴스·한국경제(보험 필터) RSS 합쳐 → 정리·썸네일 추출·중복제거·최신순
+ *   → D1 캐시(10분) + stale-while-revalidate(방문 시 백그라운드 갱신 → 계속 최신화) → 홈 카드 위젯
+ *   소스/카테고리 코드 고정. 헤드라인+썸네일+출처+원문 링크만(전문 복제 X). 키 불필요.
+ *   (구글 뉴스 RSS는 Cloudflare 데이터센터 IP를 503 차단 → 한국 언론사 RSS 직접 사용)
  */
 import { json, corsPreflight, handle } from '../_lib/http.js';
 
 // 보험 관련 필터(일반지 거를 때)
-const INS_RE = /보험|손해|생명|실손|연금|보장|약관|금감원|금융위|손보|생보|공제|배상|보험사/;
+const INS_RE = /보험|손해|생명|실손|연금|보장|약관|금감원|금융위|손보|생보|공제|배상|보험사|보험료|보험금/;
 
-// 뉴스 소스 (코드 고정) — insOnly=true 면 보험 관련만 추림
+// 뉴스 소스(코드 고정) — insOnly=true 면 보험 관련 제목만
 const SOURCES = [
   { url: 'https://www.insnews.co.kr/rss/allArticle.xml', name: '보험신보', insOnly: false },
-  { url: 'https://www.yna.co.kr/rss/economy.xml',        name: '연합뉴스', insOnly: true  },
+  { url: 'https://www.yna.co.kr/rss/economy.xml',        name: '연합뉴스', insOnly: true  }, // 썸네일 O
+  { url: 'https://www.yna.co.kr/rss/market.xml',         name: '연합뉴스', insOnly: true  }, // 썸네일 O
+  { url: 'https://www.hankyung.com/feed/economy',        name: '한국경제', insOnly: true  },
 ];
 
-// 카테고리 → 키워드(제목 필터). all 은 전체
 const CAT_KW = {
   all: null,
   sonbo:   /손해보험|손보|자동차보험|화재|배상|실손|다이렉트|펫보험|여행자|운전자/,
@@ -23,9 +25,9 @@ const CAT_KW = {
   policy:  /금융위|금감원|금융감독원|감독원|당국|보험업법|제도|개정|시행|가이드|분쟁|소비자|약관/,
 };
 
-const TTL_MS = 30 * 60 * 1000; // 30분
+const TTL_MS = 10 * 60 * 1000; // 10분(짧게 → 자주 최신화)
 const POOL_KEY = '_pool';
-const MAX_POOL = 40, MAX_OUT = 10;
+const MAX_POOL = 40, MAX_OUT = 12;
 
 function decodeEntities(s) {
   return String(s || '')
@@ -40,6 +42,16 @@ function decodeEntities(s) {
 
 const pick = (b, t) => { const m = b.match(new RegExp('<' + t + '[^>]*>([\\s\\S]*?)</' + t + '>')); return m ? m[1] : ''; };
 
+// 썸네일 추출 — media:content/thumbnail → enclosure → 본문 <img> (https만, 혼합콘텐츠 방지)
+function pickImage(block) {
+  let m = block.match(/<media:(?:content|thumbnail)[^>]*\burl=["']([^"']+)["']/i);
+  if (!m) m = block.match(/<enclosure[^>]*\burl=["']([^"']+\.(?:jpe?g|png|gif|webp)[^"']*)["']/i);
+  if (!m) m = block.match(/<img[^>]*\bsrc=["']([^"']+)["']/i);
+  if (!m) return null;
+  const u = decodeEntities(m[1]);
+  return /^https:\/\//.test(u) ? u : null;
+}
+
 function parseFeed(xml, name) {
   const out = [];
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/g) || [];
@@ -47,7 +59,7 @@ function parseFeed(xml, name) {
     const title = decodeEntities(pick(b, 'title'));
     const link = decodeEntities(pick(b, 'link')) || decodeEntities(pick(b, 'guid'));
     const pubDate = (pick(b, 'pubDate') || pick(b, 'dc:date') || '').trim();
-    if (title && link && /^https?:/.test(link)) out.push({ title, link, source: name, pubDate });
+    if (title && link && /^https?:/.test(link)) out.push({ title, link, source: name, pubDate, image: pickImage(b) });
   }
   return out;
 }
@@ -60,13 +72,13 @@ async function fetchFeed(src) {
         'Accept': 'application/rss+xml, application/xml, text/xml;q=0.9, */*;q=0.8',
         'Accept-Language': 'ko-KR,ko;q=0.9',
       },
-      cf: { cacheTtl: 600, cacheEverything: true },
+      cf: { cacheTtl: 300, cacheEverything: true },
     });
-    if (!r.ok) return { name: src.name, status: r.status, items: [] };
+    if (!r.ok) return { items: [] };
     let items = parseFeed(await r.text(), src.name);
     if (src.insOnly) items = items.filter((it) => INS_RE.test(it.title));
-    return { name: src.name, status: r.status, items };
-  } catch (e) { return { name: src.name, status: 'ERR', items: [], error: String((e && e.message) || e) }; }
+    return { items };
+  } catch (_) { return { items: [] }; }
 }
 
 function buildPool(results) {
@@ -80,40 +92,47 @@ function buildPool(results) {
   return pool.slice(0, MAX_POOL);
 }
 
+async function refreshPool(env) {
+  const results = await Promise.all(SOURCES.map(fetchFeed));
+  const pool = buildPool(results);
+  if (pool.length) {
+    try {
+      await env.DB.prepare(
+        `INSERT INTO ic_news_cache (cat, payload, fetched_at) VALUES (?, ?, ?)
+         ON CONFLICT(cat) DO UPDATE SET payload = excluded.payload, fetched_at = excluded.fetched_at`
+      ).bind(POOL_KEY, JSON.stringify(pool), new Date().toISOString()).run();
+    } catch (_) {}
+  }
+  return pool;
+}
+
 export const onRequestOptions = () => corsPreflight();
 
-export const onRequestGet = async ({ env, request }) => handle(async () => {
+export const onRequestGet = async (context) => handle(async () => {
+  const { env, request } = context;
   const url = new URL(request.url);
   const reqCat = url.searchParams.get('cat');
   const cat = Object.prototype.hasOwnProperty.call(CAT_KW, reqCat) ? reqCat : 'all';
   const now = Date.now();
 
-  // 1) pool 캐시(30분)
-  let pool = null;
+  // 캐시 로드
+  let pool = null, fetchedAt = 0;
   try {
     const c = await env.DB.prepare(`SELECT payload, fetched_at FROM ic_news_cache WHERE cat = ?`).bind(POOL_KEY).first();
-    if (c && c.fetched_at && (now - Date.parse(c.fetched_at)) < TTL_MS) pool = JSON.parse(c.payload);
+    if (c) { pool = JSON.parse(c.payload); fetchedAt = Date.parse(c.fetched_at) || 0; }
   } catch (_) {}
 
-  // 2) 만료/없음 → 소스 fetch + merge
+  const stale = !pool || (now - fetchedAt) >= TTL_MS;
   if (!pool) {
-    const results = await Promise.all(SOURCES.map(fetchFeed));
-    pool = buildPool(results);
-    if (pool.length) {
-      try {
-        await env.DB.prepare(
-          `INSERT INTO ic_news_cache (cat, payload, fetched_at) VALUES (?, ?, ?)
-           ON CONFLICT(cat) DO UPDATE SET payload = excluded.payload, fetched_at = excluded.fetched_at`
-        ).bind(POOL_KEY, JSON.stringify(pool), new Date().toISOString()).run();
-      } catch (_) {}
-    } else {
-      // 새로 못 가져옴 → 오래된 캐시라도(stale)
-      try { const c = await env.DB.prepare(`SELECT payload FROM ic_news_cache WHERE cat = ?`).bind(POOL_KEY).first(); if (c) pool = JSON.parse(c.payload); } catch (_) {}
-    }
+    pool = await refreshPool(env);                 // 캐시 없음 → 동기 갱신
+  } else if (stale) {
+    // stale-while-revalidate: 즉시 stale 제공 + 백그라운드 갱신(다음 방문자는 최신)
+    if (context.waitUntil) { try { context.waitUntil(refreshPool(env)); } catch (_) {} }
+    else pool = await refreshPool(env);
   }
   pool = pool || [];
 
-  // 3) 카테고리 필터(제목 키워드) — 비면 전체로 폴백
+  // 카테고리 필터(제목 키워드) — 비면 전체로 폴백
   const kw = CAT_KW[cat];
   let items = kw ? pool.filter((it) => kw.test(it.title)) : pool;
   if (!items.length) items = pool;

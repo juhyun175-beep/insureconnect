@@ -8837,78 +8837,7 @@
     })();
     </script>
 
-    <!-- v2.14.0: 홈 보험뉴스 (네이버식 — 구글뉴스 RSS, 키 불필요) · 재방문 훅 + 카톡방/카페 공유 유입 -->
-    <section class="ibh-news" aria-label="보험뉴스">
-      <style>
-        .ibh-news{margin:18px 0 24px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(5,150,105,0.05));border:1px solid rgba(16,185,129,0.18);}
-        [data-theme="dark"] .ibh-news{background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(5,150,105,0.08));border-color:rgba(16,185,129,0.26);}
-        .nw-head{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap;}
-        .nw-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);}
-        [data-theme="dark"] .nw-title{color:#e6edf3;}
-        .nw-badge{font-size:10.5px;font-weight:800;color:#fff;background:#10b981;padding:3px 9px;border-radius:999px;}
-        .nw-tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;}
-        .nw-tab{font-size:12px;font-weight:700;color:var(--txt-mid,#475569);background:transparent;border:1px solid var(--border);border-radius:999px;padding:5px 11px;cursor:pointer;font-family:inherit;}
-        .nw-tab.active{color:#fff;background:#10b981;border-color:#10b981;}
-        .nw-list{display:flex;flex-direction:column;}
-        .nw-item{display:flex;align-items:center;gap:10px;padding:9px 4px;border-bottom:1px solid var(--border);}
-        .nw-item:last-child{border-bottom:none;}
-        .nw-rank{font-size:13px;font-weight:900;color:#10b981;width:17px;text-align:center;flex-shrink:0;}
-        .nw-body{flex:1;min-width:0;text-decoration:none;}
-        .nw-t{font-size:13.5px;font-weight:600;color:var(--txt-hi,#0f172a);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        [data-theme="dark"] .nw-t{color:#e6edf3;}
-        .nw-body:hover .nw-t{color:#10b981;}
-        .nw-m{font-size:11px;color:#94a3b8;margin-top:2px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
-        .nw-share{flex-shrink:0;font-size:11px;font-weight:800;color:#059669;background:rgba(16,185,129,0.1);border:none;border-radius:7px;padding:6px 10px;cursor:pointer;font-family:inherit;}
-        .nw-share:hover{background:rgba(16,185,129,0.22);}
-        .nw-empty{font-size:12.5px;color:#94a3b8;padding:16px 4px;text-align:center;}
-      </style>
-      <div class="nw-head">
-        <span class="nw-title">📰 보험뉴스</span>
-        <span class="nw-badge">실시간</span>
-        <div class="nw-tabs" id="nw-tabs">
-          <button class="nw-tab active" data-cat="all" type="button">전체</button>
-          <button class="nw-tab" data-cat="sonbo" type="button">손해보험</button>
-          <button class="nw-tab" data-cat="saengbo" type="button">생명보험</button>
-          <button class="nw-tab" data-cat="policy" type="button">정책</button>
-        </div>
-      </div>
-      <div class="nw-list" id="nw-list"><div class="nw-empty">불러오는 중…</div></div>
-    </section>
-    <script>
-    (function(){
-      var listEl=document.getElementById('nw-list'); if(!listEl) return;
-      var cat='all', SITE='https://insureconnect-hub.pages.dev';
-      function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
-      function ago(s){ var t=Date.parse(s); if(isNaN(t)) return ''; var m=Math.floor((Date.now()-t)/60000); if(m<1)return'방금'; if(m<60)return m+'분 전'; var h=Math.floor(m/60); if(h<24)return h+'시간 전'; var dd=Math.floor(h/24); return dd<7?dd+'일 전':''; }
-      function shareNews(title){
-        var text='📰 '+title+'\n\n보험설계사라면 꼭 보는 곳 — 인슈어커넥트\n사례 기반 삼따AI · 보험사 전산 · 채용까지 한 곳에서 👇\n'+SITE+'/';
-        if(navigator.share){ navigator.share({title:'인슈어커넥트 보험뉴스', text:text, url:SITE+'/'}).catch(function(){}); }
-        else { (navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){ alert('뉴스+링크가 복사됐어요. 단톡방·카페에 붙여넣기 하세요!'); }).catch(function(){ window.prompt('복사해서 공유하세요', text); }); }
-      }
-      function load(){
-        listEl.innerHTML='<div class="nw-empty">불러오는 중…</div>';
-        fetch('/api/news?cat='+cat).then(function(r){return r.json();}).then(function(d){
-          var items=(d&&d.items)||[];
-          if(!items.length){ listEl.innerHTML='<div class="nw-empty">뉴스를 잠시 불러오지 못했어요. 곧 다시 시도돼요.</div>'; return; }
-          listEl.innerHTML=items.slice(0,8).map(function(it,i){
-            return '<div class="nw-item"><span class="nw-rank">'+(i+1)+'</span>'
-              +'<a class="nw-body" href="'+esc(it.link)+'" target="_blank" rel="noopener noreferrer">'
-              +'<div class="nw-t">'+esc(it.title)+'</div>'
-              +'<div class="nw-m">'+esc(it.source||'')+(it.pubDate&&ago(it.pubDate)?' · '+ago(it.pubDate):'')+'</div></a>'
-              +'<button class="nw-share" type="button" data-t="'+esc(it.title)+'">공유</button></div>';
-          }).join('');
-          Array.prototype.forEach.call(listEl.querySelectorAll('.nw-share'),function(b){ b.addEventListener('click',function(){ shareNews(b.getAttribute('data-t')); }); });
-        }).catch(function(){ listEl.innerHTML='<div class="nw-empty">뉴스를 불러오지 못했어요.</div>'; });
-      }
-      Array.prototype.forEach.call(document.querySelectorAll('#nw-tabs .nw-tab'),function(t){
-        t.addEventListener('click',function(){
-          document.querySelectorAll('#nw-tabs .nw-tab').forEach(function(x){x.classList.remove('active');});
-          t.classList.add('active'); cat=t.getAttribute('data-cat'); load();
-        });
-      });
-      load();
-    })();
-    </script>
+    <!-- v2.14.2: 보험뉴스 섹션은 채용/강의 공고 아래로 이동(카드형) -->
 
     <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
@@ -9024,6 +8953,97 @@
       <div class="ic-kakao-updated" id="home-kakao-updated"></div>
     </div>
     </div><!-- /.ic-top-row -->
+
+    <!-- v2.14.2: 홈 보험뉴스 (카드형·실시간 · 채용/강의 아래) -->
+    <section class="ibh-news" aria-label="보험뉴스">
+      <style>
+        .ibh-news{margin:18px 0 24px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(5,150,105,0.05));border:1px solid rgba(16,185,129,0.18);}
+        [data-theme="dark"] .ibh-news{background:linear-gradient(135deg,rgba(16,185,129,0.12),rgba(5,150,105,0.08));border-color:rgba(16,185,129,0.26);}
+        .nw-head{display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap;}
+        .nw-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);}
+        [data-theme="dark"] .nw-title{color:#e6edf3;}
+        .nw-badge{display:inline-flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;color:#fff;background:#10b981;padding:3px 9px;border-radius:999px;}
+        .nw-dot{width:6px;height:6px;border-radius:50%;background:#fff;animation:nwpulse 1.4s infinite;}
+        @keyframes nwpulse{0%,100%{opacity:1}50%{opacity:.25}}
+        .nw-tabs{display:flex;gap:5px;margin-left:auto;flex-wrap:wrap;}
+        .nw-tab{font-size:12px;font-weight:700;color:var(--txt-mid,#475569);background:transparent;border:1px solid var(--border);border-radius:999px;padding:5px 11px;cursor:pointer;font-family:inherit;}
+        .nw-tab.active{color:#fff;background:#10b981;border-color:#10b981;}
+        .nw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+        @media(max-width:900px){.nw-grid{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:430px){.nw-grid{gap:9px;}}
+        .nw-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:transform .12s,box-shadow .12s;}
+        [data-theme="dark"] .nw-card{background:rgba(255,255,255,0.03);}
+        .nw-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.09);}
+        .nw-thumb{position:relative;display:block;height:104px;background:#eef2f7;overflow:hidden;}
+        [data-theme="dark"] .nw-thumb{background:#0f1726;}
+        .nw-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+        .nw-ph{width:100%;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;background:linear-gradient(135deg,#1a3de8,#22d3ee);color:#fff;}
+        .nw-ph .e{font-size:23px;}
+        .nw-ph .s{font-size:11px;font-weight:800;opacity:.95;}
+        .nw-src{position:absolute;left:7px;bottom:7px;font-size:10px;font-weight:800;color:#fff;background:rgba(2,6,23,0.6);padding:2px 7px;border-radius:999px;}
+        .nw-cbody{padding:9px 11px 10px;display:flex;flex-direction:column;flex:1;}
+        .nw-ctitle{font-size:12.5px;font-weight:700;color:var(--txt-hi,#0f172a);line-height:1.36;text-decoration:none;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+        [data-theme="dark"] .nw-ctitle{color:#e6edf3;}
+        .nw-ctitle:hover{color:#059669;}
+        .nw-cmeta{margin-top:auto;padding-top:8px;display:flex;align-items:center;justify-content:space-between;gap:6px;}
+        .nw-ctime{font-size:10.5px;color:#94a3b8;white-space:nowrap;}
+        .nw-cshare{flex-shrink:0;font-size:10.5px;font-weight:800;color:#059669;background:rgba(16,185,129,0.12);border:none;border-radius:6px;padding:4px 9px;cursor:pointer;font-family:inherit;}
+        .nw-cshare:hover{background:rgba(16,185,129,0.22);}
+        .nw-empty{grid-column:1/-1;font-size:12.5px;color:#94a3b8;padding:22px 4px;text-align:center;}
+      </style>
+      <div class="nw-head">
+        <span class="nw-title">📰 보험뉴스</span>
+        <span class="nw-badge"><span class="nw-dot"></span>실시간</span>
+        <div class="nw-tabs" id="nw-tabs">
+          <button class="nw-tab active" data-cat="all" type="button">전체</button>
+          <button class="nw-tab" data-cat="sonbo" type="button">손해보험</button>
+          <button class="nw-tab" data-cat="saengbo" type="button">생명보험</button>
+          <button class="nw-tab" data-cat="policy" type="button">정책</button>
+        </div>
+      </div>
+      <div class="nw-grid" id="nw-grid"><div class="nw-empty">불러오는 중…</div></div>
+    </section>
+    <script>
+    (function(){
+      var grid=document.getElementById('nw-grid'); if(!grid) return;
+      var cat='all', SITE='https://insureconnect-hub.pages.dev';
+      function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+      function ago(s){ var t=Date.parse(s); if(isNaN(t)) return ''; var m=Math.floor((Date.now()-t)/60000); if(m<1)return'방금'; if(m<60)return m+'분 전'; var h=Math.floor(m/60); if(h<24)return h+'시간 전'; var dd=Math.floor(h/24); return dd<7?dd+'일 전':''; }
+      function shareNews(title){
+        var text='📰 '+title+'\n\n보험설계사라면 꼭 보는 곳 — 인슈어커넥트\n사례 기반 삼따AI · 보험사 전산 · 채용까지 한 곳에서 👇\n'+SITE+'/';
+        if(navigator.share){ navigator.share({title:'인슈어커넥트 보험뉴스', text:text, url:SITE+'/'}).catch(function(){}); }
+        else { (navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){ alert('뉴스+링크가 복사됐어요. 단톡방·카페에 붙여넣기 하세요!'); }).catch(function(){ window.prompt('복사해서 공유하세요', text); }); }
+      }
+      function card(it){
+        var thumb = it.image
+          ? '<img src="'+esc(it.image)+'" alt="" loading="lazy">'
+          : '<div class="nw-ph"><span class="e">📰</span><span class="s">'+esc(it.source||'보험뉴스')+'</span></div>';
+        return '<div class="nw-card">'
+          +'<a class="nw-thumb" href="'+esc(it.link)+'" target="_blank" rel="noopener noreferrer">'+thumb+'<span class="nw-src">'+esc(it.source||'')+'</span></a>'
+          +'<div class="nw-cbody">'
+          +'<a class="nw-ctitle" href="'+esc(it.link)+'" target="_blank" rel="noopener noreferrer">'+esc(it.title)+'</a>'
+          +'<div class="nw-cmeta"><span class="nw-ctime">'+(it.pubDate&&ago(it.pubDate)?ago(it.pubDate):'')+'</span><button class="nw-cshare" type="button" data-t="'+esc(it.title)+'">공유</button></div>'
+          +'</div></div>';
+      }
+      function load(){
+        grid.innerHTML='<div class="nw-empty">불러오는 중…</div>';
+        fetch('/api/news?cat='+cat).then(function(r){return r.json();}).then(function(d){
+          var items=(d&&d.items)||[];
+          if(!items.length){ grid.innerHTML='<div class="nw-empty">뉴스를 잠시 불러오지 못했어요. 곧 다시 시도돼요.</div>'; return; }
+          grid.innerHTML=items.slice(0,8).map(card).join('');
+          Array.prototype.forEach.call(grid.querySelectorAll('.nw-cshare'),function(b){ b.addEventListener('click',function(e){ e.preventDefault(); shareNews(b.getAttribute('data-t')); }); });
+          Array.prototype.forEach.call(grid.querySelectorAll('.nw-thumb img'),function(im){ im.addEventListener('error',function(){ var ph=document.createElement('div'); ph.className='nw-ph'; ph.innerHTML='<span class="e">📰</span>'; im.replaceWith(ph); }); });
+        }).catch(function(){ grid.innerHTML='<div class="nw-empty">뉴스를 불러오지 못했어요.</div>'; });
+      }
+      Array.prototype.forEach.call(document.querySelectorAll('#nw-tabs .nw-tab'),function(t){
+        t.addEventListener('click',function(){
+          document.querySelectorAll('#nw-tabs .nw-tab').forEach(function(x){x.classList.remove('active');});
+          t.classList.add('active'); cat=t.getAttribute('data-cat'); load();
+        });
+      });
+      load();
+    })();
+    </script>
 
     <!-- v2.1.25: 「진행중인 채용공고/강의」는 ic-top-left 안으로 이동 (위에 위치) -->
     <!-- v2.1.22: 추천 차량 라인업 섹션은 별도 #page-rental 페이지로 이전 -->
