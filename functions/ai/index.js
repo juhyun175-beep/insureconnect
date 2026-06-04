@@ -104,7 +104,7 @@ textarea:focus{outline:none;border-color:#1a3de8}
       <div id="cq-excellent" style="display:flex;flex-direction:column;gap:8px;"><div style="font-size:13px;color:#94a3b8;">불러오는 중…</div></div>
     </div>
   </div>
-  <div class="panel" style="margin-bottom:18px;">
+  <div class="panel" id="share" style="margin-bottom:18px;scroll-margin-top:16px;">
     <div style="padding:14px 18px 0;">
       <div style="font-size:15px;font-weight:800;color:#7c3aed;">📝 사례 공유 <span style="font-size:11px;font-weight:600;color:#64748b;">— 카톡 대화 붙여넣기 한 번으로 자동 등록 · 검수 후 삼따AI에 반영 (+10P)</span></div>
     </div>

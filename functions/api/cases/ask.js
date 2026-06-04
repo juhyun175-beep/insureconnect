@@ -73,11 +73,15 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
     const binds = [];
     for (const t of terms) { const p = `%${t}%`; binds.push(p, p, p, p); }
     const rs = await env.DB.prepare(
-      `SELECT category, disease, insurer, gender, age, elapsed_period, join_condition, result, summary, reliability
+      `SELECT category, disease, insurer, gender, age, elapsed_period, join_condition, result, summary, special_notes, reliability
        FROM ic_insurance_cases WHERE verify_status='approved' AND (${conds})
-       ORDER BY reliability DESC, created_at DESC LIMIT 12`
+       ORDER BY reliability DESC, created_at DESC LIMIT 24`
     ).bind(...binds).all();
-    cases = rs.results || [];
+    // v2.13.7: 관련도 재정렬 — 질문 용어가 더 많이 매칭되는 사례를 컨텍스트 상위로(동점은 신뢰도) → 답변 정확도↑
+    const pool = rs.results || [];
+    const _score = (c) => { const hay = `${c.disease || ''} ${c.insurer || ''} ${c.summary || ''} ${c.result || ''} ${c.join_condition || ''} ${c.special_notes || ''}`; let s = 0; for (const t of terms) if (hay.includes(t)) s++; return s; };
+    pool.sort((a, b) => (_score(b) - _score(a)) || ((b.reliability || 0) - (a.reliability || 0)));
+    cases = pool.slice(0, 12);
   }
   // 2) 담보 스펙 검색
   let coverages = [];
@@ -103,13 +107,13 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
 
   // 4) 컨텍스트 + GPT (마지막 단계)
   const caseCtx = cases.map((c, i) =>
-    `[사례${i + 1}|신뢰도${c.reliability}] ${c.insurer || '보험사?'} / ${c.disease || ''}${c.age ? ` / ${c.age}세` : ''}${c.elapsed_period ? ` / ${c.elapsed_period}` : ''} / 결과: ${c.result || c.summary || ''}`
+    `[사례${i + 1}|신뢰도${c.reliability}] ${c.insurer || '보험사?'} / ${c.disease || ''}${c.age ? ` / ${c.age}세` : ''}${c.elapsed_period ? ` / 경과 ${c.elapsed_period}` : ''}${c.join_condition ? ` / 조건 ${c.join_condition}` : ''} / 결과: ${c.result || ''}${c.summary ? ` — ${String(c.summary).slice(0, 120)}` : ''}`
   ).join('\n');
   const covCtx = coverages.map(c => `- ${c.insurer || ''} ${c.product_name || ''} / ${c.coverage_name || ''} / 가입금액 ${c.join_amount || '?'} / 보험료 ${c.premium || '?'}`).join('\n');
 
   const SYSTEM = `너는 보험설계사를 돕는 '삼따AI'다. 아래 [실제 사례·담보 데이터]를 최우선 근거로 질문에 답한다.
 - 사례 근거가 있으면 보험사·결과 경향을 구체적으로 인용해 자신감 있게 답하라. 사례가 없거나 적어도 그 사실을 절대 언급하지 말고, 보험 전문가로서 실무적이고 확신 있게 답하라. ('사례가 적다/부족하다/데이터가 없다' 같은 표현 금지)
-- 최종 판단은 보험사 심사·약관 기준이라는 점은 마지막에 짧게 한 번만. 한국어로 핵심부터 명확하게.
+- 답변 구조: ①핵심 결론(가능/조건부/어려움)을 한 문장으로 먼저 → ②사례 근거([사례N] 인용·보험사·결과 경향) → ③실무 팁/주의 한 줄. 최종 판단이 보험사 심사·약관 기준이라는 점은 마지막에 짧게 한 번만. 한국어로 간결하게.
 - 근거 요약(사례 수·보험사·승인/거절)은 시스템이 별도 표시하니 본문에서 반복하지 마라. 단, 특정 사례를 근거로 들 때는 [사례1], [사례2] 처럼 번호로 인용하라(아래 데이터의 [사례N] 번호와 정확히 일치시킬 것). 신뢰도가 올라간다.
 
 [실제 사례 데이터 ${cases.length}건]

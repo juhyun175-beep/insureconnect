@@ -4741,11 +4741,17 @@
         const d = await r.json();
         const items = d.cases || []; CS_ITEMS = items;
         if (!items.length) { el.innerHTML = '<p class="empty-msg">사례가 없습니다.</p>'; return; }
-        el.innerHTML = items.map(function (c) {
+        var _bulkBar = '<div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;padding:8px 10px;background:var(--bg-card);border:1px solid var(--border);border-radius:8px;flex-wrap:wrap;">'
+          + '<label style="font-size:12px;cursor:pointer;display:flex;align-items:center;gap:5px;"><input type="checkbox" id="cs-chk-all" onchange="csToggleAll(this.checked)" style="width:15px;height:15px;"> 전체선택</label>'
+          + '<button onclick="bulkApproveCases()" style="font-size:11.5px;padding:6px 12px;background:rgba(16,185,129,0.18);color:#10b981;border:none;border-radius:7px;cursor:pointer;font-weight:800;">✓ 선택 일괄 승인</button>'
+          + '<button onclick="bulkRejectCases()" style="font-size:11.5px;padding:6px 12px;background:rgba(245,158,11,0.16);color:#f59e0b;border:none;border-radius:7px;cursor:pointer;font-weight:700;">선택 반려</button>'
+          + '<span style="font-size:11px;color:var(--txt-lo);margin-left:auto;">' + items.length + '건 · 체크 후 일괄 처리</span></div>';
+        el.innerHTML = _bulkBar + items.map(function (c) {
           const stat = CASE_STAT[c.verify_status] || ['?', '#888'];
           const meta = [CASE_CAT[c.category] || c.category, c.insurer, c.gender === 'M' ? '남' : c.gender === 'F' ? '여' : '', c.age ? c.age + '세' : '', c.elapsed_period].filter(Boolean).join(' · ');
           return '<div id="cs-row-' + c.id + '" style="padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">'
             + '<div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:5px;">'
+            + '<input type="checkbox" class="cs-chk" value="' + c.id + '" style="width:16px;height:16px;cursor:pointer;flex-shrink:0;">'
             + '<span style="font-size:13.5px;font-weight:800;color:var(--txt-hi);">' + esc(c.disease || '(질병 미기재)') + '</span>'
             + '<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;color:#fff;background:' + stat[1] + ';">' + stat[0] + '</span>'
             + '<span style="font-size:10px;font-weight:800;padding:2px 7px;border-radius:5px;background:rgba(168,85,247,0.16);color:#c084fc;">신뢰도 ' + (c.reliability || 0) + '</span>'
@@ -4772,6 +4778,21 @@
     async function markExcellent(id) { await patchCase(id, { excellent: 1 }); loadCasesPanel(); }
     async function rejectCase(id) { await patchCase(id, { verify_status: 'rejected' }); loadCasesPanel(); }
     async function setCaseReliability(id, v) { await patchCase(id, { reliability: parseInt(v, 10) }); searchCases(); }
+    /* v2.13.7: 검수 효율화 — 체크박스 일괄 승인/반려 */
+    function csToggleAll(on) { document.querySelectorAll('.cs-chk').forEach(function (c) { c.checked = on; }); }
+    function _csSelected() { return Array.prototype.map.call(document.querySelectorAll('.cs-chk:checked'), function (c) { return parseInt(c.value, 10); }); }
+    async function bulkApproveCases() {
+      var ids = _csSelected(); if (!ids.length) { alert('체크된 사례가 없습니다.'); return; }
+      if (!confirm(ids.length + '건을 일괄 승인할까요? (등록 회원에게 건당 +20P 지급)')) return;
+      for (var i = 0; i < ids.length; i++) { try { await patchCase(ids[i], { verify_status: 'approved' }); } catch (e) {} }
+      loadCasesPanel();
+    }
+    async function bulkRejectCases() {
+      var ids = _csSelected(); if (!ids.length) { alert('체크된 사례가 없습니다.'); return; }
+      if (!confirm(ids.length + '건을 일괄 반려할까요?')) return;
+      for (var i = 0; i < ids.length; i++) { try { await patchCase(ids[i], { verify_status: 'rejected' }); } catch (e) {} }
+      loadCasesPanel();
+    }
     async function deleteCase(id) { if (!confirm('이 사례를 삭제할까요?')) return; await fetch('/api/cases/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCasesPanel(); }
     function editCase(id) {
       var c = CS_ITEMS.filter(function (x) { return x.id === id; })[0]; if (!c) return;
