@@ -8760,6 +8760,7 @@
           <div class="aii-ev" id="home-aii-ev"></div>
           <div class="aii-src" id="home-aii-src"></div>
           <div class="aii-hint" id="home-aii-hint"></div>
+          <div class="aii-share-act" id="home-aii-share" style="display:none;margin-top:10px;"></div>
         </div>
       </section>
     </div>
@@ -8768,7 +8769,24 @@
       function homeAiChip(q){ var i=document.getElementById('home-aii-q'); if(i) i.value=q; homeAiRun(); }
       function homeAiAsk(e){ if(e&&e.preventDefault)e.preventDefault(); homeAiRun(); return false; }
       var _homeAiHist=[];
-      function homeAiReset(){ _homeAiHist=[]; var o=document.getElementById('home-aii-out'); if(o)o.style.display='none'; var h=document.getElementById('home-aii-hint'); if(h)h.textContent=''; var i=document.getElementById('home-aii-q'); if(i){i.value='';i.focus();} }
+      function homeAiReset(){ _homeAiHist=[]; var o=document.getElementById('home-aii-out'); if(o)o.style.display='none'; var h=document.getElementById('home-aii-hint'); if(h)h.textContent=''; var sh=document.getElementById('home-aii-share'); if(sh)sh.style.display='none'; var i=document.getElementById('home-aii-q'); if(i){i.value='';i.focus();} }
+      // v2.14.1: 이 답변을 공개 카드로 공유 → 카톡방/카페 유입(제품=미끼)
+      async function shareAnswer(btn, question, answer, caseCount){
+        if(!question||!answer) return;
+        var old=btn.textContent; btn.disabled=true; btn.textContent='링크 생성 중…';
+        try{
+          var r=await fetch('/api/answers/share',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({question:question,answer:answer,case_count:caseCount})});
+          var d=await r.json();
+          if(r.status===401){ alert('로그인 후 공유할 수 있어요.'); }
+          else if(!r.ok||!d.url){ alert((d&&d.error)||'공유 링크 생성에 실패했어요.'); }
+          else{
+            var text='📌 보험 사례 질문에 삼따AI가 답했어요\n\nQ. '+question+'\n\n답변 보기 + 나도 물어보기 👇\n'+d.url;
+            if(navigator.share){ navigator.share({title:'삼따AI 답변', text:text, url:d.url}).catch(function(){}); }
+            else { (navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){ alert('공유 링크가 복사됐어요! 단톡방·카페에 붙여넣기 하세요.\n\n'+d.url); }).catch(function(){ window.prompt('공유 링크 (복사해서 공유)', d.url); }); }
+          }
+        }catch(_){ alert('네트워크 오류입니다. 잠시 후 다시 시도해주세요.'); }
+        finally{ btn.disabled=false; btn.textContent=old; }
+      }
       async function homeAiRun(){
         var inp=document.getElementById('home-aii-q'), btn=document.getElementById('home-aii-btn'),
             err=document.getElementById('home-aii-err'), out=document.getElementById('home-aii-out'),
@@ -8796,6 +8814,8 @@
             _homeAiHist.push({q:q, a:d.answer||''}); if(_homeAiHist.length>5)_homeAiHist=_homeAiHist.slice(-5);
             if(inp) inp.value='';
             if(hint && _homeAiHist.length>1) hint.innerHTML+=' · 💬 이어지는 대화('+_homeAiHist.length+') <a href="#" onclick="homeAiReset();return false;" style="color:#1a3de8;font-weight:700;">새 대화</a>';
+            var shB=document.getElementById('home-aii-share');
+            if(shB){ shB.style.display='block'; shB.innerHTML='<button type="button" id="home-aii-share-btn" style="width:100%;background:linear-gradient(135deg,#7c3aed,#a855f7);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:13px;padding:11px;cursor:pointer;font-family:inherit;">📤 이 답변 공유 — 단톡방·카페에 붙여넣기</button>'; var _sb=document.getElementById('home-aii-share-btn'); if(_sb) _sb.addEventListener('click',function(){ shareAnswer(_sb, q, d.answer||'', (e2.case_count||0)); }); }
           }
         }catch(_){ if(err) err.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
         finally{ btn.disabled=false; btn.textContent=ot; }
