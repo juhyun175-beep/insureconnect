@@ -82,14 +82,28 @@ async function fetchFeed(src) {
 }
 
 function buildPool(results) {
+  // 각 소스 내부는 최신순 정렬
+  const lists = results.map((r) => {
+    const s = (r.items || []).slice();
+    s.sort((a, b) => (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0));
+    return s;
+  });
+  // 소스 라운드로빈 인터리브 — 다발 게시 매체(보험신보)가 풀을 독식하지 않게 + 이미지 소스(연합) 고루 노출
   const seen = new Set(); const pool = [];
-  for (const r of results) for (const it of r.items) {
-    const key = it.title.slice(0, 40);
-    if (seen.has(key)) continue;
-    seen.add(key); pool.push(it);
+  for (let i = 0; pool.length < MAX_POOL; i++) {
+    let any = false;
+    for (const lst of lists) {
+      if (i >= lst.length) continue;
+      any = true;
+      const it = lst[i];
+      const key = it.title.slice(0, 40);
+      if (seen.has(key)) continue;
+      seen.add(key); pool.push(it);
+      if (pool.length >= MAX_POOL) break;
+    }
+    if (!any) break;
   }
-  pool.sort((a, b) => (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0));
-  return pool.slice(0, MAX_POOL);
+  return pool;
 }
 
 async function refreshPool(env) {
