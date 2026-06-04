@@ -10,12 +10,14 @@ import { json, corsPreflight, handle } from '../_lib/http.js';
 // 보험 관련 필터(일반지 거를 때)
 const INS_RE = /보험|손해|생명|실손|연금|보장|약관|금감원|금융위|손보|생보|공제|배상|보험사|보험료|보험금/;
 
-// 뉴스 소스(코드 고정) — insOnly=true 면 보험 관련 제목만
+// 뉴스 소스(코드 고정) — insOnly=true 면 보험 관련 제목만 (false=전체 기사)
 const SOURCES = [
   { url: 'https://www.insnews.co.kr/rss/allArticle.xml', name: '보험신보', insOnly: false },
-  { url: 'https://www.yna.co.kr/rss/economy.xml',        name: '연합뉴스', insOnly: true  }, // 썸네일 O
-  { url: 'https://www.yna.co.kr/rss/market.xml',         name: '연합뉴스', insOnly: true  }, // 썸네일 O
-  { url: 'https://www.hankyung.com/feed/economy',        name: '한국경제', insOnly: true  },
+  { url: 'https://www.yna.co.kr/rss/economy.xml',        name: '연합뉴스', insOnly: false }, // 썸네일 O
+  { url: 'https://www.yna.co.kr/rss/market.xml',         name: '연합뉴스', insOnly: false }, // 썸네일 O
+  { url: 'https://www.yna.co.kr/rss/industry.xml',       name: '연합뉴스', insOnly: false }, // 산업·썸네일 O
+  { url: 'https://www.hankyung.com/feed/economy',        name: '한국경제', insOnly: false },
+  { url: 'https://www.hankyung.com/feed/finance',        name: '한국경제', insOnly: false },
 ];
 
 const CAT_KW = {

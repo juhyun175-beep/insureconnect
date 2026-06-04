@@ -8992,7 +8992,7 @@
         .nw-empty{grid-column:1/-1;font-size:12.5px;color:#94a3b8;padding:22px 4px;text-align:center;}
       </style>
       <div class="nw-head">
-        <span class="nw-title">📰 보험뉴스</span>
+        <span class="nw-title">📰 보험·경제 뉴스</span>
         <span class="nw-badge"><span class="nw-dot"></span>실시간</span>
         <div class="nw-tabs" id="nw-tabs">
           <button class="nw-tab active" data-cat="all" type="button">전체</button>
@@ -9016,7 +9016,7 @@
       }
       function card(it){
         var thumb = it.image
-          ? '<img src="'+esc(it.image)+'" alt="" loading="lazy">'
+          ? '<img src="'+esc(it.image)+'" alt="" decoding="async">'
           : '<div class="nw-ph"><span class="e">📰</span><span class="s">'+esc(it.source||'보험뉴스')+'</span></div>';
         return '<div class="nw-card">'
           +'<a class="nw-thumb" href="'+esc(it.link)+'" target="_blank" rel="noopener noreferrer">'+thumb+'<span class="nw-src">'+esc(it.source||'')+'</span></a>'
@@ -9030,7 +9030,7 @@
         fetch('/api/news?cat='+cat).then(function(r){return r.json();}).then(function(d){
           var items=(d&&d.items)||[];
           if(!items.length){ grid.innerHTML='<div class="nw-empty">뉴스를 잠시 불러오지 못했어요. 곧 다시 시도돼요.</div>'; return; }
-          grid.innerHTML=items.slice(0,8).map(card).join('');
+          grid.innerHTML=items.slice(0,12).map(card).join('');
           Array.prototype.forEach.call(grid.querySelectorAll('.nw-cshare'),function(b){ b.addEventListener('click',function(e){ e.preventDefault(); shareNews(b.getAttribute('data-t')); }); });
           Array.prototype.forEach.call(grid.querySelectorAll('.nw-thumb img'),function(im){ im.addEventListener('error',function(){ var ph=document.createElement('div'); ph.className='nw-ph'; ph.innerHTML='<span class="e">📰</span>'; im.replaceWith(ph); }); });
         }).catch(function(){ grid.innerHTML='<div class="nw-empty">뉴스를 불러오지 못했어요.</div>'; });
