@@ -14,7 +14,7 @@ const CATS = {
   economy:  [Y('economy'), Y('market')],
   society:  [Y('society')],
   politics: [Y('politics')],
-  it:       [Y('it')],
+  culture:  [Y('culture')],
   world:    [Y('international')],
   health:   [Y('health')],
 };
