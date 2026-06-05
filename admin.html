@@ -3254,22 +3254,34 @@
           .rpt-h { display:flex; align-items:baseline; gap:10px; border-bottom:2px solid #1a3de8; padding-bottom:8px; margin-bottom:14px; }
           .rpt-h h1 { font-size:19px; font-weight:900; color:#1a3de8; margin:0; }
           .rpt-h .meta { font-size:11px; color:#666; margin-left:auto; }
-          .rpt-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
-          .rpt-kpi { border:1px solid #ddd; border-radius:8px; padding:9px 10px; }
-          .rpt-kpi .n { font-size:20px; font-weight:900; color:#111; }
-          .rpt-kpi .l { font-size:10.5px; color:#777; margin-top:2px; }
-          .rpt-kpi .d { font-size:10px; font-weight:700; }
+          .rpt-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+          .rpt-kpi { border:1px solid #ddd; border-radius:8px; padding:8px 10px; }
+          .rpt-kpi .n { font-size:19px; font-weight:900; color:#111; }
+          .rpt-kpi .l { font-size:10px; color:#777; margin-top:2px; line-height:1.35; }
+          .rpt-kpi .d { font-size:10px; font-weight:700; margin-top:2px; }
           .rpt-sec-t { font-size:13px; font-weight:800; color:#1a3de8; margin:4px 0 8px; }
-          .rpt-flow { display:flex; gap:18px; align-items:center; margin-bottom:16px; }
-          .rpt-legend { flex:1; }
-          .rpt-legend .row { display:flex; align-items:center; gap:7px; font-size:11.5px; padding:3px 0; border-bottom:1px solid #f0f0f0; }
-          .rpt-legend .sw { width:11px; height:11px; border-radius:2px; flex-shrink:0; }
+          .rpt-2col { display:grid; grid-template-columns:1.05fr 1.3fr; gap:13px; margin-bottom:12px; align-items:start; }
+          .rpt-box { border:1px solid #e3e3e3; border-radius:8px; padding:10px 12px; }
+          .rpt-box .rpt-sec-t { margin:0 0 7px; }
+          .rpt-flow { display:flex; gap:12px; align-items:center; }
+          .rpt-legend { flex:1; min-width:0; }
+          .rpt-legend .row { display:flex; align-items:center; gap:6px; font-size:11px; padding:2.5px 0; border-bottom:1px solid #f2f2f2; }
+          .rpt-legend .sw { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
           .rpt-legend .nm { flex:1; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-          .rpt-legend .pc { font-weight:800; color:#111; }
-          .rpt-ai { border:1px solid #ddd; border-left:4px solid #7c3aed; border-radius:6px; padding:11px 13px; page-break-inside:avoid; }
+          .rpt-legend .pc { font-weight:800; color:#111; font-size:10.5px; white-space:nowrap; }
+          .rpt-cap { font-size:10px; color:#666; margin-top:8px; padding-top:6px; border-top:1px dashed #e3e3e3; line-height:1.45; }
+          .rpt-cap b { color:#1a3de8; }
+          .rpt-tbl { width:100%; border-collapse:collapse; font-size:11px; }
+          .rpt-tbl th { text-align:right; padding:5px 4px; border-bottom:1.5px solid #1a3de8; color:#1a3de8; font-size:9.5px; font-weight:800; }
+          .rpt-tbl th:first-child { text-align:left; }
+          .rpt-tbl td { padding:5px 4px; border-bottom:1px solid #f1f1f1; color:#222; text-align:right; }
+          .rpt-tbl td:first-child { text-align:left; font-weight:700; color:#111; }
+          .rpt-tbl tr.tot td { border-top:1.5px solid #ccc; border-bottom:none; font-weight:900; color:#111; }
+          .rpt-note { font-size:9px; color:#aaa; margin-top:6px; line-height:1.45; }
+          .rpt-ai { border:1px solid #ddd; border-left:4px solid #7c3aed; border-radius:6px; padding:11px 13px; }
           .rpt-ai .t { font-size:12.5px; font-weight:800; color:#7c3aed; margin-bottom:6px; }
-          .rpt-ai .b { font-size:11.5px; line-height:1.65; color:#222; white-space:pre-wrap; }
-          .rpt-foot { margin-top:14px; font-size:10px; color:#999; text-align:center; }
+          .rpt-ai .b { font-size:11px; line-height:1.62; color:#222; white-space:pre-wrap; }
+          .rpt-foot { margin-top:12px; font-size:9.5px; color:#999; text-align:center; }
         </style>
         <div class="uir-head">
           <span class="uir-title">📊 통합 기록지표</span>
@@ -6224,7 +6236,7 @@
         var r=await fetch('/api/admin/analyze',{headers:adminHeaders()});
         var d=await r.json();
         if(r.status===401||r.status===403){ body.textContent='관리자 인증이 필요합니다.'; }
-        else if(d&&d.analysis){ body.textContent=d.analysis; var s=d.stats||{}; meta.textContent='기준: 최근 30일 · 방문 '+(s.visits_30d||0)+' · 전환 '+(s.conversions_30d||0)+' · 신규회원 '+(s.members_new_30d||0)+' · 생성 '+(s.generated_at||''); }
+        else if(d&&d.analysis){ body.textContent=d.analysis; var s=d.stats||{}; meta.textContent='기준 '+(s.period_label||'이번 달')+' (전월 동기간 대비) · 방문 '+(s.visits_month||0)+' · 전환 '+(s.conversions_month||0)+' · 신규회원 '+(s.members_new_month||0)+' · 생성 '+(s.generated_at||''); }
         else if(d&&d.code==='no_key'){ body.textContent='AI 키가 설정되지 않아 분석을 생성할 수 없습니다. (지표는 정상 집계됨)'; }
         else { body.textContent=(d&&d.error)||'분석 생성에 실패했습니다.'; }
       }catch(e){ body.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
@@ -6232,7 +6244,7 @@
     }
 
     /* v2.15.4: 유입 SVG 원그래프 */
-    function uirPie(segs){
+    function uirPie(segs,size){
       var total=segs.reduce(function(s,x){return s+(x.value||0);},0)||1;
       var cx=70,cy=70,r=66,a=-Math.PI/2,paths='';
       segs.forEach(function(s){
@@ -6247,45 +6259,60 @@
         }
         a=a2;
       });
-      return '<svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0">'+paths+'</svg>';
+      return '<svg width="'+(size||140)+'" height="'+(size||140)+'" viewBox="0 0 140 140" style="flex-shrink:0">'+paths+'</svg>';
     }
 
-    /* v2.15.4: A4 통계분석 보고서 — 요약 KPI + 유입 원그래프 + AI 분석 */
+    /* v2.15.5: A4 통계분석 보고서 — 이번달 기준 KPI + 유입(텍스트) + 전환 채널 상세 표 + AI 상세분석 */
     async function uirReport(){
       var doc=document.getElementById('uir-report-doc'); if(!doc) return;
       var ana=document.getElementById('uir-analysis'), anb=document.getElementById('uir-an-body');
-      if(ana&&anb){ ana.style.display='block'; anb.textContent='📄 보고서 생성 중 (AI 분석 포함, 잠시만요)…'; }
+      if(ana&&anb){ ana.style.display='block'; anb.textContent='📄 상세 보고서 생성 중 (AI 분석 ~10초)…'; }
       try{
-        var ra=await fetch('/api/admin/analyze',{headers:adminHeaders()}).then(function(r){return r.json();}).catch(function(){return null;});
-        var rt=await fetch('/api/stats/traffic',{headers:adminHeaders()}).then(function(r){return r.json();}).catch(function(){return null;});
-        var s=(ra&&ra.stats)||{};
-        var analysis=(ra&&ra.analysis)||'(AI 분석을 생성하지 못했습니다 — AI 키 미설정 또는 일시 오류)';
-        var ref=(rt&&rt.referrer_total)||[];
-        if(anb&&ra&&ra.analysis){ anb.textContent=ra.analysis; var am=document.getElementById('uir-an-meta'); if(am){am.textContent='기준 최근 30일 · 생성 '+(s.generated_at||'');} }
-        var COLORS=['#1a3de8','#10b981','#f59e0b','#ef4444','#7c3aed','#94a3b8'];
-        var top=ref.slice(0,5).map(function(x,i){return {label:x.name,value:x.count,color:COLORS[i]};});
-        var etc=ref.slice(5).reduce(function(a,b){return a+(b.count||0);},0);
-        if(etc>0) top.push({label:'기타',value:etc,color:COLORS[5]});
-        var totalRef=top.reduce(function(a,b){return a+b.value;},0)||1;
+        var d=await fetch('/api/admin/analyze',{headers:adminHeaders()}).then(function(r){return r.json();}).catch(function(){return null;});
+        var s=(d&&d.stats)||{}, conv=(d&&d.conversions)||[], traf=(d&&d.traffic)||{top:[],total:0};
+        var analysis=(d&&d.analysis)||'(AI 분석을 생성하지 못했습니다 — AI 키 미설정 또는 일시 오류)';
+        var plabel=s.period_label||'이번 달';
+        if(anb&&d&&d.analysis){ anb.textContent=d.analysis; var am=document.getElementById('uir-an-meta'); if(am){am.textContent='기준 '+plabel+' (전월 동기간 대비) · 생성 '+(s.generated_at||'');} }
         var fmt=function(n){return (n||0).toLocaleString('ko-KR');};
         var pct=function(x,y){return y>0?Math.round((x-y)/y*100):(x>0?100:0);};
-        var dv=pct(s.visits_30d,s.visits_prev_30d), dcv=pct(s.conversions_30d,s.conversions_prev_30d);
-        var arrow=function(p){return p>0?('▲ '+p+'%'):p<0?('▼ '+Math.abs(p)+'%'):'–';};
+        var arrow=function(p){return p>0?('▲ '+p+'%'):p<0?('▼ '+Math.abs(p)+'%'):'– 0%';};
         var pcol=function(p){return p>0?'#16a34a':p<0?'#dc2626':'#888';};
-        var legend=top.map(function(x){var p=Math.round(x.value/totalRef*100);return '<div class="row"><span class="sw" style="background:'+x.color+'"></span><span class="nm">'+esc(x.label)+'</span><span class="pc">'+p+'% ('+fmt(x.value)+')</span></div>';}).join('')||'<div class="row" style="color:#999">유입 데이터가 아직 없습니다</div>';
+        // ── 유입 경로 (텍스트로 어디서 들어왔는지) ──
+        var COLORS=['#1a3de8','#10b981','#f59e0b','#ef4444','#7c3aed','#94a3b8'];
+        var rtop=(traf.top||[]).slice(0,5).map(function(x,i){return {label:(x.name||'직접/앱'),value:x.count,color:COLORS[i]};});
+        var topSum=rtop.reduce(function(a,b){return a+b.value;},0);
+        var etc=(traf.total||topSum)-topSum; if(etc>0) rtop.push({label:'기타',value:etc,color:COLORS[5]});
+        var totRef=rtop.reduce(function(a,b){return a+b.value;},0)||1;
+        var legend=rtop.map(function(x){var p=Math.round(x.value/totRef*100);return '<div class="row"><span class="sw" style="background:'+x.color+'"></span><span class="nm">'+esc(x.label)+'</span><span class="pc">'+p+'% · '+fmt(x.value)+'회</span></div>';}).join('')||'<div class="row" style="color:#999">유입 데이터 없음</div>';
+        var topName=rtop.length?esc(rtop[0].label):'-', topPct=rtop.length?Math.round(rtop[0].value/totRef*100):0;
+        // ── 전환 채널 상세 표 ──
+        var tE=0,tS=0,tM=0; conv.forEach(function(c){tE+=c.entry||0;tS+=c.submit||0;tM+=c.month||0;});
+        var convRows=conv.map(function(c){
+          var share=tS>0?Math.round((c.submit||0)/tS*100):0;
+          return '<tr><td>'+esc(c.channel)+'</td><td>'+fmt(c.entry)+'</td><td style="font-weight:800">'+fmt(c.submit)+'</td><td style="color:#1a3de8;font-weight:800">'+(c.rate||0)+'%</td><td>'+fmt(c.month)+'</td><td>'+share+'%</td></tr>';
+        }).join('');
+        var avgRate=tE>0?Math.round(tS/tE*1000)/10:0;
+        convRows+='<tr class="tot"><td>합계</td><td>'+fmt(tE)+'</td><td>'+fmt(tS)+'</td><td>'+avgRate+'%</td><td>'+fmt(tM)+'</td><td>100%</td></tr>';
+        var dv=pct(s.visits_month,s.visits_prev), dcv=pct(s.conversions_month,s.conversions_prev);
         doc.innerHTML =
-          '<div class="rpt-h"><h1>📊 통계분석 보고서</h1><span class="meta">InsureConnect · 최근 30일 · 생성 '+esc(s.generated_at||'')+'</span></div>'
+          '<div class="rpt-h"><h1>📊 통계분석 보고서</h1><span class="meta">InsureConnect · '+esc(plabel)+' 기준 · 생성 '+esc(s.generated_at||'')+'</span></div>'
           +'<div class="rpt-kpis">'
-          +'<div class="rpt-kpi"><div class="n">'+fmt(s.visits_30d)+'</div><div class="l">방문자(30일) · 누적 '+fmt(s.visits_total)+'</div><div class="d" style="color:'+pcol(dv)+'">'+arrow(dv)+' 전월비</div></div>'
-          +'<div class="rpt-kpi"><div class="n">'+fmt(s.clicks_30d)+'</div><div class="l">카드 클릭(30일)</div></div>'
-          +'<div class="rpt-kpi"><div class="n">'+fmt(s.conversions_30d)+'</div><div class="l">전환·신청폼(30일)</div><div class="d" style="color:'+pcol(dcv)+'">'+arrow(dcv)+' 전월비</div></div>'
-          +'<div class="rpt-kpi"><div class="n">'+fmt(s.members_total)+'</div><div class="l">회원 누적 · 신규 '+fmt(s.members_new_30d)+'</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.visits_month)+'</div><div class="l">방문자 (이번 달) · 누적 '+fmt(s.visits_total)+'</div><div class="d" style="color:'+pcol(dv)+'">'+arrow(dv)+' 전월 동기</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.clicks_month)+'</div><div class="l">카드 클릭 (이번 달)</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.conversions_month)+'</div><div class="l">전환·신청 (이번 달)</div><div class="d" style="color:'+pcol(dcv)+'">'+arrow(dcv)+' 전월 동기</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.members_total)+'</div><div class="l">회원 누적 · 신규 '+fmt(s.members_new_month)+'</div></div>'
           +'</div>'
-          +'<div class="rpt-sec-t">📈 유입 경로 분포 (누적)</div>'
-          +'<div class="rpt-flow">'+uirPie(top)+'<div class="rpt-legend">'+legend+'</div></div>'
-          +'<div class="rpt-sec-t">🤖 AI 다음달 방향 분석</div>'
+          +'<div class="rpt-2col">'
+            +'<div class="rpt-box"><div class="rpt-sec-t">📈 유입 경로 (누적 '+fmt(traf.total)+'회)</div>'
+              +'<div class="rpt-flow">'+uirPie(rtop,118)+'<div class="rpt-legend">'+legend+'</div></div>'
+              +'<div class="rpt-cap">최다 유입처는 <b>'+topName+'</b> ('+topPct+'%). 방문자가 어디서 들어오는지를 보여줍니다.</div></div>'
+            +'<div class="rpt-box"><div class="rpt-sec-t">🎯 전환 상세 — 어디서·얼마나 신청했나</div>'
+              +'<table class="rpt-tbl"><thead><tr><th>전환 채널</th><th>진입/클릭</th><th>신청(누적)</th><th>전환율</th><th>이번달</th><th>비중</th></tr></thead><tbody>'+convRows+'</tbody></table>'
+              +'<div class="rpt-note">진입/클릭 = 공고 조회·견적 카드 진입 / 신청 = 폼 제출·견적 완료 / 전환율 = 신청÷진입 / 비중 = 누적 신청 점유율</div></div>'
+          +'</div>'
+          +'<div class="rpt-sec-t">🤖 AI 다음달 방향 분석 (상세)</div>'
           +'<div class="rpt-ai"><div class="b">'+esc(analysis)+'</div></div>'
-          +'<div class="rpt-foot">본 보고서는 InsureConnect 관리자 통계 기반 자동 생성 보고서입니다.</div>';
+          +'<div class="rpt-foot">본 보고서는 InsureConnect 관리자 통계 기반으로 자동 생성되었습니다 · 기준 '+esc(plabel)+' (전월 동기간 대비) · 외부 공유 시 주의</div>';
         setTimeout(function(){ window.print(); }, 150);
       }catch(e){ if(anb) anb.textContent='보고서 생성 중 오류가 발생했습니다.'; }
     }
