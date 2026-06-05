@@ -5235,14 +5235,16 @@
       }
     }
     function card(num, lbl, sub) {
-      return '<div class="mt-card"><div class="mt-num">' + (num != null ? Number(num).toLocaleString() : '—') + '</div><div class="mt-lbl">' + esc(lbl) + '</div>' + (sub ? '<div class="mt-sub">' + esc(sub) + '</div>' : '') + '</div>';
+      // v2.16.3: 숫자는 천단위 포맷, 문자열(예: "50%")은 그대로 노출 — Number("50%")=NaN 버그 방지
+      var display = (num == null) ? '—' : (typeof num === 'number' ? num.toLocaleString() : String(num));
+      return '<div class="mt-card"><div class="mt-num">' + display + '</div><div class="mt-lbl">' + esc(lbl) + '</div>' + (sub ? '<div class="mt-sub">' + esc(sub) + '</div>' : '') + '</div>';
     }
     function renderMetrics(m) {
       const cards = [
         card(m.members_total, '누적 회원', '오늘 +' + (m.members_today || 0)),
         card(m.mau, 'MAU (30일 접속)'),
         card(m.wau, 'WAU (7일 접속)'),
-        card(m.returning_rate + '%', '재방문율', m.returning + '명'),
+        card((m.returning_rate || 0) + '%', '재방문율', (m.returning || 0) + '명'),
         card((m.alert_rate || 0) + '%', '카톡 알림 동의율', (m.alert_optin || 0) + '명'),
         card(m.push_subs, '웹푸시 구독'),
         card(m.posts, '게시판 글', '7일 +' + (m.posts_7d || 0)),
