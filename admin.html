@@ -3228,8 +3228,44 @@
     <!-- 본문 -->
     <div class="dash-body">
 
-      <!-- ══════ 통계 슬라이더 ══════ -->
-      <div class="stats-slider">
+      <!-- ══════ 통합 기록지표 (v2.15.0) ══════ -->
+      <div class="stats-slider" id="uir-report">
+        <style>
+          .uir-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px;}
+          .uir-title{font-size:17px;font-weight:900;color:var(--txt-hi);letter-spacing:-0.3px;}
+          .uir-actions{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap;}
+          .uir-btn{font-size:12.5px;font-weight:800;border-radius:9px;padding:8px 13px;cursor:pointer;border:1px solid var(--border);background:var(--bg);color:var(--txt-hi);font-family:inherit;}
+          .uir-btn.ai{background:linear-gradient(135deg,#1a3de8,#7c3aed);color:#fff;border:none;}
+          .uir-btn:hover{filter:brightness(1.08);}
+          .uir-analysis{display:none;margin-bottom:16px;border:1px solid rgba(124,58,237,0.3);border-radius:14px;padding:16px 18px;background:rgba(124,58,237,0.06);}
+          .uir-an-head{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+          .uir-an-title{font-size:14px;font-weight:900;color:#7c3aed;}
+          .uir-an-body{font-size:13px;line-height:1.7;color:var(--txt-hi);white-space:pre-wrap;word-break:break-word;}
+          .uir-an-meta{font-size:11px;color:var(--txt-lo);margin-top:10px;}
+          @media print {
+            body * { visibility: hidden !important; }
+            #uir-report, #uir-report * { visibility: visible !important; }
+            #uir-report { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
+            #uir-report .stats-slider-nav, #uir-report .ssn-nav-btn, #uir-report .uir-actions { display: none !important; }
+            #uir-report .stats-slides-outer { overflow: visible !important; height: auto !important; }
+            #uir-report .stats-slides { transform: none !important; display: block !important; width: 100% !important; }
+            #uir-report .stats-slide { display: block !important; width: 100% !important; page-break-inside: avoid; margin-bottom: 22px; }
+          }
+        </style>
+        <div class="uir-head">
+          <span class="uir-title">📊 통합 기록지표</span>
+          <div class="uir-actions">
+            <button type="button" class="uir-btn" onclick="window.print()">📄 보고서 출력</button>
+            <button type="button" class="uir-btn ai" id="uir-analyze-btn" onclick="uirAnalyze()">🤖 다음달 방향 분석</button>
+          </div>
+        </div>
+        <div class="uir-analysis" id="uir-analysis">
+          <div class="uir-an-head"><span class="uir-an-title">🤖 AI 다음달 방향 분석</span>
+            <button type="button" class="uir-btn" style="margin-left:auto;padding:5px 10px;font-size:11px;" onclick="window.print()">📄 보고서 출력</button>
+          </div>
+          <div class="uir-an-body" id="uir-an-body"></div>
+          <div class="uir-an-meta" id="uir-an-meta"></div>
+        </div>
 
         <!-- 탭 네비게이션 -->
         <div class="stats-slider-nav">
@@ -6033,6 +6069,24 @@
     }
 
     function ssSlide(dir) { ssGo(_ssIdx + dir); }
+
+    /* v2.15.0: 통합 기록지표 — AI 다음달 방향 분석 */
+    async function uirAnalyze(){
+      var btn=document.getElementById('uir-analyze-btn');
+      var box=document.getElementById('uir-analysis'), body=document.getElementById('uir-an-body'), meta=document.getElementById('uir-an-meta');
+      if(!btn||!box) return;
+      btn.disabled=true; var o=btn.textContent; btn.textContent='분석 중…';
+      box.style.display='block'; body.textContent='지표를 종합해 분석 중입니다…'; meta.textContent='';
+      try{
+        var r=await fetch('/api/admin/analyze',{headers:adminHeaders()});
+        var d=await r.json();
+        if(r.status===401||r.status===403){ body.textContent='관리자 인증이 필요합니다.'; }
+        else if(d&&d.analysis){ body.textContent=d.analysis; var s=d.stats||{}; meta.textContent='기준: 최근 30일 · 방문 '+(s.visits_30d||0)+' · 전환 '+(s.conversions_30d||0)+' · 신규회원 '+(s.members_new_30d||0)+' · 생성 '+(s.generated_at||''); }
+        else if(d&&d.code==='no_key'){ body.textContent='AI 키가 설정되지 않아 분석을 생성할 수 없습니다. (지표는 정상 집계됨)'; }
+        else { body.textContent=(d&&d.error)||'분석 생성에 실패했습니다.'; }
+      }catch(e){ body.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
+      finally{ btn.disabled=false; btn.textContent=o; }
+    }
 
     let _cachedRentalStats = null;
     let _cachedMainStats  = null;
