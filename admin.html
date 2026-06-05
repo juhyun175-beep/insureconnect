@@ -3276,6 +3276,8 @@
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
             <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
             <button class="ssn-tab" onclick="ssGo(4)">🚗 렌트카 카드</button>
+            <button class="ssn-tab" onclick="ssGo(5)">📈 유입 경로</button>
+            <button class="ssn-tab" onclick="ssGo(6)">👥 회원/지표</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -3515,8 +3517,8 @@
         <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
-        <button class="upload-tab" data-panel="up-traffic">📈 유입 경로</button>
-        <button class="upload-tab" data-panel="up-members">👥 회원/지표</button>
+        <!-- v2.15.1: 유입 경로·회원/지표는 「통합 기록지표」 슬라이더로 이동 -->
+
         <button class="upload-tab" data-panel="up-reports" style="border-color:#f59e0b;color:#f59e0b;">🚨 신고</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
@@ -6020,9 +6022,12 @@
       }
     }
 
-    /* ── 통계 슬라이더 ── */
+    /* ── 통합 기록지표 슬라이더 ── */
     let _ssIdx = 0;
-    const SS_COUNT = 5;
+    /* v2.15.1: 유입경로·회원/지표 패널을 슬라이더로 완전 이동 (관리 탭에서 제거됨) */
+    (function(){ var sl=document.getElementById('ss-slides'); if(!sl) return; ['up-traffic','up-members'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.classList.remove('upload-panel'); el.classList.add('stats-slide'); sl.appendChild(el); } }); })();
+    function ssCount(){ return document.querySelectorAll('#ss-slides > .stats-slide').length || 1; }
+    var _uirTrafficLoaded=false, _uirMembersLoaded=false;
 
     function ssUpdateHeight() {
       const outer   = document.querySelector('.stats-slides-outer');
@@ -6032,7 +6037,7 @@
     }
 
     function ssGo(idx) {
-      _ssIdx = Math.max(0, Math.min(SS_COUNT - 1, idx));
+      _ssIdx = Math.max(0, Math.min(ssCount() - 1, idx));
       const slides = document.getElementById('ss-slides');
       if (slides) slides.style.transform = `translateX(-${_ssIdx * 100}%)`;
 
@@ -6045,7 +6050,14 @@
       const prev = document.getElementById('ss-prev');
       const next = document.getElementById('ss-next');
       if (prev) prev.disabled = _ssIdx === 0;
-      if (next) next.disabled = _ssIdx === SS_COUNT - 1;
+      if (next) next.disabled = _ssIdx === ssCount() - 1;
+
+      /* 이동된 패널 지연 로드 (유입경로·회원지표) — 슬라이드 id 기준 */
+      var _cur = document.querySelectorAll('#ss-slides > .stats-slide')[_ssIdx];
+      if (_cur) {
+        if (_cur.id === 'up-traffic' && !_uirTrafficLoaded && typeof loadTrafficSources === 'function') { _uirTrafficLoaded = true; loadTrafficSources(); }
+        if (_cur.id === 'up-members' && !_uirMembersLoaded && typeof loadMembersDash === 'function') { _uirMembersLoaded = true; loadMembersDash(); }
+      }
 
       /* 슬라이드 전환 후: 차트 재렌더 + 높이 동기화 */
       requestAnimationFrame(() => {
