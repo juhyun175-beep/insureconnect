@@ -62,12 +62,21 @@ async function fetchChannel(ch) {
 }
 
 function buildList(lists) {
+  // 채널 내부 최신순 정렬
+  const sorted = lists.map((items) => items.slice().sort((a, b) => (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0)));
+  // 채널 라운드로빈 인터리브 — 자주 올리는 채널(한경TV)이 독식하지 않게 + 각 채널 고루 노출
   const seen = new Set(); const out = [];
-  for (const items of lists) for (const it of items) {
-    if (seen.has(it.link)) continue;
-    seen.add(it.link); out.push(it);
+  for (let i = 0; ; i++) {
+    let any = false;
+    for (const lst of sorted) {
+      if (i >= lst.length) continue;
+      any = true;
+      const it = lst[i];
+      if (seen.has(it.link)) continue;
+      seen.add(it.link); out.push(it);
+    }
+    if (!any) break;
   }
-  out.sort((a, b) => (Date.parse(b.pubDate) || 0) - (Date.parse(a.pubDate) || 0));
   return out;
 }
 
