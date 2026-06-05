@@ -5,14 +5,16 @@
  */
 import { json, corsPreflight, handle } from '../_lib/http.js';
 
-// 채널(코드 고정) — 유튜버 + 방송사 믹스(경제·금융)
+// 채널(코드 고정) — 금융 유튜버 + 경제·뉴스 방송사 믹스
 const CHANNELS = [
   { id: 'UChlv4GSd7OQl3js-jkLOnFA', name: '삼프로TV' },
   { id: 'UCsJ6RuBiTVWRX156FVbeaGg', name: '슈카월드' },
   { id: 'UCF8AeLlUbEpKju6v1H6p8Eg', name: '한국경제TV' },
+  { id: 'UCuuTCooIMbBFHNbPcSS70uw', name: 'SBS News' },
+  { id: 'UChlgI3UHCOnwUGzWzbJ3H5w', name: 'YTN' },
 ];
 const FEED = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`;
-const TTL_MS = 10 * 60 * 1000;
+const TTL_MS = 5 * 60 * 1000; // 5분(더 실시간) + SWR
 const KEY = 'videos', MAX_OUT = 12, MAX_CACHE = 30;
 
 function decodeEntities(s) {

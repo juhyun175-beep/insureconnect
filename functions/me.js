@@ -134,7 +134,7 @@ export const onRequestGet = async ({ env, request }) => {
   </div>
 
   <div class="card">
-    <h2>👥 동료 초대 — 초대할수록 등급 ↑</h2>
+    <h2>👥 동료 초대 — 가입하면 둘 다 포인트 🎁</h2>
     <div id="ref-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
   </div>
 
@@ -177,13 +177,14 @@ export const onRequestGet = async ({ env, request }) => {
       if(!d||!d.ok){ box.textContent='추천 정보를 불러오지 못했습니다.'; return; }
       var nextTxt = d.next ? ('<b>'+(d.next.role==='premium'?'프리미엄':'인증설계사')+'</b>까지 <b>'+d.next.need+'명</b> 남음') : '최고 등급 달성 🎉';
       box.innerHTML =
-        '<p style="margin:0 0 10px;line-height:1.6">내 초대로 가입한 동료 <b style="color:#1a3de8;font-size:16px">'+(d.count||0)+'명</b><br><span style="font-size:12px">'+nextTxt+'</span></p>'
+        '<div style="background:linear-gradient(135deg,#eff6ff,#f0fdf4);border:1px solid #dbeafe;border-radius:10px;padding:9px 11px;margin-bottom:10px;font-size:12.5px;font-weight:700;color:#1a3de8;">🎁 친구가 가입하면 <b>나 +50P</b> · <b>친구 +30P</b> 즉시 적립</div>'
+        + '<p style="margin:0 0 10px;line-height:1.6">내 초대로 가입한 동료 <b style="color:#1a3de8;font-size:16px">'+(d.count||0)+'명</b><br><span style="font-size:12px">'+nextTxt+'</span></p>'
         + '<div style="display:flex;gap:6px;margin-bottom:8px">'
         + '<input id="ref-link" readonly value="'+d.link+'" style="flex:1;min-width:0;border:1.5px solid #e2e8f0;border-radius:9px;padding:9px 11px;font-size:12.5px;color:#334155">'
         + '<button id="ref-copy" type="button" style="background:#1a3de8;color:#fff;border:none;border-radius:9px;font-weight:800;font-size:13px;padding:0 14px;cursor:pointer">복사</button>'
         + '</div>'
         + '<button id="ref-share" type="button" style="width:100%;background:#FEE500;color:#191600;border:none;border-radius:10px;font-weight:800;font-size:13.5px;padding:11px;cursor:pointer">💬 동료에게 초대 보내기</button>'
-        + '<p style="font-size:11px;color:#94a3b8;margin:10px 0 0">동료 3명 초대 시 인증설계사, 10명 초대 시 프리미엄으로 자동 승급됩니다.</p>';
+        + '<p style="font-size:11px;color:#94a3b8;margin:10px 0 0">적립 포인트는 삼따AI 질문권·공고 상단노출권으로 사용. 추가로 3명 초대 시 인증설계사, 10명 시 프리미엄 자동 승급.</p>';
       var link=d.link;
       document.getElementById('ref-copy').addEventListener('click',function(){
         var b=document.getElementById('ref-copy');
@@ -193,12 +194,12 @@ export const onRequestGet = async ({ env, request }) => {
         try{
           if(window.Kakao&&window.Kakao.Share&&window.Kakao.isInitialized&&window.Kakao.isInitialized()){
             window.Kakao.Share.sendDefault({objectType:'feed',
-              content:{title:'InsureConnect 초대',description:'보험설계사 통합 허브 인슈어커넥트에 초대합니다! 가입하고 함께 활동해요.',imageUrl:'https://insureconnect-hub.pages.dev/logo-full.png',link:{mobileWebUrl:link,webUrl:link}},
+              content:{title:'InsureConnect 초대',description:'가입하면 30P 즉시 적립! 사례 기반 삼따AI·보험사 전산·채용까지 — 설계사 통합 허브.',imageUrl:'https://insureconnect-hub.pages.dev/logo-full.png',link:{mobileWebUrl:link,webUrl:link}},
               buttons:[{title:'초대 수락하고 시작',link:{mobileWebUrl:link,webUrl:link}}]});
             return;
           }
         }catch(e){}
-        if(navigator.share){ navigator.share({title:'InsureConnect 초대', text:'보험설계사 통합 허브 인슈어커넥트에 초대합니다!', url:link}).catch(function(){}); }
+        if(navigator.share){ navigator.share({title:'InsureConnect 초대', text:'인슈어커넥트 가입하면 30P 적립! 설계사 통합 허브', url:link}).catch(function(){}); }
         else { (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert('초대 링크가 복사되었습니다. 동료에게 공유하세요.');}).catch(function(){ window.prompt('초대 링크', link); }); }
       });
     }).catch(function(){ box.textContent='추천 정보를 불러오지 못했습니다.'; });
@@ -207,7 +208,7 @@ export const onRequestGet = async ({ env, request }) => {
   // 포인트 내역 (window.__reloadPt 로 노출 — 상단노출 결제 후 갱신)
   window.__reloadPt=function(){
     var box=document.getElementById('pt-box'); if(!box) return;
-    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',case_extract:'🤖 카톡 사례 자동등록',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출',board_post:'✍️ 글 작성',board_comment:'💬 댓글 작성',shop_ai10:'🛒 질문권 10회 교환',shop_ai30:'🛒 질문권 30회 교환',shop_feature1:'🛒 상단노출권 교환',feature_credit_use:'🔝 상단노출권 사용'};
+    var RL={case_submit:'사례 등록',case_approve:'사례 승인',case_excellent:'⭐ 우수 사례',case_extract:'🤖 카톡 사례 자동등록',ai_extra:'삼따AI 추가질문',feature_posting:'🔝 공고 상단노출',board_post:'✍️ 글 작성',board_comment:'💬 댓글 작성',shop_ai10:'🛒 질문권 10회 교환',shop_ai30:'🛒 질문권 30회 교환',shop_feature1:'🛒 상단노출권 교환',feature_credit_use:'🔝 상단노출권 사용',referral_invite:'🎁 친구 초대 보상',referral_welcome:'🎁 가입 웰컴'};
     fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
       if(!d||d.points==null){ box.textContent='포인트 정보를 불러오지 못했습니다.'; return; }
       var log=(d.log||[]).map(function(l){

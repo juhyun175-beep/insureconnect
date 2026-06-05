@@ -12,6 +12,10 @@ const THRESHOLDS = [
   { n: 10, role: 'premium' },
 ];
 
+// v2.14.0: 양방향 포인트 보상 (신규유입 — 추천인·신규가입자 둘 다 이득 → 공유 동기)
+const REFERRER_REWARD = 50; // 추천인
+const WELCOME_REWARD = 30;  // 신규 가입자 웰컴
+
 const CODE_ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 혼동 문자 제외
 function genCode() {
   const r = crypto.getRandomValues(new Uint8Array(7));
@@ -74,6 +78,14 @@ export async function recordReferralAndMaybeUpgrade(env, referrerId, invitedId) 
       `INSERT OR IGNORE INTO ic_referrals (referrer_id, invited_id) VALUES (?, ?)`
     ).bind(referrerId, invitedId).run();
     if (!(ins?.meta?.changes > 0)) return false; // 이미 귀속된 invited_id (1인 1회)
+
+    // v2.14.0: 양방향 포인트 보상 — 추천인 +50P, 신규 가입자 웰컴 +30P (위 UNIQUE INSERT로 1회만 도달 → 중복 적립 없음)
+    try {
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + ? WHERE id = ?`).bind(REFERRER_REWARD, referrerId).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, ?, 'referral_invite')`).bind(referrerId, REFERRER_REWARD).run();
+      await env.DB.prepare(`UPDATE ic_members SET points = COALESCE(points,0) + ? WHERE id = ?`).bind(WELCOME_REWARD, invitedId).run();
+      await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, ?, 'referral_welcome')`).bind(invitedId, WELCOME_REWARD).run();
+    } catch (_) {}
 
     const c = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_referrals WHERE referrer_id = ?`).bind(referrerId).first();
     const count = c?.n || 0;
