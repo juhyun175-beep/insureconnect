@@ -9925,6 +9925,8 @@
 
       btn.style.display = '';
       await _refreshPushBtn();
+      // v2.14.8: 기존 구독을 로그인 회원과 연결(공고주 맞춤 알림) — credentials 포함 재등록
+      try { var _s = await _getCurrentSubscription(); if(_s){ var _p=_s.toJSON(); fetch('/api/push/subscribe',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({endpoint:_p.endpoint,keys:_p.keys,userAgent:navigator.userAgent})}).catch(function(){}); } } catch(_){}
     }
     async function _getCurrentSubscription() {
       try {
@@ -9975,6 +9977,7 @@
           const payload = sub.toJSON();
           await fetch('/api/push/subscribe', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
             body: JSON.stringify({
               endpoint: payload.endpoint,
               keys: payload.keys,
