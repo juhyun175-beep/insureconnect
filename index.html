@@ -4572,6 +4572,11 @@
     .mlg-divider { height:1px; background:linear-gradient(90deg,transparent,#e2e8f0,transparent); margin:22px 0 0; }
     [data-theme="dark"] .mlg-divider { background:linear-gradient(90deg,transparent,#1e2a44,transparent); }
     .mlg-kakao.secondary { margin-top:18px; }
+    .mlg-social { display:inline-flex; align-items:center; gap:8px; margin:14px auto 0; padding:7px 14px; border-radius:999px; background:#ecfdf5; border:1px solid #a7f3d0; font-size:12px; font-weight:700; color:#065f46; }
+    [data-theme="dark"] .mlg-social { background:rgba(16,185,129,.12); border-color:rgba(16,185,129,.3); color:#6ee7b7; }
+    .mlg-social .dot { width:8px; height:8px; border-radius:50%; background:#10b981; animation:mlgPulse 1.8s infinite; flex-shrink:0; }
+    @keyframes mlgPulse { 0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 70%{box-shadow:0 0 0 7px rgba(16,185,129,0)} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0)} }
+    .mlg-social b { color:inherit; font-weight:900; }
     @media (max-width:480px){ .mlg-feats{grid-template-columns:1fr;} .mlg-card{padding:28px 18px 22px;} }
 
     /* v2.6.0: 자주 쓰는 핵심 메뉴 그리드 (3열, 크게) */
@@ -8495,6 +8500,7 @@
       <a class="mlg-kakao" href="/api/auth/kakao/login" onclick="if(typeof trackClick==='function')trackClick('카카오 로그인','login-gate')">
         <span aria-hidden="true">💬</span> 카카오로 3초 만에 시작하기
       </a>
+      <div class="mlg-social" id="mlg-social" style="display:none;"><span class="dot"></span><span id="mlg-social-txt"></span></div>
       <div class="mlg-stats">
         <div class="mlg-stat"><b>8가지+</b><span>핵심 기능</span></div>
         <div class="mlg-stat"><b>전 보험사</b><span>전산·청구</span></div>
@@ -8527,7 +8533,7 @@
             <circle cx="162" cy="80" r="14" fill="#0f172a"/><circle cx="162" cy="80" r="6" fill="#e2e8f0"/>
             <rect x="192" y="58" width="9" height="8" rx="2" fill="#ffd000"/>
           </svg>
-          <figcaption>🚗 렌트카 견적 — 내 매출로</figcaption>
+          <figcaption>🚗 리스/렌트카</figcaption>
         </figure>
         <figure>
           <svg class="mlg-illus" viewBox="0 0 240 108" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="통신 견적 아이폰">
@@ -8550,7 +8556,7 @@
               <rect x="8" y="71" width="24" height="4.5" rx="2" fill="#e5e7eb"/>
             </g>
           </svg>
-          <figcaption>📱 통신 견적(아이폰) — 내 매출로</figcaption>
+          <figcaption>📱 통신/휴대폰</figcaption>
         </figure>
       </div>
 
@@ -8579,6 +8585,13 @@
         g.classList.add('mlg-hidden');     // 로그인 미설정 → 게이트 없음
       }
     }).catch(function(){ g.classList.add('mlg-hidden'); }); // 네트워크 실패 → 가두지 않음
+    // v2.16.0: 사회적 증거 — 누적·오늘 방문수(공개 /api/stats) → 신규가입 신뢰↑
+    try{ fetch('/api/stats',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
+      .then(function(r){return r.json();}).then(function(d){
+        if(!d||!(d.total_visits>0)) return;
+        var el=document.getElementById('mlg-social'), tx=document.getElementById('mlg-social-txt');
+        if(el&&tx){ tx.innerHTML='누적 <b>'+(d.total_visits||0).toLocaleString('ko-KR')+'명</b> 방문 · 오늘 <b>'+(d.today_visits||0).toLocaleString('ko-KR')+'명</b>'; el.style.display='inline-flex'; }
+      }).catch(function(){}); }catch(_){}
   })();
   </script>
 
