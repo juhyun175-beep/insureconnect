@@ -8561,7 +8561,9 @@
     .ict-prev{background:#eef2ff;color:#4f6df0;border:none;border-radius:10px;font-weight:800;font-size:14px;padding:10px 13px;cursor:pointer;font-family:inherit;}
     [data-theme="dark"] .ict-prev{background:#26304a;color:#9db5ff;}
     .ict-next{background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:14px;padding:10px 17px;cursor:pointer;font-family:inherit;}
-    .ict-help{position:fixed;right:15px;bottom:80px;z-index:9000;background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13px;padding:10px 15px;box-shadow:0 8px 20px rgba(26,61,232,.35);cursor:pointer;font-family:inherit;}
+    .ict-help{position:fixed;right:15px;bottom:80px;z-index:9000;background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13.5px;padding:11px 17px;box-shadow:0 8px 20px rgba(26,61,232,.35);cursor:pointer;font-family:inherit;animation:ictHelpPulse 2.6s ease-in-out infinite;}
+    @keyframes ictHelpPulse{0%,100%{box-shadow:0 8px 20px rgba(26,61,232,.35);transform:scale(1);}50%{box-shadow:0 10px 26px rgba(26,61,232,.55),0 0 0 7px rgba(26,61,232,.13);transform:scale(1.05);}}
+    @media (prefers-reduced-motion:reduce){ .ict-help{animation:none;} }
     .ict-end{position:fixed;top:14px;right:14px;z-index:100003;background:rgba(15,23,42,.92);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13px;padding:9px 16px;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.32);}
     .ict-end:active{transform:scale(.97);}
   </style>
@@ -8592,20 +8594,23 @@
       {sel:"[data-tour='community']",title:"👥 커뮤니티 참여",body:"CREW 300·MANAGER LINK 오픈채팅에 참여하면 더 많은 보험설계사와 실시간으로 소통할 수 있어요."},
       {sel:"[data-tour='contact']",title:"✏️ 운영자 문의",body:"이용 중 궁금하거나 불편한 점은 여기서 운영자에게 바로 문의하세요. 이제 직접 둘러보세요! 다시 보려면 오른쪽 아래 ❓ 사용법 버튼을 누르면 돼요."}
     ];
-    var _ictI=0;
+    var _ictI=0, _ictSteps=IC_TOUR;
     function icTourFind(sel){ if(!sel) return null; var els=document.querySelectorAll(sel); for(var i=0;i<els.length;i++){ if(els[i].offsetWidth>0||els[i].offsetHeight>0) return els[i]; } return null; }
-    function icTourStart(){ var ov=document.getElementById('ic-tour'); if(!ov) return; _ictI=0; ov.style.display='block'; document.body.style.overflow='hidden'; icTourShow(); }
+    function icTourStart(){ var ov=document.getElementById('ic-tour'); if(!ov) return;
+      // v2.16.9: 현재 화면에 보이는 단계만 표시(데스크톱/모바일 레이아웃별 자동 적응) — overflow 잠그지 않아 아래 요소로 스크롤 가능
+      _ictSteps=IC_TOUR.filter(function(s){ return !s.sel || icTourFind(s.sel); });
+      if(!_ictSteps.length){ _ictSteps=IC_TOUR; } _ictI=0; ov.style.display='block'; icTourShow(); }
     function icTourEnd(){ var ov=document.getElementById('ic-tour'); if(ov) ov.style.display='none'; document.body.style.overflow=''; try{localStorage.setItem('ic_tour_done','1');}catch(_){ } }
-    function icTourNext(){ if(_ictI<IC_TOUR.length-1){ _ictI++; icTourShow(); } else { icTourEnd(); } }
+    function icTourNext(){ if(_ictI<_ictSteps.length-1){ _ictI++; icTourShow(); } else { icTourEnd(); } }
     function icTourPrev(){ if(_ictI>0){ _ictI--; icTourShow(); } }
     function icTourShow(){
-      var st=IC_TOUR[_ictI], spot=document.getElementById('ict-spot');
-      document.getElementById('ict-stepn').textContent=(_ictI+1)+' / '+IC_TOUR.length;
+      var st=_ictSteps[_ictI], spot=document.getElementById('ict-spot');
+      document.getElementById('ict-stepn').textContent=(_ictI+1)+' / '+_ictSteps.length;
       document.getElementById('ict-title').innerHTML=st.title;
       document.getElementById('ict-body').innerHTML=st.body;
       document.getElementById('ict-prev').style.visibility=(_ictI===0)?'hidden':'visible';
-      document.getElementById('ict-next').textContent=(_ictI===IC_TOUR.length-1)?'마치기 ✓':'다음 ▶';
-      var dots=''; for(var i=0;i<IC_TOUR.length;i++){ dots+='<span class="ict-dot'+(i===_ictI?' on':'')+'"></span>'; }
+      document.getElementById('ict-next').textContent=(_ictI===_ictSteps.length-1)?'마치기 ✓':'다음 ▶';
+      var dots=''; for(var i=0;i<_ictSteps.length;i++){ dots+='<span class="ict-dot'+(i===_ictI?' on':'')+'"></span>'; }
       document.getElementById('ict-dots').innerHTML=dots;
       var t=icTourFind(st.sel);
       if(t){ try{ t.scrollIntoView({behavior:'smooth',block:'center'}); }catch(_){ try{t.scrollIntoView();}catch(e){} } setTimeout(function(){ icTourPos(t); }, 330); }
@@ -8621,7 +8626,9 @@
       pop.style.left=left+'px'; pop.style.top=top+'px';
     }
     function icTourPosCenter(){ var pop=document.getElementById('ict-pop'); var vw=window.innerWidth, vh=window.innerHeight, pw=pop.offsetWidth||330, ph=pop.offsetHeight||210; pop.style.left=((vw-pw)/2)+'px'; pop.style.top=((vh-ph)/2)+'px'; }
-    window.addEventListener('resize',function(){ var ov=document.getElementById('ic-tour'); if(ov&&ov.style.display==='block'){ var t=icTourFind(IC_TOUR[_ictI].sel); if(t) icTourPos(t); else icTourPosCenter(); } });
+    function icTourReflow(){ var ov=document.getElementById('ic-tour'); if(ov&&ov.style.display==='block'){ var t=icTourFind(_ictSteps[_ictI].sel); if(t) icTourPos(t); else icTourPosCenter(); } }
+    window.addEventListener('resize', icTourReflow);
+    window.addEventListener('scroll', icTourReflow, {passive:true});
     // v2.16.7: 홈 진입 시 자동 시작 — 로그인 사용자·최초 1회(완료/끝내기 후 미표시, ❓ 사용법으로 재시청)
     function icTourMaybeAutoStart(){
       try{

@@ -3251,37 +3251,38 @@
             @page { size: A4; margin: 13mm; }
           }
           #uir-report-doc * { box-sizing: border-box; }
-          .rpt-h { display:flex; align-items:baseline; gap:10px; border-bottom:2px solid #1a3de8; padding-bottom:8px; margin-bottom:14px; }
-          .rpt-h h1 { font-size:19px; font-weight:900; color:#1a3de8; margin:0; }
-          .rpt-h .meta { font-size:11px; color:#666; margin-left:auto; }
-          .rpt-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
-          .rpt-kpi { border:1px solid #ddd; border-radius:8px; padding:8px 10px; }
-          .rpt-kpi .n { font-size:19px; font-weight:900; color:#111; }
-          .rpt-kpi .l { font-size:10px; color:#777; margin-top:2px; line-height:1.35; }
-          .rpt-kpi .d { font-size:10px; font-weight:700; margin-top:2px; }
-          .rpt-sec-t { font-size:13px; font-weight:800; color:#1a3de8; margin:4px 0 8px; }
-          .rpt-2col { display:grid; grid-template-columns:1.05fr 1.3fr; gap:13px; margin-bottom:12px; align-items:start; }
-          .rpt-box { border:1px solid #e3e3e3; border-radius:8px; padding:10px 12px; }
-          .rpt-box .rpt-sec-t { margin:0 0 7px; }
-          .rpt-flow { display:flex; gap:12px; align-items:center; }
+          /* v2.16.9: A4 인쇄 폰트·여백 확대 — 페이지 꽉 차게(작게 나오던 문제 해결) */
+          .rpt-h { display:flex; align-items:baseline; gap:10px; border-bottom:2.5px solid #1a3de8; padding-bottom:10px; margin-bottom:18px; }
+          .rpt-h h1 { font-size:24px; font-weight:900; color:#1a3de8; margin:0; }
+          .rpt-h .meta { font-size:12px; color:#666; margin-left:auto; }
+          .rpt-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:18px; }
+          .rpt-kpi { border:1px solid #ddd; border-radius:9px; padding:12px 14px; }
+          .rpt-kpi .n { font-size:23px; font-weight:900; color:#111; }
+          .rpt-kpi .l { font-size:11.5px; color:#777; margin-top:3px; line-height:1.35; }
+          .rpt-kpi .d { font-size:11px; font-weight:700; margin-top:3px; }
+          .rpt-sec-t { font-size:16px; font-weight:800; color:#1a3de8; margin:6px 0 10px; }
+          .rpt-2col { display:grid; grid-template-columns:1.05fr 1.3fr; gap:16px; margin-bottom:18px; align-items:start; }
+          .rpt-box { border:1px solid #e3e3e3; border-radius:9px; padding:13px 15px; }
+          .rpt-box .rpt-sec-t { margin:0 0 9px; }
+          .rpt-flow { display:flex; gap:14px; align-items:center; }
           .rpt-legend { flex:1; min-width:0; }
-          .rpt-legend .row { display:flex; align-items:center; gap:6px; font-size:11px; padding:2.5px 0; border-bottom:1px solid #f2f2f2; }
-          .rpt-legend .sw { width:10px; height:10px; border-radius:2px; flex-shrink:0; }
+          .rpt-legend .row { display:flex; align-items:center; gap:7px; font-size:13px; padding:3.5px 0; border-bottom:1px solid #f2f2f2; }
+          .rpt-legend .sw { width:12px; height:12px; border-radius:2px; flex-shrink:0; }
           .rpt-legend .nm { flex:1; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-          .rpt-legend .pc { font-weight:800; color:#111; font-size:10.5px; white-space:nowrap; }
-          .rpt-cap { font-size:10px; color:#666; margin-top:8px; padding-top:6px; border-top:1px dashed #e3e3e3; line-height:1.45; }
+          .rpt-legend .pc { font-weight:800; color:#111; font-size:12px; white-space:nowrap; }
+          .rpt-cap { font-size:11.5px; color:#666; margin-top:10px; padding-top:8px; border-top:1px dashed #e3e3e3; line-height:1.5; }
           .rpt-cap b { color:#1a3de8; }
-          .rpt-tbl { width:100%; border-collapse:collapse; font-size:11px; }
-          .rpt-tbl th { text-align:right; padding:5px 4px; border-bottom:1.5px solid #1a3de8; color:#1a3de8; font-size:9.5px; font-weight:800; }
+          .rpt-tbl { width:100%; border-collapse:collapse; font-size:13px; }
+          .rpt-tbl th { text-align:right; padding:7px 6px; border-bottom:1.5px solid #1a3de8; color:#1a3de8; font-size:11px; font-weight:800; }
           .rpt-tbl th:first-child { text-align:left; }
-          .rpt-tbl td { padding:5px 4px; border-bottom:1px solid #f1f1f1; color:#222; text-align:right; }
+          .rpt-tbl td { padding:7px 6px; border-bottom:1px solid #f1f1f1; color:#222; text-align:right; }
           .rpt-tbl td:first-child { text-align:left; font-weight:700; color:#111; }
           .rpt-tbl tr.tot td { border-top:1.5px solid #ccc; border-bottom:none; font-weight:900; color:#111; }
-          .rpt-note { font-size:9px; color:#aaa; margin-top:6px; line-height:1.45; }
-          .rpt-ai { border:1px solid #ddd; border-left:4px solid #7c3aed; border-radius:6px; padding:11px 13px; }
-          .rpt-ai .t { font-size:12.5px; font-weight:800; color:#7c3aed; margin-bottom:6px; }
-          .rpt-ai .b { font-size:11px; line-height:1.62; color:#222; white-space:pre-wrap; }
-          .rpt-foot { margin-top:12px; font-size:9.5px; color:#999; text-align:center; }
+          .rpt-note { font-size:10.5px; color:#aaa; margin-top:8px; line-height:1.5; }
+          .rpt-ai { border:1px solid #ddd; border-left:5px solid #7c3aed; border-radius:7px; padding:15px 17px; margin-top:4px; }
+          .rpt-ai .t { font-size:14px; font-weight:800; color:#7c3aed; margin-bottom:8px; }
+          .rpt-ai .b { font-size:13px; line-height:1.72; color:#222; white-space:pre-wrap; }
+          .rpt-foot { margin-top:16px; font-size:11px; color:#999; text-align:center; }
         </style>
         <div class="uir-head">
           <span class="uir-title">📊 통합 기록지표</span>
@@ -6316,6 +6317,7 @@
           +'<div class="rpt-sec-t">🤖 AI 다음달 방향 분석 (상세)</div>'
           +'<div class="rpt-ai"><div class="b">'+esc(analysis)+'</div></div>'
           +'<div class="rpt-foot">본 보고서는 InsureConnect 관리자 통계 기반으로 자동 생성되었습니다 · 기준 '+esc(plabel)+' (전월 동기간 대비) · 외부 공유 시 주의</div>';
+        try{ document.body.appendChild(doc); }catch(_){}   // v2.16.9: 인쇄 시 body 직속으로 이동 → 폭 100%(A4 전체폭) 보장(작게 나오는 문제 해결)
         setTimeout(function(){ window.print(); }, 150);
       }catch(e){ if(anb) anb.textContent='보고서 생성 중 오류가 발생했습니다.'; }
     }
