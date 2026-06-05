@@ -8764,12 +8764,12 @@
     <!-- v2.8.26: 모바일 상단 광고배너(리스/렌트·통신) 제거 — 플랫폼 본연 집중. 두 페이지는 빠른메뉴 카드(렌트카·통신·폰)로 접근 -->
 
     <!-- v2.8.27: 모바일 로그인 계정 카드 (PC 사이드바 계정 카드 이식 — 로그인 시에만 표시) -->
-    <div class="m-account-card" id="m-account-card" style="display:none;">
+    <div class="m-account-card" id="m-account-card" style="display:none;" data-tour="account">
       <div id="ic-auth-m"></div>
       <!-- v2.12.2: 앱공유 · 운영자문의 · 파트너전용 (3열) — 내공고등록은 로그인정보 버튼줄로 이동 -->
       <div class="m-acc-util3">
         <button type="button" class="m-acc-util" onclick="shareApp()"><span>🔗</span>앱 공유</button>
-        <a class="m-acc-util" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','account-card')"><span>💬</span>운영자 문의</a>
+        <a class="m-acc-util" data-tour="contact" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','account-card')"><span>💬</span>운영자 문의</a>
         <a class="m-acc-util" href="/admin.html"><span>🔧</span>파트너 전용</a>
       </div>
       <!-- v2.12.2: 빠른검색 + 방문통계 (2열) -->
