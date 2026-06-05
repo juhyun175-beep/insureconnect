@@ -15347,6 +15347,7 @@
         const d = _telDevices.find(x => x.id === deviceId);
         if (!d) return;
         _selectedDevice = d;
+        if (typeof trackClick === 'function') trackClick('통신 견적 시작', 'device_' + d.id);  // v2.15.2: 통신 퍼널 추적(렌트카 미러)
         document.getElementById('tq-device-name').textContent = d.name;
         const cn = document.getElementById('tq-carrier'); if (cn) cn.value = d.carrier || '';
         document.getElementById('tq-name').value = '';
@@ -15382,6 +15383,7 @@
           });
           const dd = await res.json();
           if (!res.ok) throw new Error(dd.error || '접수 실패');
+          if (typeof trackClick === 'function') trackClick('통신 견적 신청 완료', _selectedDevice ? ('device_' + _selectedDevice.id) : 'unknown');  // v2.15.2: 통신 전환 추적
           document.getElementById('tq-form-box').style.display = 'none';
           document.getElementById('tq-done').style.display = '';
         } catch (e) {

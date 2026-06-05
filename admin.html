@@ -3276,8 +3276,9 @@
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
             <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
             <button class="ssn-tab" onclick="ssGo(4)">🚗 렌트카 카드</button>
-            <button class="ssn-tab" onclick="ssGo(5)">📈 유입 경로</button>
-            <button class="ssn-tab" onclick="ssGo(6)">👥 회원/지표</button>
+            <button class="ssn-tab" onclick="ssGo(5)">📱 통신·휴대폰</button>
+            <button class="ssn-tab" onclick="ssGo(6)">📈 유입 경로</button>
+            <button class="ssn-tab" onclick="ssGo(7)">👥 회원/지표</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -3481,6 +3482,57 @@
               <div id="rs-by-vehicle">
                 <p class="empty-msg">로딩 중…</p>
               </div>
+            </div>
+
+            <!-- ── Slide 5: 통신·휴대폰 카드 통계 (v2.15.2 — 렌트카 미러) ── -->
+            <div class="stats-slide">
+              <p class="slide-title">📱 통신·휴대폰 통계 (진입 → 카드 클릭 → 신청 완료)</p>
+              <div class="kpi-grid">
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ef4444,#dc2626)">
+                  <span class="kpi-icon">📱</span>
+                  <div class="kpi-n" id="ts-kpi-total-entries">—</div>
+                  <div class="kpi-l">누적 페이지 진입</div>
+                </div>
+                <div class="kpi-card">
+                  <span class="kpi-icon">👁</span>
+                  <div class="kpi-n" id="ts-kpi-total-clicks">—</div>
+                  <div class="kpi-l">누적 카드 클릭</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#fff200,#ff006e)">
+                  <span class="kpi-icon">📨</span>
+                  <div class="kpi-n" id="ts-kpi-total-submits">—</div>
+                  <div class="kpi-l">누적 신청 완료</div>
+                </div>
+                <div class="kpi-card" style="--accent: linear-gradient(90deg,#b026ff,#00f0ff)">
+                  <span class="kpi-icon">⚡</span>
+                  <div class="kpi-n" id="ts-kpi-conversion">—</div>
+                  <div class="kpi-l">클릭 → 신청 전환률</div>
+                </div>
+              </div>
+              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0;">
+                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
+                  <div style="font-size:18px;font-weight:800;color:var(--neon-pink);font-variant-numeric:tabular-nums;" id="ts-kpi-today-entries">—</div>
+                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 페이지 진입</div>
+                </div>
+                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
+                  <div style="font-size:18px;font-weight:800;color:var(--neon-cyan);font-variant-numeric:tabular-nums;" id="ts-kpi-today-clicks">—</div>
+                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 카드 클릭</div>
+                </div>
+                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
+                  <div style="font-size:18px;font-weight:800;color:#10b981;font-variant-numeric:tabular-nums;" id="ts-kpi-today-submits">—</div>
+                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 신청 완료</div>
+                </div>
+              </div>
+              <div class="chart-row" style="margin:14px 0;">
+                <div class="chart-card"><div class="chart-title">최근 14일 — 페이지 진입</div><div class="line-chart" id="ts-chart-entries"><canvas></canvas></div></div>
+                <div class="chart-card"><div class="chart-title">최근 14일 — 카드 클릭</div><div class="line-chart" id="ts-chart-clicks"><canvas></canvas></div></div>
+                <div class="chart-card"><div class="chart-title">최근 14일 — 신청 완료</div><div class="line-chart" id="ts-chart-submits"><canvas></canvas></div></div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 단말기별 Top 클릭 (전환률)</span>
+                <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
+              </div>
+              <div id="ts-by-device"><p class="empty-msg">로딩 중…</p></div>
             </div>
 
           </div><!-- /.stats-slides -->
@@ -5890,6 +5942,59 @@
       if (typeof ssUpdateHeight === 'function') requestAnimationFrame(ssUpdateHeight);
     }
 
+    /* v2.15.2: 통신·휴대폰 카드 통계 (렌트카 미러) */
+    let _cachedTelecomStats = null;
+    async function loadTelecomStats() {
+      try {
+        const res = await fetch('/api/telecom-stats?days=14', { headers: adminHeaders() });
+        if (!res.ok) return;
+        _cachedTelecomStats = await res.json();
+        renderTelecomStats();
+      } catch (_) {}
+    }
+    function renderTelecomStats() {
+      const d = _cachedTelecomStats; if (!d) return;
+      const k = d.kpi || {}; const $ = id => document.getElementById(id);
+      const fmt = n => (n || 0).toLocaleString('ko-KR');
+      if ($('ts-kpi-today-entries')) $('ts-kpi-today-entries').textContent = fmt(k.today_entries);
+      if ($('ts-kpi-total-entries')) $('ts-kpi-total-entries').textContent = fmt(k.total_entries);
+      if ($('ts-kpi-today-clicks'))  $('ts-kpi-today-clicks').textContent  = fmt(k.today_clicks);
+      if ($('ts-kpi-total-clicks'))  $('ts-kpi-total-clicks').textContent  = fmt(k.total_clicks);
+      if ($('ts-kpi-today-submits')) $('ts-kpi-today-submits').textContent = fmt(k.today_submits);
+      if ($('ts-kpi-total-submits')) $('ts-kpi-total-submits').textContent = fmt(k.total_submits);
+      if ($('ts-kpi-conversion'))    $('ts-kpi-conversion').textContent    = (k.total_conversion || 0).toFixed(1) + '%';
+      const wrap = $('ts-by-device');
+      if (wrap) {
+        const rows = d.by_device || [];
+        if (!rows.length) { wrap.innerHTML = '<p class="empty-msg">아직 카드 클릭 기록이 없습니다. (단말기 카드를 누르면 집계됩니다)</p>'; }
+        else {
+          const maxClicks = Math.max(...rows.map(x => x.clicks || 0), 1);
+          wrap.innerHTML = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr style="background:rgba(0,240,255,0.06);border-bottom:1px solid var(--neon-cyan);">'
+            + '<th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">#</th>'
+            + '<th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">단말기</th>'
+            + '<th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">👁 클릭</th>'
+            + '<th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">📨 신청</th>'
+            + '<th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">⚡ 전환</th></tr></thead><tbody>'
+            + rows.map((r, i) => {
+              const barW = Math.max(2, Math.round((r.clicks || 0) / maxClicks * 100));
+              const inact = r.is_active ? '' : 'opacity:0.55;';
+              return '<tr style="border-bottom:1px solid var(--border);' + inact + '">'
+                + '<td style="padding:10px 10px;font-weight:700;color:var(--txt-mid);">' + (i + 1) + '</td>'
+                + '<td style="padding:10px 10px;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:48px;height:32px;border-radius:5px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (r.image_url ? '<img src="' + esc(r.image_url) + '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML=\'📱\'">' : '📱') + '</div><div style="min-width:0;flex:1;"><div style="font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(r.name) + (r.carrier ? ' <span style="font-size:9.5px;color:var(--txt-lo);">' + esc(r.carrier) + '</span>' : '') + '</div>' + (!r.is_active ? '<div style="font-size:10px;color:var(--txt-lo);">비활성</div>' : '') + '</div></div></td>'
+                + '<td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><strong style="color:var(--txt-hi);">' + (r.clicks || 0).toLocaleString('ko-KR') + '</strong><div style="width:60px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;"><div style="width:' + barW + '%;height:100%;background:linear-gradient(90deg,#00f0ff,#b026ff);"></div></div></div></td>'
+                + '<td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;color:#ff006e;font-weight:700;">' + (r.submits || 0).toLocaleString('ko-KR') + '</td>'
+                + '<td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;"><span style="font-weight:800;color:' + ((r.conversion || 0) >= 10 ? '#10b981' : (r.conversion || 0) >= 3 ? '#fbbf24' : 'var(--txt-mid)') + ';">' + (r.conversion || 0).toFixed(1) + '%</span></td></tr>';
+            }).join('') + '</tbody></table></div>';
+        }
+      }
+      if (typeof _ssIdx !== 'undefined' && _ssIdx === 5) {
+        renderLineChart('ts-chart-entries', d.timeline, 'entries');
+        renderLineChart('ts-chart-clicks', d.timeline, 'clicks');
+        renderLineChart('ts-chart-submits', d.timeline, 'submits');
+      }
+      if (typeof ssUpdateHeight === 'function') requestAnimationFrame(ssUpdateHeight);
+    }
+
     /* ══════════════════════════════
        인기 콘텐츠 — 조회/공유유입/복사 (Slide 3)
     ══════════════════════════════ */
@@ -6076,6 +6181,11 @@
           renderLineChart('rs-chart-clicks',  _cachedRentalStats.timeline, 'clicks');
           renderLineChart('rs-chart-submits', _cachedRentalStats.timeline, 'submits');
         }
+        if (_ssIdx === 5 && _cachedTelecomStats) {
+          renderLineChart('ts-chart-entries', _cachedTelecomStats.timeline, 'entries');
+          renderLineChart('ts-chart-clicks',  _cachedTelecomStats.timeline, 'clicks');
+          renderLineChart('ts-chart-submits', _cachedTelecomStats.timeline, 'submits');
+        }
         ssUpdateHeight();
       });
     }
@@ -6197,6 +6307,7 @@
 
         /* v2.1.13: 렌트카 카드 통계 */
         loadRentalStats();
+      loadTelecomStats();
 
         /* 차트 (현재 슬라이드 0에 표시) */
         renderLineChart('chart-visits', d.daily_visits_7d, 'visits');
