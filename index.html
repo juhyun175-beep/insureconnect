@@ -8916,7 +8916,7 @@
           box.innerHTML='<div class="home-ref-top"><span class="home-ref-emoji">🎁</span><div><div class="home-ref-t">친구 초대하고 둘 다 포인트 받기</div><div class="home-ref-sub">내 링크로 가입하면 친구도 웰컴 보너스!</div></div>'+rewardChips+'</div>'
             +'<div class="home-ref-actions"><button type="button" class="home-ref-btn primary" id="home-ref-share">📤 초대 링크 공유</button><button type="button" class="home-ref-btn ghost" id="home-ref-copy">링크 복사</button></div>'
             +'<div class="home-ref-prog">👥 지금까지 <b>'+(d.count||0)+'명</b> 초대'+nextTxt+'</div>';
-          var link=d.link, shareText='보험설계사 통합 플랫폼 인슈어커넥트 — 채용·강의·AI 사례검색 무료! 내 링크로 가입하면 둘 다 포인트 👇';
+          var link=(d.code?(location.origin+'/og/invite/'+encodeURIComponent(d.code)):d.link), shareText='보험설계사 통합 플랫폼 인슈어커넥트 — 채용·강의·AI 사례검색 무료! 내 링크로 가입하면 둘 다 포인트 👇';
           var sb=document.getElementById('home-ref-share');
           if(sb) sb.addEventListener('click',function(){
             if(typeof nativeShareWithFallback==='function'){ nativeShareWithFallback({url:link,title:'인슈어커넥트 초대',text:shareText}); }

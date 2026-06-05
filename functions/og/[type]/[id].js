@@ -210,6 +210,13 @@ export const onRequestGet = async ({ params, env, request }) => {
           mainEntityOfPage: { '@type': 'WebPage', '@id': target }
         };
       }
+    } else if (type === 'invite') {
+      // v2.16.1: 추천 초대 링크 — 매력적 OG 미리보기 + ?ref 귀속 보존(가입 시 양방향 포인트)
+      title = '인슈어커넥트 무료 초대장 🎁';
+      desc = '보험설계사 통합 플랫폼 — 전산·청구·채용·강의·삼따AI 전부 무료. 이 링크로 가입하면 둘 다 포인트!';
+      image = dynamicOgImage('invite', id);
+      target = `${SITE}/?ref=${encodeURIComponent(id)}`;
+      indexable = false;
     }
   } catch (_) {}
 

@@ -49,6 +49,12 @@ const PRESETS = {
     accent: '#7ee0ff',
     label: 'answer',
   },
+  invite: {
+    badge: '🎁 무료 초대장',
+    grad: ['#f59e0b', '#f97316', '#fb7185'],
+    accent: '#fff7ed',
+    label: 'invite',
+  },
 };
 
 /** XML 안전 이스케이프 */
@@ -230,6 +236,10 @@ export const onRequestGet = async ({ params, env }) => {
         title = r.question || title;
         subtitle = (r.case_count > 0) ? `실제 사례 ${r.case_count}건 기반 답변` : '실제 사례 기반 답변';
       }
+    } else if (type === 'invite') {
+      // v2.16.1: 추천 초대 카드 (코드 비노출 — 정적 메시지)
+      title = '가입하면 둘 다 포인트!';
+      subtitle = '보험설계사 통합 플랫폼 · 전부 무료';
     }
   } catch (_) {}
 
