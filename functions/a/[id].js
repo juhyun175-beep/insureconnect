@@ -28,7 +28,7 @@ function page(row, id) {
 <meta property="og:type" content="article">
 <meta property="og:title" content="${esc(ogTitle)}">
 <meta property="og:description" content="${ogDesc}">
-<meta property="og:image" content="${SITE}/logo-full.png?v=2">
+<meta property="og:image" content="${esc(`https://wsrv.nl/?url=${encodeURIComponent(`${SITE}/og-image/answer/${id}`)}&output=png&w=1200&h=630&fit=cover`)}">
 <meta property="og:image:width" content="1200"><meta property="og:image:height" content="630">
 <meta property="og:url" content="${SITE}/a/${esc(id)}">
 <meta name="twitter:card" content="summary_large_image">

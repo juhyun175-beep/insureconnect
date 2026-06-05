@@ -43,6 +43,12 @@ const PRESETS = {
     accent: '#fff7ed',
     label: 'board',
   },
+  answer: {
+    badge: '🤖 삼따AI 답변',
+    grad: ['#1a3de8', '#4f46e5', '#22d3ee'],
+    accent: '#7ee0ff',
+    label: 'answer',
+  },
 };
 
 /** XML 안전 이스케이프 */
@@ -214,6 +220,15 @@ export const onRequestGet = async ({ params, env }) => {
         title = r.title || title;
         subtitle = (r.content || '').replace(/\s+/g, ' ').trim().slice(0, 48);
         if (r.created_at) dateStr = String(r.created_at).slice(0, 10).replace(/-/g, '.');
+      }
+    } else if (type === 'answer') {
+      // v2.15.8: 공유된 삼따AI 답변 — 질문을 카드 제목으로(카톡 미리보기 클릭률↑)
+      const r = await env.DB.prepare(
+        `SELECT question, case_count FROM ic_shared_answers WHERE id = ?`
+      ).bind(id).first();
+      if (r) {
+        title = r.question || title;
+        subtitle = (r.case_count > 0) ? `실제 사례 ${r.case_count}건 기반 답변` : '실제 사례 기반 답변';
       }
     }
   } catch (_) {}

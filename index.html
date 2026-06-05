@@ -4526,10 +4526,10 @@
        로그인 미설정·네트워크 실패 시 게이트 미노출(가두지 않음) */
     #m-login-gate:not(.mlg-hidden) {
       display: flex; position: fixed; inset: 0; z-index: 99999;
-      align-items: center; justify-content: center; padding: 24px;
+      align-items: flex-start; justify-content: center; padding: 30px 20px; overflow-y: auto;
       background: linear-gradient(160deg, #1a3de8 0%, #00c8ee 100%);
     }
-    .mlg-card { width: 100%; max-width: 372px; background: #fff; border-radius: 24px; padding: 36px 26px 26px; text-align: center; box-shadow: 0 30px 70px rgba(8,20,80,0.42); border: 1px solid rgba(255,255,255,0.5); }
+    .mlg-card { width: 100%; max-width: 580px; margin: auto; background: #fff; border-radius: 24px; padding: 34px 30px 26px; text-align: center; box-shadow: 0 30px 70px rgba(8,20,80,0.42); border: 1px solid rgba(255,255,255,0.5); }
     [data-theme="dark"] .mlg-card { background: #131826; border-color: rgba(255,255,255,0.06); }
     /* v2.13.4: 새 브랜드 로고 — 투명 SVG(라이트/다크 모두 자연스럽게) */
     .mlg-brand { margin-bottom: 22px; }
@@ -4546,6 +4546,33 @@
     .mlg-kakao:active { transform: scale(0.98); }
     .mlg-note { margin: 18px 0 0; font-size: 11px; color: #cbd5e1; line-height: 1.5; }
     [data-theme="dark"] .mlg-note { color: #475569; }
+    /* v2.15.8: 로그인 게이트 = 홍보 랜딩 (주요기능 소개 + 이미지 → 신규가입 유도) */
+    .mlg-stats { display:flex; justify-content:center; gap:20px; margin:18px 0 2px; flex-wrap:wrap; }
+    .mlg-stat b { font-size:17px; font-weight:900; color:#1a3de8; display:block; }
+    [data-theme="dark"] .mlg-stat b { color:#6ea8ff; }
+    .mlg-stat span { font-size:11px; color:#64748b; }
+    [data-theme="dark"] .mlg-stat span { color:#94a3b8; }
+    .mlg-secttl { font-size:12.5px; font-weight:800; letter-spacing:.01em; color:#1f7bff; text-align:left; margin:24px 0 11px; display:flex; align-items:center; gap:8px; }
+    .mlg-secttl::before { content:''; width:4px; height:15px; border-radius:2px; background:linear-gradient(#1f7bff,#1a3de8); flex-shrink:0; }
+    [data-theme="dark"] .mlg-secttl { color:#6ea8ff; }
+    .mlg-feats { display:grid; grid-template-columns:1fr 1fr; gap:9px; text-align:left; }
+    .mlg-feat { display:flex; gap:10px; align-items:flex-start; padding:12px 13px; border-radius:14px; background:#f6f9ff; border:1px solid #e6eeff; }
+    [data-theme="dark"] .mlg-feat { background:#0f1726; border-color:#1e2a44; }
+    .mlg-feat-ic { font-size:21px; line-height:1; flex-shrink:0; }
+    .mlg-feat-t { font-size:13px; font-weight:800; color:#0f172a; }
+    [data-theme="dark"] .mlg-feat-t { color:#e6edf3; }
+    .mlg-feat-d { font-size:11px; color:#64748b; margin-top:2px; line-height:1.45; }
+    [data-theme="dark"] .mlg-feat-d { color:#94a3b8; }
+    .mlg-media { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    .mlg-media figure { margin:0; border-radius:14px; overflow:hidden; border:1px solid #e6eeff; background:#f6f9ff; }
+    [data-theme="dark"] .mlg-media figure { border-color:#1e2a44; background:#0f1726; }
+    .mlg-media img { width:100%; height:104px; object-fit:cover; display:block; background:#eef3ff; }
+    .mlg-media figcaption { font-size:11.5px; font-weight:700; color:#334155; padding:8px 10px; }
+    [data-theme="dark"] .mlg-media figcaption { color:#cbd5e1; }
+    .mlg-divider { height:1px; background:linear-gradient(90deg,transparent,#e2e8f0,transparent); margin:22px 0 0; }
+    [data-theme="dark"] .mlg-divider { background:linear-gradient(90deg,transparent,#1e2a44,transparent); }
+    .mlg-kakao.secondary { margin-top:18px; }
+    @media (max-width:480px){ .mlg-feats{grid-template-columns:1fr;} .mlg-card{padding:28px 18px 22px;} }
 
     /* v2.6.0: 자주 쓰는 핵심 메뉴 그리드 (3열, 크게) */
     .ic-m-core-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
@@ -8463,10 +8490,36 @@
         <div class="mlg-wordmark">INSURECONNECT</div>
         <div class="mlg-tagline">보험으로 연결하다</div>
       </div>
-      <h2 class="mlg-title">보험설계사 전용 허브</h2>
-      <p class="mlg-sub">보험사 전산·청구서류·채용공고에 더해<br><b>실제 사례로 답하는 삼따AI</b>까지 한 곳에서.</p>
+      <h2 class="mlg-title">보험설계사 업무, 이제 한 곳에서</h2>
+      <p class="mlg-sub">전산·청구·채용·강의·뉴스에 <b>실제 사례로 답하는 삼따AI</b>까지.<br>3초 카카오 로그인이면 전부 <b>무료</b>로 시작합니다.</p>
       <a class="mlg-kakao" href="/api/auth/kakao/login" onclick="if(typeof trackClick==='function')trackClick('카카오 로그인','login-gate')">
         <span aria-hidden="true">💬</span> 카카오로 3초 만에 시작하기
+      </a>
+      <div class="mlg-stats">
+        <div class="mlg-stat"><b>8가지+</b><span>핵심 기능</span></div>
+        <div class="mlg-stat"><b>전 보험사</b><span>전산·청구</span></div>
+        <div class="mlg-stat"><b>가입 즉시</b><span>전부 무료</span></div>
+      </div>
+
+      <div class="mlg-secttl">이런 기능을 무료로 사용하세요</div>
+      <div class="mlg-feats">
+        <div class="mlg-feat"><span class="mlg-feat-ic">🤖</span><div><div class="mlg-feat-t">삼따AI</div><div class="mlg-feat-d">실제 인수·고지·보상 사례로 답하는 보험 AI</div></div></div>
+        <div class="mlg-feat"><span class="mlg-feat-ic">🖥️</span><div><div class="mlg-feat-t">보험사 전산·청구</div><div class="mlg-feat-d">전 보험사 전산·청구서류 바로가기</div></div></div>
+        <div class="mlg-feat"><span class="mlg-feat-ic">🏢</span><div><div class="mlg-feat-t">GA 전산</div><div class="mlg-feat-d">주요 GA 전산을 한 번에 모아보기</div></div></div>
+        <div class="mlg-feat"><span class="mlg-feat-ic">💼</span><div><div class="mlg-feat-t">채용공고</div><div class="mlg-feat-d">보험설계사 채용·리크루팅 공고</div></div></div>
+        <div class="mlg-feat"><span class="mlg-feat-ic">🎓</span><div><div class="mlg-feat-t">강의·교육</div><div class="mlg-feat-d">보험 강의 일정 확인과 신청</div></div></div>
+        <div class="mlg-feat"><span class="mlg-feat-ic">📰</span><div><div class="mlg-feat-t">보험뉴스·영상</div><div class="mlg-feat-d">실시간 보험·경제 뉴스와 유튜브</div></div></div>
+      </div>
+
+      <div class="mlg-secttl">고객 견적 연결로 부가 수익까지</div>
+      <div class="mlg-media">
+        <figure><img src="/rental-banner.jpg" alt="렌트카 견적 연결"><figcaption>🚗 렌트카 견적 연결</figcaption></figure>
+        <figure><img src="/telecom-banner.jpg" alt="통신 견적 연결"><figcaption>📱 통신 견적 연결</figcaption></figure>
+      </div>
+
+      <div class="mlg-divider"></div>
+      <a class="mlg-kakao secondary" href="/api/auth/kakao/login" onclick="if(typeof trackClick==='function')trackClick('카카오 로그인','login-gate-bottom')">
+        <span aria-hidden="true">💬</span> 지금 무료로 시작하기
       </a>
       <p class="mlg-note">로그인 시 서비스 이용약관 및 개인정보처리방침에 동의하게 됩니다.</p>
     </div>
@@ -8653,10 +8706,13 @@
     <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
     <div class="ibh-aii-row">
       <style>
-        .ibh-aii-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:start;margin:18px 0 24px;}
+        .ibh-aii-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;margin:18px 0 24px;}
         .ibh-aii-row .ibh{margin:0;}
+        /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
+        .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
+        .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
         @media(max-width:900px){ .ibh-aii-row{grid-template-columns:1fr;} }
-        .home-aii{display:flex;flex-direction:column;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid rgba(26,61,232,0.18);}
+        .home-aii{display:flex;flex-direction:column;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid rgba(26,61,232,0.18);min-height:340px;}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
         .aii-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap;}
         .aii-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);}
@@ -8678,7 +8734,7 @@
         [data-theme="dark"] .aii-chip{color:#8ab4ff;background:rgba(99,102,241,0.12);border-color:rgba(99,102,241,0.3);}
         .aii-chip:hover{background:rgba(26,61,232,0.16);}
         .aii-err{font-size:12px;color:#dc2626;margin-top:8px;line-height:1.5;}
-        .aii-out{margin-top:10px;border-top:1px solid rgba(26,61,232,0.16);padding-top:10px;max-height:300px;overflow-y:auto;}
+        .aii-out{margin-top:10px;border-top:1px solid rgba(26,61,232,0.16);padding-top:10px;max-height:220px;overflow-y:auto;flex:1;}
         .aii-answer{font-size:13px;line-height:1.65;color:var(--txt-hi,#0f172a);white-space:pre-wrap;word-break:break-word;}
         [data-theme="dark"] .aii-answer{color:#e6edf3;}
         .aii-ev{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
@@ -8700,6 +8756,7 @@
         [data-theme="dark"] .aii-share-cta{color:#c4b5fd;background:rgba(124,58,237,0.16);border-color:rgba(124,58,237,0.45);}
         [data-theme="dark"] .aii-share-cta b{color:#c4b5fd;}
       </style>
+      <div class="ibh-col">
       <section class="ibh" aria-label="자유게시판">
       <style>
         .ibh{margin:18px 0 24px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,0.07),rgba(249,115,22,0.05));border:1px solid rgba(245,158,11,0.18);}
@@ -8736,6 +8793,8 @@
         바로가기: <a href="/insurance">보험 정보 게시판</a> · <a href="/company">보험사 전산·청구</a> · <a href="/ga">GA 전산</a>
       </div>
       </section>
+      <div class="home-ref" id="home-ref" style="display:none;"></div>
+      </div><!-- /.ibh-col -->
       <!-- 삼따AI 퀵 위젯 -->
       <section class="home-aii" aria-label="삼따AI">
         <div class="aii-head">
@@ -8786,9 +8845,8 @@
       .home-ref-prog b{color:#b45309;}
       [data-theme="dark"] .home-ref-prog b{color:#fbbf24;}
     </style>
-    <div class="home-ref" id="home-ref" style="display:none;"></div>
     <script>
-      // v2.15.7: 홈 친구초대 CTA — /api/me/referral(로그인) 또는 로그인 유도. 공유는 nativeShareWithFallback 재사용
+      // v2.15.7: 홈 친구초대 CTA (위치: 자유게시판 하단 좌측 컬럼 — v2.15.8 이동) — /api/me/referral(로그인) 또는 로그인 유도. 공유는 nativeShareWithFallback 재사용
       async function loadReferralCTA(){
         var box=document.getElementById('home-ref'); if(!box) return;
         function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
