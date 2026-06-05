@@ -4566,7 +4566,7 @@
     .mlg-media { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
     .mlg-media figure { margin:0; border-radius:14px; overflow:hidden; border:1px solid #e6eeff; background:#f6f9ff; }
     [data-theme="dark"] .mlg-media figure { border-color:#1e2a44; background:#0f1726; }
-    .mlg-media img { width:100%; height:104px; object-fit:cover; display:block; background:#eef3ff; }
+    .mlg-media img, .mlg-media .mlg-illus { width:100%; height:108px; display:block; }
     .mlg-media figcaption { font-size:11.5px; font-weight:700; color:#334155; padding:8px 10px; }
     [data-theme="dark"] .mlg-media figcaption { color:#cbd5e1; }
     .mlg-divider { height:1px; background:linear-gradient(90deg,transparent,#e2e8f0,transparent); margin:22px 0 0; }
@@ -8511,10 +8511,47 @@
         <div class="mlg-feat"><span class="mlg-feat-ic">📰</span><div><div class="mlg-feat-t">보험뉴스·영상</div><div class="mlg-feat-d">실시간 보험·경제 뉴스와 유튜브</div></div></div>
       </div>
 
-      <div class="mlg-secttl">고객 견적 연결로 부가 수익까지</div>
+      <div class="mlg-secttl">보험설계사 우대 혜택</div>
       <div class="mlg-media">
-        <figure><img src="/rental-banner.jpg" alt="렌트카 견적 연결"><figcaption>🚗 렌트카 견적 연결</figcaption></figure>
-        <figure><img src="/telecom-banner.jpg" alt="통신 견적 연결"><figcaption>📱 통신 견적 연결</figcaption></figure>
+        <figure>
+          <svg class="mlg-illus" viewBox="0 0 240 108" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="렌트카 견적">
+            <defs><linearGradient id="rcG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#1538d6"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+            <rect width="240" height="108" fill="url(#rcG)"/>
+            <circle cx="198" cy="20" r="34" fill="#fff" opacity=".10"/>
+            <ellipse cx="120" cy="90" rx="84" ry="8" fill="#000" opacity=".12"/>
+            <rect x="40" y="52" width="160" height="28" rx="13" fill="#fff"/>
+            <path d="M72 53 Q83 30 112 30 L146 30 Q168 30 180 53 Z" fill="#fff"/>
+            <path d="M83 51 Q90 38 110 38 L126 38 L126 51 Z" fill="#bfe3ff"/>
+            <path d="M132 38 L146 38 Q165 38 173 51 L132 51 Z" fill="#bfe3ff"/>
+            <circle cx="80" cy="80" r="14" fill="#0f172a"/><circle cx="80" cy="80" r="6" fill="#e2e8f0"/>
+            <circle cx="162" cy="80" r="14" fill="#0f172a"/><circle cx="162" cy="80" r="6" fill="#e2e8f0"/>
+            <rect x="192" y="58" width="9" height="8" rx="2" fill="#ffd000"/>
+          </svg>
+          <figcaption>🚗 렌트카 견적 — 내 매출로</figcaption>
+        </figure>
+        <figure>
+          <svg class="mlg-illus" viewBox="0 0 240 108" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="통신 견적 아이폰">
+            <defs><linearGradient id="tcG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#6d28d9"/><stop offset="1" stop-color="#22d3ee"/></linearGradient></defs>
+            <rect width="240" height="108" fill="url(#tcG)"/>
+            <circle cx="42" cy="22" r="30" fill="#fff" opacity=".10"/>
+            <g stroke="#fff" stroke-opacity=".42" fill="none" stroke-width="3" stroke-linecap="round">
+              <path d="M72 36 q-12 18 0 36"/><path d="M60 30 q-18 26 0 48"/>
+              <path d="M168 36 q12 18 0 36"/><path d="M180 30 q18 26 0 48"/>
+            </g>
+            <g transform="translate(98,12)">
+              <rect x="-2" y="-2" width="48" height="88" rx="13" fill="#0f172a"/>
+              <rect x="2" y="2" width="40" height="80" rx="9.5" fill="#fff"/>
+              <rect x="14" y="5.5" width="16" height="5" rx="2.5" fill="#0f172a"/>
+              <rect x="8" y="20" width="28" height="6" rx="3" fill="#ddd6fe"/>
+              <rect x="8" y="31" width="20" height="5" rx="2.5" fill="#ede9fe"/>
+              <rect x="8" y="42" width="28" height="15" rx="4.5" fill="#7c3aed"/>
+              <rect x="12" y="47" width="13" height="5" rx="2.5" fill="#fff" opacity=".9"/>
+              <rect x="8" y="63" width="16" height="4.5" rx="2" fill="#e5e7eb"/>
+              <rect x="8" y="71" width="24" height="4.5" rx="2" fill="#e5e7eb"/>
+            </g>
+          </svg>
+          <figcaption>📱 통신 견적(아이폰) — 내 매출로</figcaption>
+        </figure>
       </div>
 
       <div class="mlg-divider"></div>
