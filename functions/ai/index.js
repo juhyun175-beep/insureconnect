@@ -240,7 +240,13 @@ textarea:focus{outline:none;border-color:#1a3de8}
       if(_hq && _hq.trim()){ cqInput.value=_hq.trim().slice(0,200); setTimeout(function(){ try{ cqAsk.click(); cqInput.scrollIntoView({behavior:'smooth',block:'center'}); }catch(_){} }, 350); }
     }catch(_){}
     // v2.12.5(B): 우수 사례 큐레이션 로드
-    (function(){ var box=document.getElementById('cq-excellent'); if(!box) return; fetch('/api/cases?excellent=1&limit=6').then(function(r){return r.json();}).then(function(j){ var arr=(j&&j.cases)||[]; box.innerHTML=arr.length?arr.map(_caseCard).join(''):'<div style="font-size:13px;color:#94a3b8;">아직 선정된 우수 사례가 없습니다. 좋은 사례를 공유해보세요!</div>'; }).catch(function(){ box.innerHTML='<div style="font-size:13px;color:#94a3b8;">불러오지 못했습니다.</div>'; }); })();
+    (function(){ var box=document.getElementById('cq-excellent'); if(!box) return; var SITE='https://insureconnect-hub.pages.dev';
+      function shareExcellent(txt){ var text='📌 실제 보험 인수·보상 사례\n'+txt+'\n\n사례 기반 삼따AI로 더 많은 사례 보기 👇\n'+SITE+'/ai'; if(navigator.share){ navigator.share({title:'삼따AI 보험 사례', text:text, url:SITE+'/ai'}).catch(function(){}); } else { (navigator.clipboard?navigator.clipboard.writeText(text):Promise.reject()).then(function(){ alert('사례+링크가 복사됐어요! 단톡방·카페에 붙여넣기 하세요.'); }).catch(function(){ window.prompt('복사해서 공유', text); }); } }
+      fetch('/api/cases?excellent=1&limit=6').then(function(r){return r.json();}).then(function(j){ var arr=(j&&j.cases)||[];
+        if(!arr.length){ box.innerHTML='<div style="font-size:13px;color:#94a3b8;">아직 선정된 우수 사례가 없습니다. 좋은 사례를 공유해보세요!</div>'; return; }
+        box.innerHTML=arr.map(function(c){ return '<div style="position:relative;">'+_caseCard(c)+'<button type="button" class="exc-sh" data-c="'+_escc((c.disease||'')+(c.insurer?' / '+c.insurer:'')+(c.result?' → '+c.result:'')+(c.summary?' — '+String(c.summary).slice(0,90):''))+'" style="position:absolute;top:9px;right:10px;font-size:11px;font-weight:800;color:#7c3aed;background:rgba(124,58,237,0.12);border:none;border-radius:7px;padding:5px 9px;cursor:pointer;font-family:inherit;">💬 공유</button></div>'; }).join('');
+        box.querySelectorAll('.exc-sh').forEach(function(b){ b.addEventListener('click',function(){ shareExcellent(b.getAttribute('data-c')); }); });
+      }).catch(function(){ box.innerHTML='<div style="font-size:13px;color:#94a3b8;">불러오지 못했습니다.</div>'; }); })();
   }
 
   // 사례 공유 (삼따AI 내 등록 → +10P)
