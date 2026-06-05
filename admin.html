@@ -3242,30 +3242,51 @@
           .uir-an-title{font-size:14px;font-weight:900;color:#7c3aed;}
           .uir-an-body{font-size:13px;line-height:1.7;color:var(--txt-hi);white-space:pre-wrap;word-break:break-word;}
           .uir-an-meta{font-size:11px;color:var(--txt-lo);margin-top:10px;}
+          /* v2.15.4: 보고서 — A4 전용 깔끔 레이아웃 (화면 숨김, 인쇄 시만) */
+          #uir-report-doc { display: none; }
           @media print {
             body * { visibility: hidden !important; }
-            #uir-report, #uir-report * { visibility: visible !important; }
-            #uir-report { position: absolute; left: 0; top: 0; width: 100%; padding: 0; }
-            #uir-report .stats-slider-nav, #uir-report .ssn-nav-btn, #uir-report .uir-actions { display: none !important; }
-            #uir-report .stats-slides-outer { overflow: visible !important; height: auto !important; }
-            #uir-report .stats-slides { transform: none !important; display: block !important; width: 100% !important; }
-            #uir-report .stats-slide { display: block !important; width: 100% !important; page-break-inside: avoid; margin-bottom: 22px; }
+            #uir-report-doc, #uir-report-doc * { visibility: visible !important; }
+            #uir-report-doc { display: block !important; position: absolute; left: 0; top: 0; width: 100%; background:#fff; color:#1a1a1a; font-family:-apple-system,'Pretendard',sans-serif; }
+            @page { size: A4; margin: 13mm; }
           }
+          #uir-report-doc * { box-sizing: border-box; }
+          .rpt-h { display:flex; align-items:baseline; gap:10px; border-bottom:2px solid #1a3de8; padding-bottom:8px; margin-bottom:14px; }
+          .rpt-h h1 { font-size:19px; font-weight:900; color:#1a3de8; margin:0; }
+          .rpt-h .meta { font-size:11px; color:#666; margin-left:auto; }
+          .rpt-kpis { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:16px; }
+          .rpt-kpi { border:1px solid #ddd; border-radius:8px; padding:9px 10px; }
+          .rpt-kpi .n { font-size:20px; font-weight:900; color:#111; }
+          .rpt-kpi .l { font-size:10.5px; color:#777; margin-top:2px; }
+          .rpt-kpi .d { font-size:10px; font-weight:700; }
+          .rpt-sec-t { font-size:13px; font-weight:800; color:#1a3de8; margin:4px 0 8px; }
+          .rpt-flow { display:flex; gap:18px; align-items:center; margin-bottom:16px; }
+          .rpt-legend { flex:1; }
+          .rpt-legend .row { display:flex; align-items:center; gap:7px; font-size:11.5px; padding:3px 0; border-bottom:1px solid #f0f0f0; }
+          .rpt-legend .sw { width:11px; height:11px; border-radius:2px; flex-shrink:0; }
+          .rpt-legend .nm { flex:1; color:#333; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+          .rpt-legend .pc { font-weight:800; color:#111; }
+          .rpt-ai { border:1px solid #ddd; border-left:4px solid #7c3aed; border-radius:6px; padding:11px 13px; page-break-inside:avoid; }
+          .rpt-ai .t { font-size:12.5px; font-weight:800; color:#7c3aed; margin-bottom:6px; }
+          .rpt-ai .b { font-size:11.5px; line-height:1.65; color:#222; white-space:pre-wrap; }
+          .rpt-foot { margin-top:14px; font-size:10px; color:#999; text-align:center; }
         </style>
         <div class="uir-head">
           <span class="uir-title">📊 통합 기록지표</span>
           <div class="uir-actions">
-            <button type="button" class="uir-btn" onclick="window.print()">📄 보고서 출력</button>
+            <button type="button" class="uir-btn" onclick="uirReport()">📄 보고서 출력</button>
             <button type="button" class="uir-btn ai" id="uir-analyze-btn" onclick="uirAnalyze()">🤖 다음달 방향 분석</button>
           </div>
         </div>
         <div class="uir-analysis" id="uir-analysis">
           <div class="uir-an-head"><span class="uir-an-title">🤖 AI 다음달 방향 분석</span>
-            <button type="button" class="uir-btn" style="margin-left:auto;padding:5px 10px;font-size:11px;" onclick="window.print()">📄 보고서 출력</button>
+            <button type="button" class="uir-btn" style="margin-left:auto;padding:5px 10px;font-size:11px;" onclick="uirReport()">📄 보고서 출력</button>
           </div>
           <div class="uir-an-body" id="uir-an-body"></div>
           <div class="uir-an-meta" id="uir-an-meta"></div>
         </div>
+        <!-- v2.15.4: A4 보고서 전용 컨테이너 (화면 숨김, 인쇄 시만 — uirReport()가 채움) -->
+        <div id="uir-report-doc"></div>
 
         <!-- 탭 네비게이션 -->
         <div class="stats-slider-nav">
@@ -6208,6 +6229,65 @@
         else { body.textContent=(d&&d.error)||'분석 생성에 실패했습니다.'; }
       }catch(e){ body.textContent='네트워크 오류입니다. 잠시 후 다시 시도해주세요.'; }
       finally{ btn.disabled=false; btn.textContent=o; }
+    }
+
+    /* v2.15.4: 유입 SVG 원그래프 */
+    function uirPie(segs){
+      var total=segs.reduce(function(s,x){return s+(x.value||0);},0)||1;
+      var cx=70,cy=70,r=66,a=-Math.PI/2,paths='';
+      segs.forEach(function(s){
+        var frac=(s.value||0)/total; if(frac<=0) return;
+        var a2=a+frac*2*Math.PI;
+        if(frac>=0.999){ paths+='<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+s.color+'"/>'; }
+        else {
+          var x1=(cx+r*Math.cos(a)).toFixed(2),y1=(cy+r*Math.sin(a)).toFixed(2);
+          var x2=(cx+r*Math.cos(a2)).toFixed(2),y2=(cy+r*Math.sin(a2)).toFixed(2);
+          var large=frac>0.5?1:0;
+          paths+='<path d="M'+cx+','+cy+' L'+x1+','+y1+' A'+r+','+r+' 0 '+large+',1 '+x2+','+y2+' Z" fill="'+s.color+'"/>';
+        }
+        a=a2;
+      });
+      return '<svg width="140" height="140" viewBox="0 0 140 140" style="flex-shrink:0">'+paths+'</svg>';
+    }
+
+    /* v2.15.4: A4 통계분석 보고서 — 요약 KPI + 유입 원그래프 + AI 분석 */
+    async function uirReport(){
+      var doc=document.getElementById('uir-report-doc'); if(!doc) return;
+      var ana=document.getElementById('uir-analysis'), anb=document.getElementById('uir-an-body');
+      if(ana&&anb){ ana.style.display='block'; anb.textContent='📄 보고서 생성 중 (AI 분석 포함, 잠시만요)…'; }
+      try{
+        var ra=await fetch('/api/admin/analyze',{headers:adminHeaders()}).then(function(r){return r.json();}).catch(function(){return null;});
+        var rt=await fetch('/api/stats/traffic',{headers:adminHeaders()}).then(function(r){return r.json();}).catch(function(){return null;});
+        var s=(ra&&ra.stats)||{};
+        var analysis=(ra&&ra.analysis)||'(AI 분석을 생성하지 못했습니다 — AI 키 미설정 또는 일시 오류)';
+        var ref=(rt&&rt.referrer_total)||[];
+        if(anb&&ra&&ra.analysis){ anb.textContent=ra.analysis; var am=document.getElementById('uir-an-meta'); if(am){am.textContent='기준 최근 30일 · 생성 '+(s.generated_at||'');} }
+        var COLORS=['#1a3de8','#10b981','#f59e0b','#ef4444','#7c3aed','#94a3b8'];
+        var top=ref.slice(0,5).map(function(x,i){return {label:x.name,value:x.count,color:COLORS[i]};});
+        var etc=ref.slice(5).reduce(function(a,b){return a+(b.count||0);},0);
+        if(etc>0) top.push({label:'기타',value:etc,color:COLORS[5]});
+        var totalRef=top.reduce(function(a,b){return a+b.value;},0)||1;
+        var fmt=function(n){return (n||0).toLocaleString('ko-KR');};
+        var pct=function(x,y){return y>0?Math.round((x-y)/y*100):(x>0?100:0);};
+        var dv=pct(s.visits_30d,s.visits_prev_30d), dcv=pct(s.conversions_30d,s.conversions_prev_30d);
+        var arrow=function(p){return p>0?('▲ '+p+'%'):p<0?('▼ '+Math.abs(p)+'%'):'–';};
+        var pcol=function(p){return p>0?'#16a34a':p<0?'#dc2626':'#888';};
+        var legend=top.map(function(x){var p=Math.round(x.value/totalRef*100);return '<div class="row"><span class="sw" style="background:'+x.color+'"></span><span class="nm">'+esc(x.label)+'</span><span class="pc">'+p+'% ('+fmt(x.value)+')</span></div>';}).join('')||'<div class="row" style="color:#999">유입 데이터가 아직 없습니다</div>';
+        doc.innerHTML =
+          '<div class="rpt-h"><h1>📊 통계분석 보고서</h1><span class="meta">InsureConnect · 최근 30일 · 생성 '+esc(s.generated_at||'')+'</span></div>'
+          +'<div class="rpt-kpis">'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.visits_30d)+'</div><div class="l">방문자(30일) · 누적 '+fmt(s.visits_total)+'</div><div class="d" style="color:'+pcol(dv)+'">'+arrow(dv)+' 전월비</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.clicks_30d)+'</div><div class="l">카드 클릭(30일)</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.conversions_30d)+'</div><div class="l">전환·신청폼(30일)</div><div class="d" style="color:'+pcol(dcv)+'">'+arrow(dcv)+' 전월비</div></div>'
+          +'<div class="rpt-kpi"><div class="n">'+fmt(s.members_total)+'</div><div class="l">회원 누적 · 신규 '+fmt(s.members_new_30d)+'</div></div>'
+          +'</div>'
+          +'<div class="rpt-sec-t">📈 유입 경로 분포 (누적)</div>'
+          +'<div class="rpt-flow">'+uirPie(top)+'<div class="rpt-legend">'+legend+'</div></div>'
+          +'<div class="rpt-sec-t">🤖 AI 다음달 방향 분석</div>'
+          +'<div class="rpt-ai"><div class="b">'+esc(analysis)+'</div></div>'
+          +'<div class="rpt-foot">본 보고서는 InsureConnect 관리자 통계 기반 자동 생성 보고서입니다.</div>';
+        setTimeout(function(){ window.print(); }, 150);
+      }catch(e){ if(anb) anb.textContent='보고서 생성 중 오류가 발생했습니다.'; }
     }
 
     let _cachedRentalStats = null;
