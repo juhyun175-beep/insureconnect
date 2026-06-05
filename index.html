@@ -9053,6 +9053,60 @@
 
     <!-- v2.6.5: (자유게시판 → 상단 실시간 방문기록 섹션 바로 아래로 이동) -->
 
+    <!-- v2.14.5: 홈 경제·금융 영상 (유튜브 카드 · 채용/강의·뉴스 아래) -->
+    <section class="ibh-vids" aria-label="영상">
+      <style>
+        .ibh-vids{margin:18px 0 24px;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(239,68,68,0.06),rgba(220,38,38,0.05));border:1px solid rgba(239,68,68,0.18);}
+        [data-theme="dark"] .ibh-vids{background:linear-gradient(135deg,rgba(239,68,68,0.12),rgba(220,38,38,0.08));border-color:rgba(239,68,68,0.26);}
+        .vw-head{display:flex;align-items:center;gap:9px;margin-bottom:13px;flex-wrap:wrap;}
+        .vw-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);}
+        [data-theme="dark"] .vw-title{color:#e6edf3;}
+        .vw-badge{display:inline-flex;align-items:center;gap:4px;font-size:10.5px;font-weight:800;color:#fff;background:#ff0000;padding:3px 9px;border-radius:999px;}
+        .vw-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+        @media(max-width:900px){.vw-grid{grid-template-columns:repeat(2,1fr);}}
+        @media(max-width:430px){.vw-grid{gap:9px;}}
+        .vw-card{display:flex;flex-direction:column;background:#fff;border:1px solid var(--border);border-radius:12px;overflow:hidden;text-decoration:none;transition:transform .12s,box-shadow .12s;}
+        [data-theme="dark"] .vw-card{background:rgba(255,255,255,0.03);}
+        .vw-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,.1);}
+        .vw-thumb{position:relative;display:block;height:96px;background:#000;overflow:hidden;}
+        .vw-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+        .vw-play{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:40px;height:40px;border-radius:50%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;transition:background .12s;}
+        .vw-play::before{content:'';border-left:13px solid #fff;border-top:8px solid transparent;border-bottom:8px solid transparent;margin-left:3px;}
+        .vw-card:hover .vw-play{background:#ff0000;}
+        .vw-src{position:absolute;left:7px;bottom:7px;font-size:10px;font-weight:800;color:#fff;background:rgba(2,6,23,0.68);padding:2px 7px;border-radius:999px;}
+        .vw-cbody{padding:9px 11px 10px;display:flex;flex-direction:column;flex:1;}
+        .vw-ctitle{font-size:12.5px;font-weight:700;color:var(--txt-hi,#0f172a);line-height:1.36;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+        [data-theme="dark"] .vw-ctitle{color:#e6edf3;}
+        .vw-card:hover .vw-ctitle{color:#dc2626;}
+        .vw-ctime{margin-top:auto;padding-top:8px;font-size:10.5px;color:#94a3b8;}
+        .vw-empty{grid-column:1/-1;font-size:12.5px;color:#94a3b8;padding:22px 4px;text-align:center;}
+      </style>
+      <div class="vw-head">
+        <span class="vw-title">🎬 경제·금융 영상</span>
+        <span class="vw-badge">▶ YouTube</span>
+      </div>
+      <div class="vw-grid" id="vw-grid"><div class="vw-empty">불러오는 중…</div></div>
+    </section>
+    <script>
+    (function(){
+      var grid=document.getElementById('vw-grid'); if(!grid) return;
+      function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+      function ago(s){ var t=Date.parse(s); if(isNaN(t)) return ''; var m=Math.floor((Date.now()-t)/60000); if(m<1)return'방금'; if(m<60)return m+'분 전'; var h=Math.floor(m/60); if(h<24)return h+'시간 전'; var dd=Math.floor(h/24); return dd<7?dd+'일 전':''; }
+      function card(it){
+        return '<a class="vw-card" href="'+esc(it.link)+'" target="_blank" rel="noopener noreferrer">'
+          +'<div class="vw-thumb"><img src="'+esc(it.image)+'" alt="" decoding="async"><span class="vw-play"></span><span class="vw-src">'+esc(it.source||'')+'</span></div>'
+          +'<div class="vw-cbody"><div class="vw-ctitle">'+esc(it.title)+'</div><div class="vw-ctime">'+(it.pubDate&&ago(it.pubDate)?ago(it.pubDate):'')+'</div></div>'
+          +'</a>';
+      }
+      fetch('/api/videos').then(function(r){return r.json();}).then(function(d){
+        var items=(d&&d.items)||[];
+        if(!items.length){ grid.innerHTML='<div class="vw-empty">영상을 잠시 불러오지 못했어요. 곧 다시 시도돼요.</div>'; return; }
+        grid.innerHTML=items.slice(0,8).map(card).join('');
+        Array.prototype.forEach.call(grid.querySelectorAll('.vw-thumb img'),function(im){ im.addEventListener('error',function(){ im.style.display='none'; }); });
+      }).catch(function(){ grid.innerHTML='<div class="vw-empty">영상을 불러오지 못했어요.</div>'; });
+    })();
+    </script>
+
     <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
     <aside class="ic-ad-slot" aria-label="광고">
       <ins class="adsbygoogle"
