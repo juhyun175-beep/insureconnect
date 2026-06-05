@@ -4592,7 +4592,9 @@
     [data-theme="dark"] .cc-new { box-shadow: 0 0 0 2px #161b22; }
     .cc-new.show { display: block; animation: ccNewPulse 1.6s ease-in-out infinite; }
     @keyframes ccNewPulse { 0%,100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.25); opacity: 0.75; } }
-    [data-theme="dark"] .ic-m-core-card { background: #161b22; border-color: rgba(255,255,255,0.08); }
+    /* v2.17.2: 다크모드에서 빠른메뉴 카드가 배경과 구분 안 되던 문제 → 배경 밝게 + 테두리 또렷이 */
+    [data-theme="dark"] .ic-m-core-card { background: #1e2738; border-color: rgba(255,255,255,0.20); box-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+    [data-theme="dark"] .ic-m-core-card:hover { background: #273248; border-color: rgba(99,102,241,0.6); }
     .ic-m-core-card .cc-lb { font-size: 13px; font-weight: 700; color: var(--txt-hi, #0f172a); letter-spacing: -0.01em; text-align: center; line-height: 1.25; }
     [data-theme="dark"] .ic-m-core-card .cc-lb { color: #e6edf3; }
     .ic-m-core-card:active { background: var(--bg-card-hi, #f4f7ff); border-color: var(--blue-light, #4a70f5); }
@@ -8565,6 +8567,8 @@
     .ict-help{position:fixed;right:15px;bottom:80px;z-index:9000;background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13.5px;padding:11px 17px;box-shadow:0 8px 20px rgba(26,61,232,.35);cursor:pointer;font-family:inherit;animation:ictHelpPulse 2.6s ease-in-out infinite;}
     @keyframes ictHelpPulse{0%,100%{box-shadow:0 8px 20px rgba(26,61,232,.35);transform:scale(1);}50%{box-shadow:0 10px 26px rgba(26,61,232,.55),0 0 0 7px rgba(26,61,232,.13);transform:scale(1.05);}}
     @media (prefers-reduced-motion:reduce){ .ict-help{animation:none;} }
+    /* v2.17.2: 모바일에서 우하단 사용법 버튼이 MANAGER LINK 등 우측 카드를 가리던 문제 → 좌측으로 이동 */
+    body.ic-mobile .ict-help{ right:auto; left:14px; bottom:84px; }
     .ict-end{position:fixed;top:14px;right:14px;z-index:100003;background:rgba(15,23,42,.92);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13px;padding:9px 16px;cursor:pointer;font-family:inherit;box-shadow:0 6px 18px rgba(0,0,0,.32);}
     .ict-end:active{transform:scale(.97);}
   </style>
