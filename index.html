@@ -4577,6 +4577,9 @@
     .mlg-social .dot { width:8px; height:8px; border-radius:50%; background:#10b981; animation:mlgPulse 1.8s infinite; flex-shrink:0; }
     @keyframes mlgPulse { 0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 70%{box-shadow:0 0 0 7px rgba(16,185,129,0)} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0)} }
     .mlg-social b { color:inherit; font-weight:900; }
+    .mlg-invite { margin:0 0 18px; padding:11px 14px; border-radius:12px; background:linear-gradient(135deg,#fef3c7,#fde68a); border:1px solid #fbbf24; color:#92400e; font-size:13px; font-weight:700; }
+    [data-theme="dark"] .mlg-invite { background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(249,115,22,.12)); border-color:rgba(245,158,11,.4); color:#fcd34d; }
+    .mlg-invite b { font-weight:900; }
     @media (max-width:480px){ .mlg-feats{grid-template-columns:1fr;} .mlg-card{padding:28px 18px 22px;} }
 
     /* v2.6.0: 자주 쓰는 핵심 메뉴 그리드 (3열, 크게) */
@@ -8485,6 +8488,7 @@
   <!-- v2.6.0: 모바일 전용 로그인 게이트 (홈 진입 전 카카오 로그인 강제) — 데스크탑·검색 콘텐츠 페이지(/insurance·/company·/board 등)는 영향 없음 -->
   <div id="m-login-gate" role="dialog" aria-modal="true" aria-label="로그인">
     <div class="mlg-card">
+      <div class="mlg-invite" id="mlg-invite" style="display:none;">🎁 <b>친구가 초대했어요!</b> 가입하면 둘 다 포인트 적립</div>
       <div class="mlg-brand">
         <svg class="mlg-inf" viewBox="0 0 120 64" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="InsureConnect">
           <defs><linearGradient id="mlgInf" x1="14" y1="10" x2="106" y2="54" gradientUnits="userSpaceOnUse">
@@ -8571,6 +8575,8 @@
   (function(){
     var g=document.getElementById('m-login-gate'); if(!g) return;
     try{ document.body.appendChild(g); }catch(_){}
+    // v2.16.4: 초대 링크(?ref/ic_ref) 방문자 → 맞춤 환영 배너(초대→가입 전환↑)
+    try{ var _ref=(location.search.match(/[?&]ref=([^&]+)/)||[])[1]||(document.cookie.match(/(?:^|;\s*)ic_ref=([^;]+)/)||[])[1]; if(_ref){ var _inv=document.getElementById('mlg-invite'); if(_inv) _inv.style.display='block'; } }catch(_){}
     var member=false;
     try{ member = localStorage.getItem('ic_member')==='1'; }catch(_){}
     if(member) g.classList.add('mlg-hidden'); // 회원으로 알려졌으면 우선 숨김(깜빡임 방지)
