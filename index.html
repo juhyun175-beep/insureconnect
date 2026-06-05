@@ -8486,6 +8486,61 @@
   </div>
 
   <!-- v2.6.0: 모바일 전용 로그인 게이트 (홈 진입 전 카카오 로그인 강제) — 데스크탑·검색 콘텐츠 페이지(/insurance·/company·/board 등)는 영향 없음 -->
+  <!-- v2.16.5: 신규 가입자 온보딩 모달 (welcome=1, 1회) — 활성화·추천 유도 -->
+  <style>
+    .mw-overlay{position:fixed;inset:0;z-index:100000;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(8,16,48,.55);backdrop-filter:blur(3px);overflow-y:auto;}
+    .mw-card{position:relative;width:100%;max-width:404px;margin:auto;background:#fff;border-radius:22px;padding:30px 24px 24px;text-align:center;box-shadow:0 30px 70px rgba(8,20,80,.4);}
+    [data-theme="dark"] .mw-card{background:#131826;}
+    .mw-close{position:absolute;top:11px;right:14px;background:none;border:none;font-size:25px;color:#94a3b8;cursor:pointer;line-height:1;}
+    .mw-emoji{font-size:40px;line-height:1;}
+    .mw-title{font-size:21px;font-weight:900;color:#0f172a;margin:7px 0 6px;letter-spacing:-.02em;}
+    [data-theme="dark"] .mw-title{color:#e6edf3;}
+    .mw-sub{font-size:13.5px;color:#64748b;margin:0 0 18px;line-height:1.55;}
+    [data-theme="dark"] .mw-sub{color:#94a3b8;}
+    .mw-feats{display:flex;flex-direction:column;gap:8px;text-align:left;margin-bottom:14px;}
+    .mw-feat{display:flex;gap:11px;align-items:center;padding:11px 13px;border-radius:13px;background:#f6f9ff;border:1px solid #e6eeff;}
+    [data-theme="dark"] .mw-feat{background:#0f1726;border-color:#1e2a44;}
+    .mw-feat>span{font-size:22px;flex-shrink:0;}
+    .mw-feat b{font-size:13.5px;color:#0f172a;display:block;}
+    [data-theme="dark"] .mw-feat b{color:#e6edf3;}
+    .mw-feat small{font-size:11.5px;color:#64748b;}
+    [data-theme="dark"] .mw-feat small{color:#94a3b8;}
+    .mw-ref{background:linear-gradient(135deg,#fef3c7,#fde68a);border:1px solid #fbbf24;border-radius:13px;padding:12px 14px;font-size:13px;color:#92400e;font-weight:700;margin-bottom:16px;line-height:1.5;}
+    [data-theme="dark"] .mw-ref{background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(249,115,22,.12));border-color:rgba(245,158,11,.4);color:#fcd34d;}
+    .mw-ref small{font-weight:600;font-size:11px;}
+    .mw-btn{width:100%;background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:13px;font-weight:800;font-size:15px;padding:14px;cursor:pointer;font-family:inherit;}
+    .mw-btn:active{transform:scale(.98);}
+  </style>
+  <div id="m-welcome" class="mw-overlay" role="dialog" aria-modal="true" aria-label="환영합니다" onclick="if(event.target===this)mwClose()">
+    <div class="mw-card">
+      <button type="button" class="mw-close" onclick="mwClose()" aria-label="닫기">&times;</button>
+      <div class="mw-emoji">🎉</div>
+      <h2 class="mw-title">가입을 환영해요!</h2>
+      <p class="mw-sub">인슈어커넥트의 핵심 기능을 무료로 둘러보세요.</p>
+      <div class="mw-feats">
+        <div class="mw-feat"><span>🤖</span><div><b>삼따AI</b><small>실제 인수·고지·보상 사례로 답하는 보험 AI</small></div></div>
+        <div class="mw-feat"><span>🖥️</span><div><b>보험사 전산·청구</b><small>전 보험사 전산·청구서류 바로가기</small></div></div>
+        <div class="mw-feat"><span>💼</span><div><b>채용·강의</b><small>설계사 채용·리크루팅·교육 공고</small></div></div>
+      </div>
+      <div class="mw-ref">🎁 <b>친구 초대하고 둘 다 포인트!</b><br><small>추천 +50P · 친구 +30P — 홈에서 내 초대링크를 공유하세요</small></div>
+      <button type="button" class="mw-btn" onclick="mwClose()">시작하기 →</button>
+    </div>
+  </div>
+  <script>
+    function mwClose(){ var el=document.getElementById('m-welcome'); if(el) el.style.display='none'; document.body.style.overflow=''; try{localStorage.setItem('ic_welcomed','1');}catch(_){} }
+    (function(){
+      try{
+        var isWelcome=/[?&]welcome=1/.test(location.search), seen=false;
+        try{ seen=localStorage.getItem('ic_welcomed')==='1'; }catch(_){}
+        if(isWelcome && !seen){
+          var el=document.getElementById('m-welcome');
+          if(el){ el.style.display='flex'; document.body.style.overflow='hidden'; }
+        }
+        if(isWelcome){ try{ var u=new URL(location.href); u.searchParams.delete('welcome'); history.replaceState(null,'',u.pathname+u.search+u.hash); }catch(_){} }
+      }catch(_){}
+    })();
+  </script>
+
   <div id="m-login-gate" role="dialog" aria-modal="true" aria-label="로그인">
     <div class="mlg-card">
       <div class="mlg-invite" id="mlg-invite" style="display:none;">🎁 <b>친구가 초대했어요!</b> 가입하면 둘 다 포인트 적립</div>

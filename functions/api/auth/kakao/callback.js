@@ -79,7 +79,8 @@ export const onRequestGet = async ({ env, request }) => {
     headers.append('Set-Cookie', cookie('ic_sess', token, { maxAge }));
     headers.append('Set-Cookie', cookie('ic_oauth_state', '', { clear: true }));
     headers.append('Set-Cookie', cookie('ic_ref', '', { clear: true }));
-    headers.set('Location', `${SITE}/?login=success`);
+    // v2.16.5: 신규 가입자는 welcome=1 → 홈 온보딩 모달(활성화·추천 유도)
+    headers.set('Location', `${SITE}/?login=success${isNew ? '&welcome=1' : ''}`);
     return new Response(null, { status: 302, headers });
   } catch (_) {
     return home('error');
