@@ -8764,6 +8764,63 @@
         </div>
       </section>
     </div>
+
+    <!-- v2.15.7: 친구 초대(추천) 상시 배너 — 기존 양방향 포인트 루프 활성화(신규유입 축) -->
+    <style>
+      .home-ref{margin:0 0 24px;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(245,158,11,0.08),rgba(249,115,22,0.07));border:1px solid rgba(245,158,11,0.30);}
+      [data-theme="dark"] .home-ref{background:linear-gradient(135deg,rgba(245,158,11,0.13),rgba(249,115,22,0.10));border-color:rgba(245,158,11,0.34);}
+      .home-ref-top{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-bottom:11px;}
+      .home-ref-emoji{font-size:24px;line-height:1;}
+      .home-ref-t{font-size:15.5px;font-weight:800;color:var(--txt-hi,#0f172a);}
+      [data-theme="dark"] .home-ref-t{color:#e6edf3;}
+      .home-ref-sub{font-size:12px;color:var(--txt-lo,#64748b);margin-top:2px;}
+      .home-ref-reward{margin-left:auto;display:flex;gap:6px;}
+      .home-ref-chip{font-size:11.5px;font-weight:800;padding:4px 10px;border-radius:999px;background:rgba(245,158,11,0.16);color:#b45309;border:1px solid rgba(245,158,11,0.4);white-space:nowrap;}
+      [data-theme="dark"] .home-ref-chip{color:#fbbf24;background:rgba(245,158,11,0.18);}
+      .home-ref-actions{display:flex;gap:8px;flex-wrap:wrap;}
+      .home-ref-btn{flex:1;min-width:130px;border:none;border-radius:10px;font-weight:800;font-size:13px;padding:11px;cursor:pointer;font-family:inherit;}
+      .home-ref-btn.primary{background:linear-gradient(135deg,#f59e0b,#f97316);color:#fff;}
+      .home-ref-btn.ghost{background:#fff;color:#b45309;border:1px solid rgba(245,158,11,0.45);}
+      [data-theme="dark"] .home-ref-btn.ghost{background:#1e293b;color:#fbbf24;border-color:rgba(245,158,11,0.4);}
+      .home-ref-prog{font-size:11.5px;color:var(--txt-lo,#64748b);margin-top:10px;}
+      .home-ref-prog b{color:#b45309;}
+      [data-theme="dark"] .home-ref-prog b{color:#fbbf24;}
+    </style>
+    <div class="home-ref" id="home-ref" style="display:none;"></div>
+    <script>
+      // v2.15.7: 홈 친구초대 CTA — /api/me/referral(로그인) 또는 로그인 유도. 공유는 nativeShareWithFallback 재사용
+      async function loadReferralCTA(){
+        var box=document.getElementById('home-ref'); if(!box) return;
+        function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+        var rewardChips='<div class="home-ref-reward"><span class="home-ref-chip">추천 +50P</span><span class="home-ref-chip">친구 +30P</span></div>';
+        try{
+          var r=await fetch('/api/me/referral',{credentials:'same-origin'});
+          if(r.status===401){
+            box.style.display='block';
+            box.innerHTML='<div class="home-ref-top"><span class="home-ref-emoji">🎁</span><div><div class="home-ref-t">친구 초대하고 둘 다 포인트 받기</div><div class="home-ref-sub">로그인하면 내 초대링크가 생겨요</div></div>'+rewardChips+'</div>'
+              +'<div class="home-ref-actions"><button type="button" class="home-ref-btn primary" onclick="location.href=\'/api/auth/kakao/login\'">카카오 로그인하고 시작하기</button></div>';
+            return;
+          }
+          var d=await r.json(); if(!d||!d.ok||!d.link) return;
+          var ROLN={certified:'인증설계사',premium:'프리미엄'};
+          var nextTxt=d.next?(' · 다음 등급(<b>'+(ROLN[d.next.role]||esc(d.next.role))+'</b>)까지 '+d.next.need+'명'):'';
+          box.style.display='block';
+          box.innerHTML='<div class="home-ref-top"><span class="home-ref-emoji">🎁</span><div><div class="home-ref-t">친구 초대하고 둘 다 포인트 받기</div><div class="home-ref-sub">내 링크로 가입하면 친구도 웰컴 보너스!</div></div>'+rewardChips+'</div>'
+            +'<div class="home-ref-actions"><button type="button" class="home-ref-btn primary" id="home-ref-share">📤 초대 링크 공유</button><button type="button" class="home-ref-btn ghost" id="home-ref-copy">링크 복사</button></div>'
+            +'<div class="home-ref-prog">👥 지금까지 <b>'+(d.count||0)+'명</b> 초대'+nextTxt+'</div>';
+          var link=d.link, shareText='보험설계사 통합 플랫폼 인슈어커넥트 — 채용·강의·AI 사례검색 무료! 내 링크로 가입하면 둘 다 포인트 👇';
+          var sb=document.getElementById('home-ref-share');
+          if(sb) sb.addEventListener('click',function(){
+            if(typeof nativeShareWithFallback==='function'){ nativeShareWithFallback({url:link,title:'인슈어커넥트 초대',text:shareText}); }
+            else if(navigator.share){ navigator.share({title:'인슈어커넥트 초대',text:shareText,url:link}).catch(function(){}); }
+            else { (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert('초대 링크가 복사됐어요!\n'+link);}).catch(function(){window.prompt('초대 링크',link);}); }
+          });
+          var cb=document.getElementById('home-ref-copy');
+          if(cb) cb.addEventListener('click',function(){ (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){cb.textContent='복사됨 ✓';setTimeout(function(){cb.textContent='링크 복사';},1600);}).catch(function(){window.prompt('초대 링크',link);}); });
+        }catch(_){ /* 무시 */ }
+      }
+      document.addEventListener('DOMContentLoaded', loadReferralCTA);
+    </script>
     <script>
       // v2.12.1: 홈에서 바로 사례 기반 답변 (인라인 RAG)
       function homeAiChip(q){ var i=document.getElementById('home-aii-q'); if(i) i.value=q; homeAiRun(); }
