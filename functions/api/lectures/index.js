@@ -53,9 +53,8 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const body = await request.json();
   const isAdmin = verifyAdmin(request, env);
   // v2.11.0: 로그인 사용자면 등록 회원 연결(submitter_id) → 본인 공고 상단노출 가능
+  // v2.15.6: 비로그인도 강의공고 등록 허용 — 이름·연락처 필수 + 관리자 승인 게이트. 로그인 시 submitter_id 연결
   const user = isAdmin ? null : await getUserFromRequest(env, request);
-  // v2.12.0(A안): 공고 등록은 로그인 필수 — 소유권 연결로 상단노출(연장) 루프 보장
-  if (!isAdmin && !user) return error('로그인 후 공고를 등록할 수 있습니다.', 401);
 
   if (!body.title || !body.title.trim()) return error('title is required');
 

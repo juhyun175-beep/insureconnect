@@ -11105,14 +11105,8 @@
     /* v2.1.27: mode 인자 생략 가능 — 마지막 선택 기억 + 모달 안에서 토글
        v2.1.30: 1시간 쿨다운 제거 — 어차피 관리자 승인 게이트가 있어서 불필요한 마찰 */
     function openSubmitModal(mode) {
-      // v2.12.0(A안): 공고 등록 로그인 필수 — 미로그인 시 카카오 로그인 유도(소유권 연결로 상단노출 연장 가능)
-      fetch('/api/auth/me', { credentials: 'same-origin' })
-        .then(function (r) { return r.json(); })
-        .then(function (d) {
-          if (d && d.user) { _openSubmitModalInner(mode); }
-          else if (confirm('공고 등록은 로그인 후 이용할 수 있어요.\n카카오로 로그인하시겠어요?')) { location.href = '/api/auth/kakao/login'; }
-        })
-        .catch(function () { _openSubmitModalInner(mode); });   // 네트워크 오류 시 진행(백엔드가 최종 가드)
+      // v2.15.6: 비로그인도 공고 등록 허용 — 바로 등록 폼 오픈(이름·연락처 필수 + 관리자 승인 게이트). 로그인 사용자는 submitter_id 자동 연결(상단노출 루프)
+      _openSubmitModalInner(mode);
     }
     function _openSubmitModalInner(mode) {
       if (!mode) {
