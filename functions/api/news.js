@@ -5,24 +5,24 @@
  */
 import { json, corsPreflight, handle } from '../_lib/http.js';
 
-const NAME = '연합뉴스';
 const Y = (s) => `https://www.yna.co.kr/rss/${s}.xml`;
-const INS_RE = /보험|손해보험|생명보험|실손|보험사|보험금|손보|생보|금감원|약관|공제|보장|연금/;
 
-// 카테고리 → 피드(연합뉴스 분야별 — 전부 썸네일 제공)
+// 카테고리 → [ [url, 출처명], ... ]  (연합뉴스 분야별 + 보험 탭은 보험 전문지 실시간)
 const CATS = {
-  all:       [Y('news')],
-  insurance: [Y('economy'), Y('market')],  // 보험 = 경제·증시 피드를 보험 키워드로 필터
-  economy:   [Y('economy'), Y('market')],
-  society:   [Y('society')],
-  politics:  [Y('politics')],
-  culture:   [Y('culture')],
-  world:     [Y('international')],
-  health:    [Y('health')],
+  all:       [[Y('news'), '연합뉴스']],
+  insurance: [['https://www.insjournal.co.kr/rss/allArticle.xml', '보험저널'], ['https://www.insnews.co.kr/rss/allArticle.xml', '보험신보']],
+  economy:   [[Y('economy'), '연합뉴스'], [Y('market'), '연합뉴스']],
+  industry:  [[Y('industry'), '연합뉴스']],
+  society:   [[Y('society'), '연합뉴스']],
+  politics:  [[Y('politics'), '연합뉴스']],
+  culture:   [[Y('culture'), '연합뉴스']],
+  sports:    [[Y('sports'), '연합뉴스']],
+  world:     [[Y('international'), '연합뉴스']],
+  health:    [[Y('health'), '연합뉴스']],
 };
 
 const TTL_MS = 5 * 60 * 1000; // 5분(더 실시간) + SWR
-const MAX_OUT = 12, MAX_CACHE = 30;
+const MAX_OUT = 16, MAX_CACHE = 40;
 
 function decodeEntities(s) {
   return String(s || '')
@@ -47,19 +47,19 @@ function pickImage(block) {
   return /^https:\/\//.test(u) ? u : null;
 }
 
-function parseFeed(xml) {
+function parseFeed(xml, name) {
   const out = [];
   const blocks = xml.match(/<item[\s>][\s\S]*?<\/item>/g) || [];
   for (const b of blocks) {
     const title = decodeEntities(pick(b, 'title'));
     const link = decodeEntities(pick(b, 'link')) || decodeEntities(pick(b, 'guid'));
     const pubDate = (pick(b, 'pubDate') || pick(b, 'dc:date') || '').trim();
-    if (title && link && /^https?:/.test(link)) out.push({ title, link, source: NAME, pubDate, image: pickImage(b) });
+    if (title && link && /^https?:/.test(link)) out.push({ title, link, source: name, pubDate, image: pickImage(b) });
   }
   return out;
 }
 
-async function fetchFeed(url) {
+async function fetchFeed(url, name) {
   try {
     const r = await fetch(url, {
       headers: {
@@ -70,7 +70,7 @@ async function fetchFeed(url) {
       cf: { cacheTtl: 300, cacheEverything: true },
     });
     if (!r.ok) return [];
-    return parseFeed(await r.text());
+    return parseFeed(await r.text(), name);
   } catch (_) { return []; }
 }
 
@@ -87,10 +87,8 @@ function buildList(lists) {
 
 async function refreshCat(env, cat) {
   const feeds = CATS[cat] || CATS.all;
-  const lists = await Promise.all(feeds.map((u) => fetchFeed(u)));
-  let list = buildList(lists);
-  if (cat === 'insurance') list = list.filter((it) => INS_RE.test(it.title)); // 보험 키워드만
-  list = list.slice(0, MAX_CACHE);
+  const lists = await Promise.all(feeds.map(([url, name]) => fetchFeed(url, name)));
+  const list = buildList(lists).slice(0, MAX_CACHE);
   if (list.length) {
     try {
       await env.DB.prepare(

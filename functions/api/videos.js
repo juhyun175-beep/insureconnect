@@ -12,10 +12,13 @@ const CHANNELS = [
   { id: 'UCF8AeLlUbEpKju6v1H6p8Eg', name: '한국경제TV' },
   { id: 'UCuuTCooIMbBFHNbPcSS70uw', name: 'SBS News' },
   { id: 'UChlgI3UHCOnwUGzWzbJ3H5w', name: 'YTN' },
+  { id: 'UCcQTRi69dsVYHN3exePtZ1A', name: 'KBS News' },
+  { id: 'UCuw1hxBo5mDVUhgMzRDk3aw', name: 'TV조선' },
+  { id: 'UCJr1BV3rWhi7HR4Yfa70RgQ', name: '채널A' },
 ];
 const FEED = (id) => `https://www.youtube.com/feeds/videos.xml?channel_id=${id}`;
 const TTL_MS = 5 * 60 * 1000; // 5분(더 실시간) + SWR
-const KEY = 'videos', MAX_OUT = 12, MAX_CACHE = 30;
+const KEY = 'videos', MAX_OUT = 16, MAX_CACHE = 50;
 
 function decodeEntities(s) {
   return String(s || '')

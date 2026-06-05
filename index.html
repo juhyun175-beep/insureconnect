@@ -8998,8 +8998,11 @@
           <button class="nw-tab active" data-cat="all" type="button">전체</button>
           <button class="nw-tab" data-cat="insurance" type="button">보험</button>
           <button class="nw-tab" data-cat="economy" type="button">경제</button>
+          <button class="nw-tab" data-cat="industry" type="button">산업</button>
           <button class="nw-tab" data-cat="society" type="button">사회</button>
           <button class="nw-tab" data-cat="politics" type="button">정치</button>
+          <button class="nw-tab" data-cat="culture" type="button">문화·연예</button>
+          <button class="nw-tab" data-cat="sports" type="button">스포츠</button>
           <button class="nw-tab" data-cat="world" type="button">세계</button>
           <button class="nw-tab" data-cat="health" type="button">건강</button>
         </div>
@@ -9033,7 +9036,7 @@
         fetch('/api/news?cat='+cat).then(function(r){return r.json();}).then(function(d){
           var items=(d&&d.items)||[];
           if(!items.length){ grid.innerHTML='<div class="nw-empty">뉴스를 잠시 불러오지 못했어요. 곧 다시 시도돼요.</div>'; return; }
-          grid.innerHTML=items.slice(0,12).map(card).join('');
+          grid.innerHTML=items.slice(0,16).map(card).join('');
           Array.prototype.forEach.call(grid.querySelectorAll('.nw-cshare'),function(b){ b.addEventListener('click',function(e){ e.preventDefault(); shareNews(b.getAttribute('data-t')); }); });
           Array.prototype.forEach.call(grid.querySelectorAll('.nw-thumb img'),function(im){ im.addEventListener('error',function(){ var ph=document.createElement('div'); ph.className='nw-ph'; ph.innerHTML='<span class="e">📰</span>'; im.replaceWith(ph); }); });
         }).catch(function(){ grid.innerHTML='<div class="nw-empty">뉴스를 불러오지 못했어요.</div>'; });
@@ -9101,7 +9104,7 @@
       fetch('/api/videos').then(function(r){return r.json();}).then(function(d){
         var items=(d&&d.items)||[];
         if(!items.length){ grid.innerHTML='<div class="vw-empty">영상을 잠시 불러오지 못했어요. 곧 다시 시도돼요.</div>'; return; }
-        grid.innerHTML=items.slice(0,8).map(card).join('');
+        grid.innerHTML=items.slice(0,12).map(card).join('');
         Array.prototype.forEach.call(grid.querySelectorAll('.vw-thumb img'),function(im){ im.addEventListener('error',function(){ im.style.display='none'; }); });
       }).catch(function(){ grid.innerHTML='<div class="vw-empty">영상을 불러오지 못했어요.</div>'; });
     })();

@@ -6079,16 +6079,16 @@
           if (!groups[r.menu]) groups[r.menu] = [];
           groups[r.menu].push(r);
         });
-        /* menuOrder에 있는 메뉴만 표시 (그 외 메뉴는 통계에서 제외) */
-        const allMenus = menuOrder.filter(m => groups[m]);
+        /* v2.15.3: 좌·우 pill 버튼이 하나의 팝업으로 통합됨 → 클릭통계도 하나의 그룹으로 합쳐 표시
+           (추적·렌트카/통신 퍼널은 menu값 '우측버튼'/'좌측버튼' 그대로 보존 — 표시만 병합) */
+        const mergedCards = [];
+        menuOrder.forEach(menu => (groups[menu] || []).forEach(r => mergedCards.push({ ...r, _menu: menu })));
+        mergedCards.sort((a, b) => (b.total || 0) - (a.total || 0));
 
-        /* HTML 생성 — 메뉴 그룹 > 카드 그리드 */
         let html = '';
-        allMenus.forEach(menu => {
-          const items = groups[menu].sort((a, b) => (b.total||0) - (a.total||0));
-          const label = MENU_LABEL[menu] || menu;
-          const cardItems = items.map(({ card, total }) => {
-            const chartId = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
+        if (mergedCards.length) {
+          const cardItems = mergedCards.map(({ card, total, _menu }) => {
+            const chartId = `cs-chart-${_menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
             return `<div class="cs-card-chart">
               <div class="cs-card-name">${esc(card)}</div>
               <div class="cs-card-total">${(total||0).toLocaleString()}</div>
@@ -6096,10 +6096,10 @@
             </div>`;
           }).join('');
           html += `<div class="cs-menu-group">
-            <div class="cs-menu-header">${label}</div>
+            <div class="cs-menu-header">🎯 바로가기 팝업 (메뉴 버튼 통합)</div>
             <div class="cs-cards-grid">${cardItems}</div>
           </div>`;
-        });
+        }
         if (!html) {
           el.innerHTML = '<p class="cs-empty">> 메뉴 버튼 클릭 데이터가 아직 없습니다.</p>';
           ssUpdateHeight();
