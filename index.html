@@ -4515,7 +4515,8 @@
        body.ic-mobile 일 때만 활성화
        ════════════════════════════════════════════ */
     body.ic-mobile #page-home { display: none !important; }
-    body.ic-mobile #page-home-mobile { display: block !important; }
+    /* v2.17.1: 모바일 홈이 짧아 위로 몰리던 문제 → 세로 중앙 정렬(safe: 길면 위 정렬+스크롤, 잘림 없음) */
+    body.ic-mobile #page-home-mobile { display: flex !important; flex-direction: column; justify-content: safe center; gap: 14px; }
     /* v2.5.4: 서브페이지로 이동 시 모바일 홈을 강제로 숨김 (홈 콘텐츠가 위에 남아 "반만 열리는" 문제 해결) */
     body.ic-mobile.nav-subpage #page-home-mobile { display: none !important; }
     body:not(.ic-mobile) #page-home-mobile { display: none !important; }
