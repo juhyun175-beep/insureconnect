@@ -18,7 +18,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
     try { const r = await env.DB.prepare(sql).bind(...binds).first(); return r?.n ?? 0; } catch (_) { return 0; }
   };
 
-  const [members_total, members_today, mau, wau, returning, posts, comments, visits_total, visits_today, alert_optin, push_subs, posts_7d, comments_7d] = await Promise.all([
+  const [members_total, members_today, mau, wau, returning, posts, comments, visits_total, visits_today, alert_optin, push_subs, posts_7d, comments_7d, ai_usage_total, ai_usage_today] = await Promise.all([
     one(`SELECT COUNT(*) n FROM ic_members`),
     one(`SELECT COUNT(*) n FROM ic_members WHERE created_at >= ?`, todayKst),
     one(`SELECT COUNT(*) n FROM ic_members WHERE last_login >= ?`, d30),
@@ -32,6 +32,8 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
     one(`SELECT COUNT(*) n FROM ic_push_subscriptions WHERE active = 1`),
     one(`SELECT COUNT(*) n FROM ic_board_posts WHERE deleted = 0 AND created_at >= ?`, d7),
     one(`SELECT COUNT(*) n FROM ic_board_comments WHERE deleted = 0 AND created_at >= ?`, d7),
+    one(`SELECT COALESCE(SUM(count),0) n FROM ic_ai_usage`),
+    one(`SELECT COALESCE(SUM(count),0) n FROM ic_ai_usage WHERE date = ?`, todayKst),
   ]);
 
   let roles = {};
@@ -52,10 +54,15 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   try { const rs = await env.DB.prepare(`SELECT substr(created_at,1,10) d, COUNT(*) n FROM ic_members WHERE created_at >= ? GROUP BY d`).bind(startDay).all(); (rs.results || []).forEach(r => { signupMap[r.d] = r.n; }); } catch (_) {}
   const visit_series = days.map(d => ({ date: d, v: visitMap[d] || 0 }));
   const signup_series = days.map(d => ({ date: d, v: signupMap[d] || 0 }));
+  // v2.16.8: 삼따AI 일별 사용 (ic_ai_usage)
+  const aiMap = {};
+  try { const rs = await env.DB.prepare(`SELECT date, SUM(count) n FROM ic_ai_usage WHERE date >= ? GROUP BY date`).bind(startDay).all(); (rs.results || []).forEach(r => { aiMap[r.date] = r.n; }); } catch (_) {}
+  const ai_usage_series = days.map(d => ({ date: d, v: aiMap[d] || 0 }));
 
   return json({
     members_total, members_today, mau, wau, returning, returning_rate,
     alert_optin, alert_rate, push_subs, posts, comments, posts_7d, comments_7d,
     visits_total, visits_today, roles, visit_series, signup_series,
+    ai_usage_total, ai_usage_today, ai_usage_series,
   });
 });

@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.16.8] - 2026-06-06
+### Added (통합 기록지표 — 삼따AI 사용 그래프)
+- **삼따AI 사용 기록 시각화**: 관리자 통합 기록지표(회원지표)에 **🤖 삼따AI 사용** 카드(누적·오늘) + **일별 사용 막대그래프(14일)** 추가. 데이터는 `ic_ai_usage`(cases/ask·extract·ai/assistant 기록) 집계. 기존 `_trendBars` 차트 재사용(방문·신규가입 옆에 보라색 AI 추세)
+- `GET /api/admin/metrics`에 `ai_usage_total`·`ai_usage_today`·`ai_usage_series`(14일) 추가 → 보고서 지표로도 활용 가능
+### Verified
+- `node --check`(metrics) · 보안 HIGH 0 · `/api/admin/metrics` 관리자 게이트 · release.mjs
+
 ## [2.16.7] - 2026-06-06
 ### Changed (가이드 투어 — 순서·앵커 전면 수정 + 자동 시작 + 끝내기 버튼)
 - **투어 순서를 지정하신 8단계로 재정의 + 정확한 앵커**: ①로그인정보(`.side-account`) ②빠른 메뉴(`.ic-m-section`: 전산·청구·GA 등) ③즐겨찾기(`#fav-float-popup`/`reopener`) ④삼따AI ⑤자유게시판(`.ibh`) ⑥친구 추천·초대 ⑦커뮤니티 2개(`.side-comm-section`) ⑧운영자 문의(`.side-footer`). 기존 잘못된 앵커(전산=footer, 채용=jobs-grid) 교체

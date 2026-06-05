@@ -5250,6 +5250,7 @@
         card(m.posts, '게시판 글', '7일 +' + (m.posts_7d || 0)),
         card(m.comments, '게시판 댓글', '7일 +' + (m.comments_7d || 0)),
         card(m.visits_total, '누적 방문', '오늘 ' + (m.visits_today || 0)),
+        card(m.ai_usage_total, '🤖 삼따AI 사용', '오늘 ' + (m.ai_usage_today || 0)),
       ].join('');
       const cEl = document.getElementById('mt-cards'); if (cEl) cEl.innerHTML = cards;
       const roles = m.roles || {};
@@ -5274,7 +5275,7 @@
     }
     function renderTrend(m) {
       const el = document.getElementById('mt-chart'); if (!el) return;
-      el.innerHTML = _trendBars(m.visit_series, '#1a3de8', '📈 일별 방문') + _trendBars(m.signup_series, '#16a34a', '🆕 일별 신규가입');
+      el.innerHTML = _trendBars(m.visit_series, '#1a3de8', '📈 일별 방문') + _trendBars(m.signup_series, '#16a34a', '🆕 일별 신규가입') + _trendBars(m.ai_usage_series, '#7c3aed', '🤖 삼따AI 일별 사용');
     }
     function renderMemberList(members, total, page) {
       const tb = document.getElementById('mt-members');
