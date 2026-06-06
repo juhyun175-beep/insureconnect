@@ -1,6 +1,6 @@
-# 성장 백로그 핸드오프 (4~8) — 새 세션에서 이어가기
+# 성장 백로그 핸드오프 (5~8) — 새 세션에서 이어가기
 
-> 현재 배포 버전: **v2.19.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인.
+> 현재 배포 버전: **v2.20.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인.
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -9,10 +9,8 @@
 - **1/8 AI 답변 공유 = 추천 바이럴**: `functions/a/[id].js`에 공유자 추천코드를 `ic_ref` 쿠키로 심음 → 공유 카드로 가입 시 공유자 +50P. (v2.18.0)
 - **2/8 견적 부가수익 CTA**: 모바일 홈(`#page-home-mobile`, 계정카드↔빠른메뉴 사이)에 `.m-quote-cta`, `trackCardClick('홈배너','고객견적연결')`→`goToPage('partner')`. (v2.18.1)
 - **3/8 사용자용 담보 빠른조회**: 실무도구에 `data-tool-id="coverage-lookup"` 카드 + `openCoverage` 모달(`#cov-overlay`). 공개 `/api/coverages`(approved, `q` 검색) 라이브. 즐겨찾기/링크복사/빠른검색/딥링크(TOOL_MODAL_MAP) 자동 통합. 백엔드 변경 0. (v2.19.0)
-
-## ⬜ 4/8 — 기여 인센티브 게이미피케이션
-- 사례 등록: `cases/extract.js`(회원 +10P 추출), `cases/analyze.js`(관리자) → `ic_insurance_cases(submitter_id)`. 승인 시 +20P 흐름 존재.
-- 추천 리더보드 패턴(`functions/api/referral/leaderboard.js`) 미러링 → **사례 기여 리더보드**(`/api/cases/contributors` 신규) + 홈/마이페이지 노출 + 배지(등급 member/certified/premium 활용).
+- **4/8 사례 기여 리더보드**: 신규 `GET /api/cases/contributors`(`referral/leaderboard` 미러). 삼따AI 홈 섹션에 `#home-clb` 패널(`loadCaseContributors`, `.clb-*`) — 상위 기여자+등급 배지+내 순위, 비면 자동 숨김. (v2.20.0)
+  - 참고: 현재 승인사례 중 `submitter_id` 있는 건 1명(시드)뿐 → 기여 늘면 노출 확대. **마이페이지에도 "내 기여 N건/순위" 노출은 미구현**(원하면 추가): mypage stats 영역에 `/api/cases/contributors`의 `me` 재사용.
 
 ## ⬜ 5/8 — 채용공고 Google Jobs SEO
 - JobPosting 스키마 **이미 있음**(`functions/og/[type]/[id].js` recruit type, jsonLd). 
