@@ -8839,9 +8839,8 @@
 
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section" data-tour="quickmenu">
-      <div class="ic-m-section-head"><span>빠른 메뉴</span></div>
+      <div class="ic-m-section-head"><span>빠른 메뉴</span><button type="button" onclick="if(typeof icTourStart==='function')icTourStart()" title="처음이세요? 사용법 안내 보기" style="font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#4f6df0);border:none;border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,61,232,.3);">❓ 사용법</button></div>
       <div class="ic-m-core-grid">
-        <button class="ic-m-core-card" onclick="if(typeof icTourStart==='function')icTourStart()" title="사용법 안내 다시보기" style="background:linear-gradient(135deg,#1a3de8,#4f6df0);border-color:transparent;"><span class="cc-lb" style="color:#fff;">❓ 사용법</span></button>
         <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-lb">보험사 전산</span></button>
         <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-lb">청구서류</span></button>
         <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-lb">GA 전산</span></button>
