@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
   <meta name="naver-site-verification" content="de224cd9420299be9dbf6c71d7920c3b525978f3" />
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <meta name="version" content="2.1.0" />
@@ -254,7 +254,13 @@
       font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
       background: var(--bg);
       color: var(--txt-hi);
+      box-sizing: border-box;
+      /* v2.17.9: iOS Safari에서 100vh가 툴바 뒤로 넘쳐 하단 푸터가 가리던 문제 → dvh */
       height: 100vh;
+      height: 100dvh;
+      /* v2.17.9: 노치/홈인디케이터 safe-area — 상단 알림배너·하단 푸터 가림 방지(노치 없으면 env=0이라 무변화) */
+      padding-top: env(safe-area-inset-top, 0px);
+      padding-bottom: env(safe-area-inset-bottom, 0px);
       overflow: hidden;
       display: flex;
       flex-direction: column;
@@ -4518,13 +4524,7 @@
     /* v2.17.1: 모바일 홈이 짧아 위로 몰리던 문제 → 세로 중앙 정렬(safe: 길면 위 정렬+스크롤, 잘림 없음) */
     body.ic-mobile #page-home-mobile { display: flex !important; flex-direction: column; gap: 14px; }
     /* v2.17.7: 모바일 홈 하단 푸터 (margin-top:auto로 하단 고정 → 콘텐츠가 화면 채움) */
-    .m-home-footer { margin-top: auto; padding: 16px 6px 12px; text-align: center; border-top: 1px solid var(--border); }
-    .m-home-footer-links { display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px 8px; margin-bottom: 11px; }
-    .m-home-footer-links a, .m-home-footer-links button { color: var(--txt-mid); text-decoration: none; background: none; border: none; font-size: 12px; font-family: inherit; cursor: pointer; padding: 0; }
-    .m-home-footer-links .sep { color: var(--txt-lo); }
-    .m-home-footer-theme { display: inline-flex; gap: 4px; margin-bottom: 11px; }
-    .m-home-footer-theme button { font-size: 11px; padding: 5px 13px; border-radius: 8px; border: 1px solid var(--border); background: var(--bg-card); color: var(--txt-mid); font-family: inherit; cursor: pointer; }
-    .m-home-footer-copy { font-size: 11px; color: var(--txt-lo); margin: 0; }
+    /* v2.17.9: 모바일 홈 하단 푸터(.m-home-footer) 삭제 — 기존 글로벌 <footer>와 중복이라 제거 */
     /* v2.5.4: 서브페이지로 이동 시 모바일 홈을 강제로 숨김 (홈 콘텐츠가 위에 남아 "반만 열리는" 문제 해결) */
     body.ic-mobile.nav-subpage #page-home-mobile { display: none !important; }
     body:not(.ic-mobile) #page-home-mobile { display: none !important; }
@@ -8859,22 +8859,6 @@
       </div>
     </section>
 
-    <!-- v2.17.7: 모바일 홈 하단 푸터 -->
-    <footer class="m-home-footer">
-      <div class="m-home-footer-links">
-        <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackClick('운영자 문의','m-footer')">✏️ 운영자 문의</a>
-        <span class="sep">·</span>
-        <button type="button" onclick="shareApp()">📤 동료 공유</button>
-        <span class="sep">·</span>
-        <a href="admin.html" onclick="trackClick('파트너 전용페이지','m-footer')">🔐 파트너 전용</a>
-      </div>
-      <div class="m-home-footer-theme" role="group" aria-label="테마 선택">
-        <button type="button" onclick="setTheme('light')">라이트</button>
-        <button type="button" onclick="setTheme('system')">시스템</button>
-        <button type="button" onclick="setTheme('dark')">다크</button>
-      </div>
-      <p class="m-home-footer-copy">InsureConnect — 보험으로 연결하다</p>
-    </footer>
 
     <!-- (CREW300 강조 배너 → 실시간 방문통계 아래로 이동 / 자유게시판 섹션 제거) -->
 
