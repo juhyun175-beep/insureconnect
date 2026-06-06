@@ -8645,7 +8645,8 @@
         icTourStart();
       }catch(_){ }
     }
-    window.addEventListener('load', function(){ setTimeout(icTourMaybeAutoStart, 1100); });
+    // v2.17.4: 독립 자동시작 타이머 제거 — 홈 공지 팝업을 닫은 뒤 실행되도록 변경(아래 showHomePopupIfNeeded 콜백). 레이스 방지.
+    window.icTourMaybeAutoStart = icTourMaybeAutoStart;
   </script>
 
   <div id="m-login-gate" role="dialog" aria-modal="true" aria-label="로그인">
@@ -14192,7 +14193,8 @@
         const homePage = document.getElementById('page-home');
         const isHomeVisible = homePage && homePage.style.display !== 'none';
         if (isHomeVisible) {
-          showHomePopupIfNeeded();
+          // v2.17.4: 공지 팝업을 닫은 뒤(공지가 없으면 즉시) 네비게이션 가이드 투어 시작
+          showHomePopupIfNeeded(function(){ if (typeof window.icTourMaybeAutoStart === 'function') window.icTourMaybeAutoStart(); });
         }
         // 이후 홈 진입 시(goToPage('home')) 자동 트리거
         window._homePopupInitDone = true;
