@@ -8599,6 +8599,8 @@
       {sel:"[data-tour='community']",title:"👥 커뮤니티 참여",body:"CREW 300·MANAGER LINK 오픈채팅에 참여하면 더 많은 보험설계사와 실시간으로 소통할 수 있어요."},
       {sel:"[data-tour='contact']",title:"✏️ 운영자 문의",body:"이용 중 궁금하거나 불편한 점은 여기서 운영자에게 바로 문의하세요. 이제 직접 둘러보세요! 다시 보려면 오른쪽 아래 ❓ 사용법 버튼을 누르면 돼요."}
     ];
+    // v2.17.5: 로그인할 때마다 가이드 노출 — 새 로그인(?login=success) 시 '완료' 플래그 리셋 + URL 정리(새로고침 반복 방지). localStorage는 로그아웃해도 안 지워지므로 이 신호로 재실행.
+    try{ if(/[?&]login=success/.test(location.search)){ localStorage.removeItem('ic_tour_done'); var _lu=new URL(location.href); _lu.searchParams.delete('login'); history.replaceState(null,'',_lu.pathname+_lu.search+_lu.hash); } }catch(_){ }
     var _ictI=0, _ictSteps=IC_TOUR;
     function icTourFind(sel){ if(!sel) return null; var els=document.querySelectorAll(sel); for(var i=0;i<els.length;i++){ if(els[i].offsetWidth>0||els[i].offsetHeight>0) return els[i]; } return null; }
     function icTourStart(){ var ov=document.getElementById('ic-tour'); if(!ov) return;
