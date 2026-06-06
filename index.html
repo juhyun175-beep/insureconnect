@@ -8591,7 +8591,7 @@
   <script>
     var IC_TOUR=[
       {sel:"[data-tour='account']",title:"👤 내 계정 · 빠른 검색",body:"로그인 정보와 마이페이지, 내 공고 직접 등록, 빠른 검색이 모두 여기 있어요. 보유 포인트도 여기서 확인해요."},
-      {sel:"[data-tour='quickmenu']",title:"⚡ 빠른 메뉴",body:"보험사 전산·청구서류·GA 전산·소식지·강의·채용 등 자주 쓰는 기능을 여기서 바로 열 수 있어요. 가장 많이 쓰게 될 곳이에요."},
+      {sel:"[data-tour='quickmenu']",title:"⚡ 빠른 메뉴 (가장 중요!)",body:"⚡ 메뉴 버튼이에요. 보험사 전산·청구·GA 전산·소식지·강의·채용 등 자주 쓰는 기능을 여기서 한 번에 열 수 있어요. 가장 많이 쓰게 될 핵심 메뉴이니 꼭 기억하세요!"},
       {sel:"[data-tour='favorites']",title:"⭐ 즐겨찾기",body:"전산·실무도구의 ☆ 버튼을 누르면 여기에 모여요. 다음부터 더 빠르게 찾을 수 있어요."},
       {sel:"[data-tour='ai']",title:"🤖 삼따AI",body:"보험 질문을 입력하고 물어보기를 누르면, 실제 인수·보상 사례를 근거로 답해줘요. 어려운 고지·심사도 바로 확인할 수 있어요!"},
       {sel:"[data-tour='board']",title:"💬 자유게시판",body:"동료 설계사들과 정보를 나누고 궁금한 점을 질문할 수 있어요. 최신 글이 여기에 올라와요."},
@@ -14534,7 +14534,7 @@
     body.ic-mobile .menu-float-popup, body.ic-mobile .menu-float-launcher{display:none !important;}
     @media (max-width:1024px){.menu-float-popup,.menu-float-launcher{display:none !important;}}
   </style>
-  <div id="menu-float-popup" class="menu-float-popup" role="dialog" aria-label="빠른 메뉴" style="display:none;">
+  <div id="menu-float-popup" class="menu-float-popup" role="dialog" aria-label="빠른 메뉴" style="display:none;" data-tour="quickmenu">
     <div class="menu-float-handle" id="menu-float-handle">
       <span class="menu-float-grip" aria-hidden="true">⋮⋮</span>
       <span class="menu-float-title">⚡ 빠른 메뉴</span>
@@ -14554,7 +14554,7 @@
       <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
     </div>
   </div>
-  <button id="menu-float-launcher" class="menu-float-launcher" type="button" onclick="expandMenuPopup()" title="빠른 메뉴 열기" aria-label="빠른 메뉴 열기" style="display:none;"><span class="mfl-ico">⚡</span>메뉴</button>
+  <button id="menu-float-launcher" class="menu-float-launcher" type="button" data-tour="quickmenu" onclick="expandMenuPopup()" title="빠른 메뉴 열기" aria-label="빠른 메뉴 열기" style="display:none;"><span class="mfl-ico">⚡</span>메뉴</button>
   <script>
   (function(){
     function $(id){ return document.getElementById(id); }
