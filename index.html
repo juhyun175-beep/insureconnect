@@ -4296,6 +4296,60 @@
     /* ══════════════════════════════
        수술명 검색 모달
     ══════════════════════════════ */
+    /* v2.19.0: 담보 빠른조회 모달 — 사용자용 보험사·담보 검색(공개 approved). 수술검색 모달 톤 미러링 */
+    #cov-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(10,20,60,0.55); backdrop-filter: blur(4px);
+      z-index: 3000; align-items: center; justify-content: center; padding: 16px;
+    }
+    #cov-overlay.open { display: flex; }
+    .cov-modal {
+      background: #fff; border-radius: 20px; width: 100%; max-width: 680px;
+      max-height: 90vh; display: flex; flex-direction: column;
+      box-shadow: 0 24px 64px rgba(10,20,60,0.22);
+      animation: shilbiIn .22s cubic-bezier(.4,0,.2,1);
+    }
+    .cov-header { display: flex; align-items: center; justify-content: space-between; padding: 22px 24px 0; flex-shrink: 0; }
+    .cov-header h2 { font-size: 18px; font-weight: 800; color: var(--txt-hi); display: flex; align-items: center; gap: 8px; }
+    .cov-close { width: 32px; height: 32px; border-radius: 50%; border: none; background: #f1f3f8; cursor: pointer; font-size: 18px; color: var(--txt-mid); display: flex; align-items: center; justify-content: center; transition: background .15s; }
+    .cov-close:hover { background: #e2e6f0; }
+    .cov-search-wrap { padding: 16px 24px 0; flex-shrink: 0; }
+    .cov-search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--txt-hi); background: #f7f9ff; outline: none; transition: border-color .18s; }
+    .cov-search-input:focus { border-color: var(--blue-mid); background: #fff; }
+    .cov-search-input::placeholder { color: var(--txt-lo); }
+    .cov-count { padding: 10px 24px 4px; font-size: 12px; color: var(--txt-lo); font-weight: 500; flex-shrink: 0; }
+    .cov-count b { color: var(--blue-mid); }
+    .cov-list { overflow-y: auto; flex: 1; padding: 4px 16px 8px; }
+    .cov-item { padding: 11px 12px; border-bottom: 1px solid #f0f3fa; border-radius: 10px; transition: background .12s; }
+    .cov-item:hover { background: #f7f9ff; }
+    .cov-item:last-child { border-bottom: none; }
+    .cov-item-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .cov-name { font-size: 15px; font-weight: 800; color: var(--txt-hi); }
+    .cov-insurer { flex-shrink: 0; font-size: 11px; font-weight: 800; color: #0369a1; background: #e0f2fe; border-radius: 6px; padding: 3px 8px; }
+    .cov-product { font-size: 12.5px; color: var(--txt-mid); margin-top: 3px; }
+    .cov-pills { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .cov-pill { font-size: 11.5px; font-weight: 600; color: var(--txt-mid); background: #f1f5fb; border: 1px solid #e6ebf5; border-radius: 7px; padding: 3px 9px; }
+    .cov-pill b { color: var(--txt-hi); font-weight: 800; }
+    .cov-pill.amt { background: #eef9f1; border-color: #cdeed7; }
+    .cov-pill.amt b { color: #15803d; }
+    .cov-empty, .cov-loading { padding: 40px 24px; text-align: center; color: var(--txt-lo); font-size: 14px; font-weight: 500; line-height: 1.6; }
+    .cov-foot { flex-shrink: 0; padding: 12px 24px 20px; border-top: 1px solid #f0f3fa; }
+    .cov-foot-note { font-size: 11.5px; color: var(--txt-lo); margin-bottom: 8px; line-height: 1.5; }
+    .cov-ai-btn { width: 100%; padding: 11px; border: none; border-radius: 12px; background: linear-gradient(135deg,#1a3de8,#7c3aed); color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; transition: filter .15s; }
+    .cov-ai-btn:hover { filter: brightness(1.08); }
+    [data-theme="dark"] .cov-modal { background: #161c2e; }
+    [data-theme="dark"] .cov-insurer { color: #7dd3fc; background: rgba(2,132,199,0.18); }
+    [data-theme="dark"] .cov-pill { background: rgba(148,163,184,0.12); border-color: rgba(148,163,184,0.2); }
+    [data-theme="dark"] .cov-pill.amt { background: rgba(34,197,94,0.14); border-color: rgba(34,197,94,0.28); }
+    [data-theme="dark"] .cov-pill.amt b { color: #4ade80; }
+    [data-theme="dark"] .cov-item:hover { background: rgba(148,163,184,0.08); }
+    [data-theme="dark"] .cov-search-input { background: #0f1422; }
+    [data-theme="dark"] .cov-close { background: rgba(148,163,184,0.14); }
+    @media (max-width: 768px) {
+      .cov-modal { max-width: 100%; max-height: 92vh; border-radius: 16px; }
+      .cov-name { font-size: 14px; }
+    }
+
     #surg-overlay {
       display: none;
       position: fixed;
@@ -9961,6 +10015,15 @@
           <button class="tool-card-copy" onclick="copyToolLink(event,'surgery')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
           <div class="tool-card-arrow">→</div>
         </div>
+        <div class="tool-card" data-tool-id="coverage-lookup" onclick="trackCardClick('실무도구','담보 빠른조회'); openCoverage();" style="cursor:pointer;">
+          <div class="tool-card-icon">📑</div>
+          <div class="tool-card-body">
+            <div class="tool-card-name">담보 빠른조회</div>
+            <div class="tool-card-sub">보험사·담보명 검색 → 가입금액 비교</div>
+          </div>
+          <button class="tool-card-copy" onclick="copyToolLink(event,'coverage-lookup')" aria-label="링크 복사" title="링크 복사"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg></button>
+          <div class="tool-card-arrow">→</div>
+        </div>
         <a class="tool-card" data-tool-id="kcd" href="http://www.koicd.kr/mobile/main.do" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('실무도구','KCD 질병코드 조회')">
           <div class="tool-card-icon">🩺</div>
           <div class="tool-card-body">
@@ -13768,6 +13831,135 @@
   })();
   </script>
 
+  <!-- ══════ 담보 빠른조회 모달 (v2.19.0 · 성장 3/8) ══════ -->
+  <div id="cov-overlay">
+    <div class="cov-modal">
+      <div class="cov-header">
+        <h2>📑 담보 빠른조회</h2>
+        <button class="cov-close" onclick="closeCoverage()" aria-label="닫기">✕</button>
+      </div>
+      <div class="cov-search-wrap">
+        <input class="cov-search-input ic-search-input" id="cov-q" type="text" placeholder="보험사·담보·상품명 검색 (예: 암진단비, 삼성화재, 뇌혈관…)" autocomplete="off" autocorrect="off" spellcheck="false">
+      </div>
+      <div class="cov-count" id="cov-count"></div>
+      <div class="cov-list" id="cov-list"></div>
+      <div class="cov-foot">
+        <div class="cov-foot-note">설계사가 등록하고 관리자가 검수(approved)한 담보 자료입니다. 가입금액 단위·가입조건은 상품별로 다릅니다.</div>
+        <button class="cov-ai-btn" type="button" onclick="covGoAI()">🔎 찾는 담보가 없나요? 삼따AI 사례검색으로 물어보기 →</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+  (function() {
+    /* v2.19.0: 담보 빠른조회 — 공개 /api/coverages(approved) 라이브 검색. 자체 IIFE(전역 의존 최소) */
+    function covEsc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
+    var covTimer = null;     // 입력 디바운스
+    var covReq = 0;          // 응답 레이스 가드 토큰
+    var covTracked = false;  // 측정: 세션당 첫 검색 1회만 기록
+
+    /* 추출 아티팩트(납입/만기에 들어온 순수 숫자 코드 예:"2601") 숨김 — 의미있는 값만 노출 */
+    function pill(label, val, cls, skipPureDigits) {
+      var v = (val == null ? '' : String(val)).trim();
+      if (!v || v === '-' || v.toLowerCase() === 'null') return '';
+      if (skipPureDigits && /^\d+$/.test(v)) return '';
+      return '<span class="cov-pill' + (cls ? ' ' + cls : '') + '">' + label + ' <b>' + covEsc(v) + '</b></span>';
+    }
+
+    function renderRows(rows) {
+      var list = document.getElementById('cov-list');
+      if (!rows.length) {
+        list.innerHTML = '<div class="cov-empty">검색 결과가 없습니다.<br>다른 보험사·담보명으로 검색해 보세요.</div>';
+        return;
+      }
+      list.innerHTML = rows.map(function(r) {
+        var pills = [
+          pill('가입금액', r.join_amount, 'amt', false),
+          pill('가입나이', r.join_age, '', false),
+          pill('성별', r.gender, '', false),
+          pill('납입', r.payment_period, '', true),
+          pill('만기', r.maturity_period, '', true),
+          pill('보험료', r.premium, '', false)
+        ].join('');
+        return '<div class="cov-item">'
+          + '<div class="cov-item-top">'
+          +   '<span class="cov-name">' + covEsc(r.coverage_name || '담보') + '</span>'
+          +   (r.insurer ? '<span class="cov-insurer">' + covEsc(r.insurer) + '</span>' : '')
+          + '</div>'
+          + (r.product_name ? '<div class="cov-product">' + covEsc(r.product_name) + '</div>' : '')
+          + (pills ? '<div class="cov-pills">' + pills + '</div>' : '')
+          + '</div>';
+      }).join('');
+    }
+
+    async function covSearch() {
+      var q = (document.getElementById('cov-q').value || '').trim();
+      var countEl = document.getElementById('cov-count');
+      var listEl = document.getElementById('cov-list');
+      var token = ++covReq;
+      listEl.innerHTML = '<div class="cov-loading">불러오는 중…</div>';
+      countEl.textContent = '';
+      try {
+        var res = await fetch('/api/coverages?limit=60&q=' + encodeURIComponent(q));
+        var data = await res.json();
+        if (token !== covReq) return;  // 오래된 응답 폐기
+        var rows = (data && data.coverages) || [];
+        var total = (data && typeof data.total === 'number') ? data.total : rows.length;
+        if (q) {
+          countEl.innerHTML = '"' + covEsc(q) + '" — <b>' + total + '</b>건'
+            + (total > rows.length ? ' · 상위 ' + rows.length + '건 표시' : '');
+        } else {
+          countEl.innerHTML = '전체 <b>' + total + '</b>개 담보 · 보험사·담보명으로 검색해 보세요';
+        }
+        renderRows(rows);
+        /* 측정(GROWTH 3축): 세션당 첫 유효 검색어 1회 기록 */
+        if (q && !covTracked) {
+          covTracked = true;
+          if (typeof trackCardClick === 'function') trackCardClick('담보조회', q.slice(0, 40));
+        }
+      } catch (e) {
+        if (token !== covReq) return;
+        listEl.innerHTML = '<div class="cov-empty">불러오지 못했습니다.<br>잠시 후 다시 시도해 주세요.</div>';
+      }
+    }
+
+    window.openCoverage = function() {
+      document.getElementById('cov-overlay').classList.add('open');
+      document.body.style.overflow = 'hidden';
+      var inp = document.getElementById('cov-q');
+      inp.value = '';
+      covTracked = false;
+      covSearch();  // 기본: 전체 일부 표시(브라우즈)
+      setTimeout(function() { inp.focus(); }, 80);
+    };
+    window.closeCoverage = function() {
+      document.getElementById('cov-overlay').classList.remove('open');
+      document.body.style.overflow = '';
+    };
+    /* 전환(GROWTH 2축): 결과 없을 때 플래그십 삼따AI 사례검색으로 유도 */
+    window.covGoAI = function() {
+      closeCoverage();
+      if (typeof goToPage === 'function') goToPage('home');
+      setTimeout(function() {
+        var el = document.getElementById('home-aii-q');
+        if (el) { try { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); el.focus(); } catch (_) {} }
+      }, 180);
+    };
+
+    document.getElementById('cov-overlay').addEventListener('click', function(e) {
+      if (e.target === this) closeCoverage();
+    });
+    document.getElementById('cov-q').addEventListener('input', function() {
+      clearTimeout(covTimer);
+      covTimer = setTimeout(covSearch, 260);
+    });
+    document.getElementById('cov-q').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { clearTimeout(covTimer); covSearch(); }
+      else if (e.key === 'Escape') closeCoverage();
+    });
+  })();
+  </script>
+
   <!-- ══════ 보험교재 모달 ══════ -->
   <div id="tb-overlay">
     <div class="tb-modal">
@@ -13864,6 +14056,7 @@
     const TOOL_MODAL_MAP = {
       shilbi:         () => window.openShilbi && window.openShilbi(),
       surgery:        () => window.openSurg   && window.openSurg(),
+      'coverage-lookup': () => window.openCoverage && window.openCoverage(),
       cardpay:        () => window.openCardGuide && window.openCardGuide(),
       textbook:       () => window.openTextbookModal && window.openTextbookModal(),
       'calc-money':   () => window.openCalc && window.openCalc('money'),
