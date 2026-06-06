@@ -3,6 +3,8 @@
  *   공유된 삼따AI 답변 1건을 OG 미리보기 + 가입 CTA가 있는 착지 페이지로 렌더(비회원 유입)
  *   noindex(검색 노출 X, 공유 링크 전용) · 본문 escape · 조회수 집계
  */
+import { getOrCreateCode } from '../_lib/referral.js';
+
 const SITE = 'https://insureconnect-hub.pages.dev';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -13,7 +15,7 @@ function notFound() {
 <body><div><div style="font-size:46px">🔎</div><h1 style="font-size:18px">답변을 찾을 수 없어요</h1><p style="color:#9aa7b4;font-size:14px">삭제되었거나 잘못된 링크입니다.</p><a href="/" style="display:inline-block;margin-top:10px;background:#1a3de8;color:#fff;text-decoration:none;padding:12px 22px;border-radius:12px;font-weight:800">인슈어커넥트 홈으로 →</a></div></body></html>`;
 }
 
-function page(row, id) {
+function page(row, id, refCode) {
   const q = esc(row.question);
   const a = esc(row.answer).replace(/\n/g, '<br>');
   const qShort = String(row.question).slice(0, 40).replace(/\s+/g, ' ');
@@ -57,6 +59,7 @@ function page(row, id) {
   .disc{text-align:center;color:#5b6b86;font-size:11px;margin-top:14px;line-height:1.6}
 </style></head>
 <body>
+  ${refCode ? `<script>try{document.cookie='ic_ref=${esc(refCode)};path=/;max-age=2592000;SameSite=Lax';}catch(e){}</script>` : ''}
   <div class="wrap">
     <a class="brand" href="/"><span class="inf">∞</span> 인슈어커넥트</a>
     <div class="card"><span class="q-badge">Q. 보험설계사 질문</span><h1 class="q">${q}</h1></div>
@@ -81,9 +84,12 @@ export const onRequestGet = async ({ params, env }) => {
   const id = String(params.id || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 16);
   let row = null;
   try {
-    row = await env.DB.prepare(`SELECT question, answer, case_count FROM ic_shared_answers WHERE id = ?`).bind(id).first();
+    row = await env.DB.prepare(`SELECT question, answer, case_count, submitter_id FROM ic_shared_answers WHERE id = ?`).bind(id).first();
   } catch (_) {}
   if (!row) return new Response(notFound(), { status: 404, headers: { 'Content-Type': 'text/html; charset=utf-8' } });
   try { await env.DB.prepare(`UPDATE ic_shared_answers SET views = views + 1 WHERE id = ?`).bind(id).run(); } catch (_) {}
-  return new Response(page(row, id), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
+  // v2.18.0: 공유자 추천 귀속 — 이 카드로 가입하면 공유자에게 추천 보상(+50P) → 공유=추천 바이럴 루프
+  let refCode = '';
+  try { if (row.submitter_id) refCode = await getOrCreateCode(env, row.submitter_id); } catch (_) {}
+  return new Response(page(row, id, refCode), { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
 };
