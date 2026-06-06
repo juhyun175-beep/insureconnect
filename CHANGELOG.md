@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.17.6] - 2026-06-06
+### Changed (네비게이션 가이드 = 계정당 1회, 이후 ❓ 사용법으로 수동)
+- **자동 가이드를 "계정당 1회"로 변경**(기기별 localStorage → 서버 계정 플래그). 다른 기기·재로그인에서도 한 계정은 **딱 한 번만** 자동 노출. 이후엔 우하단 **❓ 사용법** 버튼으로 언제든 수동 재시청.
+  - `ic_members.tour_seen` 컬럼 추가(마이그레이션, 기존 159명 0=미시청)
+  - `GET /api/auth/me`가 `tour_seen` 반환 · 신규 `POST /api/me/tour-seen`로 시청 기록
+  - 자동시작은 `tour_seen` 확인 후만 실행, 투어 종료 시 서버에 기록. v2.17.5의 `?login=success` 리셋 및 localStorage 게이트 제거
+### Verified
+- `node --check`(me·tour-seen) · 잔여 localStorage 참조 0 · 마이그레이션 확인 · 보안 HIGH 0 · release.mjs
+
 ## [2.17.5] - 2026-06-06
 ### Fixed (재로그인 시 가이드 미실행)
 - **로그아웃→재로그인 후 네비게이션 가이드가 안 뜨던 문제 해결**: 완료 플래그 `ic_tour_done`이 localStorage에 저장돼 **로그아웃해도 남아** 자동시작을 막던 원인. 로그인 콜백이 항상 붙이는 **`?login=success` 신호로 새 로그인을 감지** → `ic_tour_done` 리셋해 **로그인할 때마다 가이드 노출**. 사용 후 URL의 `login` 파라미터를 정리해 새로고침 반복은 방지(세션 내 한 번만)
