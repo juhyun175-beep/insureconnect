@@ -50,9 +50,27 @@ function buildOg({ title, description, image, url }) {
   <!-- OG:END -->`;
 }
 
+// 내부 파일(문서/SQL/설정/스크립트)이 정적 자산으로 공개 서빙되는 것을 차단.
+// `wrangler pages deploy` 는 .assetsignore 를 적용하지 않아 파일이 업로드되므로, 미들웨어에서 직접 404 처리한다.
+// 공개 유지: *.html, 이미지, sw.js, robots.txt/ads.txt/llms.txt, sitemap.xml, /api/*
+const BLOCK_EXT  = /\.(md|sql|toml)$/i;
+const BLOCK_DIR  = /^\/(scripts|migrations|docs|tests|seo-seed|naver-blog|\.netlify|\.wrangler|\.claude|\.git)(\/|$)/i;
+const BLOCK_FILE = /^\/(\.gitignore|\.assetsignore|package\.json|package-lock\.json)$/i;
+function isInternalPath(p) {
+  return BLOCK_EXT.test(p) || BLOCK_DIR.test(p) || BLOCK_FILE.test(p) || /pdf_extract\.txt$/i.test(p);
+}
+
 export async function onRequest(context) {
   const { request, next } = context;
   const reqUrl = new URL(request.url);
+
+  // 내부 파일 직접 접근 차단 (정보노출 방지)
+  if (isInternalPath(reqUrl.pathname)) {
+    return new Response('Not Found', {
+      status: 404,
+      headers: { 'content-type': 'text/plain; charset=utf-8', 'x-robots-tag': 'noindex' },
+    });
+  }
 
   // 루트 HTML 요청만 처리
   const isRoot = (reqUrl.pathname === '/' || reqUrl.pathname === '/index.html')

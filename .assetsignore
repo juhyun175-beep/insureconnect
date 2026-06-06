@@ -1,0 +1,41 @@
+# .assetsignore — keep internal files out of the public Cloudflare Pages deployment.
+#
+# Pages deploys the whole repo root (wrangler.toml: pages_build_output_dir = ".").
+# This file (gitignore syntax) stops private docs/scripts/SQL/config from being
+# uploaded as PUBLIC STATIC ASSETS. It does NOT affect:
+#   - Pages Functions  -> functions/ is compiled separately (left untouched)
+#   - _headers / _redirects -> consumed as config, never served (do NOT list them)
+# Pages only auto-ignores node_modules / .DS_Store / .git, so everything else
+# (.gitignore, .netlify/, wrangler.toml, *.md, *.sql ...) was being served — that
+# is the information-exposure bug this file closes.
+#
+# KEPT PUBLIC (intentionally NOT ignored): *.html, images, sw.js,
+# robots.txt, ads.txt, llms.txt, sitemap.xml.
+
+# Internal docs & notes (CHANGELOG, SECURITY, GROWTH, GROWTH_NEXT, ROADMAP, plans, specs)
+*.md
+
+# Database schema, migrations, and generated seed SQL
+*.sql
+
+# Build/ops tooling, tests, SEO generators, draft content
+scripts/
+tests/
+docs/
+migrations/
+seo-seed/
+naver-blog/
+
+# Wrangler config (exposes D1 database_id / R2 bucket names).
+# Still read by wrangler from disk at deploy time — ignoring only blocks public serving.
+wrangler.toml
+
+# Stray dotfiles / local state that would otherwise be served publicly
+.assetsignore
+.gitignore
+.netlify/
+.claude/
+.wrangler/
+
+# Accidentally committed temp PDF-extraction scratch (also git-removed from the repo)
+*pdf_extract.txt

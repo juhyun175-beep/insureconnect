@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.20.1] - 2026-06-07
+### Security (정보노출 차단 — 내부 문서·SQL·설정·임시파일이 공개 서빙되던 문제)
+- **배경**: Pages가 저장소 루트 전체(`pages_build_output_dir="."`)를 정적 자산으로 업로드 → 내부 파일이 원본 그대로 공개 노출(프로덕션에서 `200`+실제 content-type 확인). Pages 기본 무시는 `node_modules`/`.DS_Store`/`.git`뿐. **`.assetsignore`는 `wrangler pages deploy`가 적용하지 않음**(업로드 그대로 — 배포 후 immutable URL에서 재확인)이라 단독으론 불충분.
+- **차단(실효 수단) — `functions/_middleware.js` 가드**: 모든 요청에서 내부 경로면 `404`(noindex) 반환. 정적 자산 업로드 여부와 무관하게 prod·preview·배포URL 전부에서 차단됨.
+  - **차단 경로**: `*.md`(SECURITY·GROWTH·GROWTH_NEXT·CHANGELOG·docs ROADMAP/플랜/스펙), `*.sql`(schema·cleanup·migrations·seo-seed 생성물), `*.toml`(`wrangler.toml` — D1 database_id·R2 버킷명), `/scripts/`·`/migrations/`·`/docs/`·`/tests/`·`/seo-seed/`·`/naver-blog/`·`/.netlify/`·`/.wrangler/`·`/.claude/`·`/.git*`, `.gitignore`·`.assetsignore`·`package*.json`, `*pdf_extract.txt`.
+  - **유지(공개)**: 앱 `*.html`, 이미지, `sw.js`, `robots.txt`·`ads.txt`·`llms.txt`·`sitemap.xml`, `/api/*`. **영향 없음**: Pages Functions, `_headers`·`_redirects`(설정으로 소비). **기능 회귀 0** — 앱/Functions/sw는 이 파일들을 fetch하지 않음(사전 grep 확인).
+- **`.assetsignore` 동시 추가**: 향후 wrangler가 Pages에 지원하거나 Workers Assets 전환 시 자동 적용되도록 + 의도 문서화(방어 심층화). 현재 실효 차단은 미들웨어가 담당.
+- **유출 임시파일 제거**: 관리자 PDF 분석 기능이 남긴 임시 추출본(`…Temppdf_extract.txt`, 보험상품 브로셔 텍스트)이 루트에 커밋되어 `text/plain`으로 공개 서빙되던 것 `git rm`.
+- **검증**: 배포 후 immutable URL에서 `/SECURITY.md`·`/GROWTH*.md`·`/schema.sql`·`/wrangler.toml`·`/scripts/*`·`/migrations/*` → `404`, 앱(`/`)·`/api/coverages`·`/api/cases/contributors`(v2.20.0)·`robots.txt`·`llms.txt` → 정상 `200`.
+
 ## [2.20.0] - 2026-06-07
 ### Added (성장 4/8 — 사례 기여 리더보드, 게이미피케이션·참여↑)
 - **삼따AI 홈 섹션에 「🏆 사례 기여 순위」**: 회원이 등록·검수승인(approved)된 사례를 기여자별 집계 → 상위(닉네임 마스킹 + 등급 배지 ✓인증/💎프리미엄) + 로그인 시 **내 기여수·순위** 노출. 신규 `GET /api/cases/contributors`(`referral/leaderboard` 패턴 미러링). 회원 사례가 AI 품질을 높이는 루프를 가시화해 +10P 자동등록 기여를 유도.
