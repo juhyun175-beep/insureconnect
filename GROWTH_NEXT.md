@@ -1,6 +1,6 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.23.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.24.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -43,8 +43,9 @@
 ## ✅ 10 — 마이페이지 "내 성장" 패널 · 재방문·기여↑
 - `/me`(`functions/me.js`) 프로필 아래 「📈 내 성장」 카드(`#growth-box`): 등급·포인트·다음 등급 진행바(100P/500P) + 사례 기여 건수·순위(`/api/cases/contributors` me). 미기여자 CTA. 신규 엔드포인트 0. (v2.23.0)
 
-## ⬜ 11 — 추천율 개선 (현 3.6%) · 유입↑
-- 가입 직후 추천 프롬프트 + 초대 보상/문구 강화. 1/8(공유=추천)·홈 초대 CTA 위에서 전환 최적화.
+## ✅ 11 — 추천율 개선 (일회성 초대 넛지) · 유입↑
+- 로그인 사용자 일회성 초대 넛지 모달(index.html, `ic_refnudge_v1`, 투어 비충돌, `/api/me/referral`+`nativeShareWithFallback` 재사용). 측정 `trackCardClick('추천넛지',…)`. (v2.24.0)
+- 추가 여지: 가입 신규자만 타깃(서버 플래그)·A/B 문구·공유 후 적립 추적.
 
 ## ⬜ 12 — 견적 전환율 개선 (현 6.4%) · 수익↑
 - 파트너 견적 플로우(클릭→신청) 마찰 감소·신뢰요소·후속 안내. `ic_link_clicks_daily` submit 단계 이탈 분석.

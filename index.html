@@ -9224,6 +9224,51 @@
       document.addEventListener('DOMContentLoaded', loadReferralCTA);
     </script>
     <script>
+      // v2.24.0: 추천율 개선 (성장 v2 #11) — 로그인 사용자 일회성 초대 넛지(기기당 1회, 투어와 비충돌). /api/me/referral + nativeShareWithFallback 재사용
+      (function(){
+        var KEY='ic_refnudge_v1';
+        try{ if(localStorage.getItem(KEY)==='1') return; }catch(e){}
+        function markSeen(){ try{ localStorage.setItem(KEY,'1'); }catch(e){} }
+        function tourActive(){ var t=document.getElementById('ic-tour'); return !!(t && getComputedStyle(t).display!=='none'); }
+        function show(d){
+          if(document.getElementById('refnudge-ov')||tourActive()) return; // 투어 중이면 표시 안 함(다음 방문 재시도)
+          markSeen();
+          var link=(d.code?(location.origin+'/og/invite/'+encodeURIComponent(d.code)):d.link);
+          var ov=document.createElement('div');
+          ov.id='refnudge-ov';
+          ov.style.cssText='position:fixed;inset:0;z-index:9300;background:rgba(10,20,60,.5);backdrop-filter:blur(3px);display:flex;align-items:center;justify-content:center;padding:18px';
+          ov.innerHTML='<div role="dialog" aria-label="동료 초대" style="background:var(--bg-card,#fff);border-radius:18px;max-width:360px;width:100%;padding:24px 20px;box-shadow:0 24px 64px rgba(10,20,60,.28);text-align:center;font-family:inherit">'
+            +'<div style="font-size:36px;line-height:1">🎁</div>'
+            +'<div style="font-size:17px;font-weight:800;color:var(--txt-hi,#0f172a);margin-top:8px">동료 초대하고 둘 다 포인트</div>'
+            +'<div style="font-size:13px;color:var(--txt-mid,#475569);margin-top:7px;line-height:1.55">내 링크로 가입하면 <b style="color:#1a3de8">나 +50P</b> · <b style="color:#16a34a">동료 +30P</b> 즉시 적립<br>3명 초대 시 인증설계사 자동 승급</div>'
+            +'<button id="refnudge-share" type="button" style="width:100%;margin-top:18px;background:#FEE500;color:#191600;border:none;border-radius:12px;font-weight:800;font-size:14px;padding:13px;cursor:pointer;font-family:inherit">💬 초대 링크 공유하기</button>'
+            +'<button id="refnudge-close" type="button" style="width:100%;margin-top:8px;background:transparent;color:var(--txt-lo,#94a3b8);border:none;font-size:13px;padding:8px;cursor:pointer;font-family:inherit">나중에 할게요</button>'
+            +'</div>';
+          document.body.appendChild(ov);
+          if(typeof trackCardClick==='function') trackCardClick('추천넛지','노출');
+          var shareText='보험설계사 통합 플랫폼 인슈어커넥트 — 채용·강의·AI 사례검색 무료! 내 링크로 가입하면 둘 다 포인트 👇';
+          function close(){ try{ov.remove();}catch(e){} }
+          ov.addEventListener('click',function(e){ if(e.target===ov) close(); });
+          ov.querySelector('#refnudge-close').addEventListener('click',close);
+          ov.querySelector('#refnudge-share').addEventListener('click',function(){
+            if(typeof trackCardClick==='function') trackCardClick('추천넛지','공유');
+            try{
+              if(typeof nativeShareWithFallback==='function'){ nativeShareWithFallback({url:link,title:'인슈어커넥트 초대',text:shareText}); }
+              else if(navigator.share){ navigator.share({title:'인슈어커넥트 초대',text:shareText,url:link}).catch(function(){}); }
+              else { (navigator.clipboard?navigator.clipboard.writeText(link):Promise.reject()).then(function(){alert('초대 링크가 복사됐어요!\n'+link);}).catch(function(){window.prompt('초대 링크',link);}); }
+            }catch(e){}
+            close();
+          });
+        }
+        function init(){
+          fetch('/api/me/referral',{credentials:'same-origin'}).then(function(r){ return r.status===200?r.json():null; }).then(function(d){
+            if(d && d.ok && (d.link||d.code)) setTimeout(function(){ show(d); }, 2600);
+          }).catch(function(){});
+        }
+        if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
+      })();
+    </script>
+    <script>
       // v2.20.0: 사례 기여 리더보드 (성장 4/8) — referral/leaderboard 패턴 미러링, 비면 숨김
       async function loadCaseContributors(){
         var box=document.getElementById('home-clb'); if(!box) return;
