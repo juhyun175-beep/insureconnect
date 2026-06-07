@@ -5246,19 +5246,25 @@
     function renderNorthstar(ns) {
       var el = document.getElementById('mt-northstar'); if (!el) return;
       if (!ns) { el.innerHTML = ''; return; }
-      function k(ico, lbl, rate, sub, col) {
+      function k(ico, lbl, rate, sub, col, delta) {
+        var dArrow = '';
+        if (delta != null) {
+          if (delta > 0) dArrow = '<span style="font-size:12px;font-weight:800;margin-left:6px;color:#16a34a">▲' + delta + '%p</span>';
+          else if (delta < 0) dArrow = '<span style="font-size:12px;font-weight:800;margin-left:6px;color:#dc2626">▼' + Math.abs(delta) + '%p</span>';
+          else dArrow = '<span style="font-size:10.5px;font-weight:700;margin-left:6px;color:#94a3b8">전주 동일</span>';
+        }
         return '<div style="padding:13px 14px;border-radius:12px;background:' + col + '14;border:1px solid ' + col + '33;">'
           + '<div style="font-size:15px;line-height:1">' + ico + '</div>'
-          + '<div style="font-size:23px;font-weight:800;color:var(--txt-hi,#0f172a);line-height:1.1;margin-top:4px">' + (rate || 0) + '%</div>'
+          + '<div style="font-size:23px;font-weight:800;color:var(--txt-hi,#0f172a);line-height:1.1;margin-top:4px">' + (rate || 0) + '%' + dArrow + '</div>'
           + '<div style="font-size:12px;font-weight:700;color:var(--txt-mid,#475569);margin-top:2px">' + lbl + '</div>'
-          + '<div style="font-size:10.5px;color:var(--txt-lo,#94a3b8);margin-top:3px">' + esc(sub) + '</div></div>';
+          + '<div style="font-size:10.5px;color:var(--txt-lo,#94a3b8);margin-top:3px">' + esc(sub) + (delta != null ? ' · 전주비' : '') + '</div></div>';
       }
       var a = ns.signup_conv || {}, b = ns.referral_rate || {}, c = ns.quote_conv || {}, d = ns.ai_revisit || {};
       el.innerHTML =
-          k('🎯', '가입 전환율', a.rate, '방문 ' + (a.visits || 0) + ' → 가입 ' + (a.signups || 0) + ' · ' + (a.window || ''), '#1a3de8')
-        + k('🔁', '추천 가입률', b.rate, '추천 ' + (b.referred || 0) + ' / 회원 ' + (b.total || 0) + ' · ' + (b.window || ''), '#16a34a')
-        + k('🚗', '견적 전환율', c.rate, '신청 ' + (c.submits || 0) + ' / 클릭 ' + (c.clicks || 0) + ' · ' + (c.window || ''), '#f59e0b')
-        + k('🤖', 'AI 재방문율', d.rate, '재사용 ' + (d.repeat || 0) + ' / 사용자 ' + (d.users || 0) + ' · ' + (d.window || ''), '#7c3aed');
+          k('🎯', '가입 전환율', a.rate, '방문 ' + (a.visits || 0) + ' → 가입 ' + (a.signups || 0) + ' · ' + (a.window || ''), '#1a3de8', a.delta)
+        + k('🔁', '추천 가입률', b.rate, '추천 ' + (b.referred || 0) + ' / 회원 ' + (b.total || 0) + ' · ' + (b.window || ''), '#16a34a', b.delta)
+        + k('🚗', '견적 전환율', c.rate, '신청 ' + (c.submits || 0) + ' / 클릭 ' + (c.clicks || 0) + ' · ' + (c.window || ''), '#f59e0b', c.delta)
+        + k('🤖', 'AI 재방문율', d.rate, '재사용 ' + (d.repeat || 0) + ' / 사용자 ' + (d.users || 0) + ' · ' + (d.window || ''), '#7c3aed', d.delta);
     }
     function renderMetrics(m) {
       renderNorthstar(m && m.northstar);

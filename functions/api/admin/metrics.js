@@ -75,11 +75,33 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   const ai_users = await one(`SELECT COUNT(DISTINCT ip_hash) n FROM ic_ai_usage`);
   const ai_repeat = await one(`SELECT COUNT(*) n FROM (SELECT ip_hash FROM ic_ai_usage GROUP BY ip_hash HAVING COUNT(DISTINCT date) > 1)`);
   const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : 0;
+  // v2.28.0 (#15): 전주 대비 증감(WoW) — 가입전환(시리즈 기반, 신규쿼리 0) + 견적전환(1 쿼리). 누적 지표(추천·AI재방문)는 WoW 비적용(delta=null)
+  var p7v = 0, p7s = 0, r7v = 0, r7s = 0;
+  for (var wi = 0; wi < visit_series.length; wi++) {
+    if (wi < 7) { p7v += visit_series[wi].v || 0; p7s += signup_series[wi].v || 0; }
+    else { r7v += visit_series[wi].v || 0; r7s += signup_series[wi].v || 0; }
+  }
+  const signup_delta = (r7v && p7v) ? Math.round((pct(r7s, r7v) - pct(p7s, p7v)) * 10) / 10 : null;
+
+  let qcr = 0, qsr = 0, qcp = 0, qsp = 0;
+  try {
+    const r = await env.DB.prepare(
+      `SELECT
+         SUM(CASE WHEN company_name IN ('렌트카 견적 시작','통신 견적 시작') AND date >= date('now','-7 days') THEN clicks ELSE 0 END) AS cr,
+         SUM(CASE WHEN company_name IN ('렌트카 견적 신청 완료','통신 견적 신청 완료') AND date >= date('now','-7 days') THEN clicks ELSE 0 END) AS sr,
+         SUM(CASE WHEN company_name IN ('렌트카 견적 시작','통신 견적 시작') AND date >= date('now','-14 days') AND date < date('now','-7 days') THEN clicks ELSE 0 END) AS cp,
+         SUM(CASE WHEN company_name IN ('렌트카 견적 신청 완료','통신 견적 신청 완료') AND date >= date('now','-14 days') AND date < date('now','-7 days') THEN clicks ELSE 0 END) AS sp
+       FROM ic_link_clicks_daily`
+    ).first();
+    qcr = +r?.cr || 0; qsr = +r?.sr || 0; qcp = +r?.cp || 0; qsp = +r?.sp || 0;
+  } catch (_) {}
+  const quote_delta = (qcr && qcp) ? Math.round((pct(qsr, qcr) - pct(qsp, qcp)) * 10) / 10 : null;
+
   const northstar = {
-    signup_conv:   { rate: pct(ns_signups, ns_visits), signups: ns_signups, visits: ns_visits, window: '최근 14일' },
-    referral_rate: { rate: pct(referrals_total, members_total), referred: referrals_total, total: members_total, window: '누적' },
-    quote_conv:    { rate: pct(q_submits, q_clicks), submits: q_submits, clicks: q_clicks, window: '누적' },
-    ai_revisit:    { rate: pct(ai_repeat, ai_users), repeat: ai_repeat, users: ai_users, window: '누적' },
+    signup_conv:   { rate: pct(ns_signups, ns_visits), signups: ns_signups, visits: ns_visits, window: '최근 14일', delta: signup_delta },
+    referral_rate: { rate: pct(referrals_total, members_total), referred: referrals_total, total: members_total, window: '누적', delta: null },
+    quote_conv:    { rate: pct(q_submits, q_clicks), submits: q_submits, clicks: q_clicks, window: '누적', delta: quote_delta },
+    ai_revisit:    { rate: pct(ai_repeat, ai_users), repeat: ai_repeat, users: ai_users, window: '누적', delta: null },
   };
 
   return json({

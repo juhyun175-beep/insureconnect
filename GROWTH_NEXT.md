@@ -1,6 +1,6 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.27.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.28.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -60,5 +60,6 @@
 - `/knowledge/{id}`(Supabase)는 현재 0편(레거시) — 관련글 코드는 넣었으나 실효無(v2.26.0). 홈→게시판 기존 크롤가능.
 - 후속: 홈에 인기 보험정보 크롤링크 섹션(현재 홈은 SPA라 게시판만 동적링크).
 
-## ⬜ 15 — 북극성 지표 추세·목표 (8/8 후속) · 측정↑
-- KPI에 전주 대비 증감(▲▼) + 목표선. `/api/admin/metrics` `northstar`에 직전기간 비교 추가.
+## ✅ 15 — 북극성 지표 전주 대비 추세 (8/8 후속) · 측정↑
+- `northstar`에 WoW 델타(▲▼%p): 가입전환(시리즈 최근7vs직전7, 0쿼리)·견적전환(1쿼리). `renderNorthstar` 화살표. 누적 지표는 `delta=null`. (v2.28.0)
+- 후속(선택): 목표선(비즈니스 목표값 설정 시).
