@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.21.0] - 2026-06-07
+### Added (성장 7/8 — 주간 다이제스트 인프라, 발송 게이트 OFF)
+- **주간 다이제스트 `POST /api/cron/weekly-digest`**: 이번 주 새 채용공고·강의·사례 + 인기글 요약 → 옵트인 회원에게 카톡 메모 + 웹푸시. **기본 DRY(미발송)** — `DIGEST_SEND_ENABLED='1'`일 때만 실제 발송. 인증: 관리자(x-admin-secret) 또는 외부 스케줄러용 `CRON_SECRET`(x-cron-secret). **빈도 가드**: 6일 내 'send' 실행 시 생략(주1회 보장, `ic_digest_runs` 로그). revoked 카톡/만료 푸시 자동 비활성.
+  - 수신자 집계는 즉시 가능(현재 카톡 옵트인 87·푸시 5)하나 **실제 발송은 잠금**. 활성화: `wrangler pages secret put CRON_SECRET` → 외부 cron 등록(Pages 네이티브 cron 없음) → DRY 미리보기 검증 → `DIGEST_SEND_ENABLED=1`. 마이그레이션 `ic_digest_runs`.
+### Changed (모바일 견적 CTA 문구 — 설계사 수익 약속 제거)
+- 모바일 홈 「고객 렌트카·통신 견적 연결」 CTA 부제 **"설계사 부가수익 — …" → "내 고객에게 생활 혜택까지 — 클릭 한 번으로 안내"**. 설계사에게 수익/커미션을 약속하는 표현 제거(지급 채무·기대 오해 방지). 제휴 수익은 플랫폼 귀속이며, 설계사 가치는 *고객에게 생활 혜택을 제공하는 서비스*로 재프레이밍.
+### Note (5/8·6/8 감사 — 코드 변경 없이 이미 라이브)
+- 채용 Google Jobs SEO(5/8)·보험지식·인기글 SEO(6/8)는 동적 `functions/sitemap.xml.js`(라이브 165 URL)+JobPosting 스키마(`validThrough` 항상+90일)로 기구현 확인.
+### Verified
+- `node --check`(weekly-digest.js) · 마이그레이션 적용 · 집계 SQL 원격 검증 · `_middleware`가 `/api/cron` 비차단 확인 · 보안 HIGH 0 · release.mjs
+
 ## [2.20.1] - 2026-06-07
 ### Security (정보노출 차단 — 내부 문서·SQL·설정·임시파일이 공개 서빙되던 문제)
 - **배경**: Pages가 저장소 루트 전체(`pages_build_output_dir="."`)를 정적 자산으로 업로드 → 내부 파일이 원본 그대로 공개 노출(프로덕션에서 `200`+실제 content-type 확인). Pages 기본 무시는 `node_modules`/`.DS_Store`/`.git`뿐. **`.assetsignore`는 `wrangler pages deploy`가 적용하지 않음**(업로드 그대로 — 배포 후 immutable URL에서 재확인)이라 단독으론 불충분.
