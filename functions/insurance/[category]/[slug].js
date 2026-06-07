@@ -51,6 +51,13 @@ export const onRequestGet = async ({ params, env, request }) => {
      ORDER BY created_at DESC LIMIT 5`
   ).bind(category, row.id).all();
 
+  // v2.27.0: 교차 카테고리 인기글(조회순 5) — 카테고리 사일로 해소 내부링크 (#14 실콘텐츠 SEO)
+  const popular = await env.DB.prepare(
+    `SELECT category, slug, title FROM ic_seo_posts
+     WHERE status = 'published' AND id != ? AND category != ?
+     ORDER BY view_count DESC, created_at DESC LIMIT 5`
+  ).bind(row.id, category).all();
+
   // JSON-LD
   const articleLd = {
     '@context': 'https://schema.org',
@@ -107,6 +114,14 @@ export const onRequestGet = async ({ params, env, request }) => {
           `<li><a href="/insurance/${cat.slug}/${r.slug}">${esc(r.title)}</a>${
             r.excerpt ? `<span class="r-exc"> — ${esc(r.excerpt.slice(0, 80))}</span>` : ''
           }</li>`
+        ).join('')
+      }</ul></section>`
+    : '';
+
+  const popularHtml = (popular.results || []).length
+    ? `<section class="post-related"><h2>🔥 인기 보험정보</h2><ul>${
+        (popular.results || []).map(r =>
+          `<li><a href="/insurance/${esc(r.category)}/${esc(r.slug)}">${esc(r.title)}</a></li>`
         ).join('')
       }</ul></section>`
     : '';
@@ -183,6 +198,7 @@ article.post{max-width:760px;margin:0 auto;background:#fff;padding:32px 28px 48p
 ${seoShareBar(url, row.title, description, ogImage)}
 ${faqHtml}
 ${relatedHtml}
+${popularHtml}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

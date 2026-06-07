@@ -1,6 +1,6 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.26.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.27.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -55,9 +55,10 @@
 - 담보 빠른조회 모달에 「💰 가입금액 높은순」 정렬 토글 + 랭크 배지(`parseAmount` 억/만/숫자 환산, `covRows` 캐시 재렌더). (v2.25.0)
 - 후속: 진짜 가로표(담보 행 × 보험사 열)는 데이터 밀도 낮아 보류. 관리자 담보 데이터 확충 시 재검토.
 
-## ✅ 14 — 보험지식 내부링크 보강 (6/8 후속) · 유입↑
-- `/knowledge/{id}` 하단 「다른 보험지식」 6개 관련글 링크(서버렌더, `id=neq` 최신순 = 콘텐츠 상호 내부링크). (v2.26.0)
-- 홈→게시판은 기존 크롤가능 `<a>`. 후속: og/board 관련글 섹션, 홈 지식 섹션.
+## ✅ 14 — 내부링크 보강 (6/8 후속) · 유입↑
+- **실제 색인 콘텐츠 = D1 `ic_seo_posts` 120편(`/insurance/{cat}/{slug}`)**: 기존 같은-카테고리 "관련 글" 보유 + 「🔥 인기 보험정보」 교차 카테고리 인기글 5개 링크 추가(사일로 해소·권위 분산). (v2.27.0)
+- `/knowledge/{id}`(Supabase)는 현재 0편(레거시) — 관련글 코드는 넣었으나 실효無(v2.26.0). 홈→게시판 기존 크롤가능.
+- 후속: 홈에 인기 보험정보 크롤링크 섹션(현재 홈은 SPA라 게시판만 동적링크).
 
 ## ⬜ 15 — 북극성 지표 추세·목표 (8/8 후속) · 측정↑
 - KPI에 전주 대비 증감(▲▼) + 목표선. `/api/admin/metrics` `northstar`에 직전기간 비교 추가.
