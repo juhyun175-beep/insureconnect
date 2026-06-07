@@ -1,6 +1,6 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.24.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.24.1**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -47,8 +47,9 @@
 - 로그인 사용자 일회성 초대 넛지 모달(index.html, `ic_refnudge_v1`, 투어 비충돌, `/api/me/referral`+`nativeShareWithFallback` 재사용). 측정 `trackCardClick('추천넛지',…)`. (v2.24.0)
 - 추가 여지: 가입 신규자만 타깃(서버 플래그)·A/B 문구·공유 후 적립 추적.
 
-## ⬜ 12 — 견적 전환율 개선 (현 6.4%) · 수익↑
-- 파트너 견적 플로우(클릭→신청) 마찰 감소·신뢰요소·후속 안내. `ic_link_clicks_daily` submit 단계 이탈 분석.
+## 🟡 12 — 견적 전환율 개선 (phase1 완료) · 수익↑
+- 렌트카·통신 견적 모달 제출부 신뢰 카피 추가(전환 마찰↓, 필드 무변경). (v2.24.1)
+- 후속(비즈니스 판단 필요): 다단계 폼 필드 축소·기본값 확정·A/B. 폼은 견적 산출에 필요한 필드라 임의 축소 주의. `ic_link_clicks_daily` submit 이탈 분석.
 
 ## ⬜ 13 — 담보 비교 표 (3/8 후속) · 실무가치↑
 - 같은 담보를 보험사별 가입금액 가로 비교(`/api/coverages`). 관리자 담보 데이터 확충 유도.
