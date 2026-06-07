@@ -162,13 +162,19 @@ function parseContent(text) {
   return result.join('');
 }
 
-function renderPage(post, canonicalUrl) {
+function renderPage(post, canonicalUrl, related) {
   const title = esc(post.title);
   const date  = fmtDate(post.created_at);
   const plain = (post.content || '').replace(/\[img:[^\]]+\]/g,'').replace(/\s+/g,' ').trim().slice(0, 160);
   const desc  = esc(plain || '보험 설계사를 위한 보험지식 콘텐츠를 인슈어커넥트에서 확인하세요.');
   const img   = esc(post.image_url || 'https://insureconnect-hub.pages.dev/logo-full.png');
   const body  = parseContent(post.content);
+  // v2.26.0: 콘텐츠 상호 내부링크(소프트 SEO #14) — 다른 보험지식으로 크롤 경로 + 체류 유도
+  const relatedHtml = (related && related.length) ? `
+    <section class="kn-related" aria-label="다른 보험지식">
+      <h2 class="kn-related-title">📚 다른 보험지식</h2>
+      <ul class="kn-related-list">${related.map(function(r){ return `<li><a href="/knowledge/${r.id}">${esc(r.title)}</a></li>`; }).join('')}</ul>
+    </section>` : '';
 
   return `<!DOCTYPE html>
 <html lang="ko">
@@ -235,6 +241,15 @@ function renderPage(post, canonicalUrl) {
     .back-list{display:inline-flex;align-items:center;gap:7px;margin-top:32px;font-size:14px;font-weight:600;color:var(--mid);text-decoration:none;}
     .back-list:hover{color:var(--blue-mid);}
 
+    /* v2.26.0: 다른 보험지식(내부링크) */
+    .kn-related{margin-top:44px;padding-top:28px;border-top:1.5px solid var(--border);}
+    .kn-related-title{font-size:15px;font-weight:800;color:var(--txt);margin-bottom:12px;}
+    .kn-related-list{list-style:none;display:flex;flex-direction:column;gap:0;}
+    .kn-related-list li{border-bottom:1px solid var(--border);}
+    .kn-related-list li:last-child{border-bottom:none;}
+    .kn-related-list a{display:block;padding:12px 4px;font-size:14px;font-weight:600;color:var(--mid);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;transition:color .15s;}
+    .kn-related-list a:hover{color:var(--blue-mid);}
+
     @media(max-width:600px){
       h1.post-title{font-size:1.3rem;}
       .app-banner{padding:18px 20px;}
@@ -266,6 +281,8 @@ function renderPage(post, canonicalUrl) {
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
       보험지식 목록으로
     </a>
+
+    ${relatedHtml}
 
     <div class="app-banner">
       <div class="app-banner-txt">
@@ -301,7 +318,16 @@ export async function onRequestGet(context) {
     }
 
     const canonicalUrl = `https://insureconnect-hub.pages.dev/knowledge/${id}`;
-    const html = renderPage(post, canonicalUrl);
+    // v2.26.0: 다른 보험지식 6개(현재 글 제외) — 콘텐츠 상호 내부링크용
+    let related = [];
+    try {
+      const rr = await fetch(
+        `${SB_URL}/rest/v1/ic_knowledge_posts?id=neq.${encodeURIComponent(id)}&order=created_at.desc&limit=6&select=id,title,created_at`,
+        { headers: SB_HDR }
+      );
+      related = (await rr.json()) || [];
+    } catch (_) {}
+    const html = renderPage(post, canonicalUrl, related);
 
     return new Response(html, {
       status: 200,
