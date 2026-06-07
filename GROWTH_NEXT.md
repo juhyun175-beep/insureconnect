@@ -1,6 +1,6 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.22.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.23.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -40,8 +40,8 @@
 - 인프라는 v2.21.0 완료(발송 게이트 OFF). 활성화: ① `wrangler pages secret put CRON_SECRET` ② 외부 cron(Worker cron/GitHub Actions/cron-job.org 주1회 POST) ③ DRY 미리보기 ④ `DIGEST_SEND_ENABLED=1`.
 - 추가: 개인화("내 질문에 새 답변") — 현재는 공용 다이제스트.
 
-## ⬜ 10 — 마이페이지 "내 성장" 패널 · 재방문·기여↑
-- 포인트·등급·**사례 기여수/순위**·다음 등급까지 한 카드. `/api/cases/contributors`의 `me` + `points` 재사용 (4/8 리더보드 개인화 surface).
+## ✅ 10 — 마이페이지 "내 성장" 패널 · 재방문·기여↑
+- `/me`(`functions/me.js`) 프로필 아래 「📈 내 성장」 카드(`#growth-box`): 등급·포인트·다음 등급 진행바(100P/500P) + 사례 기여 건수·순위(`/api/cases/contributors` me). 미기여자 CTA. 신규 엔드포인트 0. (v2.23.0)
 
 ## ⬜ 11 — 추천율 개선 (현 3.6%) · 유입↑
 - 가입 직후 추천 프롬프트 + 초대 보상/문구 강화. 1/8(공유=추천)·홈 초대 CTA 위에서 전환 최적화.

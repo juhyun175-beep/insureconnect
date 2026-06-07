@@ -104,6 +104,11 @@ export const onRequestGet = async ({ env, request }) => {
   </div>
 
   <div class="card">
+    <h2>📈 내 성장</h2>
+    <div id="growth-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+  </div>
+
+  <div class="card">
     <h2>⭐ 내 포인트</h2>
     <div id="pt-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
     <p class="note">사례 등록 +10 · 승인 +20 · 우수 +50 · 글 +5 · 댓글 +2 · 삼따AI 추가질문 −5 · 공고 상단노출 −50 · 100P 인증설계사 / 500P 프리미엄 자동 승급</p>
@@ -220,6 +225,33 @@ export const onRequestGet = async ({ env, request }) => {
     }).catch(function(){ box.textContent='포인트 정보를 불러오지 못했습니다.'; });
   };
   window.__reloadPt();
+
+  // v2.23.0: 내 성장 — 등급 진행 + 사례 기여 순위 (성장 백로그 v2 #10, 4/8 리더보드 개인화 surface)
+  (function(){
+    var box=document.getElementById('growth-box'); if(!box) return;
+    var ROLE='${esc(m?.role || user.role || 'member')}';
+    Promise.all([
+      fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).catch(function(){return null;}),
+      fetch('/api/cases/contributors',{credentials:'same-origin'}).then(function(r){return r.json();}).catch(function(){return null;})
+    ]).then(function(res){
+      var pts=(res[0]&&res[0].points)||0;
+      var me=(res[1]&&res[1].me)||null;
+      var gradeT=ROLE==='admin'?'운영자':ROLE==='premium'?'프리미엄':ROLE==='certified'?'인증설계사':'일반회원';
+      var nextTxt, base, target;
+      if(ROLE==='premium'||ROLE==='admin'){ nextTxt='최고 등급 달성 🎉'; base=0; target=1; }
+      else if(ROLE==='certified'){ nextTxt='프리미엄까지 <b>'+Math.max(0,500-pts)+'P</b>'; base=100; target=500; }
+      else { nextTxt='인증설계사까지 <b>'+Math.max(0,100-pts)+'P</b>'; base=0; target=100; }
+      var pctw=(ROLE==='premium'||ROLE==='admin')?100:Math.max(0,Math.min(100,Math.round((pts-base)/(target-base)*100)));
+      var contrib=(me&&me.n>0)
+        ? '📚 사례 기여 <b style="color:#1a3de8">'+me.n+'건</b> · 순위 <b style="color:#1a3de8">'+(me.rank?me.rank+'위':'순위권 밖')+'</b>'
+        : '📚 아직 사례 기여가 없어요 — <a href="/ai#share" style="color:#1a3de8;font-weight:700;">삼따AI에서 등록 +10P →</a>';
+      box.innerHTML=
+        '<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px"><span style="font-size:13.5px;font-weight:800;color:#334155">'+gradeT+'</span><span style="font-size:22px;font-weight:900;color:#b45309;margin-left:auto">'+Number(pts).toLocaleString()+'<span style="font-size:14px">P</span></span></div>'
+        +'<div style="height:8px;background:#eef2f7;border-radius:99px;overflow:hidden;margin-bottom:5px"><div style="height:100%;width:'+pctw+'%;background:linear-gradient(90deg,#1a3de8,#7c3aed);transition:width .4s"></div></div>'
+        +'<div style="font-size:12px;color:#64748b;margin-bottom:12px">'+nextTxt+'</div>'
+        +'<div style="font-size:13px;color:#334155;padding-top:11px;border-top:1px solid #f1f5f9">'+contrib+'</div>';
+    }).catch(function(){ box.textContent='성장 정보를 불러오지 못했습니다.'; });
+  })();
 
   // v2.11.0: 내 공고 상단노출 (포인트 사용처)
   (function(){
