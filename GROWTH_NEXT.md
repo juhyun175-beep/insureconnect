@@ -1,6 +1,6 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.24.1**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.25.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -51,8 +51,9 @@
 - 렌트카·통신 견적 모달 제출부 신뢰 카피 추가(전환 마찰↓, 필드 무변경). (v2.24.1)
 - 후속(비즈니스 판단 필요): 다단계 폼 필드 축소·기본값 확정·A/B. 폼은 견적 산출에 필요한 필드라 임의 축소 주의. `ic_link_clicks_daily` submit 이탈 분석.
 
-## ⬜ 13 — 담보 비교 표 (3/8 후속) · 실무가치↑
-- 같은 담보를 보험사별 가입금액 가로 비교(`/api/coverages`). 관리자 담보 데이터 확충 유도.
+## ✅ 13 — 담보 가입금액 비교 정렬 (3/8 후속) · 실무가치↑
+- 담보 빠른조회 모달에 「💰 가입금액 높은순」 정렬 토글 + 랭크 배지(`parseAmount` 억/만/숫자 환산, `covRows` 캐시 재렌더). (v2.25.0)
+- 후속: 진짜 가로표(담보 행 × 보험사 열)는 데이터 밀도 낮아 보류. 관리자 담보 데이터 확충 시 재검토.
 
 ## ⬜ 14 — 보험지식·인기글 내부링크 보강 (6/8 후속) · 유입↑
 - 홈/허브 → 개별 knowledge·인기 board 링크(소프트 SEO). sitemap은 이미 라이브.

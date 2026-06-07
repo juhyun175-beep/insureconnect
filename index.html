@@ -4317,6 +4317,12 @@
     .cov-search-input { width: 100%; padding: 12px 16px; border: 2px solid var(--border); border-radius: 12px; font-size: 15px; font-weight: 500; color: var(--txt-hi); background: #f7f9ff; outline: none; transition: border-color .18s; }
     .cov-search-input:focus { border-color: var(--blue-mid); background: #fff; }
     .cov-search-input::placeholder { color: var(--txt-lo); }
+    .cov-sort { display: flex; gap: 6px; padding: 10px 24px 0; flex-shrink: 0; }
+    .cov-sort-btn { padding: 5px 12px; border-radius: 20px; border: 1.5px solid #dde3f0; background: #f7f9ff; font-size: 11.5px; font-weight: 700; color: var(--txt-mid); cursor: pointer; transition: all .15s; }
+    .cov-sort-btn.active { border-color: var(--blue-mid); background: var(--blue-mid); color: #fff; }
+    [data-theme="dark"] .cov-sort-btn { background: #0f1422; border-color: rgba(148,163,184,0.2); }
+    .cov-rank { display: inline-flex; align-items: center; justify-content: center; min-width: 30px; height: 20px; font-size: 11.5px; font-weight: 800; color: #1a3de8; flex-shrink: 0; }
+    [data-theme="dark"] .cov-rank { color: #a5b4fc; }
     .cov-count { padding: 10px 24px 4px; font-size: 12px; color: var(--txt-lo); font-weight: 500; flex-shrink: 0; }
     .cov-count b { color: var(--blue-mid); }
     .cov-list { overflow-y: auto; flex: 1; padding: 4px 16px 8px; }
@@ -13940,6 +13946,10 @@
       <div class="cov-search-wrap">
         <input class="cov-search-input ic-search-input" id="cov-q" type="text" placeholder="보험사·담보·상품명 검색 (예: 암진단비, 삼성화재, 뇌혈관…)" autocomplete="off" autocorrect="off" spellcheck="false">
       </div>
+      <div class="cov-sort" id="cov-sort">
+        <button type="button" class="cov-sort-btn active" data-sort="rel">관련도순</button>
+        <button type="button" class="cov-sort-btn" data-sort="amount">💰 가입금액 높은순</button>
+      </div>
       <div class="cov-count" id="cov-count"></div>
       <div class="cov-list" id="cov-list"></div>
       <div class="cov-foot">
@@ -13956,6 +13966,8 @@
     var covTimer = null;     // 입력 디바운스
     var covReq = 0;          // 응답 레이스 가드 토큰
     var covTracked = false;  // 측정: 세션당 첫 검색 1회만 기록
+    var covSort = 'rel';     // v2.25.0: 정렬 (rel=관련도 / amount=가입금액 높은순 — 보험사별 비교)
+    var covRows = [];        // 마지막 검색 결과(정렬 토글 시 재요청 없이 재렌더)
 
     /* 추출 아티팩트(납입/만기에 들어온 순수 숫자 코드 예:"2601") 숨김 — 의미있는 값만 노출 */
     function pill(label, val, cls, skipPureDigits) {
@@ -13965,13 +13977,28 @@
       return '<span class="cov-pill' + (cls ? ' ' + cls : '') + '">' + label + ' <b>' + covEsc(v) + '</b></span>';
     }
 
+    /* v2.25.0: 가입금액 파싱(억/만/숫자 → 비교용 숫자, 만원 단위 환산). 파싱 불가는 -1(맨 뒤) */
+    function parseAmount(v) {
+      if (v == null) return -1;
+      var s = String(v).replace(/\s/g, ''); if (!s) return -1;
+      var eok = 0, man = 0, has = false;
+      var em = s.match(/([\d,.]+)억/); if (em) { eok = parseFloat(em[1].replace(/,/g, '')) || 0; has = true; }
+      var mm = s.match(/([\d,.]+)만/); if (mm) { man = parseFloat(mm[1].replace(/,/g, '')) || 0; has = true; }
+      if (has) return eok * 10000 + man;
+      var n = parseFloat(s.replace(/[^\d.]/g, ''));
+      return isNaN(n) ? -1 : n;
+    }
     function renderRows(rows) {
       var list = document.getElementById('cov-list');
       if (!rows.length) {
         list.innerHTML = '<div class="cov-empty">검색 결과가 없습니다.<br>다른 보험사·담보명으로 검색해 보세요.</div>';
         return;
       }
-      list.innerHTML = rows.map(function(r) {
+      var arr = rows;
+      if (covSort === 'amount') {
+        arr = rows.slice().sort(function(a, b) { return parseAmount(b.join_amount) - parseAmount(a.join_amount); });
+      }
+      list.innerHTML = arr.map(function(r, i) {
         var pills = [
           pill('가입금액', r.join_amount, 'amt', false),
           pill('가입나이', r.join_age, '', false),
@@ -13980,8 +14007,14 @@
           pill('만기', r.maturity_period, '', true),
           pill('보험료', r.premium, '', false)
         ].join('');
+        var rank = '';
+        if (covSort === 'amount') {
+          var medal = i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : (i + 1) + '위';
+          rank = '<span class="cov-rank">' + medal + '</span>';
+        }
         return '<div class="cov-item">'
           + '<div class="cov-item-top">'
+          +   rank
           +   '<span class="cov-name">' + covEsc(r.coverage_name || '담보') + '</span>'
           +   (r.insurer ? '<span class="cov-insurer">' + covEsc(r.insurer) + '</span>' : '')
           + '</div>'
@@ -14010,7 +14043,8 @@
         } else {
           countEl.innerHTML = '전체 <b>' + total + '</b>개 담보 · 보험사·담보명으로 검색해 보세요';
         }
-        renderRows(rows);
+        covRows = rows;
+        renderRows(covRows);
         /* 측정(GROWTH 3축): 세션당 첫 유효 검색어 1회 기록 */
         if (q && !covTracked) {
           covTracked = true;
@@ -14028,6 +14062,9 @@
       var inp = document.getElementById('cov-q');
       inp.value = '';
       covTracked = false;
+      covSort = 'rel';
+      var sb = document.getElementById('cov-sort');
+      if (sb) sb.querySelectorAll('.cov-sort-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.sort === 'rel'); });
       covSearch();  // 기본: 전체 일부 표시(브라우즈)
       setTimeout(function() { inp.focus(); }, 80);
     };
@@ -14055,6 +14092,15 @@
     document.getElementById('cov-q').addEventListener('keydown', function(e) {
       if (e.key === 'Enter') { clearTimeout(covTimer); covSearch(); }
       else if (e.key === 'Escape') closeCoverage();
+    });
+    /* v2.25.0: 가입금액 정렬 토글 — 재요청 없이 캐시(covRows) 재렌더 */
+    document.getElementById('cov-sort').addEventListener('click', function(e) {
+      var btn = e.target.closest('.cov-sort-btn'); if (!btn) return;
+      this.querySelectorAll('.cov-sort-btn').forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      covSort = btn.dataset.sort;
+      renderRows(covRows);
+      if (covSort === 'amount' && typeof trackCardClick === 'function') trackCardClick('담보조회', '가입금액정렬');
     });
   })();
   </script>
