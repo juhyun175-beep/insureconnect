@@ -4211,6 +4211,9 @@
           </ul>
         </div>
         <button class="mt-refresh" onclick="loadMembersDash()" type="button">↻ 새로고침</button>
+        <!-- v2.22.0: 북극성 지표 (성장 8/8) — 가입·추천·견적·AI 핵심 전환 KPI 한 화면 -->
+        <div style="font-size:13px;font-weight:800;color:var(--txt-hi);margin:16px 0 8px;">🎯 북극성 지표 <span style="font-size:11px;font-weight:600;color:var(--txt-lo)">· 성장 핵심 전환 KPI</span></div>
+        <div id="mt-northstar" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:0 0 18px;"></div>
         <div class="mt-cards" id="mt-cards"><div class="mt-card"><div class="mt-num">—</div><div class="mt-lbl">불러오는 중…</div></div></div>
         <div class="roledist" id="mt-roles"></div>
         <div id="mt-chart" style="margin:14px 0 18px;"></div>
@@ -5240,7 +5243,25 @@
       var display = (num == null) ? '—' : (typeof num === 'number' ? num.toLocaleString() : String(num));
       return '<div class="mt-card"><div class="mt-num">' + display + '</div><div class="mt-lbl">' + esc(lbl) + '</div>' + (sub ? '<div class="mt-sub">' + esc(sub) + '</div>' : '') + '</div>';
     }
+    function renderNorthstar(ns) {
+      var el = document.getElementById('mt-northstar'); if (!el) return;
+      if (!ns) { el.innerHTML = ''; return; }
+      function k(ico, lbl, rate, sub, col) {
+        return '<div style="padding:13px 14px;border-radius:12px;background:' + col + '14;border:1px solid ' + col + '33;">'
+          + '<div style="font-size:15px;line-height:1">' + ico + '</div>'
+          + '<div style="font-size:23px;font-weight:800;color:var(--txt-hi,#0f172a);line-height:1.1;margin-top:4px">' + (rate || 0) + '%</div>'
+          + '<div style="font-size:12px;font-weight:700;color:var(--txt-mid,#475569);margin-top:2px">' + lbl + '</div>'
+          + '<div style="font-size:10.5px;color:var(--txt-lo,#94a3b8);margin-top:3px">' + esc(sub) + '</div></div>';
+      }
+      var a = ns.signup_conv || {}, b = ns.referral_rate || {}, c = ns.quote_conv || {}, d = ns.ai_revisit || {};
+      el.innerHTML =
+          k('🎯', '가입 전환율', a.rate, '방문 ' + (a.visits || 0) + ' → 가입 ' + (a.signups || 0) + ' · ' + (a.window || ''), '#1a3de8')
+        + k('🔁', '추천 가입률', b.rate, '추천 ' + (b.referred || 0) + ' / 회원 ' + (b.total || 0) + ' · ' + (b.window || ''), '#16a34a')
+        + k('🚗', '견적 전환율', c.rate, '신청 ' + (c.submits || 0) + ' / 클릭 ' + (c.clicks || 0) + ' · ' + (c.window || ''), '#f59e0b')
+        + k('🤖', 'AI 재방문율', d.rate, '재사용 ' + (d.repeat || 0) + ' / 사용자 ' + (d.users || 0) + ' · ' + (d.window || ''), '#7c3aed');
+    }
     function renderMetrics(m) {
+      renderNorthstar(m && m.northstar);
       const cards = [
         card(m.members_total, '누적 회원', '오늘 +' + (m.members_today || 0)),
         card(m.mau, 'MAU (30일 접속)'),

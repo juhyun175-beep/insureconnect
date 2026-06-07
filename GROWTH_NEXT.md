@@ -1,6 +1,6 @@
-# 성장 백로그 핸드오프 (8) — 마지막 1개, 새 세션에서 이어가기
+# 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.21.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.22.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
@@ -26,6 +26,34 @@
 - **실제 발송 활성화(미실시)**: ① `wrangler pages secret put CRON_SECRET` ② 외부 cron 등록(Pages 네이티브 cron 없음 — Worker cron/GitHub Actions/cron-job.org가 주1회 POST) ③ DRY 미리보기 검증 ④ `DIGEST_SEND_ENABLED=1` 설정. 현재 수신자 카톡 옵트인 87·푸시 5.
 - 미구현(선택): 개인화("내 질문 답변") — 현재는 공용 플랫폼 다이제스트.
 
-## ⬜ 8/8 — 북극성 지표 대시보드
-- 데이터: `/api/admin/metrics`(회원·방문·AI사용 14일 시리즈), `rental/telecom-stats`(전환율), `referral/leaderboard`.
-- TODO: 관리자에 **가입전환율 · 추천율(현 15%) · 견적전환율 · AI재방문율**을 한 화면(통합 기록지표 슬라이드 추가). 기존 데이터 조합 — 신규 쿼리 최소.
+## ✅ 8/8 — 북극성 지표 대시보드
+- `/api/admin/metrics` 확장(`northstar`) + admin.html 「🎯 북극성 지표」 패널(`renderNorthstar`, `#mt-northstar`): 가입전환·추천가입률·견적전환·AI재방문 4 KPI 한 화면. 신규 엔드포인트 0. (v2.22.0)
+- 실측: 추천 3.6%(6/166) · 견적 6.4%(3/47) · AI재방문 13.3%(2/15).
+
+---
+
+# 🆕 다음 후보 (9~) — 성장 백로그 v2
+
+> 1~8 완료. 아래는 **데이터 실측 기반** 후속 우선순위. GROWTH.md 5축(유입·전환·측정·재방문·수익) 렌즈.
+
+## ⬜ 9 — 주간 다이제스트 실발송 ON (7/8 후속) · 재방문↑
+- 인프라는 v2.21.0 완료(발송 게이트 OFF). 활성화: ① `wrangler pages secret put CRON_SECRET` ② 외부 cron(Worker cron/GitHub Actions/cron-job.org 주1회 POST) ③ DRY 미리보기 ④ `DIGEST_SEND_ENABLED=1`.
+- 추가: 개인화("내 질문에 새 답변") — 현재는 공용 다이제스트.
+
+## ⬜ 10 — 마이페이지 "내 성장" 패널 · 재방문·기여↑
+- 포인트·등급·**사례 기여수/순위**·다음 등급까지 한 카드. `/api/cases/contributors`의 `me` + `points` 재사용 (4/8 리더보드 개인화 surface).
+
+## ⬜ 11 — 추천율 개선 (현 3.6%) · 유입↑
+- 가입 직후 추천 프롬프트 + 초대 보상/문구 강화. 1/8(공유=추천)·홈 초대 CTA 위에서 전환 최적화.
+
+## ⬜ 12 — 견적 전환율 개선 (현 6.4%) · 수익↑
+- 파트너 견적 플로우(클릭→신청) 마찰 감소·신뢰요소·후속 안내. `ic_link_clicks_daily` submit 단계 이탈 분석.
+
+## ⬜ 13 — 담보 비교 표 (3/8 후속) · 실무가치↑
+- 같은 담보를 보험사별 가입금액 가로 비교(`/api/coverages`). 관리자 담보 데이터 확충 유도.
+
+## ⬜ 14 — 보험지식·인기글 내부링크 보강 (6/8 후속) · 유입↑
+- 홈/허브 → 개별 knowledge·인기 board 링크(소프트 SEO). sitemap은 이미 라이브.
+
+## ⬜ 15 — 북극성 지표 추세·목표 (8/8 후속) · 측정↑
+- KPI에 전주 대비 증감(▲▼) + 목표선. `/api/admin/metrics` `northstar`에 직전기간 비교 추가.

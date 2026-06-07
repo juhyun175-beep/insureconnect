@@ -59,10 +59,33 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   try { const rs = await env.DB.prepare(`SELECT date, SUM(count) n FROM ic_ai_usage WHERE date >= ? GROUP BY date`).bind(startDay).all(); (rs.results || []).forEach(r => { aiMap[r.date] = r.n; }); } catch (_) {}
   const ai_usage_series = days.map(d => ({ date: d, v: aiMap[d] || 0 }));
 
+  // v2.22.0: 북극성 지표 (성장 8/8) — 가입전환·추천율·견적전환·AI재방문 (기존 데이터 조합, 신규 쿼리 최소)
+  const _sum = (arr) => (arr || []).reduce((s, x) => s + (x.v || 0), 0);
+  const ns_visits = _sum(visit_series), ns_signups = _sum(signup_series);
+  const referrals_total = await one(`SELECT COUNT(*) n FROM ic_referrals`);
+  let q_clicks = 0, q_submits = 0;
+  try {
+    const r = await env.DB.prepare(
+      `SELECT SUM(CASE WHEN company_name IN ('렌트카 견적 시작','통신 견적 시작') THEN clicks ELSE 0 END) AS c,
+              SUM(CASE WHEN company_name IN ('렌트카 견적 신청 완료','통신 견적 신청 완료') THEN clicks ELSE 0 END) AS s
+       FROM ic_link_clicks_daily`
+    ).first();
+    q_clicks = +r?.c || 0; q_submits = +r?.s || 0;
+  } catch (_) {}
+  const ai_users = await one(`SELECT COUNT(DISTINCT ip_hash) n FROM ic_ai_usage`);
+  const ai_repeat = await one(`SELECT COUNT(*) n FROM (SELECT ip_hash FROM ic_ai_usage GROUP BY ip_hash HAVING COUNT(DISTINCT date) > 1)`);
+  const pct = (a, b) => b ? Math.round(a / b * 1000) / 10 : 0;
+  const northstar = {
+    signup_conv:   { rate: pct(ns_signups, ns_visits), signups: ns_signups, visits: ns_visits, window: '최근 14일' },
+    referral_rate: { rate: pct(referrals_total, members_total), referred: referrals_total, total: members_total, window: '누적' },
+    quote_conv:    { rate: pct(q_submits, q_clicks), submits: q_submits, clicks: q_clicks, window: '누적' },
+    ai_revisit:    { rate: pct(ai_repeat, ai_users), repeat: ai_repeat, users: ai_users, window: '누적' },
+  };
+
   return json({
     members_total, members_today, mau, wau, returning, returning_rate,
     alert_optin, alert_rate, push_subs, posts, comments, posts_7d, comments_7d,
     visits_total, visits_today, roles, visit_series, signup_series,
-    ai_usage_total, ai_usage_today, ai_usage_series,
+    ai_usage_total, ai_usage_today, ai_usage_series, northstar,
   });
 });
