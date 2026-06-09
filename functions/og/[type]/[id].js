@@ -61,8 +61,9 @@ async function trackOgVisit(env, request) {
 export const onRequestGet = async ({ params, env, request }) => {
   const { type, id } = params;
 
-  // v2.0.9: 봇 아닌 사람이 OG 링크 클릭 시 방문자수 증가
-  const tracked = await trackOgVisit(env, request);
+  // v2.29.0: 방문 집계는 클라이언트 비콘(실브라우저)만 — 서버측 og GET 집계 제거.
+  //   카톡 공유 링크는 봇UA를 벗어난 프리페치/프리뷰 재요청을 끌어들여 방문수를 부풀렸음(over-count).
+  //   실제 사람은 아래 클라이언트 리다이렉트로 착지 페이지(홈/콘텐츠)에 도달 → 그곳 trackVisit이 1회 집계.
 
   let title = 'InsureConnect — 보험으로 연결하다';
   let desc  = '보험설계사를 위한 통합 허브';
@@ -220,11 +221,7 @@ export const onRequestGet = async ({ params, env, request }) => {
     }
   } catch (_) {}
 
-  // v2.0.9: 서버측 카운트 성공 시 클라이언트 중복 트래킹 방지 플래그
-  if (tracked) {
-    const sep = target.includes('?') ? '&' : '?';
-    target = `${target}${sep}_via=share`;
-  }
+  // v2.29.0: 서버측 집계 폐지 → _via=share 중복방지 플래그 불필요. og→착지 페이지의 클라이언트 trackVisit이 실인간을 1회 집계.
 
   const robotsTag = indexable ? 'index,follow' : 'noindex,nofollow';
 

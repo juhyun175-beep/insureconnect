@@ -107,6 +107,16 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
     fetch('/api/track/hit',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,
       body:JSON.stringify({path:location.pathname,ref:document.referrer,utm:(function(){var s=_q.get('utm_source'),c=_q.get('utm_campaign');return c?(s?s+':'+c:c):s;})()})}).catch(function(){});
   } }catch(e){}
+  /* v2.29.0: 방문 집계 — 기기당 하루 1회(홈 trackVisit과 동일 ic_visited_date dedup).
+     이전엔 검색/직접 착지하는 SSR 콘텐츠 페이지(/insurance·/company 등)가 방문수에 집계 안 돼 누락(특히 네이버 검색유입). */
+  try{
+    var _bot=/bot|crawler|spider|scrap|preview|kakaotalk-scrap|kakao-link|naverbot|yeti|googlebot|bingbot|facebookexternalhit|line\/|headless/i.test(navigator.userAgent||'');
+    var _td=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10);
+    if(!_bot && localStorage.getItem('ic_visited_date')!==_td){
+      localStorage.setItem('ic_visited_date',_td);
+      fetch('/api/track/visit',{method:'POST',keepalive:true}).catch(function(){});
+    }
+  }catch(e){}
 })();
 </script>`;
 }

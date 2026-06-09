@@ -1,6 +1,7 @@
 # 성장 백로그 핸드오프 — 1~8 완료, 다음 후보(9~)부터 이어가기
 
-> 현재 배포 버전: **v2.28.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
+> 현재 배포 버전: **v2.29.0**. 작업 전 `node scripts/release.mjs --dry`로 보안/버전 확인.
+> 운영수정 v2.29.0: 방문 집계 정확화 — 콘텐츠 페이지 방문 비콘(seo-cta.js) + og 서버측 집계 제거(검색유입 누락·카톡 공유 급증 해결). 방문=클라/기기당 하루1회/봇제외. (v2.20.1 = 내부문서 노출차단 미들웨어 `functions/_middleware.js` — 별도 보안패치)
 > 배포: `node scripts/release.mjs` (보안 HIGH 0 게이트 → wrangler --branch=main → 커밋). CHANGELOG 최상단에 버전 먼저 작성.
 > DB: `npx wrangler d1 execute insureconnect-d1 --remote --command "..."`.
 > 듀얼 홈: `#page-home`(데스크톱) / `#page-home-mobile`(모바일). `ic-mobile` = 폭≤768 or 모바일 UA(_isMobile, ~15328).
