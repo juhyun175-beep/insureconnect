@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.38.1] - 2026-06-10
+### Added (AdSense 보강 — 로그인 없이 도달 가능한 콘텐츠 링크)
+- 로그인 전 랜딩(`#m-login-gate`)에 **「로그인 없이 둘러보기」** 블록 추가: **보험지식 120편 hub(`/insurance`)** + **채용공고(`/recruit`)**로 가는 크롤 가능한 `<a>` 링크. 크롤러·AdSense 심사자가 로그인 벽 없이 실제 콘텐츠(보험글 hub)에 직접 도달 → "가치 있는 콘텐츠" 신호 + 홈→hub 내부링크 강화. 기존 `.mlg-feat` 카드 스타일 재사용(신규 CSS 0).
+### Verified
+- 홈 H1 1개 유지 · `<a href="/insurance">` 크롤 노출 · 보안 HIGH 0 · release.mjs
+
 ## [2.38.0] - 2026-06-10
 ### Fixed (SEO/색인 — AdSense "가치 없는 콘텐츠" 반려 + 사이트맵 "가져올 수 없음" 대응)
 - **thin 콘텐츠 색인 차단(핵심)**: `og/news`(카드뉴스 공유페이지)는 이미지형이라 크롤 가능한 본문이 제목+"보러가기"뿐(≈157자)인데 `index,follow`로 18개가 색인 신호를 보내 사이트 전체가 **thin/low-value**로 판정됨(AdSense 반려·"크롤됐지만 색인안됨"의 트리거). → **og/news를 `noindex`로 전환**하고 **sitemap.xml에서도 제외**. 카톡/SNS 공유 미리보기(OG meta)는 그대로 유지. (양질인 보험글 120편·og/recruit 3,540자+JobPosting·og/board는 색인 유지)
