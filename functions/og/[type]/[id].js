@@ -84,7 +84,11 @@ export const onRequestGet = async ({ params, env, request }) => {
         image = r.file_url ? absUrl(r.file_url) : dynamicOgImage('news', id);
         target = `${SITE}/?news=${encodeURIComponent(id)}`;
         desc = '인슈어커넥트 뉴스 카드 보러가기';
-        indexable = true;
+        // v2.38.0: 카드뉴스는 이미지형 → 크롤 가능한 본문 텍스트가 없어(제목+링크뿐) 색인 시
+        //          thin/low-value 콘텐츠로 판정됨(AdSense 반려·"크롤됐지만 색인안됨" 유발).
+        //          카톡/SNS 공유 미리보기(OG meta)는 그대로 유지하되, 검색 색인만 차단(noindex)하고
+        //          sitemap.xml에서도 제외한다.
+        indexable = false;
         bodyContent = `<h1>${esc(title)}</h1><p>${esc(desc)}</p>`;
         jsonLd = {
           '@context': 'https://schema.org',

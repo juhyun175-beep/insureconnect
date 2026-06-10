@@ -26,7 +26,7 @@ export async function onRequestGet({ env }) {
   // 정적 페이지
   const staticUrls = [
     urlEntry(`${BASE}/`, today, 'daily', 1.0),
-    urlEntry(`${BASE}/privacy.html`, today, 'yearly', 0.3),
+    urlEntry(`${BASE}/privacy`, today, 'yearly', 0.3),
     urlEntry(`${BASE}/insurance`, today, 'daily', 0.9),
     urlEntry(`${BASE}/company`, today, 'weekly', 0.8),
     urlEntry(`${BASE}/rental`, today, 'weekly', 0.8),
@@ -51,18 +51,9 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/insurance/${p.category}/${p.slug}`, fmtDate(p.updated_at || p.created_at), 'weekly', 0.85)
   );
 
-  // 보험지식 (Supabase REST 경유 — 기존 호환)
-  let posts = [];
-  try {
-    const res = await fetch(
-      `${SB_URL}/rest/v1/ic_knowledge_posts?select=id,created_at,updated_at&order=created_at.desc&limit=1000`,
-      { headers: SB_HDR }
-    );
-    if (res.ok) posts = await res.json();
-  } catch (_) {}
-  const knowledgeUrls = posts.map(p =>
-    urlEntry(`${BASE}/knowledge/${p.id}`, fmtDate(p.updated_at || p.created_at), 'monthly', 0.8)
-  );
+  // v2.38.0: 보험지식(Supabase ic_knowledge_posts) 색인 제거 — 현재 0편(레거시·deprecated)인데
+  //          sitemap 생성 시 외부 Supabase fetch가 끼어 있어 Google 사이트맵 패치 실패("가져올 수 없음")
+  //          리스크 + 무의미한 지연만 유발. 외부 의존 제거로 사이트맵을 D1-only·고속·안정화.
 
   // 채용공고 (D1 직접)
   let recruits = [];
@@ -90,18 +81,10 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/og/lecture/${r.id}`, fmtDate(r.updated_at || r.created_at), 'weekly', 0.9)
   );
 
-  // 카드뉴스 (set_id 별 1엔트리)
-  let news = [];
-  try {
-    const rs = await env.DB.prepare(
-      `SELECT set_id, MAX(created_at) AS created_at
-       FROM ic_card_news GROUP BY set_id ORDER BY created_at DESC LIMIT 1000`
-    ).all();
-    news = rs.results || [];
-  } catch (_) {}
-  const newsUrls = news.map(n =>
-    urlEntry(`${BASE}/og/news/${n.set_id}`, fmtDate(n.created_at), 'monthly', 0.7)
-  );
+  // v2.38.0: 카드뉴스(og/news) 색인 제거 — 카드뉴스는 이미지형이라 크롤 가능한 본문 텍스트가
+  //          제목+"보러가기" 링크뿐(≈157자) → thin/low-value 콘텐츠로 사이트 품질을 끌어내려
+  //          AdSense 반려·"크롤됐지만 색인안됨"을 유발. og/news는 noindex 처리하고 sitemap에서도 제외.
+  //          (공유 미리보기 OG meta는 og 함수에서 그대로 유지됨)
 
   // 커뮤니티 인기글 (품질 게이트 통과만 — og/board 색인 기준과 동일)
   let boardPosts = [];
@@ -125,8 +108,6 @@ ${[
   ...seoPostUrls,
   ...recruitUrls,
   ...lectureUrls,
-  ...knowledgeUrls,
-  ...newsUrls,
   ...boardUrls,
 ].join('\n')}
 </urlset>`;

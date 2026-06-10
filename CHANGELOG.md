@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.38.0] - 2026-06-10
+### Fixed (SEO/색인 — AdSense "가치 없는 콘텐츠" 반려 + 사이트맵 "가져올 수 없음" 대응)
+- **thin 콘텐츠 색인 차단(핵심)**: `og/news`(카드뉴스 공유페이지)는 이미지형이라 크롤 가능한 본문이 제목+"보러가기"뿐(≈157자)인데 `index,follow`로 18개가 색인 신호를 보내 사이트 전체가 **thin/low-value**로 판정됨(AdSense 반려·"크롤됐지만 색인안됨"의 트리거). → **og/news를 `noindex`로 전환**하고 **sitemap.xml에서도 제외**. 카톡/SNS 공유 미리보기(OG meta)는 그대로 유지. (양질인 보험글 120편·og/recruit 3,540자+JobPosting·og/board는 색인 유지)
+- **사이트맵 외부의존 제거(안정화)**: sitemap 생성에서 **죽은 Supabase `ic_knowledge_posts` fetch(현재 0편) 제거** → D1-only로 고속·안정화(외부 fetch 실패로 인한 "가져올 수 없음" 재발 방지).
+- **사이트맵 리디렉션 URL 교정**: `/privacy.html`(308 리디렉션) → **`/privacy`**(최종 200, 개인정보처리방침 1,871자)로 변경(= "리디렉션 포함된 페이지" 1건 해소).
+- **죽은 정적 `sitemap.xml` 삭제**(함수 `functions/sitemap.xml.js`에 가려진 2-URL 잔재).
+- **홈 H1 추가**: 로그인 전 랜딩 헤드라인 `보험설계사 업무, 이제 한 곳에서`를 `h2`→`h1` 승격(홈 H1 0→1개, CSS `.mlg-title` 동일 적용·모양 무변경) — 페이지 구조/품질 신호 보강.
+### Note (사용자 조치 필요 — Search Console)
+- 사이트맵 "가져올 수 없음"은 5/30 제출 시점 실패가 박제된 상태(현재는 모든 UA에서 200·유효 XML 확인). 배포 후 Search Console에서 `/sitemap.xml` **삭제 후 재제출**(또는 재요청)하면 해소됨.
+- AdSense는 검토요청 횟수 소진(6/14부터 재요청 가능) — 본 배포로 thin 페이지 정리 후 6/14 이후 재요청 권장.
+### Verified
+- 댕글링 식별자 0 · `node --check`(sitemap·og) OK · 홈 H1 1개 · 보안 HIGH 0 · release.mjs
+
 ## [2.37.1] - 2026-06-10
 ### Changed (UI 정리 — 광고배너 확대 + 사이드바 정렬)
 - 홈 광고배너 폭 240→**360px**(이미지·텍스트가 크게 보이도록 — 높이만 맞추던 문제 해소).
