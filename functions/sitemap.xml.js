@@ -26,7 +26,12 @@ export async function onRequestGet({ env }) {
   // 정적 페이지
   const staticUrls = [
     urlEntry(`${BASE}/`, today, 'daily', 1.0),
+    urlEntry(`${BASE}/about`, today, 'monthly', 0.7),
+    urlEntry(`${BASE}/contact`, today, 'monthly', 0.5),
+    urlEntry(`${BASE}/guide`, today, 'monthly', 0.6),
     urlEntry(`${BASE}/privacy`, today, 'yearly', 0.3),
+    urlEntry(`${BASE}/terms`, today, 'yearly', 0.3),
+    urlEntry(`${BASE}/disclaimer`, today, 'yearly', 0.3),
     urlEntry(`${BASE}/insurance`, today, 'daily', 0.9),
     urlEntry(`${BASE}/company`, today, 'weekly', 0.8),
     urlEntry(`${BASE}/rental`, today, 'weekly', 0.8),

@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.39.0] - 2026-06-10
+### Added/Fixed (AdSense 신뢰 페이지 — About·Contact·정책 정비)
+- **Contact 페이지 신설(`/contact`)**: AdSense가 명시적으로 보는 문의 페이지(카카오톡 오픈채팅·이메일 `insureconnect@naver.com`·문의 유형·응답 안내·운영 정보). `about.html` 디자인 미러링.
+- **About 정비(`about.html`)**: canonical을 리디렉션되는 `/about.html` → **`/about`**(clean)로 교정. 내부 링크 `/privacy.html`·`/terms.html`·`/disclaimer.html` → clean URL + **`/contact` 링크 추가**.
+- **홈 푸터 정책 네비게이션 완비**: `소개·이용약관·개인정보처리방침` 링크를 **clean URL**로 교체하고 **문의하기(`/contact`)·면책조항(`/disclaimer`) 추가** → 크롤러·심사자가 모든 신뢰 페이지(About/Contact/Privacy/Terms/Disclaimer)에 홈에서 1클릭 도달.
+- **사이트맵에 신뢰 페이지 추가**: `/about·/contact·/guide·/terms·/disclaimer`(실제 HTML 콘텐츠, clean URL)를 `functions/sitemap.xml.js`에 등재.
+- **죽은 `_redirects` 규칙 제거**: `/sitemap.xml → /api/sitemap 302`(함수에 가려 죽어있던 규칙). 함수 배포 이전엔 Google 사이트맵 패치를 `/api/sitemap`으로 302시켜 **"가져올 수 없음"을 유발할 수 있던 랜드마인** 제거. 단일 권위본 = `/sitemap.xml`(`functions/sitemap.xml.js`).
+### Note
+- `functions/api/sitemap.js`(이중 사이트맵, 회사·GA 랜딩 URL 보유)는 robots 미광고·무참조라 잔존(무해). 후속: 회사/GA 랜딩이 실콘텐츠면 메인 사이트맵 통합 검토.
+### Verified
+- `node --check`(sitemap) OK · contact.html H1 1·연락처 정상 · about.html 내부 `.html` 링크 0 · 보안 HIGH 0 · release.mjs
+
 ## [2.38.1] - 2026-06-10
 ### Added (AdSense 보강 — 로그인 없이 도달 가능한 콘텐츠 링크)
 - 로그인 전 랜딩(`#m-login-gate`)에 **「로그인 없이 둘러보기」** 블록 추가: **보험지식 120편 hub(`/insurance`)** + **채용공고(`/recruit`)**로 가는 크롤 가능한 `<a>` 링크. 크롤러·AdSense 심사자가 로그인 벽 없이 실제 콘텐츠(보험글 hub)에 직접 도달 → "가치 있는 콘텐츠" 신호 + 홈→hub 내부링크 강화. 기존 `.mlg-feat` 카드 스타일 재사용(신규 CSS 0).
