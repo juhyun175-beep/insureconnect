@@ -9018,7 +9018,7 @@
         .ibh-aii-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 240px;gap:14px;align-items:stretch;margin:18px 0 24px;}
         .ibh-aii-row .ibh{margin:0;}
         /* v2.33.0: 우측 광고 컬럼(제휴상품) — 삼따AI 오른쪽 배치(전환 유도). 좁은 화면 숨김(모바일 홈은 별도 레이아웃) */
-        .ibh-ad{display:block;align-self:start;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;}
+        .ibh-ad{display:block;align-self:start;border:none;padding:0;background:none;cursor:pointer;width:100%;font-family:inherit;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;}
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
         .ibh-ad img{display:block;width:100%;height:auto;}
         @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
@@ -9159,11 +9159,36 @@
         <!-- v2.20.0: 사례 기여 리더보드 (성장 4/8) — 기여자가 있으면 JS가 노출 -->
         <div class="home-clb" id="home-clb" style="display:none;"></div>
       </section>
-      <!-- v2.33.0: 제휴상품 광고 (삼따AI 오른쪽 컬럼) — 클릭 시 외부 퍼널, 노출/클릭 추적 -->
-      <a class="ibh-ad" href="https://naver.me/xD8zNndZ" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','제휴상품')" aria-label="제휴상품 안내 — 보험 외 7가지 수익, 자세히 보기">
+      <!-- v2.34.0: 제휴상품 광고 (삼따AI 오른쪽) — 클릭 시 팝업(확대 + 상담 받아보기 CTA) -->
+      <button type="button" class="ibh-ad" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기">
         <img src="/connect.webp" alt="보험만 하실 건가요? 고객 한 명으로 7가지 수익 창출 — 제휴상품 안내" loading="lazy">
-      </a>
+      </button>
     </div>
+
+    <!-- v2.34.0: 홈 광고 팝업 (배너 클릭 → 확대 배너 + 「상담 받아보기」 → 네이버폼) -->
+    <style>
+      .had-overlay{position:fixed;inset:0;z-index:99991;display:none;align-items:center;justify-content:center;background:rgba(8,15,48,0.6);backdrop-filter:blur(3px);padding:18px}
+      .had-overlay.open{display:flex}
+      .had-card{position:relative;max-width:420px;width:100%;max-height:92vh;display:flex;flex-direction:column;background:#0b1020;border-radius:16px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:hadIn .22s ease}
+      @keyframes hadIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+      .had-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
+      .had-img{display:block;width:100%;height:auto}
+      .had-cta{display:block;flex-shrink:0;padding:16px;text-align:center;font-size:15.5px;font-weight:800;color:#191600;background:#FEE500;text-decoration:none;transition:filter .15s}
+      .had-cta:hover{filter:brightness(0.95)}
+      .had-x{position:absolute;top:10px;right:10px;width:34px;height:34px;border-radius:50%;border:none;background:rgba(255,255,255,0.92);color:#333;font-size:17px;font-weight:800;cursor:pointer;z-index:2;line-height:1}
+    </style>
+    <div id="home-ad-modal" class="had-overlay" role="dialog" aria-modal="true" aria-label="제휴상품 안내">
+      <div class="had-card">
+        <button type="button" class="had-x" aria-label="닫기" onclick="closeHomeAd()">✕</button>
+        <div class="had-scroll"><img class="had-img" src="/connect.webp" alt="보험만 하실 건가요? 고객 한 명으로 7가지 수익 창출"></div>
+        <a class="had-cta" href="https://naver.me/xD8zNndZ" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','상담클릭')">💬 상담 받아보기 →</a>
+      </div>
+    </div>
+    <script>
+      window.openHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; if(typeof trackCardClick==='function')trackCardClick('홈광고','배너클릭'); };
+      window.closeHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.remove('open'); document.body.style.overflow=''; };
+      (function(){ var m=document.getElementById('home-ad-modal'); if(m) m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })();
+    </script>
 
     <!-- v2.15.7: 친구 초대(추천) 상시 배너 — 기존 양방향 포인트 루프 활성화(신규유입 축) -->
     <style>
