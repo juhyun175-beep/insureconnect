@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.39.1] - 2026-06-10
+### Fixed (사이트맵 단일화 + 보험사·GA 전산 랜딩 색인 — 신규유입↑)
+- **보험사 32 + GA 17 + 집계 3(고객센터·청구팩스·청구서류) + `/ga` 허브를 메인 사이트맵에 통합**(+53 URL). 검증결과 모두 **SSR 콘텐츠 페이지**(2,600~3,243자·H1 1·`index,follow`·자기 canonical·잘못된 슬러그는 404) — "○○생명 전산 바로가기" 등 **고의도 검색 유입 자산**인데 그동안 권위본 사이트맵에서 누락돼 있었음. `functions/sitemap.xml.js`가 `INSURERS`·`GA_LIST` import.
+- **이중 사이트맵 제거**: `functions/api/sitemap.js`(별도 생성·죽은 Supabase fetch 포함)를 **권위본 `/sitemap.xml`로 301 영구이동**. 단일 소스화 + 중복 유지보수·외부 의존 제거.
+- 죽은 `SB_*` 상수(v2.38.0에서 fetch 제거 후 미사용) 정리.
+### Verified
+- `node --check`(sitemap·api/sitemap) OK · INSURERS/GA_LIST export 확인 · companyUrls 스프레드 포함 · SB_ 참조 0 · 보안 HIGH 0 · release.mjs
+
 ## [2.39.0] - 2026-06-10
 ### Added/Fixed (AdSense 신뢰 페이지 — About·Contact·정책 정비)
 - **Contact 페이지 신설(`/contact`)**: AdSense가 명시적으로 보는 문의 페이지(카카오톡 오픈채팅·이메일 `insureconnect@naver.com`·문의 유형·응답 안내·운영 정보). `about.html` 디자인 미러링.

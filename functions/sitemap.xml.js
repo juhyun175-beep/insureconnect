@@ -3,10 +3,10 @@
  * v2.1.39: 채용공고/강의공고/카드뉴스 + 기존 보험지식 + 정적 URL 통합
  *           Google Jobs / 네이버 검색 노출용 인덱싱 시드
  */
+import { INSURERS } from './_lib/insurers.js';
+import { GA_LIST } from './_lib/ga-companies.js';
+
 const BASE = 'https://insureconnect-hub.pages.dev';
-const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
-const SB_HDR  = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
 
 function fmtDate(iso) {
   return iso ? String(iso).slice(0, 10) : new Date().toISOString().slice(0, 10);
@@ -40,6 +40,18 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/lecture`, today, 'daily', 0.85),
     urlEntry(`${BASE}/newsletter`, today, 'weekly', 0.7),
     urlEntry(`${BASE}/community`, today, 'daily', 0.7),
+  ];
+
+  // v2.39.1: 보험사·GA 전산 랜딩(SSR 콘텐츠·자기 canonical·index,follow) — 메인 사이트맵 통합.
+  //          "○○생명 전산 바로가기" 등 고의도 검색 유입 자산. 잘못된 슬러그는 [slug].js가 404 처리.
+  //          (기존 functions/api/sitemap.js에만 있던 페이지를 권위본 /sitemap.xml로 일원화)
+  const companyUrls = [
+    urlEntry(`${BASE}/company/customer-center`, today, 'weekly', 0.85),
+    urlEntry(`${BASE}/company/claim-fax`, today, 'weekly', 0.85),
+    urlEntry(`${BASE}/company/claim-forms`, today, 'weekly', 0.85),
+    ...INSURERS.map(i => urlEntry(`${BASE}/company/${i.slug}`, today, 'weekly', 0.8)),
+    urlEntry(`${BASE}/ga`, today, 'weekly', 0.8),
+    ...GA_LIST.map(g => urlEntry(`${BASE}/ga/${g.slug}`, today, 'weekly', 0.75)),
   ];
 
   // v2.0.0 (master): SEO 게시판 카테고리 + 게시글
@@ -109,6 +121,7 @@ export async function onRequestGet({ env }) {
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${[
   ...staticUrls,
+  ...companyUrls,
   ...seoCategoryUrls,
   ...seoPostUrls,
   ...recruitUrls,
