@@ -35,9 +35,9 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   const [vM, vPrev, vTotal, cM, convM, convPrev, mTotal, mNewM,
     recV, recF, recFm, lecV, lecF, lecFm, renC, renS, renSm, telC, telS, telSm,
     trafTop, trafTotal] = await Promise.all([
-    q(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily WHERE date>=?`, monthStart),
-    q(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily WHERE date>=? AND date<?`, prevMonthStart, prevPeriodEnd),
-    q(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily`),
+    q(`SELECT COUNT(*) n FROM ic_traffic_hits WHERE date>=?`, monthStart),
+    q(`SELECT COUNT(*) n FROM ic_traffic_hits WHERE date>=? AND date<?`, prevMonthStart, prevPeriodEnd),
+    q(`SELECT COUNT(*) n FROM ic_traffic_hits`),
     q(`SELECT COALESCE(SUM(clicks),0) n FROM ic_card_clicks_daily WHERE date>=?`, monthStart),
     q(`SELECT COALESCE(SUM(clicks),0) n FROM ic_link_clicks_daily WHERE company_type LIKE '%form' AND date>=?`, monthStart),
     q(`SELECT COALESCE(SUM(clicks),0) n FROM ic_link_clicks_daily WHERE company_type LIKE '%form' AND date>=? AND date<?`, prevMonthStart, prevPeriodEnd),

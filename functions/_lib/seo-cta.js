@@ -148,7 +148,7 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
   function show(){
     if(shown) return; shown=true;
     var el=document.getElementById('ic-adpop'); if(!el) return;
-    var img=el.querySelector('.ic-adpop-img'); if(img && !img.getAttribute('src')) img.setAttribute('src','/connect.png');
+    var img=el.querySelector('.ic-adpop-img'); if(img && !img.getAttribute('src')) img.setAttribute('src','/connect.webp');
     el.classList.add('show'); document.body.style.overflow='hidden';
     try{ localStorage.setItem(KEY,String(Date.now())); }catch(e){}
     track('노출');

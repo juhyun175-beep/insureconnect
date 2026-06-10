@@ -26,8 +26,8 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
     one(`SELECT COUNT(*) n FROM (SELECT user_id FROM ic_member_sessions GROUP BY user_id HAVING COUNT(*) > 1)`),
     one(`SELECT COUNT(*) n FROM ic_board_posts WHERE deleted = 0`),
     one(`SELECT COUNT(*) n FROM ic_board_comments WHERE deleted = 0`),
-    one(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily`),
-    one(`SELECT COALESCE(visits,0) n FROM ic_visits_daily WHERE date = ?`, todayKst),
+    one(`SELECT COUNT(*) n FROM ic_traffic_hits`),
+    one(`SELECT COUNT(*) n FROM ic_traffic_hits WHERE date = ?`, todayKst),
     one(`SELECT COUNT(*) n FROM ic_members WHERE alert_optin = 1`),
     one(`SELECT COUNT(*) n FROM ic_push_subscriptions WHERE active = 1`),
     one(`SELECT COUNT(*) n FROM ic_board_posts WHERE deleted = 0 AND created_at >= ?`, d7),
@@ -50,7 +50,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   for (let i = 13; i >= 0; i--) days.push(new Date(now - i * 86400000 + 9 * 3600000).toISOString().slice(0, 10));
   const startDay = days[0];
   const visitMap = {}, signupMap = {};
-  try { const rs = await env.DB.prepare(`SELECT date, visits FROM ic_visits_daily WHERE date >= ? ORDER BY date ASC`).bind(startDay).all(); (rs.results || []).forEach(r => { visitMap[r.date] = r.visits; }); } catch (_) {}
+  try { const rs = await env.DB.prepare(`SELECT date, COUNT(*) AS visits FROM ic_traffic_hits WHERE date >= ? GROUP BY date ORDER BY date ASC`).bind(startDay).all(); (rs.results || []).forEach(r => { visitMap[r.date] = r.visits; }); } catch (_) {}
   try { const rs = await env.DB.prepare(`SELECT substr(created_at,1,10) d, COUNT(*) n FROM ic_members WHERE created_at >= ? GROUP BY d`).bind(startDay).all(); (rs.results || []).forEach(r => { signupMap[r.d] = r.n; }); } catch (_) {}
   const visit_series = days.map(d => ({ date: d, v: visitMap[d] || 0 }));
   const signup_series = days.map(d => ({ date: d, v: signupMap[d] || 0 }));
@@ -72,9 +72,9 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   const lastMonSameDay = _ymd(_lmDate.getUTCFullYear(), _lmDate.getUTCMonth(), Math.min(_dd, _lastMonDays));
 
   // 가입 전환 (이번 달 / 지난 달 동기간)
-  const mVisits  = await one(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily WHERE date BETWEEN ? AND ?`, curMonStart, curDay);
+  const mVisits  = await one(`SELECT COUNT(*) n FROM ic_traffic_hits WHERE date BETWEEN ? AND ?`, curMonStart, curDay);
   const mSignups = await one(`SELECT COUNT(*) n FROM ic_members WHERE substr(created_at,1,10) BETWEEN ? AND ?`, curMonStart, curDay);
-  const lVisits  = await one(`SELECT COALESCE(SUM(visits),0) n FROM ic_visits_daily WHERE date BETWEEN ? AND ?`, lastMonStart, lastMonSameDay);
+  const lVisits  = await one(`SELECT COUNT(*) n FROM ic_traffic_hits WHERE date BETWEEN ? AND ?`, lastMonStart, lastMonSameDay);
   const lSignups = await one(`SELECT COUNT(*) n FROM ic_members WHERE substr(created_at,1,10) BETWEEN ? AND ?`, lastMonStart, lastMonSameDay);
   const signup_delta = (mVisits && lVisits) ? Math.round((pct(mSignups, mVisits) - pct(lSignups, lVisits)) * 10) / 10 : null;
 

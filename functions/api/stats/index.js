@@ -32,13 +32,13 @@ export const onRequestGet = async ({ env }) => handle(async () => {
   }
 
   const [todayV, weekV, totalV, todayC, totalC, visitsRows, clicksRows] = await Promise.all([
-    env.DB.prepare(`SELECT COALESCE(visits, 0) AS n FROM ic_visits_daily WHERE date = ?`).bind(today).first(),
-    // 이번 주 (일요일 ~ 오늘) 합산 — 미래 날짜는 데이터가 없으니 자동 0
-    env.DB.prepare(`SELECT COALESCE(SUM(visits), 0) AS n FROM ic_visits_daily WHERE date >= ? AND date <= ?`).bind(weekStartStr, today).first(),
-    env.DB.prepare(`SELECT COALESCE(SUM(visits), 0) AS n FROM ic_visits_daily`).first(),
+    // v2.32.0: 방문수 단일 소스 = ic_traffic_hits (유입경로 stats/traffic 와 동일 테이블 → 홈·관리자·유입경로 수치 일치). ic_visits_daily(og 과집계로 부풀려진 구버전 카운터) 사용 중단.
+    env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_traffic_hits WHERE date = ?`).bind(today).first(),
+    env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_traffic_hits WHERE date >= ? AND date <= ?`).bind(weekStartStr, today).first(),
+    env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_traffic_hits`).first(),
     env.DB.prepare(`SELECT COALESCE(SUM(clicks), 0) AS n FROM ic_card_clicks_daily WHERE date = ?`).bind(today).first(),
     env.DB.prepare(`SELECT COALESCE(SUM(clicks), 0) AS n FROM ic_card_clicks_daily`).first(),
-    env.DB.prepare(`SELECT date, visits FROM ic_visits_daily WHERE date >= ? ORDER BY date ASC`).bind(last7[0]).all(),
+    env.DB.prepare(`SELECT date, COUNT(*) AS visits FROM ic_traffic_hits WHERE date >= ? GROUP BY date ORDER BY date ASC`).bind(last7[0]).all(),
     env.DB.prepare(`SELECT date, SUM(clicks) AS clicks FROM ic_card_clicks_daily WHERE date >= ? GROUP BY date ORDER BY date ASC`).bind(last7[0]).all(),
   ]);
 
