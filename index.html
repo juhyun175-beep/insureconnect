@@ -8019,6 +8019,31 @@
     function icLogout(){ fetch('/api/auth/logout',{method:'POST',credentials:'same-origin'}).then(function(){location.reload();}); }
     </script>
 
+    <!-- v2.37.0: 빠른 메뉴 — 사이드바 docking (구 우측 ⚡ 플로팅 팝업을 로그인정보 아래로 이식, .menu-pill 디자인 동일) -->
+    <style>
+      .side-quickmenu{margin:0 0 4px;padding:10px 11px;background:var(--bg-card);border:1px solid var(--border);border-radius:12px;}
+      .side-quickmenu-head{font-size:12px;font-weight:800;color:var(--txt-hi);display:flex;align-items:center;gap:5px;margin-bottom:8px;}
+      .side-quickmenu .sqm-ico{font-size:14px;}
+      .side-quickmenu .menu-float-grid{padding:0;gap:6px;}
+      @media (max-width:1024px){ .side-quickmenu{display:none;} }
+    </style>
+    <div class="side-quickmenu" data-tour="quickmenu">
+      <div class="side-quickmenu-head"><span class="sqm-ico">⚡</span> 빠른 메뉴</div>
+      <div class="menu-float-grid">
+        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인슈어커넥트뉴스'); goToPage('latest');">📰 인슈어커넥트 뉴스</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','전산'); goToPage('jeonsan');">전산</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','GA전산'); goToPage('ga');">GA</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','수납전산'); goToPage('payment');">수납</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','소식지'); goToPage('newsletter');">소식지</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','청구서류'); goToPage('claimform');">청구</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','채용공고'); goToPage('recruit');">채용</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
+        <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
+        <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
+        <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
+      </div>
+    </div>
+
     <!-- v2.7.8: 커뮤니티 링크 (「커뮤니티 참여」 라벨 제거, 강조 CREW300 버튼 유지) / 홈·보험정보·자유게시판 탭 제거 → 로고→홈·홈 내 링크·검색으로 접근 -->
     <div class="side-comm-section" data-tour="community">
       <a class="side-comm-btn kakao"
@@ -8659,7 +8684,7 @@
   <script>
     var IC_TOUR=[
       {sel:"[data-tour='account']",title:"👤 내 계정 · 빠른 검색",body:"로그인 정보와 마이페이지, 내 공고 직접 등록, 빠른 검색이 모두 여기 있어요. 보유 포인트도 여기서 확인해요."},
-      {sel:"[data-tour='quickmenu']",title:"⚡ 빠른 메뉴 (가장 중요!)",body:"⚡ 메뉴 버튼이에요. 보험사 전산·청구·GA 전산·소식지·강의·채용 등 자주 쓰는 기능을 여기서 한 번에 열 수 있어요. 가장 많이 쓰게 될 핵심 메뉴이니 꼭 기억하세요!"},
+      {sel:"[data-tour='quickmenu']",title:"⚡ 빠른 메뉴 (가장 중요!)",body:"⚡ 빠른 메뉴예요. 보험사 전산·청구·GA 전산·소식지·강의·채용 등 자주 쓰는 기능을 여기서 한 번에 열 수 있어요. 가장 많이 쓰게 될 핵심 메뉴이니 꼭 기억하세요!"},
       {sel:"[data-tour='ai']",title:"🤖 삼따AI",body:"보험 질문을 입력하고 물어보기를 누르면, 실제 인수·보상 사례를 근거로 답해줘요. 어려운 고지·심사도 바로 확인할 수 있어요!"},
       {sel:"[data-tour='board']",title:"💬 자유게시판",body:"동료 설계사들과 정보를 나누고 궁금한 점을 질문할 수 있어요. 최신 글이 여기에 올라와요."},
       {sel:"[data-tour='invite']",title:"🎁 친구 추천·초대",body:"내 초대 링크로 친구가 가입하면 둘 다 포인트를 받아요. 포인트는 삼따AI 이용 등에 쓸 수 있어요."},
@@ -14930,10 +14955,11 @@
     .menu-float-launcher{position:fixed;top:176px;right:16px;z-index:248;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border:none;font-size:9px;font-weight:800;cursor:pointer;box-shadow:0 6px 20px rgba(26,61,232,0.4);}
     .menu-float-launcher:hover{filter:brightness(1.1);}
     .menu-float-launcher .mfl-ico{font-size:18px;}
-    body.ic-mobile .menu-float-popup, body.ic-mobile .menu-float-launcher{display:none !important;}
+    /* v2.37.0: 빠른메뉴를 사이드바로 docking → 구 우측 플로팅 팝업/런처 전체 숨김 */
+    .menu-float-popup, .menu-float-launcher{display:none !important;}
     @media (max-width:1024px){.menu-float-popup,.menu-float-launcher{display:none !important;}}
   </style>
-  <div id="menu-float-popup" class="menu-float-popup" role="dialog" aria-label="빠른 메뉴" style="display:none;" data-tour="quickmenu">
+  <div id="menu-float-popup" class="menu-float-popup" role="dialog" aria-label="빠른 메뉴" style="display:none;">
     <div class="menu-float-handle" id="menu-float-handle">
       <span class="menu-float-grip" aria-hidden="true">⋮⋮</span>
       <span class="menu-float-title">⚡ 빠른 메뉴</span>
@@ -14953,7 +14979,7 @@
       <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
     </div>
   </div>
-  <button id="menu-float-launcher" class="menu-float-launcher" type="button" data-tour="quickmenu" onclick="expandMenuPopup()" title="빠른 메뉴 열기" aria-label="빠른 메뉴 열기" style="display:none;"><span class="mfl-ico">⚡</span>메뉴</button>
+  <button id="menu-float-launcher" class="menu-float-launcher" type="button" onclick="expandMenuPopup()" title="빠른 메뉴 열기" aria-label="빠른 메뉴 열기" style="display:none;"><span class="mfl-ico">⚡</span>메뉴</button>
   <script>
   (function(){
     function $(id){ return document.getElementById(id); }
