@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.33.0] - 2026-06-10
+### Added (홈 대시보드 제휴상품 광고 — 삼따AI 우측 · 전환 유도)
+- **데스크톱 홈 대시보드 「삼따AI 섹션 오른쪽」에 제휴상품 광고 컬럼**(`/connect.webp` → `naver.me/xD8zNndZ`): 기존 2단(자유게시판|AI) `.ibh-aii-row`를 **3단으로 확장**(우측 240px 광고). 호버 리프트 · 클릭 추적(`trackCardClick('홈광고','제휴상품')`) · lazy-load. ≤1100px·모바일 홈에선 숨김(모바일 홈 별도 레이아웃 — SEO 랜딩은 팝업 v2.31로 커버).
+### Verified
+- 마크업 배포 확인 · 보안 HIGH 0 · release.mjs
+
 ## [2.32.0] - 2026-06-10
 ### Fixed (방문자수 단일 소스 통일 — 홈 실시간 방문자수 vs 유입경로 불일치 해결)
 - **홈 실시간 방문자수와 관리자 유입경로가 서로 다른 테이블이라 불일치**: 홈 방문수=`ic_visits_daily`(track/visit·기기당하루1회·og 과집계로 부풀려짐, 누적 5765), 유입경로=`ic_traffic_hits`(track/hit·세션당1회·source 속성)로 **두 독립 카운터**였음. → 모든 방문수 표시(`/api/stats` 홈 strip·관리자 KPI · `/api/admin/metrics` 북극성·14일 시리즈 · `/api/admin/analyze`)를 **`ic_traffic_hits` 단일 소스로 통일**. 이제 홈·관리자·유입경로 정확히 일치(실데이터 누적 2126·오늘 130). `ic_traffic_hits`는 홈+SSR 콘텐츠 전 페이지 집계·봇제외·세션dedup이라 검색유입 누락도 동시 해결. 구 `ic_visits_daily`는 표시 중단(부정확).

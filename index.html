@@ -9015,8 +9015,13 @@
     <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
     <div class="ibh-aii-row">
       <style>
-        .ibh-aii-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;align-items:stretch;margin:18px 0 24px;}
+        .ibh-aii-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 240px;gap:14px;align-items:stretch;margin:18px 0 24px;}
         .ibh-aii-row .ibh{margin:0;}
+        /* v2.33.0: 우측 광고 컬럼(제휴상품) — 삼따AI 오른쪽 배치(전환 유도). 좁은 화면 숨김(모바일 홈은 별도 레이아웃) */
+        .ibh-ad{display:block;align-self:start;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;}
+        .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
+        .ibh-ad img{display:block;width:100%;height:auto;}
+        @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
@@ -9154,6 +9159,10 @@
         <!-- v2.20.0: 사례 기여 리더보드 (성장 4/8) — 기여자가 있으면 JS가 노출 -->
         <div class="home-clb" id="home-clb" style="display:none;"></div>
       </section>
+      <!-- v2.33.0: 제휴상품 광고 (삼따AI 오른쪽 컬럼) — 클릭 시 외부 퍼널, 노출/클릭 추적 -->
+      <a class="ibh-ad" href="https://naver.me/xD8zNndZ" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','제휴상품')" aria-label="제휴상품 안내 — 보험 외 7가지 수익, 자세히 보기">
+        <img src="/connect.webp" alt="보험만 하실 건가요? 고객 한 명으로 7가지 수익 창출 — 제휴상품 안내" loading="lazy">
+      </a>
     </div>
 
     <!-- v2.15.7: 친구 초대(추천) 상시 배너 — 기존 양방향 포인트 루프 활성화(신규유입 축) -->
