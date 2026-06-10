@@ -5508,12 +5508,9 @@
       transform: scale(1.06);
       box-shadow: 0 8px 26px rgba(0,0,0,0.24);
     }
-    /* 모바일/태블릿 — 좁은 화면에서는 floating popup 숨김 (모바일 홈은 별도 UI) */
-    body.ic-mobile .fav-float-popup,
-    body.ic-mobile .fav-float-reopener { display: none !important; }
-    @media (max-width: 1024px) {
-      .fav-float-popup, .fav-float-reopener { display: none !important; }
-    }
+    /* v2.36.0: 즐겨찾기 플로팅 팝업 제거(사용자 요청) — 데스크톱 포함 전체 숨김. 즐겨찾기 기능(실무도구 ☆·실무도구 페이지)은 유지. */
+    .fav-float-popup,
+    .fav-float-reopener { display: none !important; }
 
     /* #home-fav-section 본문 — popup 내부에 들어가는 형태 */
     #fav-float-popup #home-fav-section {
@@ -8663,7 +8660,6 @@
     var IC_TOUR=[
       {sel:"[data-tour='account']",title:"👤 내 계정 · 빠른 검색",body:"로그인 정보와 마이페이지, 내 공고 직접 등록, 빠른 검색이 모두 여기 있어요. 보유 포인트도 여기서 확인해요."},
       {sel:"[data-tour='quickmenu']",title:"⚡ 빠른 메뉴 (가장 중요!)",body:"⚡ 메뉴 버튼이에요. 보험사 전산·청구·GA 전산·소식지·강의·채용 등 자주 쓰는 기능을 여기서 한 번에 열 수 있어요. 가장 많이 쓰게 될 핵심 메뉴이니 꼭 기억하세요!"},
-      {sel:"[data-tour='favorites']",title:"⭐ 즐겨찾기",body:"전산·실무도구의 ☆ 버튼을 누르면 여기에 모여요. 다음부터 더 빠르게 찾을 수 있어요."},
       {sel:"[data-tour='ai']",title:"🤖 삼따AI",body:"보험 질문을 입력하고 물어보기를 누르면, 실제 인수·보상 사례를 근거로 답해줘요. 어려운 고지·심사도 바로 확인할 수 있어요!"},
       {sel:"[data-tour='board']",title:"💬 자유게시판",body:"동료 설계사들과 정보를 나누고 궁금한 점을 질문할 수 있어요. 최신 글이 여기에 올라와요."},
       {sel:"[data-tour='invite']",title:"🎁 친구 추천·초대",body:"내 초대 링크로 친구가 가입하면 둘 다 포인트를 받아요. 포인트는 삼따AI 이용 등에 쓸 수 있어요."},
@@ -9018,9 +9014,10 @@
         .ibh-aii-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 240px;gap:14px;align-items:stretch;margin:18px 0 24px;}
         .ibh-aii-row .ibh{margin:0;}
         /* v2.33.0: 우측 광고 컬럼(제휴상품) — 삼따AI 오른쪽 배치(전환 유도). 좁은 화면 숨김(모바일 홈은 별도 레이아웃) */
-        .ibh-ad{display:block;align-self:start;border:none;padding:0;background:none;cursor:pointer;width:100%;font-family:inherit;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;}
+        /* v2.36.0: 광고배너 높이를 옆 섹션(자유게시판·삼따AI)과 동일하게 stretch. 이미지의 어두운 배경과 블렌딩되도록 다크 배경 + contain(크롭 없음) */
+        .ibh-ad{display:flex;align-items:center;justify-content:center;align-self:stretch;border:none;padding:0;background:#0b1020;cursor:pointer;width:100%;font-family:inherit;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;}
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
-        .ibh-ad img{display:block;width:100%;height:auto;}
+        .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
         @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
@@ -9169,7 +9166,7 @@
     <style>
       .had-overlay{position:fixed;inset:0;z-index:99991;display:none;align-items:center;justify-content:center;background:rgba(8,15,48,0.6);backdrop-filter:blur(3px);padding:18px}
       .had-overlay.open{display:flex}
-      .had-card{position:relative;max-width:420px;width:100%;max-height:92vh;display:flex;flex-direction:column;background:#0b1020;border-radius:16px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:hadIn .22s ease}
+      .had-card{position:relative;max-width:560px;width:100%;max-height:94vh;display:flex;flex-direction:column;background:#0b1020;border-radius:16px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.5);animation:hadIn .22s ease}
       @keyframes hadIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
       .had-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch}
       .had-img{display:block;width:100%;height:auto}

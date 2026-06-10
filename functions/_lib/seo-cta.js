@@ -122,7 +122,7 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
 <style>
 .ic-adpop{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;background:rgba(8,15,48,0.55);backdrop-filter:blur(2px);padding:16px}
 .ic-adpop.show{display:flex}
-.ic-adpop-card{position:relative;max-width:380px;width:100%}
+.ic-adpop-card{position:relative;max-width:520px;width:100%}
 .ic-adpop-img{display:block;width:100%;height:auto;max-height:82vh;object-fit:contain;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.45);cursor:pointer;background:#0b1020}
 .ic-adpop-x{position:absolute;top:-13px;right:-9px;width:34px;height:34px;border-radius:50%;border:none;background:#fff;color:#333;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:2;line-height:1}
 .ic-adpop-hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:12.5px;font-weight:800;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.75);pointer-events:none}
