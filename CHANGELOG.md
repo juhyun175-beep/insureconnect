@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.31.0] - 2026-06-10
+### Added (광고 팝업 — 제휴상품, SEO 랜딩 전 페이지 · 신규유입 전환)
+- **SEO 랜딩 전 페이지(`seo-cta.js`: /insurance·/company·/board·/recruit·/ga·/lecture·/newsletter·/community·/rental·/telecom)에 광고 팝업**(`/connect.png` → `naver.me/xD8zNndZ`). **비침입형**: 5초 후 노출 또는 데스크톱 이탈의도(exit-intent) · **기기당 3일 쿨다운**(localStorage `ic_adpop_v1`) · 봇 제외 · X·바깥클릭 닫기 · 이미지 lazy-load · 노출/클릭 추적(`광고팝업`). 모바일 하단 슬라이드업(전면차단 X — 구글 모바일 인터스티셜 페널티·SEO 보호, 5초 지연).
+### Verified
+- `node --check`(seo-cta.js) · 광고 이미지(connect.png) 배포 동봉 · 보안 HIGH 0 · release.mjs
+
 ## [2.30.0] - 2026-06-10
 ### Changed (북극성 지표 기준 = 이번 달)
 - 북극성 **가입·견적 전환**을 **"최근 14일 합" → "이번 달(1일~오늘)"** 기준으로 변경 + **지난 달 동기간(MTD) 대비 증감(MoM ▲▼%p)**. 추천 가입률·AI 재방문율은 누적 유지. 윈도 라벨 "N월", 프론트 "전월비"(지난달 데이터 없으면 화살표 생략).

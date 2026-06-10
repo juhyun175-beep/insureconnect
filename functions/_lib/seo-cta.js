@@ -118,5 +118,49 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
     }
   }catch(e){}
 })();
+</script>
+<style>
+.ic-adpop{position:fixed;inset:0;z-index:99990;display:none;align-items:center;justify-content:center;background:rgba(8,15,48,0.55);backdrop-filter:blur(2px);padding:16px}
+.ic-adpop.show{display:flex}
+.ic-adpop-card{position:relative;max-width:380px;width:100%}
+.ic-adpop-img{display:block;width:100%;height:auto;max-height:82vh;object-fit:contain;border-radius:14px;box-shadow:0 24px 60px rgba(0,0,0,.45);cursor:pointer;background:#0b1020}
+.ic-adpop-x{position:absolute;top:-13px;right:-9px;width:34px;height:34px;border-radius:50%;border:none;background:#fff;color:#333;font-size:17px;font-weight:800;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);z-index:2;line-height:1}
+.ic-adpop-hint{position:absolute;left:0;right:0;bottom:12px;text-align:center;font-size:12.5px;font-weight:800;color:#fff;text-shadow:0 1px 8px rgba(0,0,0,.75);pointer-events:none}
+@media(max-width:640px){.ic-adpop{align-items:flex-end;padding:0}.ic-adpop-card{max-width:100%}.ic-adpop-img{max-height:80vh;border-radius:16px 16px 0 0}.ic-adpop-x{top:9px;right:9px}}
+</style>
+<div id="ic-adpop" class="ic-adpop" role="dialog" aria-label="제휴상품 안내" aria-modal="true">
+  <div class="ic-adpop-card">
+    <button type="button" class="ic-adpop-x" aria-label="닫기">✕</button>
+    <a class="ic-adpop-link" href="https://naver.me/xD8zNndZ" target="_blank" rel="noopener noreferrer">
+      <img class="ic-adpop-img" alt="보험만 하실 건가요? 고객 한 명으로 7가지 수익 — 자세히 보기" loading="lazy">
+      <span class="ic-adpop-hint">👆 눌러서 자세히 보기</span>
+    </a>
+  </div>
+</div>
+<script>
+/* v2.31.0: 광고 팝업(제휴상품) — SEO 랜딩 전 페이지. 비침입형: 5초 후 or 데스크톱 이탈의도, 기기당 3일 쿨다운, 봇제외, 노출/클릭 추적, 이미지 lazy */
+(function(){
+  var KEY='ic_adpop_v1';
+  try{ var last=parseInt(localStorage.getItem(KEY)||'0',10)||0; if(Date.now()-last < 3*86400000) return; }catch(e){}
+  if(/bot|crawler|spider|scrap|preview|naverbot|yeti|googlebot|bingbot|headless/i.test(navigator.userAgent||'')) return;
+  function track(card){ try{ fetch('/api/track/card-click',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({menu:'광고팝업',card:card})}); }catch(e){} }
+  var shown=false;
+  function show(){
+    if(shown) return; shown=true;
+    var el=document.getElementById('ic-adpop'); if(!el) return;
+    var img=el.querySelector('.ic-adpop-img'); if(img && !img.getAttribute('src')) img.setAttribute('src','/connect.png');
+    el.classList.add('show'); document.body.style.overflow='hidden';
+    try{ localStorage.setItem(KEY,String(Date.now())); }catch(e){}
+    track('노출');
+    function close(){ el.classList.remove('show'); document.body.style.overflow=''; }
+    var x=el.querySelector('.ic-adpop-x'); if(x) x.addEventListener('click',close);
+    el.addEventListener('click',function(e){ if(e.target===el) close(); });
+    var lk=el.querySelector('.ic-adpop-link'); if(lk) lk.addEventListener('click',function(){ track('클릭'); });
+  }
+  setTimeout(show, 5000);
+  if(!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent||'')){
+    document.addEventListener('mouseout',function(e){ if((e.clientY||0)<=0 && !e.relatedTarget) show(); });
+  }
+})();
 </script>`;
 }
