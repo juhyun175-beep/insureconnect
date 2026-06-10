@@ -3306,13 +3306,11 @@
           <button class="ssn-nav-btn" id="ss-prev" onclick="ssSlide(-1)" disabled>◀</button>
           <div class="ssn-tabs" id="ss-tabs">
             <button class="ssn-tab active" onclick="ssGo(0)">📈 방문 개요</button>
-            <button class="ssn-tab" onclick="ssGo(1)">📊 클릭 통계</button>
+            <button class="ssn-tab" onclick="ssGo(1)">🤝 파트너사 통계</button>
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
             <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
-            <button class="ssn-tab" onclick="ssGo(4)">🚗 렌트카 카드</button>
-            <button class="ssn-tab" onclick="ssGo(5)">📱 통신·휴대폰</button>
-            <button class="ssn-tab" onclick="ssGo(6)">📈 유입 경로</button>
-            <button class="ssn-tab" onclick="ssGo(7)">👥 회원/지표</button>
+            <button class="ssn-tab" onclick="ssGo(4)">📈 유입 경로</button>
+            <button class="ssn-tab" onclick="ssGo(5)">👥 회원/지표</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -5997,8 +5995,8 @@
         }
       }
 
-      // 차트 (현재 슬라이드가 4 일 때만 즉시 그리기 — 아니면 ssGo 가 처리)
-      if (typeof _ssIdx !== 'undefined' && _ssIdx === 4) {
+      // 차트 (현재 슬라이드가 1=파트너사 통계 일 때만 즉시 그리기 — 아니면 ssGo 가 처리)
+      if (typeof _ssIdx !== 'undefined' && _ssIdx === 1) {
         renderLineChart('rs-chart-entries', d.timeline, 'entries');
         renderLineChart('rs-chart-clicks',  d.timeline, 'clicks');
         renderLineChart('rs-chart-submits', d.timeline, 'submits');
@@ -6051,7 +6049,7 @@
             }).join('') + '</tbody></table></div>';
         }
       }
-      if (typeof _ssIdx !== 'undefined' && _ssIdx === 5) {
+      if (typeof _ssIdx !== 'undefined' && _ssIdx === 1) {
         renderLineChart('ts-chart-entries', d.timeline, 'entries');
         renderLineChart('ts-chart-clicks', d.timeline, 'clicks');
         renderLineChart('ts-chart-submits', d.timeline, 'submits');
@@ -6195,6 +6193,15 @@
     let _ssIdx = 0;
     /* v2.15.1: 유입경로·회원/지표 패널을 슬라이더로 완전 이동 (관리 탭에서 제거됨) */
     (function(){ var sl=document.getElementById('ss-slides'); if(!sl) return; ['up-traffic','up-members'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.classList.remove('upload-panel'); el.classList.add('stats-slide'); sl.appendChild(el); } }); })();
+    /* v2.35.0: 파트너사 통계 — 렌트카(slide4)·통신(slide5) 콘텐츠를 클릭통계(slide1)로 통합 + 제목 변경.
+       (탭/슬라이드 8→6개로 축소. 유입경로·회원지표는 id기준 지연로드라 재번호 안전) */
+    (function(){
+      var slides = document.querySelectorAll('#ss-slides > .stats-slide');
+      var s1 = slides[1], rental = slides[4], telecom = slides[5];
+      if (s1) { var tt = s1.querySelector('.slide-title'); if (tt) tt.textContent = '파트너사 통계'; }
+      function moveInto(src){ if(!s1||!src) return; while(src.firstChild) s1.appendChild(src.firstChild); src.remove(); }
+      moveInto(rental); moveInto(telecom);
+    })();
     function ssCount(){ return document.querySelectorAll('#ss-slides > .stats-slide').length || 1; }
     var _uirTrafficLoaded=false, _uirMembersLoaded=false;
 
@@ -6234,21 +6241,23 @@
           renderLineChart('chart-visits', _cachedMainStats.daily_visits_7d, 'visits');
           renderLineChart('chart-clicks', _cachedMainStats.daily_clicks_7d, 'clicks');
         }
-        if (_ssIdx === 1 && _cachedCardCharts) {
-          _cachedCardCharts.forEach(({ menu, card, data }) => {
-            const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/\s/g,'')}`;
-            renderLineChart(id, data, 'clicks');
-          });
-        }
-        if (_ssIdx === 4 && _cachedRentalStats) {
-          renderLineChart('rs-chart-entries', _cachedRentalStats.timeline, 'entries');
-          renderLineChart('rs-chart-clicks',  _cachedRentalStats.timeline, 'clicks');
-          renderLineChart('rs-chart-submits', _cachedRentalStats.timeline, 'submits');
-        }
-        if (_ssIdx === 5 && _cachedTelecomStats) {
-          renderLineChart('ts-chart-entries', _cachedTelecomStats.timeline, 'entries');
-          renderLineChart('ts-chart-clicks',  _cachedTelecomStats.timeline, 'clicks');
-          renderLineChart('ts-chart-submits', _cachedTelecomStats.timeline, 'submits');
+        if (_ssIdx === 1) {
+          if (_cachedCardCharts) {
+            _cachedCardCharts.forEach(({ menu, card, data }) => {
+              const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/\s/g,'')}`;
+              renderLineChart(id, data, 'clicks');
+            });
+          }
+          if (_cachedRentalStats) {
+            renderLineChart('rs-chart-entries', _cachedRentalStats.timeline, 'entries');
+            renderLineChart('rs-chart-clicks',  _cachedRentalStats.timeline, 'clicks');
+            renderLineChart('rs-chart-submits', _cachedRentalStats.timeline, 'submits');
+          }
+          if (_cachedTelecomStats) {
+            renderLineChart('ts-chart-entries', _cachedTelecomStats.timeline, 'entries');
+            renderLineChart('ts-chart-clicks',  _cachedTelecomStats.timeline, 'clicks');
+            renderLineChart('ts-chart-submits', _cachedTelecomStats.timeline, 'submits');
+          }
         }
         ssUpdateHeight();
       });
