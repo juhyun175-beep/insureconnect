@@ -2867,7 +2867,9 @@
       cursor: zoom-in;
       transform-origin: center center;
       transition: transform .18s cubic-bezier(0.22,0.61,0.36,1);
-      will-change: transform;
+      /* v2.41.0: will-change:transform 제거 — 이 속성이 이미지를 저해상도 래스터로 레이어에 고정해
+         줌 시 원본(3200px 고화질)에서 재래스터되지 못하고 뿌옇게 보였음. 제거하면 정지 줌에서
+         브라우저가 원본 해상도로 다시 렌더 → 선명. (image-rendering 기본=auto 고품질 보간) */
     }
     /* v2.40.0: 카드뉴스 모달 내부 줌(핀치/더블탭/휠/＋－버튼/드래그팬). position:fixed 모달이라
        네이티브 핀치줌이 내용을 확대 못하던 문제 해결. 이미지에만 transform → 복사방지 guard는 유지. */
@@ -3044,7 +3046,9 @@
       border-color: transparent;
     }
     @media (max-width: 768px) {
-      .cn-stage { padding: 14px; }
+      /* v2.41.0: 가로형 카드뉴스가 화면 폭을 더 쓰도록 패딩 축소 */
+      .cn-stage { padding: 8px; }
+      .cn-modal-body { padding: 12px 12px 14px; }
       .cn-nav {
         top: auto;
         bottom: 14px;
@@ -3061,7 +3065,9 @@
       .cn-nav:disabled { transform: none; opacity: .28; }
       .cn-prev { left: calc(50% - 44px); }
       .cn-next { left: calc(50% + 10px); right: auto; }
-      .cn-viewport { aspect-ratio: 3/4; max-height: 70vh; }
+      /* v2.41.0: 가로형(16:9) 카드뉴스가 세로(3:4) 박스에 갇혀 얇은 띠로 작아지던 문제 해결 →
+         가로 박스로 바꿔 화면 폭을 꽉 채움. 세부 글씨는 핀치/더블탭 줌(고화질·최대 6배)으로 확대. */
+      .cn-viewport { aspect-ratio: 16 / 9; max-height: 82vh; }
       .cn-footer { padding-bottom: 48px; }
     }
 
@@ -12271,7 +12277,7 @@
        → 이미지에 직접 transform(scale+translate)을 적용하는 전용 줌을 구현.
        핀치/더블탭/휠/＋－버튼/드래그팬 지원. 줌 안 했을 때 1지 스와이프 = 슬라이드 전환.
        복사방지 guard는 그대로 유지(이미지 element에만 transform). */
-    const CN_ZMAX = 4, CN_ZMIN = 1;
+    const CN_ZMAX = 6, CN_ZMIN = 1; // v2.41.0: 원본 3200px 고화질 → 최대 6배까지(세부 표 글씨 판독)
     let cnZoom = { scale: 1, x: 0, y: 0 };
 
     function cnCurImg() {
