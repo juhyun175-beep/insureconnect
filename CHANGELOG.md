@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.46.0] - 2026-06-10
+### Added (① 현장 인수 Q&A 크라우드 + ② 일간 브리핑 cron 워커)
+- **현장 인수 Q&A** (`#page-underwrite`, 빠른메뉴·모바일 코어카드): "이 보험사, 이 병력·조건 **인수 될까요?**"를 설계사들의 **실제 경험으로 크라우드 응답**(✅가능/⚠️조건부/❌불가 집계 + 메모). 삼따AI 보완·매일 들를 이유(데이터 해자 심화). 신규 API `functions/api/underwrite/{index,answer}.js` — **읽기 공개**(가치·검색노출), 작성은 카카오 로그인, D1 `ic_uw_questions`/`ic_uw_answers` 지연생성, 회원당 시간당 10건 제한.
+- **일간 브리핑 cron 워커** (`scripts/cron-worker/`): Pages엔 네이티브 cron이 없고 이 프로젝트는 git 원격이 없어 GitHub Actions가 부적합 → **Cloudflare Worker(cron)**로 매일 07:00 KST `/api/cron/daily-brief` + 매주 월 08:00 KST `/api/cron/weekly-digest` 트리거. `worker.js`+`wrangler.toml`+README. 배포: `cd scripts/cron-worker && npx wrangler deploy` + `wrangler secret put CRON_SECRET`(Pages와 동일값). (미들웨어가 `/scripts/` 공개 차단)
+- 확인: 웹푸시용 SW는 head에서 push 전용 등록 중(일간 브리핑 푸시 동작 OK). Android 설치 프롬프트는 fetch 핸들러 미보유라 제한적(의도된 설계) → PWA 넛지 강화는 보류. 증권분석은 약관 OCR/파싱 별도 설계 필요 → 후속.
+### Verified
+- `node --check`(underwrite 2종·cron worker) OK · 인라인 33블록 0오류 · page/fn/메뉴 배선 확인 · 보안 HIGH 0 · release.mjs
+
 ## [2.45.0] - 2026-06-10
 ### Added (리텐션 #2 — 사례 기여(데이터 해자) 노출 확대)
 - 사례 공유 인프라(모달 +10P·리더보드·`/ai#share`·마이페이지 기여)는 v2.9.0/2.20.0/2.23.0에 구축됨. **노출이 약한 게 약점**이라 고의도 surface에 진입점 추가: ① **미니 CRM 페이지 하단 CTA**("방금 처리한 인수·보상 건 → 사례 공유 +10P") — 고객/사건을 다루는 맥락에서 자연스럽게 기여 유도 ② **빠른메뉴 「💡 사례공유 +P」 pill**. 사례가 쌓일수록 삼따AI가 똑똑해지는 네트워크 효과 루프 강화.

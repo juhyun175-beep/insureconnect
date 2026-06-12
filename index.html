@@ -3108,6 +3108,53 @@
     .cl-share-cta b { color:var(--blue-mid); }
     @media (max-width:480px){ .cl-form-grid{grid-template-columns:1fr;} }
 
+    /* v2.46.0: 현장 인수 Q&A */
+    .uw-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:14px; flex-wrap:wrap; }
+    .uw-title { font-size:1.15rem; font-weight:800; color:var(--txt-hi); }
+    .uw-sub { font-size:12.5px; color:var(--txt-mid); margin-top:4px; line-height:1.5; }
+    .uw-ask-btn { background:linear-gradient(135deg,var(--blue-mid),var(--cyan)); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:14px; font-weight:800; cursor:pointer; white-space:nowrap; box-shadow:0 4px 14px rgba(26,61,232,.28); }
+    .uw-ask-form { background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:16px; margin-bottom:14px; box-shadow:var(--sh-sm); }
+    .uw-ask-grid { display:grid; grid-template-columns:1fr 1.4fr; gap:10px; margin-bottom:10px; }
+    .uw-ask-form input, .uw-ask-form textarea { width:100%; font-family:inherit; font-size:14px; color:var(--txt-hi); background:var(--bg); border:1.5px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+    .uw-ask-form input:focus, .uw-ask-form textarea:focus { border-color:var(--blue-mid); }
+    .uw-ask-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:10px; }
+    .uw-btn-ghost { background:none; border:1.5px solid var(--border); color:var(--txt-mid); border-radius:9px; padding:9px 16px; font-size:13.5px; font-weight:700; cursor:pointer; }
+    .uw-btn-primary { background:var(--blue-mid); color:#fff; border:none; border-radius:9px; padding:9px 18px; font-size:13.5px; font-weight:800; cursor:pointer; }
+    .uw-btn-primary:disabled { opacity:.5; }
+    .uw-search-box { margin-bottom:14px; }
+    .uw-list { display:flex; flex-direction:column; gap:10px; }
+    .uw-card { background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:14px 16px; box-shadow:var(--sh-sm); }
+    .uw-q-head { display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+    .uw-ins { font-size:11.5px; font-weight:800; color:var(--blue-mid); background:rgba(26,61,232,.08); padding:3px 9px; border-radius:999px; }
+    .uw-topic { font-size:15px; font-weight:800; color:var(--txt-hi); }
+    .uw-body { font-size:13px; color:var(--txt-mid); margin-top:6px; line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+    .uw-tally { display:flex; align-items:center; gap:8px; margin-top:10px; flex-wrap:wrap; }
+    .uw-v { font-size:12px; font-weight:800; padding:3px 9px; border-radius:999px; }
+    .uw-v.p { background:rgba(21,128,61,.12); color:#15803d; }
+    .uw-v.c { background:rgba(245,158,11,.16); color:#b45309; }
+    .uw-v.x { background:rgba(239,68,68,.14); color:#dc2626; }
+    .uw-expand { margin-left:auto; background:none; border:1px solid var(--border); color:var(--txt-mid); border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; }
+    .uw-expand:hover { color:var(--blue-mid); border-color:var(--blue-mid); }
+    .uw-answers { margin-top:12px; padding-top:12px; border-top:1px dashed var(--border); }
+    .uw-ans-row { display:flex; align-items:flex-start; gap:8px; padding:6px 0; font-size:13px; flex-wrap:wrap; }
+    .uw-ans-v { font-size:11.5px; font-weight:800; padding:2px 8px; border-radius:999px; white-space:nowrap; }
+    .uw-ans-v.possible { background:rgba(21,128,61,.12); color:#15803d; }
+    .uw-ans-v.conditional { background:rgba(245,158,11,.16); color:#b45309; }
+    .uw-ans-v.impossible { background:rgba(239,68,68,.14); color:#dc2626; }
+    .uw-ans-note { flex:1; min-width:120px; color:var(--txt-hi); }
+    .uw-ans-by { font-size:11.5px; color:var(--txt-lo); }
+    .uw-ans-form { margin-top:10px; }
+    .uw-verdict-pick { display:flex; gap:6px; margin-bottom:8px; flex-wrap:wrap; }
+    .uw-vbtn { border:1.5px solid var(--border); background:var(--bg); border-radius:8px; padding:7px 12px; font-size:12.5px; font-weight:800; cursor:pointer; }
+    .uw-vbtn.p { color:#15803d; } .uw-vbtn.p:hover { background:rgba(21,128,61,.1); border-color:#15803d; }
+    .uw-vbtn.c { color:#b45309; } .uw-vbtn.c:hover { background:rgba(245,158,11,.12); border-color:#b45309; }
+    .uw-vbtn.x { color:#dc2626; } .uw-vbtn.x:hover { background:rgba(239,68,68,.1); border-color:#dc2626; }
+    .uw-note-in { width:100%; font-family:inherit; font-size:13px; color:var(--txt-hi); background:var(--bg); border:1.5px solid var(--border); border-radius:8px; padding:8px 11px; outline:none; }
+    .uw-note-in:focus { border-color:var(--blue-mid); }
+    .uw-empty, .uw-empty-sm, .uw-loading { text-align:center; color:var(--txt-lo); font-size:13.5px; padding:24px 16px; }
+    .uw-empty-sm, .uw-loading { padding:10px; font-size:12.5px; }
+    @media (max-width:480px){ .uw-ask-grid{grid-template-columns:1fr;} }
+
     @media (max-width: 768px) {
       /* v2.41.0: 가로형 카드뉴스가 화면 폭을 더 쓰도록 패딩 축소 */
       .cn-stage { padding: 8px; }
@@ -8158,6 +8205,7 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
+        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인수QA'); goToPage('underwrite');">🩺 인수 Q&amp;A · 이 보험사 인수되나요?</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
         <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
         <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
@@ -9074,6 +9122,7 @@
       <div class="ic-m-section-head"><span>빠른 메뉴</span><button type="button" onclick="if(typeof icTourStart==='function')icTourStart()" title="처음이세요? 사용법 안내 보기" style="font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#4f6df0);border:none;border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,61,232,.3);">❓ 사용법</button></div>
       <div class="ic-m-core-grid">
         <button class="ic-m-core-card" onclick="goToPage('clients')"><span class="cc-lb">👥 내 고객</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('underwrite')"><span class="cc-lb">🩺 인수 Q&amp;A</span></button>
         <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-lb">보험사 전산</span></button>
         <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-lb">청구서류</span></button>
         <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-lb">GA 전산</span></button>
@@ -9997,6 +10046,32 @@
     <div class="cl-list" id="cl-list"></div>
     <div class="cl-empty" id="cl-empty" style="display:none">아직 등록한 고객이 없어요.<br><b>＋ 고객 추가</b>로 첫 고객을 기록해보세요.</div>
     <a class="cl-share-cta" href="/ai#share">💡 방금 처리한 인수·보상 건이 있나요? <b>사례로 공유하면 삼따AI가 더 똑똑해지고 +10P</b> →</a>
+  </div>
+
+  <!-- ══════ PAGE: 현장 인수 Q&A (크라우드 · v2.46.0) ══════ -->
+  <div class="content" id="page-underwrite" style="display:none">
+    <div class="uw-head">
+      <div>
+        <div class="uw-title">🩺 현장 인수 Q&amp;A</div>
+        <div class="uw-sub">"이 보험사, 이 병력·조건 <b>인수 될까요?</b>" — 설계사들의 <b>실제 경험</b>을 모읍니다.</div>
+      </div>
+      <button class="uw-ask-btn" type="button" onclick="openUwAsk()">＋ 질문하기</button>
+    </div>
+
+    <div class="uw-ask-form" id="uw-ask-form" style="display:none">
+      <div class="uw-ask-grid">
+        <input id="uw-ask-insurer" maxlength="40" placeholder="보험사 (예: 삼성생명)">
+        <input id="uw-ask-topic" maxlength="120" placeholder="병력·조건 (예: 고혈압 약 복용 5년) *">
+      </div>
+      <textarea id="uw-ask-body" maxlength="800" rows="2" placeholder="상세 (선택) — 나이·치료이력·특이사항 등"></textarea>
+      <div class="uw-ask-actions">
+        <button class="uw-btn-ghost" type="button" onclick="document.getElementById('uw-ask-form').style.display='none'">취소</button>
+        <button class="uw-btn-primary" type="button" id="uw-ask-submit" onclick="submitUwQuestion()">질문 등록</button>
+      </div>
+    </div>
+
+    <div class="uw-search-box"><input id="uw-search" class="ic-search-input" placeholder="보험사·병력으로 검색…" oninput="_uwSearchDebounce()"></div>
+    <div class="uw-list" id="uw-list"></div>
   </div>
 
   <!-- ══════ PAGE: GA 전산 ══════ -->
@@ -11282,6 +11357,7 @@
       telecom:          '📱 통신/휴대폰',
       partner:          '🤝 파트너사',
       clients:          '👥 내 고객',
+      underwrite:       '🩺 인수 Q&A',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
@@ -11338,6 +11414,7 @@
       if (page === 'lecture'    && _shouldReloadPage('lecture'))    { loadLecturePage(); }
       if (page === 'telecom'    && typeof loadTelecomLineup === 'function') { loadTelecomLineup(); }
       if (page === 'clients'    && typeof loadClients === 'function') { loadClients(); } // v2.43.0 미니 CRM
+      if (page === 'underwrite' && typeof loadUnderwrite === 'function') { loadUnderwrite(true); } // v2.46.0 인수 Q&A
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
@@ -12821,6 +12898,82 @@
         }
       } catch(_) {}
     })();
+
+    /* ── v2.46.0: 현장 인수 Q&A (크라우드 데이터 해자) ── */
+    let _uwQ = [], _uwSearchT;
+    function _uwEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+    function _uwSearchDebounce(){ clearTimeout(_uwSearchT); _uwSearchT=setTimeout(()=>loadUnderwrite(true),350); }
+    async function loadUnderwrite(){
+      const list=document.getElementById('uw-list'); if(!list) return;
+      const si=document.getElementById('uw-search'); const q=si?si.value.trim():'';
+      try{
+        const r=await fetch('/api/underwrite'+(q?('?q='+encodeURIComponent(q)):''),{credentials:'same-origin'});
+        const d=await r.json(); _uwQ=(d&&d.questions)||[]; renderUnderwrite();
+      }catch(_){ list.innerHTML='<div class="uw-empty">불러오기에 실패했어요. 잠시 후 다시 시도해주세요.</div>'; }
+    }
+    function renderUnderwrite(){
+      const list=document.getElementById('uw-list'); if(!list) return;
+      if(!_uwQ.length){ list.innerHTML='<div class="uw-empty">아직 질문이 없어요.<br>첫 질문을 남기면 동료 설계사들이 경험으로 답해줘요.</div>'; return; }
+      list.innerHTML=_uwQ.map(q=>{
+        const tally=`<span class="uw-v p">✅ ${q.n_possible||0}</span><span class="uw-v c">⚠️ ${q.n_conditional||0}</span><span class="uw-v x">❌ ${q.n_impossible||0}</span>`;
+        return `<div class="uw-card">
+          <div class="uw-q-head">${q.insurer?`<span class="uw-ins">${_uwEsc(q.insurer)}</span>`:''}<span class="uw-topic">${_uwEsc(q.topic)}</span></div>
+          ${q.body?`<div class="uw-body">${_uwEsc(q.body)}</div>`:''}
+          <div class="uw-tally">${tally}<button type="button" class="uw-expand" onclick="toggleAnswers(${q.id})">답변 ${q.n_total||0} ▾</button></div>
+          <div class="uw-answers" id="uw-ans-${q.id}" style="display:none"></div>
+        </div>`;
+      }).join('');
+    }
+    function _uwAnsForm(id){
+      return `<div class="uw-ans-form">
+        <div class="uw-verdict-pick">
+          <button type="button" class="uw-vbtn p" onclick="answerUW(${id},'possible')">✅ 가능</button>
+          <button type="button" class="uw-vbtn c" onclick="answerUW(${id},'conditional')">⚠️ 조건부</button>
+          <button type="button" class="uw-vbtn x" onclick="answerUW(${id},'impossible')">❌ 불가</button>
+        </div>
+        <input class="uw-note-in" id="uw-note-${id}" maxlength="500" placeholder="조건·메모 (선택) — 예: 5년 경과 시 표준체 가능">
+      </div>`;
+    }
+    async function toggleAnswers(id){
+      const box=document.getElementById('uw-ans-'+id); if(!box) return;
+      if(box.style.display!=='none'){ box.style.display='none'; return; }
+      box.style.display=''; box.innerHTML='<div class="uw-loading">불러오는 중…</div>';
+      try{
+        const r=await fetch('/api/underwrite/answer?question_id='+id,{credentials:'same-origin'});
+        const d=await r.json(); const ans=(d&&d.answers)||[];
+        const VL={possible:'✅ 가능',conditional:'⚠️ 조건부',impossible:'❌ 불가'};
+        const rows=ans.length?ans.map(a=>`<div class="uw-ans-row"><span class="uw-ans-v ${a.verdict}">${VL[a.verdict]||''}</span>${a.note?`<span class="uw-ans-note">${_uwEsc(a.note)}</span>`:'<span class="uw-ans-note"></span>'}<span class="uw-ans-by">${_uwEsc(a.nickname||'회원')}</span></div>`).join(''):'<div class="uw-empty-sm">아직 답변이 없어요. 경험을 공유해주세요!</div>';
+        box.innerHTML=rows+_uwAnsForm(id);
+      }catch(_){ box.innerHTML='<div class="uw-empty-sm">불러오기 실패</div>'; }
+    }
+    async function answerUW(id, verdict){
+      const note=document.getElementById('uw-note-'+id); const noteVal=note?note.value.trim():'';
+      try{
+        const r=await fetch('/api/underwrite/answer',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({question_id:id,verdict:verdict,note:noteVal})});
+        if(r.status===401){ if(confirm('로그인 후 답변할 수 있어요. 카카오로 로그인할까요?')) location.href='/api/auth/kakao/login'; return; }
+        if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.error||'등록 실패'); }
+        if(typeof trackCardClick==='function') trackCardClick('인수QA','답변');
+        await loadUnderwrite(true);
+      }catch(e){ alert(e.message||'등록에 실패했어요.'); }
+    }
+    function openUwAsk(){ const f=document.getElementById('uw-ask-form'); f.style.display=''; document.getElementById('uw-ask-topic').focus(); }
+    async function submitUwQuestion(){
+      const insurer=document.getElementById('uw-ask-insurer').value.trim();
+      const topic=document.getElementById('uw-ask-topic').value.trim();
+      const body=document.getElementById('uw-ask-body').value.trim();
+      if(!topic){ alert('질문(병력·조건)을 입력해주세요.'); return; }
+      const btn=document.getElementById('uw-ask-submit'); btn.disabled=true;
+      try{
+        const r=await fetch('/api/underwrite',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({insurer,topic,body})});
+        if(r.status===401){ if(confirm('로그인 후 질문할 수 있어요. 카카오로 로그인할까요?')) location.href='/api/auth/kakao/login'; return; }
+        if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.error||'등록 실패'); }
+        document.getElementById('uw-ask-insurer').value=''; document.getElementById('uw-ask-topic').value=''; document.getElementById('uw-ask-body').value='';
+        document.getElementById('uw-ask-form').style.display='none';
+        if(typeof trackCardClick==='function') trackCardClick('인수QA','질문');
+        await loadUnderwrite(true);
+      }catch(e){ alert(e.message||'등록에 실패했어요.'); } finally{ btn.disabled=false; }
+    }
+    window._uwSearchDebounce=_uwSearchDebounce; window.loadUnderwrite=loadUnderwrite; window.toggleAnswers=toggleAnswers; window.answerUW=answerUW; window.openUwAsk=openUwAsk; window.submitUwQuestion=submitUwQuestion;
 
     /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
     (function() {
