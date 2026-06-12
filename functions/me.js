@@ -120,6 +120,12 @@ export const onRequestGet = async ({ env, request }) => {
     <p class="note">모은 포인트로 혜택을 교환하세요. 포인트는 사례 공유·승인·게시판 활동·카톡 사례수집으로 쌓입니다.</p>
   </div>
 
+  <div class="card">
+    <h2>🎟️ 공고 할인권</h2>
+    <div id="coupon-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+    <p class="note">포인트로 공고 등록 할인권을 교환하세요. <b>공고 작성 시 등록가에서 자동 할인</b>됩니다. 유효기간 14일 · 1공고 1장 · 환불·양도 불가.</p>
+  </div>
+
   <div class="card" id="mypost-section">
     <h2>🔝 내 공고 상단노출</h2>
     <div id="mypost-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
@@ -218,7 +224,7 @@ export const onRequestGet = async ({ env, request }) => {
       if(!d||d.points==null){ box.textContent='포인트 정보를 불러오지 못했습니다.'; return; }
       var log=(d.log||[]).map(function(l){
         var pos=l.delta>=0; var dt=(l.created_at||'').slice(0,10);
-        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:13px;color:#334155;">'+(RL[l.reason]||l.reason||'')+'</span><span style="font-size:13px;font-weight:800;color:'+(pos?'#16a34a':'#dc2626')+'">'+(pos?'+':'')+l.delta+'P <span style="color:#94a3b8;font-weight:500;font-size:11px;margin-left:4px;">'+dt+'</span></span></div>';
+        return '<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:13px;color:#334155;">'+(RL[l.reason]||(String(l.reason||'').indexOf('shop_coupon_')===0?'🎟️ 공고 할인권 교환':(l.reason||''))) +'</span><span style="font-size:13px;font-weight:800;color:'+(pos?'#16a34a':'#dc2626')+'">'+(pos?'+':'')+l.delta+'P <span style="color:#94a3b8;font-weight:500;font-size:11px;margin-left:4px;">'+dt+'</span></span></div>';
       }).join('');
       box.innerHTML='<div style="font-size:30px;font-weight:900;color:#b45309;margin-bottom:6px;">'+Number(d.points).toLocaleString()+'<span style="font-size:16px;">P</span></div>'
         +(log?'<div style="margin-top:6px;">'+log+'</div>':'<div class="empty">아직 포인트 내역이 없습니다. 삼따AI에서 사례를 공유해보세요.</div>');
@@ -319,6 +325,53 @@ export const onRequestGet = async ({ env, request }) => {
     }
     function load(){ fetch('/api/points/history',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d){ box.textContent='불러오지 못했습니다.'; return; } render(d.points||0, d.ai_bonus||0, d.feature_credit||0); }).catch(function(){ box.textContent='불러오지 못했습니다.'; }); }
     window.__reloadShop=load; load();
+  })();
+
+  // v2.51.0: 공고 할인권 상점 (포인트 → 쿠폰 → 공고 등록 할인)
+  (function(){
+    var box=document.getElementById('coupon-box'); if(!box) return;
+    function won(n){ return Number(n||0).toLocaleString('ko-KR'); }
+    function row(ico,title,desc,right){ return '<div style="display:flex;align-items:center;gap:10px;padding:11px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:22px;flex-shrink:0;">'+ico+'</span><div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:800;color:#334155;">'+title+'</div><div style="font-size:11.5px;color:#94a3b8;line-height:1.4;">'+desc+'</div></div>'+right+'</div>'; }
+    function buyBtn(key,cost,points){ return points>=cost
+      ? '<button class="cpn-buy" data-item="'+key+'" data-cost="'+cost+'" style="background:#1a3de8;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;cursor:pointer;white-space:nowrap;flex-shrink:0;">'+cost+'P 교환</button>'
+      : '<button disabled style="background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-weight:800;font-size:12.5px;padding:8px 14px;white-space:nowrap;flex-shrink:0;cursor:not-allowed;">'+cost+'P</button>'; }
+    var AD_ICO={recruit:'💼',lecture:'🎓',meetup:'👥'};
+    function render(d){
+      var points=d.points||0;
+      var owned=(d.coupons||[]).filter(function(c){return c.status==='active';});
+      var sellable=(d.catalog||[]).filter(function(c){return c.ad_type==='recruit'||c.ad_type==='lecture';}); // 모임은 공고 출시 시 공개
+      var shopHtml=sellable.map(function(c){
+        var desc='등록가 '+won(c.base)+'원 → <b style="color:#16a34a">'+won(c.final)+'원</b> ('+c.rate+'% 할인)';
+        return row(AD_ICO[c.ad_type]||'🎟️', c.ad_label+' '+c.rate+'% 할인권', desc, buyBtn(c.key,c.cost,points));
+      }).join('');
+      var ownHtml = owned.length
+        ? owned.map(function(c){
+            var dl=Math.max(0,Math.ceil((new Date(String(c.expires_at).replace(' ','T')+'Z')-new Date())/86400000));
+            return '<div style="display:flex;align-items:center;gap:8px;padding:8px 2px;border-bottom:1px solid #f1f5f9;"><span style="font-size:11.5px;font-weight:800;color:#1a3de8;background:#eef2ff;padding:3px 8px;border-radius:999px;white-space:nowrap;">'+(AD_ICO[c.ad_type]||'🎟️')+' '+c.discount_rate+'%</span><span style="flex:1;min-width:0;font-size:12.5px;color:#334155;">'+((d.adLabel&&d.adLabel[c.ad_type])||c.ad_type)+' 할인권</span><span style="font-size:11px;color:#94a3b8;white-space:nowrap;">D-'+dl+'</span></div>';
+          }).join('')
+        : '<div class="empty" style="padding:10px 2px;color:#94a3b8;font-size:12.5px;">보유한 할인권이 없습니다.</div>';
+      box.innerHTML =
+        '<div style="font-size:12px;color:#475569;margin-bottom:10px;">보유 <b style="color:#b45309;">'+won(points)+'P</b></div>'
+        + shopHtml
+        + '<div style="margin:14px 0 6px;font-size:12.5px;font-weight:800;color:#334155;">🎟️ 보유 할인권 ('+owned.length+')</div>'
+        + ownHtml;
+      box.querySelectorAll('.cpn-buy').forEach(function(b){
+        b.addEventListener('click',function(){
+          var it=b.dataset.item, cost=+b.dataset.cost, old=b.textContent;
+          if(!confirm(cost+'P로 할인권을 교환할까요? (유효기간 14일·환불 불가)')) return;
+          b.disabled=true; b.textContent='처리중…';
+          fetch('/api/coupons',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({item:it})})
+            .then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});})
+            .then(function(o){
+              if(o.s===200&&o.j.ok){ alert('✅ 할인권 교환 완료! 남은 '+won(o.j.remaining)+'P. 공고 작성 시 적용하세요.'); load(); if(window.__reloadPt)window.__reloadPt(); }
+              else if(o.s===402){ alert('포인트가 부족합니다. (보유 '+(o.j.points||0)+'P / 필요 '+o.j.need+'P)'); b.disabled=false; b.textContent=old; }
+              else { alert((o.j&&o.j.error)||'교환 실패'); b.disabled=false; b.textContent=old; }
+            }).catch(function(){ alert('네트워크 오류'); b.disabled=false; b.textContent=old; });
+        });
+      });
+    }
+    function load(){ fetch('/api/coupons',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){ if(!d||!d.ok){ box.textContent='불러오지 못했습니다.'; return; } render(d); }).catch(function(){ box.textContent='불러오지 못했습니다.'; }); }
+    window.__reloadCoupons=load; load();
   })();
   </script>`;
 
