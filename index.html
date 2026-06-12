@@ -3188,6 +3188,10 @@
     .cov-summary { margin-top:14px; background:linear-gradient(135deg,rgba(26,61,232,.06),rgba(0,200,238,.05)); border:1.5px solid rgba(26,61,232,.18); border-radius:12px; padding:14px 16px; font-size:13px; color:var(--txt-hi); line-height:1.6; }
     .cov-summary b { color:var(--blue-mid); }
     .cov-disclaimer { margin-top:18px; font-size:11.5px; color:var(--txt-lo); line-height:1.6; }
+    .cov-client-bar { background:linear-gradient(135deg,rgba(26,61,232,.08),rgba(0,200,238,.05)); border:1.5px solid rgba(26,61,232,.2); border-radius:12px; padding:11px 14px; margin-bottom:12px; font-size:13px; color:var(--txt-hi); line-height:1.7; }
+    .cov-clear-client { background:#fff; border:1px solid var(--border); color:var(--txt-mid); border-radius:7px; padding:3px 10px; font-size:11.5px; font-weight:700; cursor:pointer; }
+    [data-theme="dark"] .cov-clear-client { background:#21262d; }
+    .cov-save-client { background:#15803d; color:#fff; border:none; border-radius:10px; padding:11px 18px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(21,128,61,.25); }
     @media (max-width:480px){ .cov-grid{grid-template-columns:1fr;} }
 
     @media (max-width: 768px) {
@@ -8233,7 +8237,7 @@
         <!-- v2.47.0: 사이즈 정리 — wide(위2/아래2) + 일반 pill 5쌍(짝수) 정렬, 고아·줄바꿈 제거 -->
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인슈어커넥트뉴스'); goToPage('latest');">📰 인슈어커넥트 뉴스</button>
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
-        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','보장분석'); goToPage('coverage');">🧮 보장 분석 · 리모델링</button>
+        <button class="menu-pill menu-pill-wide" type="button" onclick="window._covClient=null; trackCardClick('빠른메뉴','보장분석'); goToPage('coverage');">🧮 보장 분석 · 리모델링</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','전산'); goToPage('jeonsan');">전산</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','GA전산'); goToPage('ga');">GA</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','수납전산'); goToPage('payment');">수납</button>
@@ -9159,7 +9163,7 @@
       <div class="ic-m-section-head"><span>빠른 메뉴</span><button type="button" onclick="if(typeof icTourStart==='function')icTourStart()" title="처음이세요? 사용법 안내 보기" style="font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#4f6df0);border:none;border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,61,232,.3);">❓ 사용법</button></div>
       <div class="ic-m-core-grid">
         <button class="ic-m-core-card" onclick="goToPage('clients')"><span class="cc-lb">👥 내 고객</span></button>
-        <button class="ic-m-core-card" onclick="goToPage('coverage')"><span class="cc-lb">🧮 보장 분석</span></button>
+        <button class="ic-m-core-card" onclick="window._covClient=null;goToPage('coverage')"><span class="cc-lb">🧮 보장 분석</span></button>
         <button class="ic-m-core-card" onclick="goToPage('underwrite')"><span class="cc-lb">🩺 인수 Q&amp;A</span></button>
         <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-lb">보험사 전산</span></button>
         <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-lb">청구서류</span></button>
@@ -10118,9 +10122,11 @@
       <div class="cov-title">🧮 보장 분석 · 리모델링</div>
       <div class="cov-sub">고객의 <b>현재 보장</b>을 입력하면 <b>권장 대비 부족·공백</b>을 한눈에 — 상담·리모델링 무기로.</div>
     </div>
+    <div class="cov-client-bar" id="cov-client-bar" style="display:none"></div>
     <div class="cov-grid" id="cov-grid"></div>
     <div class="cov-actions">
       <button class="cov-reset" type="button" onclick="resetCoverage()">초기화</button>
+      <button class="cov-save-client" id="cov-save-client" type="button" style="display:none" onclick="saveCoverageToClient()">💾 고객에 저장</button>
       <button class="cov-analyze" type="button" onclick="analyzeCoverage()">📊 분석하기</button>
     </div>
     <div class="cov-result" id="cov-result" style="display:none"></div>
@@ -11469,7 +11475,7 @@
       if (page === 'telecom'    && typeof loadTelecomLineup === 'function') { loadTelecomLineup(); }
       if (page === 'clients'    && typeof loadClients === 'function') { loadClients(); } // v2.43.0 미니 CRM
       if (page === 'underwrite' && typeof loadUnderwrite === 'function') { loadUnderwrite(true); } // v2.46.0 인수 Q&A
-      if (page === 'coverage'   && typeof renderCovGrid === 'function') { renderCovGrid(); } // v2.48.0 보장 분석
+      if (page === 'coverage'   && typeof covEnter === 'function') { covEnter(); } // v2.48.0 보장 분석(+v2.49 CRM연동)
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
@@ -12902,7 +12908,7 @@
             ${c.phone?`<a href="tel:${_clEsc(c.phone)}">📞 ${_clEsc(c.phone)}</a>`:''}
           </div>
           ${c.memo?`<div class="cl-memo">${_clEsc(c.memo)}</div>`:''}
-          <div class="cl-card-actions"><button type="button" onclick="editClient(${c.id})">수정</button><button type="button" class="del" onclick="deleteClient(${c.id})">삭제</button></div>
+          <div class="cl-card-actions"><button type="button" onclick="openCoverageForClient(${c.id})">🧮 보장분석${c.coverage?' ✓':''}</button><button type="button" onclick="editClient(${c.id})">수정</button><button type="button" class="del" onclick="deleteClient(${c.id})">삭제</button></div>
         </div>`;
       }).join('');
     }
@@ -13093,6 +13099,42 @@
       if(typeof trackCardClick==='function') trackCardClick('보장분석','분석');
     }
     window.renderCovGrid=renderCovGrid; window.covHas=covHas; window.resetCoverage=resetCoverage; window.analyzeCoverage=analyzeCoverage;
+
+    /* v2.49.0: 보장분석 ↔ 내 고객(CRM) 연동 — 고객별 보장분석 저장·재조회 */
+    function _covCollect(){ const o={}; COV_ITEMS.forEach(it=>{ const el=document.getElementById('cov-'+it.k); if(!el) return; o[it.k]= it.type==='amount' ? (parseInt(el.value||'0',10)||0) : (el.dataset.v==='1'?1:0); }); return o; }
+    function _covApply(obj){ COV_ITEMS.forEach(it=>{ const el=document.getElementById('cov-'+it.k); if(!el) return; const v=obj?obj[it.k]:undefined; if(it.type==='amount'){ el.value=(v&&v>0)?String(v):''; } else { const els=el.querySelectorAll('.cov-has-btn'); els.forEach(b=>b.classList.remove('on')); if(v===1||v==='1'){ el.dataset.v='1'; if(els[0])els[0].classList.add('on'); } else if(v===0||v==='0'){ el.dataset.v='0'; if(els[1])els[1].classList.add('on'); } else { el.dataset.v='0'; } } }); }
+    function covEnter(){
+      renderCovGrid();
+      const bar=document.getElementById('cov-client-bar'), saveBtn=document.getElementById('cov-save-client');
+      const c=window._covClient;
+      if(c){
+        let cov=null; try{ cov=c.coverage?JSON.parse(c.coverage):null; }catch(_){}
+        resetCoverage();
+        if(cov) _covApply(cov);
+        if(bar){ bar.style.display=''; bar.innerHTML='👤 <b>'+_clEsc(c.name)+'</b> 님의 보장'+(cov?' · 저장된 분석을 불러왔어요':' · 입력 후 저장하세요')+' &nbsp;<button type="button" class="cov-clear-client" onclick="exitCovClient()">일반 모드로</button>'; }
+        if(saveBtn) saveBtn.style.display='';
+        if(cov) setTimeout(analyzeCoverage,120);
+      } else {
+        if(bar) bar.style.display='none';
+        if(saveBtn) saveBtn.style.display='none';
+      }
+    }
+    function exitCovClient(){ window._covClient=null; resetCoverage(); covEnter(); }
+    function openCoverageForClient(id){ var c=(typeof _clClients!=='undefined')?_clClients.find(function(x){return x.id===id;}):null; if(!c) return; window._covClient=c; goToPage('coverage'); }
+    async function saveCoverageToClient(){
+      const c=window._covClient; if(!c) return;
+      const body={ id:c.id, name:c.name, phone:c.phone||'', insurer:c.insurer||'', product:c.product||'', premium:(c.premium!=null?c.premium:''), renew_date:c.renew_date||'', memo:c.memo||'', coverage:JSON.stringify(_covCollect()) };
+      try{
+        const r=await fetch('/api/me/clients',{method:'PATCH',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(r.status===401){ alert('로그인이 필요합니다.'); return; }
+        if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.error||'저장 실패'); }
+        c.coverage=body.coverage;
+        if(typeof _clClients!=='undefined'){ const f=_clClients.find(x=>x.id===c.id); if(f) f.coverage=body.coverage; }
+        if(typeof trackCardClick==='function') trackCardClick('보장분석','고객저장');
+        alert('💾 '+c.name+' 님 보장 분석을 저장했어요.');
+      }catch(e){ alert(e.message||'저장에 실패했어요.'); }
+    }
+    window._covCollect=_covCollect; window._covApply=_covApply; window.covEnter=covEnter; window.exitCovClient=exitCovClient; window.openCoverageForClient=openCoverageForClient; window.saveCoverageToClient=saveCoverageToClient;
 
     /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
     (function() {

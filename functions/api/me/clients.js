@@ -26,10 +26,13 @@ async function ensureTable(env) {
        premium    INTEGER,
        renew_date TEXT,
        memo       TEXT,
+       coverage   TEXT,
        created_at TEXT DEFAULT (datetime('now')),
        updated_at TEXT DEFAULT (datetime('now'))
      )`
   ).run();
+  // v2.49.0: 기존 테이블에 보장분석(coverage) 컬럼 추가 — 이미 있으면 무시
+  await env.DB.prepare(`ALTER TABLE ic_client_notes ADD COLUMN coverage TEXT`).run().catch(() => {});
   await env.DB.prepare(
     `CREATE INDEX IF NOT EXISTS idx_client_notes_member ON ic_client_notes(member_id)`
   ).run();
@@ -50,7 +53,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   if (!user) return error('로그인이 필요합니다.', 401);
   await ensureTable(env);
   const rs = await env.DB.prepare(
-    `SELECT id, name, phone, insurer, product, premium, renew_date, memo, created_at, updated_at
+    `SELECT id, name, phone, insurer, product, premium, renew_date, memo, coverage, created_at, updated_at
      FROM ic_client_notes WHERE member_id = ?
      ORDER BY (renew_date IS NULL) ASC, renew_date ASC, id DESC LIMIT ?`
   ).bind(user.id, MAX_CLIENTS).all();
@@ -69,10 +72,10 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
   const name = S(b.name, 60);
   if (!name) return error('고객명(또는 별칭)을 입력해주세요.', 400);
   const r = await env.DB.prepare(
-    `INSERT INTO ic_client_notes (member_id, name, phone, insurer, product, premium, renew_date, memo)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO ic_client_notes (member_id, name, phone, insurer, product, premium, renew_date, memo, coverage)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(user.id, name, S(b.phone, 40), S(b.insurer, 40), S(b.product, 80),
-         numOrNull(b.premium), dateOk(b.renew_date), S(b.memo, 500)).run();
+         numOrNull(b.premium), dateOk(b.renew_date), S(b.memo, 500), S(b.coverage, 2000)).run();
   return json({ ok: true, id: r.meta?.last_row_id });
 });
 
@@ -87,10 +90,10 @@ export const onRequestPatch = async ({ env, request }) => handle(async () => {
   if (!name) return error('고객명(또는 별칭)을 입력해주세요.', 400);
   const r = await env.DB.prepare(
     `UPDATE ic_client_notes
-       SET name=?, phone=?, insurer=?, product=?, premium=?, renew_date=?, memo=?, updated_at=datetime('now')
+       SET name=?, phone=?, insurer=?, product=?, premium=?, renew_date=?, memo=?, coverage=?, updated_at=datetime('now')
      WHERE id=? AND member_id=?`
   ).bind(name, S(b.phone, 40), S(b.insurer, 40), S(b.product, 80),
-         numOrNull(b.premium), dateOk(b.renew_date), S(b.memo, 500), id, user.id).run();
+         numOrNull(b.premium), dateOk(b.renew_date), S(b.memo, 500), S(b.coverage, 2000), id, user.id).run();
   if (!r.meta?.changes) return error('대상을 찾을 수 없습니다.', 404);
   return json({ ok: true });
 });
