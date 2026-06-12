@@ -8195,7 +8195,9 @@
     <div class="side-quickmenu" data-tour="quickmenu">
       <div class="side-quickmenu-head"><span class="sqm-ico">⚡</span> 빠른 메뉴</div>
       <div class="menu-float-grid">
+        <!-- v2.47.0: 사이즈 정리 — wide(위2/아래2) + 일반 pill 5쌍(짝수) 정렬, 고아·줄바꿈 제거 -->
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인슈어커넥트뉴스'); goToPage('latest');">📰 인슈어커넥트 뉴스</button>
+        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','전산'); goToPage('jeonsan');">전산</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','GA전산'); goToPage('ga');">GA</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','수납전산'); goToPage('payment');">수납</button>
@@ -8203,10 +8205,9 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','청구서류'); goToPage('claimform');">청구</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','채용공고'); goToPage('recruit');">채용</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
-        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
-        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
-        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인수QA'); goToPage('underwrite');">🩺 인수 Q&amp;A · 이 보험사 인수되나요?</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','인수QA'); goToPage('underwrite');">🩺 인수 Q&amp;A</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
         <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
         <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
       </div>
@@ -15567,7 +15568,7 @@
     .menu-float-close{background:none;border:none;color:var(--txt-lo);font-size:17px;line-height:1;cursor:pointer;padding:0 2px;}
     .menu-float-close:hover{color:var(--txt-hi);}
     .menu-float-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;padding:10px;}
-    .menu-pill{font-size:12.5px;font-weight:700;color:var(--txt-hi);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 6px;cursor:pointer;font-family:inherit;text-align:center;transition:background .12s,border-color .12s,color .12s;}
+    .menu-pill{font-size:12.5px;font-weight:700;color:var(--txt-hi);background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:8px 8px;cursor:pointer;font-family:inherit;text-align:center;display:flex;align-items:center;justify-content:center;min-height:42px;line-height:1.25;transition:background .12s,border-color .12s,color .12s;}
     .menu-pill:hover{border-color:var(--blue-mid);color:var(--blue-mid);}
     .menu-pill-wide{grid-column:span 2;}
     .menu-pill-ai{background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;border:none;}
