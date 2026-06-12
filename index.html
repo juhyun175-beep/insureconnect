@@ -3103,6 +3103,9 @@
     .cl-card-actions button:hover { color:var(--blue-mid); border-color:var(--blue-mid); }
     .cl-card-actions button.del:hover { color:#dc2626; border-color:#dc2626; }
     .cl-empty { text-align:center; color:var(--txt-lo); font-size:14px; padding:40px 20px; line-height:1.7; }
+    .cl-share-cta { display:block; margin-top:18px; padding:14px 16px; border-radius:12px; background:linear-gradient(135deg,rgba(26,61,232,.07),rgba(0,200,238,.05)); border:1.5px solid rgba(26,61,232,.2); color:var(--txt-hi); font-size:13px; font-weight:600; text-decoration:none; text-align:center; line-height:1.5; }
+    .cl-share-cta:hover { border-color:var(--blue-mid); }
+    .cl-share-cta b { color:var(--blue-mid); }
     @media (max-width:480px){ .cl-form-grid{grid-template-columns:1fr;} }
 
     @media (max-width: 768px) {
@@ -8154,6 +8157,7 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','채용공고'); goToPage('recruit');">채용</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
         <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
         <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
@@ -9992,6 +9996,7 @@
 
     <div class="cl-list" id="cl-list"></div>
     <div class="cl-empty" id="cl-empty" style="display:none">아직 등록한 고객이 없어요.<br><b>＋ 고객 추가</b>로 첫 고객을 기록해보세요.</div>
+    <a class="cl-share-cta" href="/ai#share">💡 방금 처리한 인수·보상 건이 있나요? <b>사례로 공유하면 삼따AI가 더 똑똑해지고 +10P</b> →</a>
   </div>
 
   <!-- ══════ PAGE: GA 전산 ══════ -->
