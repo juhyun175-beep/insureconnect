@@ -3064,6 +3064,47 @@
     .rj-chip .rj-fallback { width: 22px; height: 22px; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 800; color: #fff; background: var(--blue-mid); }
     .rj-chip .rj-arrow { color: var(--txt-lo); font-size: 12px; }
 
+    /* v2.43.0: 내 고객 (미니 CRM) */
+    .cl-head { display:flex; align-items:flex-start; justify-content:space-between; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+    .cl-title { font-size:1.15rem; font-weight:800; color:var(--txt-hi); }
+    .cl-sub { font-size:12.5px; color:var(--txt-mid); margin-top:4px; line-height:1.5; }
+    .cl-add-btn { background:linear-gradient(135deg,var(--blue-mid),var(--cyan)); color:#fff; border:none; border-radius:10px; padding:10px 16px; font-size:14px; font-weight:800; cursor:pointer; white-space:nowrap; box-shadow:0 4px 14px rgba(26,61,232,.28); }
+    .cl-add-btn:hover { transform:translateY(-1px); }
+    .cl-gate { background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:24px; text-align:center; }
+    .cl-gate p { color:var(--txt-mid); font-size:14px; margin-bottom:14px; line-height:1.6; }
+    .cl-gate-btn { display:inline-block; background:#FEE500; color:#191600; font-weight:800; padding:11px 20px; border-radius:10px; text-decoration:none; }
+    .cl-renew-banner { background:linear-gradient(135deg,rgba(245,158,11,.12),rgba(239,68,68,.10)); border:1.5px solid rgba(245,158,11,.35); color:#b45309; border-radius:12px; padding:12px 16px; font-size:13.5px; font-weight:700; margin-bottom:14px; }
+    [data-theme="dark"] .cl-renew-banner { color:#fbbf24; }
+    .cl-form-wrap { background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:16px; margin-bottom:16px; box-shadow:var(--sh-sm); }
+    .cl-form-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .cl-f { display:flex; flex-direction:column; gap:5px; font-size:12px; font-weight:700; color:var(--txt-mid); }
+    .cl-f-wide { grid-column:1 / -1; }
+    .cl-req { color:#ef4444; }
+    .cl-f input, .cl-f textarea { font-family:inherit; font-size:14px; color:var(--txt-hi); background:var(--bg); border:1.5px solid var(--border); border-radius:9px; padding:9px 11px; outline:none; }
+    .cl-f input:focus, .cl-f textarea:focus { border-color:var(--blue-mid); }
+    .cl-form-actions { display:flex; justify-content:flex-end; gap:8px; margin-top:14px; }
+    .cl-btn-ghost { background:none; border:1.5px solid var(--border); color:var(--txt-mid); border-radius:9px; padding:9px 16px; font-size:13.5px; font-weight:700; cursor:pointer; }
+    .cl-btn-primary { background:var(--blue-mid); color:#fff; border:none; border-radius:9px; padding:9px 18px; font-size:13.5px; font-weight:800; cursor:pointer; }
+    .cl-btn-primary:disabled { opacity:.5; }
+    .cl-list { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:12px; }
+    .cl-card { background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:14px 16px; box-shadow:var(--sh-sm); }
+    .cl-card-top { display:flex; align-items:center; gap:8px; justify-content:space-between; }
+    .cl-name { font-size:15px; font-weight:800; color:var(--txt-hi); }
+    .cl-dday { font-size:11px; font-weight:800; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+    .cl-dday.ok { background:rgba(26,61,232,.10); color:var(--blue-mid); }
+    .cl-dday.soon { background:rgba(245,158,11,.16); color:#b45309; }
+    .cl-dday.over { background:rgba(239,68,68,.14); color:#dc2626; }
+    .cl-meta { font-size:12.5px; color:var(--txt-mid); margin-top:5px; font-weight:600; }
+    .cl-info { display:flex; flex-wrap:wrap; gap:10px; margin-top:8px; font-size:12.5px; color:var(--txt-mid); }
+    .cl-info a { color:var(--blue-mid); text-decoration:none; }
+    .cl-memo { font-size:12.5px; color:var(--txt-mid); margin-top:9px; padding-top:9px; border-top:1px dashed var(--border); line-height:1.5; white-space:pre-wrap; word-break:break-word; }
+    .cl-card-actions { display:flex; gap:6px; justify-content:flex-end; margin-top:10px; }
+    .cl-card-actions button { background:none; border:1px solid var(--border); color:var(--txt-lo); border-radius:8px; padding:5px 12px; font-size:12px; font-weight:700; cursor:pointer; }
+    .cl-card-actions button:hover { color:var(--blue-mid); border-color:var(--blue-mid); }
+    .cl-card-actions button.del:hover { color:#dc2626; border-color:#dc2626; }
+    .cl-empty { text-align:center; color:var(--txt-lo); font-size:14px; padding:40px 20px; line-height:1.7; }
+    @media (max-width:480px){ .cl-form-grid{grid-template-columns:1fr;} }
+
     @media (max-width: 768px) {
       /* v2.41.0: 가로형 카드뉴스가 화면 폭을 더 쓰도록 패딩 축소 */
       .cn-stage { padding: 8px; }
@@ -8112,6 +8153,7 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','청구서류'); goToPage('claimform');">청구</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','채용공고'); goToPage('recruit');">채용</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
+        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
         <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
         <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
@@ -9027,6 +9069,7 @@
     <section class="ic-m-section" data-tour="quickmenu">
       <div class="ic-m-section-head"><span>빠른 메뉴</span><button type="button" onclick="if(typeof icTourStart==='function')icTourStart()" title="처음이세요? 사용법 안내 보기" style="font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#4f6df0);border:none;border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,61,232,.3);">❓ 사용법</button></div>
       <div class="ic-m-core-grid">
+        <button class="ic-m-core-card" onclick="goToPage('clients')"><span class="cc-lb">👥 내 고객</span></button>
         <button class="ic-m-core-card" onclick="goToPage('jeonsan')"><span class="cc-lb">보험사 전산</span></button>
         <button class="ic-m-core-card" onclick="goToPage('claimform')"><span class="cc-lb">청구서류</span></button>
         <button class="ic-m-core-card" onclick="goToPage('ga')"><span class="cc-lb">GA 전산</span></button>
@@ -9911,6 +9954,44 @@
       </div>
       <div class="grid" id="grid-nonlife"></div>
     </div>
+  </div>
+
+  <!-- ══════ PAGE: 내 고객 (미니 CRM · v2.43.0) ══════ -->
+  <div class="content" id="page-clients" style="display:none">
+    <div class="cl-head">
+      <div>
+        <div class="cl-title">👥 내 고객</div>
+        <div class="cl-sub">본인 계정에만 보이는 <b>비공개 고객·만기 메모</b>예요. 갱신/만기를 놓치지 마세요.</div>
+      </div>
+      <button class="cl-add-btn" type="button" id="cl-add-btn" onclick="openClientForm()">＋ 고객 추가</button>
+    </div>
+
+    <div class="cl-gate" id="cl-gate" style="display:none">
+      <p>로그인하면 <b>내 고객·만기 메모</b>를 저장하고 어느 기기에서나 확인할 수 있어요.</p>
+      <a class="cl-gate-btn" href="/api/auth/kakao/login">💬 카카오로 3초 시작</a>
+    </div>
+
+    <div class="cl-renew-banner" id="cl-renew-banner" style="display:none"></div>
+
+    <div class="cl-form-wrap" id="cl-form-wrap" style="display:none">
+      <div class="cl-form-grid">
+        <input type="hidden" id="cl-f-id">
+        <label class="cl-f">고객명/별칭 <span class="cl-req">*</span><input id="cl-f-name" maxlength="60" placeholder="예: 김O철 · VIP 김부장"></label>
+        <label class="cl-f">연락처<input id="cl-f-phone" maxlength="40" placeholder="선택"></label>
+        <label class="cl-f">보험사<input id="cl-f-insurer" maxlength="40" placeholder="예: 삼성생명"></label>
+        <label class="cl-f">상품명<input id="cl-f-product" maxlength="80" placeholder="예: 종합건강보험"></label>
+        <label class="cl-f">월 보험료<input id="cl-f-premium" inputmode="numeric" maxlength="12" placeholder="숫자만 (원)"></label>
+        <label class="cl-f">만기/갱신일<input id="cl-f-renew" type="date"></label>
+        <label class="cl-f cl-f-wide">메모<textarea id="cl-f-memo" maxlength="500" rows="2" placeholder="상담 메모·특이사항…"></textarea></label>
+      </div>
+      <div class="cl-form-actions">
+        <button class="cl-btn-ghost" type="button" onclick="closeClientForm()">취소</button>
+        <button class="cl-btn-primary" type="button" id="cl-save-btn" onclick="saveClient()">저장</button>
+      </div>
+    </div>
+
+    <div class="cl-list" id="cl-list"></div>
+    <div class="cl-empty" id="cl-empty" style="display:none">아직 등록한 고객이 없어요.<br><b>＋ 고객 추가</b>로 첫 고객을 기록해보세요.</div>
   </div>
 
   <!-- ══════ PAGE: GA 전산 ══════ -->
@@ -11195,6 +11276,7 @@
       rental:           '🚗 리스/렌트카',
       telecom:          '📱 통신/휴대폰',
       partner:          '🤝 파트너사',
+      clients:          '👥 내 고객',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
@@ -11250,6 +11332,7 @@
       if (page === 'recruit'    && _shouldReloadPage('recruit'))    { loadRecruitPage(); }
       if (page === 'lecture'    && _shouldReloadPage('lecture'))    { loadLecturePage(); }
       if (page === 'telecom'    && typeof loadTelecomLineup === 'function') { loadTelecomLineup(); }
+      if (page === 'clients'    && typeof loadClients === 'function') { loadClients(); } // v2.43.0 미니 CRM
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
@@ -12636,6 +12719,93 @@
     function goToPage(page) {
       showPage(page);
     }
+
+    /* ── v2.43.0: 내 고객 (미니 CRM) — 본인 데이터가 쌓여 매일 열게 되는 lock-in ── */
+    let _clClients = [], _clLoaded = false;
+    function _clEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+    function _clDday(ds){ if(!ds) return null; const t=new Date(); t.setHours(0,0,0,0); const d=new Date(ds+'T00:00:00'); if(isNaN(d)) return null; return Math.round((d-t)/86400000); }
+    function _clWon(n){ return (n==null||n==='')?'':Number(n).toLocaleString('ko-KR')+'원'; }
+    async function loadClients(force){
+      const gate=document.getElementById('cl-gate'), list=document.getElementById('cl-list');
+      if(!list) return;
+      if(_clLoaded && !force){ renderClients(); return; }
+      try{
+        const r=await fetch('/api/me/clients',{credentials:'same-origin'});
+        if(r.status===401){
+          if(gate) gate.style.display='';
+          list.innerHTML=''; document.getElementById('cl-empty').style.display='none';
+          document.getElementById('cl-renew-banner').style.display='none';
+          document.getElementById('cl-add-btn').style.display='none';
+          return;
+        }
+        if(gate) gate.style.display='none';
+        document.getElementById('cl-add-btn').style.display='';
+        const d=await r.json(); _clClients=(d&&d.clients)||[]; _clLoaded=true; renderClients();
+      }catch(_){ list.innerHTML='<div class="cl-empty">불러오기에 실패했어요. 잠시 후 다시 시도해주세요.</div>'; }
+    }
+    function renderClients(){
+      const list=document.getElementById('cl-list'), empty=document.getElementById('cl-empty'), banner=document.getElementById('cl-renew-banner');
+      if(!list) return;
+      if(!_clClients.length){ list.innerHTML=''; empty.style.display=''; banner.style.display='none'; return; }
+      empty.style.display='none';
+      const dd=_clClients.map(c=>({c,d:_clDday(c.renew_date)}));
+      const soon=dd.filter(x=>x.d!=null&&x.d>=0&&x.d<=30).length, over=dd.filter(x=>x.d!=null&&x.d<0).length;
+      if(soon||over){ banner.style.display=''; const p=[]; if(soon)p.push(`<b>${soon}건</b> 만기 임박(30일 내)`); if(over)p.push(`<b>${over}건</b> 만기 지남`); banner.innerHTML='⏰ '+p.join(' · ')+' — 갱신 상담을 챙기세요!'; }
+      else banner.style.display='none';
+      list.innerHTML=_clClients.map(c=>{
+        const d=_clDday(c.renew_date); let badge='';
+        if(d!=null){ const cls=d<0?'over':(d<=30?'soon':'ok'); const t=d<0?`만기 ${-d}일 지남`:(d===0?'오늘 만기':`D-${d}`); badge=`<span class="cl-dday ${cls}">${t}</span>`; }
+        const meta=[c.insurer,c.product].filter(Boolean).map(_clEsc).join(' · ');
+        return `<div class="cl-card">
+          <div class="cl-card-top"><span class="cl-name">${_clEsc(c.name)}</span>${badge}</div>
+          ${meta?`<div class="cl-meta">${meta}</div>`:''}
+          <div class="cl-info">
+            ${c.premium?`<span>💰 ${_clEsc(_clWon(c.premium))}</span>`:''}
+            ${c.renew_date?`<span>📅 ${_clEsc(c.renew_date)}</span>`:''}
+            ${c.phone?`<a href="tel:${_clEsc(c.phone)}">📞 ${_clEsc(c.phone)}</a>`:''}
+          </div>
+          ${c.memo?`<div class="cl-memo">${_clEsc(c.memo)}</div>`:''}
+          <div class="cl-card-actions"><button type="button" onclick="editClient(${c.id})">수정</button><button type="button" class="del" onclick="deleteClient(${c.id})">삭제</button></div>
+        </div>`;
+      }).join('');
+    }
+    function openClientForm(c){
+      const w=document.getElementById('cl-form-wrap');
+      document.getElementById('cl-f-id').value=c?c.id:'';
+      document.getElementById('cl-f-name').value=c?(c.name||''):'';
+      document.getElementById('cl-f-phone').value=c?(c.phone||''):'';
+      document.getElementById('cl-f-insurer').value=c?(c.insurer||''):'';
+      document.getElementById('cl-f-product').value=c?(c.product||''):'';
+      document.getElementById('cl-f-premium').value=(c&&c.premium!=null)?c.premium:'';
+      document.getElementById('cl-f-renew').value=c?(c.renew_date||''):'';
+      document.getElementById('cl-f-memo').value=c?(c.memo||''):'';
+      document.getElementById('cl-save-btn').textContent=c?'수정 저장':'저장';
+      w.style.display=''; w.scrollIntoView({behavior:'smooth',block:'nearest'});
+      document.getElementById('cl-f-name').focus();
+    }
+    function closeClientForm(){ document.getElementById('cl-form-wrap').style.display='none'; }
+    function editClient(id){ const c=_clClients.find(x=>x.id===id); if(c) openClientForm(c); }
+    async function saveClient(){
+      const id=document.getElementById('cl-f-id').value;
+      const body={ name:document.getElementById('cl-f-name').value.trim(), phone:document.getElementById('cl-f-phone').value.trim(), insurer:document.getElementById('cl-f-insurer').value.trim(), product:document.getElementById('cl-f-product').value.trim(), premium:document.getElementById('cl-f-premium').value.trim(), renew_date:document.getElementById('cl-f-renew').value, memo:document.getElementById('cl-f-memo').value.trim() };
+      if(!body.name){ alert('고객명(또는 별칭)을 입력해주세요.'); return; }
+      const btn=document.getElementById('cl-save-btn'); btn.disabled=true;
+      try{
+        let r;
+        if(id){ body.id=parseInt(id,10); r=await fetch('/api/me/clients',{method:'PATCH',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)}); }
+        else r=await fetch('/api/me/clients',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+        if(!r.ok){ const e=await r.json().catch(()=>({})); throw new Error(e.error||'저장 실패'); }
+        closeClientForm(); await loadClients(true);
+        if(typeof trackCardClick==='function') trackCardClick('내고객', id?'수정':'추가');
+      }catch(e){ alert(e.message||'저장에 실패했어요.'); }
+      finally{ btn.disabled=false; }
+    }
+    async function deleteClient(id){
+      if(!confirm('이 고객 메모를 삭제할까요?')) return;
+      try{ const r=await fetch('/api/me/clients?id='+id,{method:'DELETE',credentials:'same-origin'}); if(!r.ok) throw 0; await loadClients(true); }
+      catch(_){ alert('삭제에 실패했어요.'); }
+    }
+    window.openClientForm=openClientForm; window.closeClientForm=closeClientForm; window.saveClient=saveClient; window.editClient=editClient; window.deleteClient=deleteClient;
 
     /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
     (function() {
