@@ -12807,6 +12807,16 @@
     }
     window.openClientForm=openClientForm; window.closeClientForm=closeClientForm; window.saveClient=saveClient; window.editClient=editClient; window.deleteClient=deleteClient;
 
+    /* v2.44.0: 푸시/카톡 딥링크 — /?go=<page> 로 진입 시 해당 페이지 자동 오픈(예: 일간 브리핑→내 고객) */
+    (function(){
+      try {
+        const go = new URLSearchParams(location.search).get('go');
+        if (go && typeof PAGE_NAMES === 'object' && PAGE_NAMES[go]) {
+          setTimeout(function(){ try { goToPage(go); } catch(_){} }, 300);
+        }
+      } catch(_) {}
+    })();
+
     /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
     (function() {
       let _activeSec = 0;            // 활성 누적 초
