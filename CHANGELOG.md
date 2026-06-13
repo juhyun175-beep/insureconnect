@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.61.0] - 2026-06-13
+### Added (1:1 공고 문의 채팅방 — 채팅 룸 라우팅)
+- 공고(채용·강의·모임) 상세에 **「💬 1:1 문의하기」** → 등록자(owner)와 **1:1 문의 채팅방**. 방 키 `ad_type:ad_id:문의자id`(결정적), 참여자 = 문의자 + 공고 등록자(`submitter_id`). 채팅 페이지에 **「📩 내 문의함」**(받은/보낸 문의방 목록·마지막 메시지). 폴링 2.8초·rate-limit 2초·500자. 신규 인프라 0(현 Pages+D1).
+- 신규 `functions/api/chat/dm.js`: GET(`?rooms=1` 목록 / `?room_id=`·`?ad_type=&ad_id=` 방 메시지) · POST(전송). **접근통제**: 읽기·쓰기 모두 `user.id ∈ {문의자, 등록자}` 인 경우만 — 등록자는 항상 공고에서 서버가 도출(클라 신뢰 금지) → 타인 방 열람 403, 본인 공고 자가문의·등록자 미연결 공고 거절. D1 `ic_dm_messages` 런타임 lazy.
+### Verified
+- `node --check`(dm) OK · index.html 인라인 33블록 0오류 · DM 배선(모달/뷰어버튼×3/룸목록/딥링크) 그렙 일치 · 접근통제 케이스 검토(문의자/등록자/타인/자가) · 보안 HIGH 0 · release.mjs
+
 ## [2.60.0] - 2026-06-13
 ### Added (관리자 할인권 수동 지급/회수)
 - 관리자(채용공고 관리)에 **「🎟️ 할인권 수동 지급·회수」 패널**: 회원 ID + 할인권 종류 선택 → **무상 지급**(포인트 미차감·14일 유효), 최근 발급 목록에서 **보유(active) 할인권 회수**(소프트, `status='revoked'`·감사 보존). 신규 `/api/admin/coupons`(GET 목록+카탈로그 / POST grant / PATCH revoke, admin) — 가격·타입은 코드 카탈로그(`COUPON_CATALOG`)에서만 해석, `coupon_logs`에 `admin_grant`/`admin_revoke` 기록.
