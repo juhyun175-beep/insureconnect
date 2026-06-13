@@ -3600,16 +3600,19 @@
 
         <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
+        <button class="upload-tab" data-panel="up-homead" style="border-color:#0ea5e9;color:#0ea5e9;">🖼 홈 광고배너</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
         <!-- v2.15.1: 유입 경로·회원/지표는 「통합 기록지표」 슬라이더로 이동 -->
 
         <button class="upload-tab" data-panel="up-reports" style="border-color:#f59e0b;color:#f59e0b;">🚨 신고</button>
+        <button class="upload-tab" data-panel="up-dm" style="border-color:#0d9488;color:#0d9488;">💬 문의채팅</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
         <!-- 공고·판매 등록 -->
         <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
         <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
+        <button class="upload-tab" data-panel="up-meetup">🤝 모임</button>
         <button class="upload-tab" data-panel="up-cases" style="border-color:#a855f7;color:#a855f7;">🗂 보험 사례</button>
         <button class="upload-tab" data-panel="up-coverages" style="border-color:#0ea5e9;color:#0ea5e9;">📑 담보분석(PDF)</button>
         <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
@@ -4283,17 +4286,113 @@
         <div class="nl-list" id="lec-list">
           <p class="empty-msg">강의 로딩 중…</p>
         </div>
+      </div><!-- /#up-lecture -->
 
-        <!-- v2.59.0: 모임공고 관리 (승인은 「사용자 신청」 탭, 여기선 노출·삭제) -->
-        <div style="display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px;flex-wrap:wrap;gap:10px;border-top:1px solid var(--border);padding-top:16px;">
-          <p class="dash-section-title" style="margin:0">🤝 모임공고 관리</p>
+      <!-- v2.63.0: 모임공고 관리 — 채용·강의와 동일하게 자체 탭 -->
+      <div class="upload-panel" id="up-meetup">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(13,148,136,0.30);border-left:3px solid #0d9488;border-radius:8px;background:linear-gradient(90deg,rgba(13,148,136,0.08),rgba(13,148,136,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#0d9488;margin-bottom:6px;letter-spacing:0.03em;">🤝 모임 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>오프라인 모임·세미나·스터디를 등록하면 모임 페이지 카드로 노출됩니다</li>
+            <li>주최/모임장·장소·일시·설명 + PDF/이미지 첨부(선택)</li>
+            <li>홈 "🤝 진행중인 모임" 섹션에 최신 4건 자동 표시 · <b>사용자 신청은 「📥 사용자 신청」 탭에서 승인</b></li>
+          </ul>
+        </div>
+
+        <div class="nl-upload-box">
+          <h4 style="margin:0 0 14px;font-size:14px;color:#0d9488;font-weight:700;letter-spacing:0.08em;">🤝 모임 등록</h4>
+          <div class="nl-form">
+            <div class="nl-field"><label>모임명 *</label>
+              <input type="text" id="mt-title" placeholder="예: 보험설계사 영업 스터디 (강남)" style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>주최/모임장 (선택)</label>
+              <input type="text" id="mt-host" placeholder="예: 인슈어커넥트 스터디" style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>장소 (선택)</label>
+              <input type="text" id="mt-location" placeholder="예: 강남역 ○○스터디카페 / 온라인(Zoom)" style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>일시 (선택)</label>
+              <input type="text" id="mt-eventat" placeholder="예: 매주 화 19:30 / 11월 23일(토) 14시" style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>설명 (선택)</label>
+              <textarea id="mt-description" rows="4" placeholder="모임 목적·대상·정원·회비·진행방식 등" style="font-family:inherit;width:100%;resize:vertical;"></textarea>
+            </div>
+            <div class="nl-field"><label>파일 (선택 · PDF/이미지)</label>
+              <label class="nl-file-label">📎 파일 선택
+                <input type="file" id="mt-file" accept=".pdf,image/*">
+                <span class="nl-file-name" id="mt-file-name">없음</span>
+              </label>
+            </div>
+            <button class="nl-upload-btn" id="mt-upload-btn" onclick="uploadMeeting()">모임 등록</button>
+            <p class="nl-status" id="mt-status"></p>
+          </div>
+        </div>
+
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px;flex-wrap:wrap;gap:10px;">
+          <p class="dash-section-title" style="margin:0">🤝 등록된 모임</p>
           <button type="button" onclick="loadMeetings()"
                   style="padding:6px 12px;background:transparent;border:1px solid #0d9488;color:#0d9488;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">🔄 새로고침</button>
         </div>
         <div class="nl-list" id="meetup-list">
           <p class="empty-msg">모임 로딩 중…</p>
         </div>
-      </div><!-- /#up-lecture -->
+      </div><!-- /#up-meetup -->
+
+      <!-- v2.63.0: 1:1 공고 문의 채팅 모니터 (읽기 전용) -->
+      <div class="upload-panel" id="up-dm">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(13,148,136,0.30);border-left:3px solid #0d9488;border-radius:8px;background:linear-gradient(90deg,rgba(13,148,136,0.08),rgba(13,148,136,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#0d9488;margin-bottom:6px;letter-spacing:0.03em;">💬 1:1 공고 문의 채팅 모니터</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>채용·강의·모임 공고의 <b>문의자 ↔ 등록자 1:1 대화</b>를 운영자가 열람(읽기 전용)</li>
+            <li>좌측 방 목록에서 선택 → 우측에 전체 대화 표시 · 부적절 대화는 해당 공고/회원 조치로 관리</li>
+          </ul>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;">
+          <p class="dash-section-title" style="margin:0">문의방</p>
+          <button type="button" onclick="loadDmAdmin()" style="padding:6px 12px;background:transparent;border:1px solid #0d9488;color:#0d9488;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">🔄 새로고침</button>
+        </div>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
+          <div id="dm-admin-rooms" class="nl-list" style="flex:1;min-width:240px;max-height:520px;overflow-y:auto;">
+            <p class="empty-msg">불러오는 중…</p>
+          </div>
+          <div id="dm-admin-msgs" style="flex:1.3;min-width:280px;max-height:520px;overflow-y:auto;border:1px solid var(--border);border-radius:10px;padding:10px 12px;background:var(--bg);">
+            <p class="empty-msg">왼쪽에서 문의방을 선택하세요.</p>
+          </div>
+        </div>
+      </div><!-- /#up-dm -->
+
+      <!-- v2.63.0: 홈 광고배너(삼따AI 옆) 관리 -->
+      <div class="upload-panel" id="up-homead">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(14,165,233,0.30);border-left:3px solid #0ea5e9;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.08),rgba(14,165,233,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#0ea5e9;margin-bottom:6px;letter-spacing:0.03em;">🖼 홈 광고배너 (삼따AI 옆)</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>홈 자유게시판·삼따AI 우측 <b>제휴상품 광고배너</b>의 이미지·클릭 팝업·상담 링크를 직접 교체</li>
+            <li>이미지를 올리거나 URL을 직접 입력 · 저장 후 홈 새로고침 시 반영 · 노출 끄면 배너 숨김</li>
+          </ul>
+        </div>
+        <div class="nl-upload-box">
+          <div class="nl-form">
+            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--txt-hi);"><input type="checkbox" id="ha-enabled"> 배너 노출</label>
+            <div class="nl-field"><label>배너 이미지 (목록에 보이는 이미지)</label>
+              <label class="nl-file-label">📎 이미지 선택<input type="file" id="ha-banner-file" accept="image/*"><span class="nl-file-name" id="ha-banner-name">없음</span></label>
+              <input type="text" id="ha-banner-url" placeholder="/connect.webp 또는 https://..." style="font-family:inherit;margin-top:6px;">
+            </div>
+            <div class="nl-field"><label>팝업 이미지 (클릭 시 확대 — 비우면 배너와 동일)</label>
+              <label class="nl-file-label">📎 이미지 선택<input type="file" id="ha-popup-file" accept="image/*"><span class="nl-file-name" id="ha-popup-name">없음</span></label>
+              <input type="text" id="ha-popup-url" placeholder="https://..." style="font-family:inherit;margin-top:6px;">
+            </div>
+            <div class="nl-field"><label>CTA 링크 (💬 상담 받아보기 →)</label>
+              <input type="url" id="ha-link-url" placeholder="https://naver.me/..." style="font-family:inherit;">
+            </div>
+            <div class="nl-field"><label>대체텍스트(alt)</label>
+              <input type="text" id="ha-alt" placeholder="배너 설명(접근성·SEO)" style="font-family:inherit;">
+            </div>
+            <button class="nl-upload-btn" id="ha-save-btn" onclick="haSave()">저장</button>
+            <p class="nl-status" id="ha-status"></p>
+          </div>
+          <div id="ha-preview" style="margin-top:12px;"></div>
+        </div>
+      </div><!-- /#up-homead -->
 
       <!-- v2.1.4: 렌트카 차량 라인업 관리 패널 -->
       <div class="upload-panel" id="up-rental-vehicles">
@@ -4843,6 +4942,8 @@
         }
         if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
         if (target === 'up-coverages' && typeof loadCoverages === 'function') { loadCoverages(); }
+        if (target === 'up-dm' && typeof loadDmAdmin === 'function') { loadDmAdmin(); }
+        if (target === 'up-homead' && typeof loadHomeAdAdmin === 'function') { loadHomeAdAdmin(); }
       });
     });
 
@@ -6589,6 +6690,140 @@
       } finally {
         btn.disabled = false; btn.textContent = '강의 등록';
       }
+    }
+
+    /* v2.63.0: 모임 등록 (강의 패턴 클론) */
+    (function(){ var el=document.getElementById('mt-file'); if(el) el.addEventListener('change', function(){ var f=this.files[0]; var n=document.getElementById('mt-file-name'); if(n) n.textContent = f ? (f.name+' ('+(f.size/1024/1024).toFixed(2)+'MB)') : '없음'; }); })();
+    async function uploadMeeting() {
+      const title = document.getElementById('mt-title').value.trim();
+      const host = document.getElementById('mt-host').value.trim();
+      const location = document.getElementById('mt-location').value.trim();
+      const event_at = document.getElementById('mt-eventat').value.trim();
+      const description = document.getElementById('mt-description').value.trim();
+      const fileInput = document.getElementById('mt-file');
+      const status = document.getElementById('mt-status');
+      const btn = document.getElementById('mt-upload-btn');
+      if (!title) { alert('모임명 입력 필수'); return; }
+      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; status.textContent = '';
+      try {
+        let file_url = null, file_type = null;
+        const f = fileInput.files[0];
+        if (f) {
+          const isPdf = f.type === 'application/pdf' || f.name.toLowerCase().endsWith('.pdf');
+          file_type = isPdf ? 'pdf' : 'image';
+          const ext = f.name.split('.').pop() || (isPdf ? 'pdf' : 'jpg');
+          const path = `meeting_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
+          const up = await fetch(`/api/files/meetings/${path}`, {
+            method: 'POST',
+            headers: adminHeaders({ 'Content-Type': f.type, 'x-upsert': 'true' }),
+            body: f
+          });
+          if (!up.ok) throw new Error('파일 업로드 실패');
+          file_url = `/api/files/meetings/${path}`;
+        }
+        const res = await fetch(`/api/meetings`, {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ title, host, location, event_at, description, file_url, file_type })
+        });
+        if (!res.ok) throw new Error(await res.text());
+        status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
+        ['mt-title','mt-host','mt-location','mt-eventat','mt-description','mt-file'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
+        document.getElementById('mt-file-name').textContent = '없음';
+        loadMeetings();
+      } catch (e) {
+        status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
+      } finally {
+        btn.disabled = false; btn.textContent = '모임 등록';
+      }
+    }
+
+    /* v2.63.0: 1:1 공고 문의 채팅 모니터 (읽기 전용) */
+    var _DM_AD = { recruit: '채용', lecture: '강의', meetup: '모임' };
+    function _dmAdminTime(s){ try{ var d=new Date(String(s).replace(' ','T')+'Z'); return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }catch(_){ return ''; } }
+    async function loadDmAdmin(){
+      var el=document.getElementById('dm-admin-rooms'); if(!el) return;
+      el.innerHTML='<p class="empty-msg">불러오는 중…</p>';
+      try{
+        var r=await fetch('/api/admin/dm?rooms=1',{headers:adminHeaders()});
+        var d=await r.json();
+        if(!d||!d.ok){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; return; }
+        if(!d.rooms||!d.rooms.length){ el.innerHTML='<p class="empty-msg">문의 채팅이 아직 없습니다.</p>'; return; }
+        el.innerHTML=d.rooms.map(function(rm){
+          return '<button type="button" onclick="loadDmAdminRoom(\''+rm.room_id+'\')" style="display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:7px;cursor:pointer;">'
+            +'<div style="font-size:11px;color:#0d9488;font-weight:800;">'+(_DM_AD[rm.ad_type]||rm.ad_type)+' · 메시지 '+(rm.msg_count||0)+'건</div>'
+            +'<div style="font-size:12.5px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(rm.ad_title||'(제목 없음)')+'</div>'
+            +'<div style="font-size:11px;color:var(--txt-lo);">'+esc(rm.inquirer_nick||('#'+rm.inquirer_id))+' ↔ '+esc(rm.owner_nick||('#'+rm.owner_id))+'</div>'
+            +'</button>';
+        }).join('');
+      }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
+    }
+    async function loadDmAdminRoom(roomId){
+      var el=document.getElementById('dm-admin-msgs'); if(!el) return;
+      el.innerHTML='<p class="empty-msg">불러오는 중…</p>';
+      try{
+        var r=await fetch('/api/admin/dm?room_id='+encodeURIComponent(roomId),{headers:adminHeaders()});
+        var d=await r.json();
+        if(!d||!d.ok){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; return; }
+        if(!d.messages||!d.messages.length){ el.innerHTML='<p class="empty-msg">메시지가 없습니다.</p>'; return; }
+        el.innerHTML=d.messages.map(function(m){
+          return '<div style="padding:6px 2px;border-bottom:1px solid var(--border);">'
+            +'<span style="font-size:11px;color:#0d9488;font-weight:800;">'+esc(m.sender_nick||('#'+m.sender_id))+'</span> '
+            +'<span style="font-size:10px;color:var(--txt-lo);">'+_dmAdminTime(m.created_at)+'</span>'
+            +'<div style="font-size:12.5px;color:var(--txt-hi);white-space:pre-wrap;word-break:break-word;margin-top:2px;">'+esc(m.body)+'</div></div>';
+        }).join('');
+      }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
+    }
+
+    /* v2.63.0: 홈 광고배너 관리 */
+    (function(){
+      [['ha-banner-file','ha-banner-name'],['ha-popup-file','ha-popup-name']].forEach(function(p){
+        var el=document.getElementById(p[0]); if(el) el.addEventListener('change', function(){ var f=this.files[0]; var n=document.getElementById(p[1]); if(n) n.textContent=f?(f.name+' ('+(f.size/1024/1024).toFixed(2)+'MB)'):'없음'; });
+      });
+    })();
+    async function haUpload(fileId, urlId){
+      var fi=document.getElementById(fileId); var f=fi&&fi.files[0]; if(!f) return null;
+      var ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
+      var path='banner_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
+      var up=await fetch('/api/files/home-ad/'+path,{method:'POST',headers:adminHeaders({'Content-Type':f.type,'x-upsert':'true'}),body:f});
+      if(!up.ok) throw new Error('이미지 업로드 실패');
+      var url='/api/files/home-ad/'+path;
+      var ui=document.getElementById(urlId); if(ui) ui.value=url;
+      return url;
+    }
+    async function loadHomeAdAdmin(){
+      try{
+        var r=await fetch('/api/home-ad'); var d=await r.json();
+        if(!d||!d.ok) return; var c=d.config||{};
+        var set=function(id,v){ var el=document.getElementById(id); if(el) el.value=v||''; };
+        var ena=document.getElementById('ha-enabled'); if(ena) ena.checked = c.enabled!==false;
+        set('ha-banner-url',c.banner_url); set('ha-popup-url',c.popup_url); set('ha-link-url',c.link_url); set('ha-alt',c.alt);
+        var pv=document.getElementById('ha-preview'); if(pv) pv.innerHTML = c.banner_url ? '<div style="font-size:11px;color:var(--txt-lo);margin-bottom:4px;">현재 배너 미리보기</div><img src="'+esc(c.banner_url)+'" alt="" style="max-width:280px;border-radius:10px;border:1px solid var(--border);">' : '';
+      }catch(e){}
+    }
+    async function haSave(){
+      var btn=document.getElementById('ha-save-btn'); var st=document.getElementById('ha-status');
+      btn.disabled=true; btn.textContent='⏳ 저장 중…'; if(st){ st.textContent=''; }
+      try{
+        if(document.getElementById('ha-banner-file').files[0]) await haUpload('ha-banner-file','ha-banner-url');
+        if(document.getElementById('ha-popup-file').files[0]) await haUpload('ha-popup-file','ha-popup-url');
+        var payload={
+          enabled: document.getElementById('ha-enabled').checked,
+          banner_url: document.getElementById('ha-banner-url').value.trim(),
+          popup_url: document.getElementById('ha-popup-url').value.trim(),
+          link_url: document.getElementById('ha-link-url').value.trim(),
+          alt: document.getElementById('ha-alt').value.trim()
+        };
+        var r=await fetch('/api/home-ad',{method:'PUT',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error((d&&d.error)||('HTTP '+r.status));
+        if(st){ st.textContent='✅ 저장 완료 (홈 새로고침 시 반영)'; st.style.color='#10b981'; }
+        document.getElementById('ha-banner-file').value=''; document.getElementById('ha-popup-file').value='';
+        var bn=document.getElementById('ha-banner-name'); if(bn) bn.textContent='없음';
+        var pn=document.getElementById('ha-popup-name'); if(pn) pn.textContent='없음';
+        loadHomeAdAdmin();
+      }catch(e){ if(st){ st.textContent='❌ '+e.message; st.style.color='#ef4444'; } }
+      finally{ btn.disabled=false; btn.textContent='저장'; }
     }
 
     async function loadLectures() {

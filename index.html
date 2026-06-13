@@ -9552,6 +9552,20 @@
       window.openHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; if(typeof trackCardClick==='function')trackCardClick('홈광고','배너클릭'); };
       window.closeHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.remove('open'); document.body.style.overflow=''; };
       (function(){ var m=document.getElementById('home-ad-modal'); if(m) m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })();
+      /* v2.63.0: 관리자 설정(/api/home-ad)으로 배너·팝업·CTA 동적 적용 (미설정이면 기본값 = 무변경) */
+      (function(){
+        try{
+          fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
+            if(!d||!d.ok||!d.config) return;
+            var c=d.config;
+            var wrap=document.querySelector('.ibh-ad');
+            if(c.enabled===false){ if(wrap) wrap.style.display='none'; return; }
+            var bimg=document.querySelector('.ibh-ad img'); if(bimg){ if(c.banner_url) bimg.src=c.banner_url; if(c.alt){ bimg.alt=c.alt; } }
+            var pimg=document.querySelector('#home-ad-modal .had-img'); if(pimg){ if(c.popup_url) pimg.src=c.popup_url; if(c.alt){ pimg.alt=c.alt; } }
+            var cta=document.querySelector('#home-ad-modal .had-cta'); if(cta && c.link_url) cta.href=c.link_url;
+          }).catch(function(){});
+        }catch(_){}
+      })();
     </script>
 
     <!-- v2.15.7: 친구 초대(추천) 상시 배너 — 기존 양방향 포인트 루프 활성화(신규유입 축) -->
