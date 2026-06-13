@@ -4264,6 +4264,16 @@
         <div class="nl-list" id="lec-list">
           <p class="empty-msg">강의 로딩 중…</p>
         </div>
+
+        <!-- v2.59.0: 모임공고 관리 (승인은 「사용자 신청」 탭, 여기선 노출·삭제) -->
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:22px 0 10px;flex-wrap:wrap;gap:10px;border-top:1px solid var(--border);padding-top:16px;">
+          <p class="dash-section-title" style="margin:0">🤝 모임공고 관리</p>
+          <button type="button" onclick="loadMeetings()"
+                  style="padding:6px 12px;background:transparent;border:1px solid #0d9488;color:#0d9488;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">🔄 새로고침</button>
+        </div>
+        <div class="nl-list" id="meetup-list">
+          <p class="empty-msg">모임 로딩 중…</p>
+        </div>
       </div><!-- /#up-lecture -->
 
       <!-- v2.1.4: 렌트카 차량 라인업 관리 패널 -->
@@ -6491,6 +6501,7 @@
       loadKakaoStats();
       loadHomePopups();
       loadLectures();
+      loadMeetings();   // v2.59.0 모임공고 관리
       /* v2.0.3: 승인대기 + 1분 폴링 */
       if (typeof loadPending === 'function') {
         loadPending();
@@ -6596,6 +6607,41 @@
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
+    /* v2.59.0: 모임공고 관리 (강의 패턴 클론) */
+    async function loadMeetings() {
+      const el = document.getElementById('meetup-list');
+      if (!el) return;
+      try {
+        const res = await fetch('/api/meetings?status=all', { headers: adminHeaders() });
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          el.innerHTML = '<p class="empty-msg">등록된 모임이 없습니다.</p>';
+          return;
+        }
+        const fmt = (s) => { const d = new Date(s); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
+        el.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
+            <span style="font-size:18px;">🤝</span>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.title)}${it.featured ? ' <span style="color:#f59e0b;font-weight:800">🔝</span>' : ''}${it.status === 'pending' ? ' <span style="color:#f59e0b;font-weight:800">⏳대기</span>' : ''}</div>
+              <div style="font-size:11px;color:var(--txt-lo);">${esc([it.host, it.location, it.event_at].filter(Boolean).join(' · ') || '')} · ${fmt(it.created_at)}${it.featured && it.featured_until ? ' · 노출~' + String(it.featured_until).slice(0,10) : ''}</div>
+            </div>
+            <button onclick="featureAdmin('meetup',${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(245,158,11,0.14);color:#b45309;border:none;border-radius:6px;cursor:pointer;font-weight:600;">🔝 노출</button>
+            <button onclick="deleteMeeting(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (_) {
+        el.innerHTML = '<p class="empty-msg">모임 로드 실패</p>';
+      }
+    }
+
+    async function deleteMeeting(id) {
+      if (!confirm('이 모임을 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`/api/meetings/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        loadMeetings();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
+
     /* ══════════════════════════════
        v2.0.3: 승인대기 관리
     ══════════════════════════════ */
@@ -6603,17 +6649,19 @@
 
     async function loadPending() {
       try {
-        const [rcRes, lcRes] = await Promise.all([
+        const [rcRes, lcRes, mtRes] = await Promise.all([
           fetch('/api/recruitments?status=pending&order=created_at.desc&limit=100', { headers: adminHeaders() }),
-          fetch('/api/lectures?status=pending&limit=100', { headers: adminHeaders() })
+          fetch('/api/lectures?status=pending&limit=100', { headers: adminHeaders() }),
+          fetch('/api/meetings?status=pending&limit=100', { headers: adminHeaders() })   // v2.59.0 모임공고
         ]);
         const rcs = rcRes.ok ? await rcRes.json() : [];
         const lcs = lcRes.ok ? await lcRes.json() : [];
-        renderPendingList(rcs, lcs);
-        const total = (rcs.length || 0) + (lcs.length || 0);
+        const mts = mtRes.ok ? await mtRes.json() : [];
+        renderPendingList(rcs, lcs, mts);
+        const total = (rcs.length || 0) + (lcs.length || 0) + (mts.length || 0);
         updatePendingBadge(total);
         if (!pendingState.dismissed && total > 0 && total > pendingState.lastTotal) {
-          showPendingPopup(rcs.length, lcs.length);
+          showPendingPopup(rcs.length, lcs.length, mts.length);
         }
         pendingState.lastTotal = total;
       } catch (e) {
@@ -6622,10 +6670,10 @@
       }
     }
 
-    function renderPendingList(rcs, lcs) {
+    function renderPendingList(rcs, lcs, mts) {
       const wrap = document.getElementById('pending-list-container');
       if (!wrap) return;
-      if ((!rcs || rcs.length === 0) && (!lcs || lcs.length === 0)) {
+      if ((!rcs || rcs.length === 0) && (!lcs || lcs.length === 0) && (!mts || mts.length === 0)) {
         wrap.innerHTML = '<p class="empty-msg">현재 대기 중인 승인요청이 없습니다. ✨</p>';
         return;
       }
@@ -6638,11 +6686,14 @@
           ? `<span style="color:var(--neon-cyan)">[${esc(it.company_name)}]</span> `
           : (type === 'lecture' && it.instructor)
           ? `<span style="color:var(--neon-pink)">[강사: ${esc(it.instructor)}]</span> `
+          : (type === 'meetup' && (it.host || it.location))
+          ? `<span style="color:#0d9488">[${esc([it.host, it.location].filter(Boolean).join(' · '))}]</span> `
           : '';
-        const tableName = type === 'recruit' ? 'recruitments' : 'lectures';
+        const tableName = type === 'recruit' ? 'recruitments' : (type === 'meetup' ? 'meetings' : 'lectures');
+        const tag = type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
         return `
           <div class="pending-card ${type}">
-            <span class="pending-card-tag">${type === 'recruit' ? '채용' : '강의'}</span>
+            <span class="pending-card-tag">${tag}</span>
             <h4>${sub}${esc(it.title)}</h4>
             <div class="pending-card-meta">
               🕒 ${dateStr} · 신청자: <strong>${esc(it.submitter_name || '-')}</strong>
@@ -6659,6 +6710,7 @@
       let html = '<div class="pending-list">';
       (rcs || []).forEach(it => html += render(it, 'recruit'));
       (lcs || []).forEach(it => html += render(it, 'lecture'));
+      (mts || []).forEach(it => html += render(it, 'meetup'));
       html += '</div>';
       wrap.innerHTML = html;
     }
@@ -6716,6 +6768,7 @@
         loadPending();
         if (table === 'recruitments') loadRecruitList();
         else if (table === 'lectures') loadLectures();
+        else if (table === 'meetings') loadMeetings();
       } catch (e) {
         alert('승인 실패: ' + e.message);
       }
@@ -6737,6 +6790,7 @@
         loadPending();
         if (table === 'recruitments') loadRecruitList();
         else if (table === 'lectures') loadLectures();
+        else if (table === 'meetings') loadMeetings();
       } catch (e) {
         alert('반려 실패: ' + e.message);
       }
@@ -6752,11 +6806,11 @@
       }
     }
 
-    function showPendingPopup(rcN, lcN) {
+    function showPendingPopup(rcN, lcN, mtN) {
       const popup = document.getElementById('pending-popup');
       const msg = document.getElementById('pending-popup-msg');
       if (!popup || !msg) return;
-      msg.innerHTML = `채용공고 <strong>${rcN}건</strong>, 강의공고 <strong>${lcN}건</strong><br>지금 확인하시겠어요?`;
+      msg.innerHTML = `채용 <strong>${rcN}건</strong> · 강의 <strong>${lcN}건</strong>${mtN ? ` · 모임 <strong>${mtN}건</strong>` : ''}<br>지금 확인하시겠어요?`;
       popup.classList.add('show');
     }
     function dismissPendingPopup() {
@@ -7195,11 +7249,11 @@
       if (ans === null) return;
       const days = parseInt(ans, 10);
       if (!Number.isFinite(days)) { alert('숫자를 입력하세요.'); return; }
-      const path = type === 'lecture' ? `/api/lectures/${id}` : `/api/recruitments/${id}`;
+      const path = type === 'lecture' ? `/api/lectures/${id}` : (type === 'meetup' ? `/api/meetings/${id}` : `/api/recruitments/${id}`);
       try {
         const r = await fetch(path, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ feature_days: days }) });
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        if (type === 'lecture') loadLectures(); else loadRecruitList();
+        if (type === 'lecture') loadLectures(); else if (type === 'meetup') loadMeetings(); else loadRecruitList();
       } catch (e) { alert('상단노출 변경 실패: ' + e.message); }
     }
 
