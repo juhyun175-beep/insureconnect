@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.56.0] - 2026-06-10
+### Added (공고 수익화 #3a — 관리자 쿠폰·수익화 통계, 추가형)
+- 관리자(채용공고 관리 패널)에 **「🎟️ 공고 할인권·수익화」 통계 패널**: 발급/사용/보유/만료임박 장수 · 포인트 소진(P) · **공고 등록 매출(최종가 합)·등록 건(할인 적용 건)** · 할인권 종류별 발급/사용. 신규 `GET /api/admin/coupon-stats`(admin) — `user_coupons`·`ic_point_log`(shop_coupon_*)·공고 `price` 집계(읽기 전용). `loadRecruitList`에서 동시 로드.
+### Verified
+- `node --check`(coupon-stats) OK · admin.html 인라인 0오류 · 패널/함수/호출 배선 · 보안 HIGH 0 · release.mjs
+
 ## [2.55.0] - 2026-06-10
 ### Added (실시간 채팅 MVP — 전체 라운지, 폴링·추가형)
 - **「💬 실시간 채팅」**(`#page-chat`, 빠른메뉴·모바일 진입): 로그인 설계사들의 전체 라운지. 신규 `functions/api/chat/index.js`(GET `?since=` 폴링 / POST 전송 · 로그인 · **2초 rate-limit·500자 cap**) + D1 `ic_chat_messages` 런타임 lazy 생성. UI는 2.5초 폴링(탭 보일 때만)·내/상대 말풍선·자동 스크롤. **신규 인프라 0**(현 Pages+D1 스택), 완전 추가형(기존 흐름 무수정).

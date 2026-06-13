@@ -3805,6 +3805,12 @@
         <div id="shop-stats-body" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
       </div>
 
+      <!-- v2.56.0: 공고 할인권·수익화 통계 -->
+      <div id="coupon-stats-box" style="margin:0 0 16px;padding:14px 16px;border-radius:12px;background:rgba(22,163,74,0.07);border:1px solid rgba(22,163,74,0.25);">
+        <div style="font-size:13px;font-weight:800;color:#15803d;margin-bottom:8px;display:flex;align-items:center;gap:8px;">🎟️ 공고 할인권·수익화 <button type="button" onclick="loadCouponStats()" style="font-size:11px;background:none;border:1px solid rgba(22,163,74,0.4);color:#15803d;border-radius:6px;padding:2px 8px;cursor:pointer;">새로고침</button></div>
+        <div id="coupon-stats-body" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
+      </div>
+
       <div class="nl-upload-box">
         <div class="nl-form" id="rc-form">
           <div class="nl-field" style="flex:1; min-width:180px;">
@@ -7098,9 +7104,33 @@
         box.innerHTML=head+(items||'<div style="color:var(--txt-lo);">아직 상점 교환 내역이 없습니다.</div>')+(recent?'<div style="margin-top:8px;font-size:10.5px;color:var(--txt-lo);">최근 교환</div>'+recent:'');
       }catch(e){ box.textContent='불러오지 못했습니다.'; }
     }
+    /* v2.56.0: 공고 할인권·수익화 통계 */
+    var CPN_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
+    async function loadCouponStats(){
+      var box=document.getElementById('coupon-stats-body'); if(!box) return;
+      try{
+        var r=await fetch('/api/admin/coupon-stats',{headers:adminHeaders()});
+        var d=await r.json();
+        if(!d||!d.ok){ box.textContent='불러오지 못했습니다.'; return; }
+        var st={}; (d.byStatus||[]).forEach(function(s){ st[s.status]=s; });
+        var na=(st.active&&st.active.n)||0, nu=(st.used&&st.used.n)||0, ne=(st.expired&&st.expired.n)||0, nr=(st.revoked&&st.revoked.n)||0;
+        var rev=(d.revenue&&((d.revenue.recruit.s||0)+(d.revenue.lecture.s||0)))||0;
+        var regN=(d.revenue&&((d.revenue.recruit.n||0)+(d.revenue.lecture.n||0)))||0;
+        var withCpn=(d.revenue&&((d.revenue.recruit.c||0)+(d.revenue.lecture.c||0)))||0;
+        var head='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
+          +_featChip('발급', (na+nu+ne+nr)+'장')+_featChip('사용', nu+'장')+_featChip('보유', na+'장')
+          +_featChip('만료임박', (d.expiring_soon||0)+'장')+_featChip('소진 P', (d.points_spent||0)+'P')
+          +_featChip('등록 매출', Number(rev).toLocaleString()+'원')+_featChip('등록 건', regN+'건('+withCpn+' 할인)')+'</div>';
+        var types=(d.byType||[]).map(function(t){
+          return '<div style="display:flex;align-items:center;gap:8px;padding:5px 2px;"><span style="flex:1;min-width:0;">'+(CPN_AD[t.ad_type]||t.ad_type)+' '+t.discount_rate+'%</span><span style="color:#15803d;font-weight:800;white-space:nowrap;">발급 '+(t.issued||0)+'</span><span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">사용 '+(t.used||0)+'</span></div>';
+        }).join('');
+        box.innerHTML=head+(types||'<div style="color:var(--txt-lo);">아직 발급된 할인권이 없습니다.</div>');
+      }catch(e){ box.textContent='불러오지 못했습니다.'; }
+    }
     async function loadRecruitList() {
       loadFeatureStats();   // 상단노출 효과 통계 동시 로드
       loadShopStats();      // 포인트 상점 현황 동시 로드
+      loadCouponStats();    // v2.56.0 할인권·수익화 통계 동시 로드
       const el = document.getElementById('rc-list');
       if (!el) return;
       try {
