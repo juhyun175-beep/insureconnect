@@ -6175,14 +6175,14 @@
     }
     @media (max-width: 480px) { .ic-jobs-grid { grid-template-columns: 1fr; } }
 
-    /* v2.0.8: 채용공고 + 강의 가로 2열 페어 (PC) */
+    /* v2.0.8: 채용공고 + 강의 가로 페어 (PC) / v2.62.0: 모임 추가 → 3열 */
     .ic-jobs-pair {
       display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
       margin-bottom: 24px;
     }
-    .ic-jobs-pair > .ic-jobs { margin: 0; }
+    .ic-jobs-pair > .ic-jobs { margin: 0; min-width: 0; }
     @media (max-width: 1024px) {
       .ic-jobs-pair { grid-template-columns: 1fr; gap: 22px; }
     }
@@ -8359,9 +8359,7 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','모임'); goToPage('meetup');">모임</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','인수QA'); goToPage('underwrite');">🩺 인수 Q&amp;A</button>
-        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
-        <button class="menu-pill menu-pill-ai menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','삼따AI'); location.href='/ai';">🤖 삼따AI</button>
-        <button class="menu-pill menu-pill-red menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','파트너사'); goToPage('partner');">🤝 파트너사 (렌트카·통신)</button>
+        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
       </div>
     </div>
 
@@ -9864,6 +9862,22 @@
           </div>
         </div>
         <div class="ic-jobs-grid" id="home-lectures-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
+
+      <!-- ══ 진행중인 모임 ══ -->
+      <section class="ic-jobs" aria-label="진행중인 모임">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            🤝 진행중인 모임
+            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#0d9488,#0ea5e9);">MEET</span>
+          </div>
+        </div>
+        <div class="ic-jobs-grid" id="home-meetups-grid">
           <div class="ic-jobs-skel"></div>
           <div class="ic-jobs-skel"></div>
           <div class="ic-jobs-skel"></div>
@@ -16961,7 +16975,7 @@
         const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
         const medals = ['🥇','🥈','🥉'];
         // v2.1.17: Top 10 → Top 20 (rank-list 가 flex:1 + overflow:auto 이므로 항목 늘려도 카드 높이 안정)
-        listEl.innerHTML = rankings.slice(0, 20).map((it, i) => {
+        listEl.innerHTML = rankings.slice(0, 10).map((it, i) => {
           const rank = i + 1;
           const medalCls = rank <= 3 ? `r${rank}` : 'rn';
           const medalContent = rank <= 3 ? medals[i] : rank;
@@ -17041,6 +17055,60 @@
         if (typeof lectureState !== 'undefined' && lectureState.items && lectureState.items.length) {
           const idx = lectureState.items.findIndex(x => x.id === id);
           if (idx >= 0 && typeof openLectureViewer === 'function') { openLectureViewer(idx); return; }
+        }
+        if (n > 0) setTimeout(() => tryOpen(n-1), 200);
+      };
+      setTimeout(() => tryOpen(15), 250);
+    };
+
+    /* v2.62.0: 홈 진행중인 모임 (최신 4건) */
+    async function loadHomeMeetups() {
+      const grid = document.getElementById('home-meetups-grid');
+      if (!grid) return;
+      try {
+        const res = await fetch('/api/meetings?limit=4');
+        const items = await res.json();
+        if (!Array.isArray(items) || !items.length) {
+          grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 모임이 없습니다.</div>';
+          return;
+        }
+        await _ensureShareCounts();
+        grid.innerHTML = items.map((it, i) => {
+          let thumb, typeBadge = '';
+          if (it.file_url && it.file_type === 'image') {
+            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
+          } else if (it.file_url && it.file_type === 'pdf') {
+            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
+          } else {
+            thumb = `<span class="ic-job-thumb-fallback">🤝</span>`;
+            typeBadge = '<span class="ic-job-type-badge">📝 모임</span>';
+          }
+          const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
+          const sub = [it.host, it.location].filter(Boolean).map(esc).join(' · ');
+          return `<button class="ic-job-card" type="button" onclick="window.__openHomeMeetup(${it.id})">
+            <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareMeetup(${it.id}, event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+            </span>
+            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}${_shareBadge('meetup', it.id)}</div>
+            <div class="ic-job-body">
+              ${sub ? `<div class="ic-job-company">${sub}</div>` : ''}
+              <div class="ic-job-title">${esc(it.title)}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)}</div>
+            </div>
+          </button>`;
+        }).join('');
+      } catch (e) {
+        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">모임 로드 실패</div>';
+      }
+    }
+    window.__openHomeMeetup = function(id) {
+      if (typeof goToPage === 'function') goToPage('meetup');
+      const tryOpen = (n) => {
+        if (typeof meetupState !== 'undefined' && meetupState.items && meetupState.items.length) {
+          const idx = meetupState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openMeetupViewer === 'function') { openMeetupViewer(idx); return; }
         }
         if (n > 0) setTimeout(() => tryOpen(n-1), 200);
       };
@@ -17283,10 +17351,11 @@
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { loadHomeJobs(); loadHomeLectures(); loadKakaoRank(); loadMobileHome(); loadRentalLineup(); });
+      document.addEventListener('DOMContentLoaded', () => { loadHomeJobs(); loadHomeLectures(); loadHomeMeetups(); loadKakaoRank(); loadMobileHome(); loadRentalLineup(); });
     } else {
       loadHomeJobs();
       loadHomeLectures();
+      loadHomeMeetups();
       loadKakaoRank();
       loadMobileHome();
       loadRentalLineup();
