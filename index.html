@@ -6390,7 +6390,11 @@
       min-height: 0;
       overflow-y: auto;
       scrollbar-width: thin;
+      /* v2.64.0: 10개 항목을 세로로 균등 분산 → 늘어난 패널 높이에 내용 맞춤 */
+      justify-content: space-between;
     }
+    /* 항목 자체도 살짝 키워 빈 공간 없이 채움 */
+    .ic-kakao-rank-list > .ic-kakao-rank-item { padding-top: 9px; padding-bottom: 9px; }
     .ic-kakao-rank-list::-webkit-scrollbar { width: 4px; }
     .ic-kakao-rank-list::-webkit-scrollbar-thumb {
       background: rgba(120,120,120,0.25);
@@ -9524,8 +9528,8 @@
         <div class="home-clb" id="home-clb" style="display:none;"></div>
       </section>
       <!-- v2.34.0: 제휴상품 광고 (삼따AI 오른쪽) — 클릭 시 팝업(확대 + 상담 받아보기 CTA) -->
-      <button type="button" class="ibh-ad" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기">
-        <img src="/connect.webp" alt="보험만 하실 건가요? 고객 한 명으로 7가지 수익 창출 — 제휴상품 안내" loading="lazy">
+      <button type="button" class="ibh-ad" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기" style="display:none">
+        <img src="" alt="" loading="lazy">
       </button>
     </div>
 
@@ -9544,7 +9548,7 @@
     <div id="home-ad-modal" class="had-overlay" role="dialog" aria-modal="true" aria-label="제휴상품 안내">
       <div class="had-card">
         <button type="button" class="had-x" aria-label="닫기" onclick="closeHomeAd()">✕</button>
-        <div class="had-scroll"><img class="had-img" src="/connect.webp" alt="보험만 하실 건가요? 고객 한 명으로 7가지 수익 창출"></div>
+        <div class="had-scroll"><img class="had-img" src="" alt=""></div>
         <a class="had-cta" href="https://naver.me/xD8zNndZ" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','상담클릭')">💬 상담 받아보기 →</a>
       </div>
     </div>
@@ -9552,17 +9556,27 @@
       window.openHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; if(typeof trackCardClick==='function')trackCardClick('홈광고','배너클릭'); };
       window.closeHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.remove('open'); document.body.style.overflow=''; };
       (function(){ var m=document.getElementById('home-ad-modal'); if(m) m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })();
-      /* v2.63.0: 관리자 설정(/api/home-ad)으로 배너·팝업·CTA 동적 적용 (미설정이면 기본값 = 무변경) */
+      /* v2.64.0: 관리자 업로드 광고만 표시(하드코딩 제거) + 홈 진입 시 자동 팝업 */
       (function(){
         try{
           fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
             if(!d||!d.ok||!d.config) return;
             var c=d.config;
             var wrap=document.querySelector('.ibh-ad');
-            if(c.enabled===false){ if(wrap) wrap.style.display='none'; return; }
-            var bimg=document.querySelector('.ibh-ad img'); if(bimg){ if(c.banner_url) bimg.src=c.banner_url; if(c.alt){ bimg.alt=c.alt; } }
-            var pimg=document.querySelector('#home-ad-modal .had-img'); if(pimg){ if(c.popup_url) pimg.src=c.popup_url; if(c.alt){ pimg.alt=c.alt; } }
+            var bimg=document.querySelector('.ibh-ad img');
+            // 배너: 노출 ON + 이미지 있을 때만
+            if(c.enabled!==false && c.banner_url){
+              if(bimg){ bimg.src=c.banner_url; if(c.alt) bimg.alt=c.alt; }
+              if(wrap) wrap.style.display='';
+            } else if(wrap){ wrap.style.display='none'; }
+            // 클릭 팝업 이미지/링크
+            var pimg=document.querySelector('#home-ad-modal .had-img'); if(pimg){ if(c.popup_url) pimg.src=c.popup_url; if(c.alt) pimg.alt=c.alt; }
             var cta=document.querySelector('#home-ad-modal .had-cta'); if(cta && c.link_url) cta.href=c.link_url;
+            // 홈 진입 시 자동 팝업 — 노출 ON + 팝업 이미지 있을 때, 페이지 로드당 1회, 홈에서만
+            if(c.enabled!==false && c.popup_url && !window._homeAdAutoShown && !document.body.classList.contains('nav-subpage')){
+              window._homeAdAutoShown=true;
+              setTimeout(function(){ try{ if(typeof openHomeAd==='function' && !document.body.classList.contains('nav-subpage')) openHomeAd(); }catch(_){} }, 900);
+            }
           }).catch(function(){});
         }catch(_){}
       })();
@@ -9795,57 +9809,22 @@
     <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
     <div class="ic-top-left">
-    <!-- 실시간 인기 콘텐츠 모니터 -->
-    <div class="live-monitor" id="live-monitor">
+    <!-- v2.64.0: 실시간 인기 콘텐츠 → 인슈어커넥트 뉴스(최신순) -->
+    <div class="live-monitor" id="home-news-monitor">
       <div class="lm-header">
         <span class="lm-live-badge">
           <span class="lm-live-dot"></span>
-          <span>LIVE</span>
+          <span>NEW</span>
         </span>
-        <span class="lm-title">실시간 인기 콘텐츠</span>
-        <!-- v2.1.50: 「오늘」 탭 제거 — 누적 순위만 노출 (사용자 요청) -->
-        <span class="lm-period-label" aria-label="누적 순위">누적 순위</span>
-        <span class="lm-updated" id="lm-updated"></span>
+        <span class="lm-title">📰 인슈어커넥트 뉴스</span>
+        <span class="lm-period-label" aria-label="최신순">최신순</span>
+        <a href="#" onclick="goToPage('latest');return false;" style="margin-left:auto;font-size:11.5px;font-weight:700;color:var(--accent,#1a3de8);text-decoration:none;">전체보기 →</a>
       </div>
-      <div class="lm-grid lm-grid-4col">
-        <div class="lm-col">
-          <div class="lm-col-head">
-            <span class="lm-col-icon">🖥</span>
-            <span class="lm-col-name">인기 전산</span>
-          </div>
-          <ol class="lm-list" id="lm-list-jeonsan">
-            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
-          </ol>
-        </div>
-        <div class="lm-col">
-          <div class="lm-col-head">
-            <span class="lm-col-icon">📰</span>
-            <span class="lm-col-name">최신 콘텐츠 순위</span>
-          </div>
-          <ol class="lm-list" id="lm-list-latest">
-            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
-          </ol>
-        </div>
-        <!-- v2.1.38: 인기 채용공고 -->
-        <div class="lm-col">
-          <div class="lm-col-head">
-            <span class="lm-col-icon">💼</span>
-            <span class="lm-col-name">인기 채용공고</span>
-          </div>
-          <ol class="lm-list" id="lm-list-recruit">
-            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
-          </ol>
-        </div>
-        <!-- v2.1.38: 인기 강의공고 -->
-        <div class="lm-col">
-          <div class="lm-col-head">
-            <span class="lm-col-icon">🎓</span>
-            <span class="lm-col-name">인기 강의공고</span>
-          </div>
-          <ol class="lm-list" id="lm-list-lecture">
-            <li class="lm-skel"></li><li class="lm-skel"></li><li class="lm-skel"></li>
-          </ol>
-        </div>
+      <div class="cn-tile-grid" id="home-news-grid">
+        <div class="lm-skel" style="height:130px;border-radius:13px"></div>
+        <div class="lm-skel" style="height:130px;border-radius:13px"></div>
+        <div class="lm-skel" style="height:130px;border-radius:13px"></div>
+        <div class="lm-skel" style="height:130px;border-radius:13px"></div>
       </div>
     </div>
 
@@ -16089,16 +16068,30 @@
     let _lmCache  = null;
 
     async function loadLiveMonitor() {
+      // v2.64.0: 실시간 인기콘텐츠 → 인슈어커넥트 뉴스(최신순). 이름 유지(호출부/인터벌 그대로).
+      const grid = document.getElementById('home-news-grid');
+      if (!grid) return;
       try {
-        const res = await fetch(`/api/top-items`, {
-          method: 'POST',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
-          body: '{}'
-        });
-        if (!res.ok) return;
-        _lmCache = await res.json();
-        renderLiveMonitor();
-      } catch (_) {}
+        if ((typeof cardNewsState === 'undefined' || !cardNewsState.sets || !cardNewsState.sets.length) && typeof loadCardNews === 'function') {
+          await loadCardNews();
+        }
+        const sets = (typeof cardNewsState !== 'undefined' && cardNewsState.sets) || [];
+        if (!sets.length) { grid.innerHTML = '<div class="nl-empty" style="grid-column:1/-1;padding:20px 0;text-align:center;color:var(--txt-lo)">등록된 뉴스가 없습니다.</div>'; return; }
+        grid.innerHTML = sets.slice(0, 8).map((s, i) => {
+          const d = new Date(s.created_at);
+          const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+          const cover = s.items && s.items[0];
+          const thumb = (cover && cover.file_type === 'image')
+            ? `<img src="${esc(cover.file_url)}" alt="${esc(s.title||'')}" loading="lazy">`
+            : `<span class="cn-tile-fallback">📰</span>`;
+          return `<button class="cn-tile" type="button" onclick="openCardNewsModal(${i})">
+            <div class="cn-tile-thumb">${thumb}<span class="cn-tile-count">${(s.items && s.items.length) || 0}장</span></div>
+            <div class="cn-tile-body"><div class="cn-tile-title">${esc(s.title || ('카드뉴스 ' + (i+1)))}</div><div class="cn-tile-date">${dateStr}</div></div>
+          </button>`;
+        }).join('');
+      } catch (e) {
+        grid.innerHTML = '<div class="nl-empty" style="grid-column:1/-1;padding:20px 0;text-align:center;color:var(--txt-lo)">뉴스를 불러올 수 없습니다.</div>';
+      }
     }
 
     function lmSetPeriod(p) {

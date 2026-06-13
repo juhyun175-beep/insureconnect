@@ -8,13 +8,13 @@ import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 
 const KEY = 'home_ad';
-// 현재 하드코딩과 동일한 기본값(관리자가 바꾸기 전까지 화면 무변경)
+// v2.64.0: 하드코딩 배너 제거 — 관리자가 업로드하기 전까지 광고 미표시(기본 OFF·이미지 없음).
 const DEFAULTS = {
-  enabled: true,
-  banner_url: '/connect.webp',
-  popup_url: '/connect.webp',
-  link_url: 'https://naver.me/xD8zNndZ',
-  alt: '보험만 하실 건가요? 고객 한 명으로 7가지 수익 창출 — 제휴상품 안내',
+  enabled: false,
+  banner_url: '',
+  popup_url: '',
+  link_url: '',
+  alt: '',
 };
 
 async function ensureTable(env) {
