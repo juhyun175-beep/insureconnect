@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.55.0] - 2026-06-10
+### Added (실시간 채팅 MVP — 전체 라운지, 폴링·추가형)
+- **「💬 실시간 채팅」**(`#page-chat`, 빠른메뉴·모바일 진입): 로그인 설계사들의 전체 라운지. 신규 `functions/api/chat/index.js`(GET `?since=` 폴링 / POST 전송 · 로그인 · **2초 rate-limit·500자 cap**) + D1 `ic_chat_messages` 런타임 lazy 생성. UI는 2.5초 폴링(탭 보일 때만)·내/상대 말풍선·자동 스크롤. **신규 인프라 0**(현 Pages+D1 스택), 완전 추가형(기존 흐름 무수정).
+- 로그인 게이트 목업의 "전체 채팅"과 직결. 후속: 1:1 공고 문의 방·모더레이션 연동·안읽음 푸시, 트래픽 늘면 Durable Objects/Supabase Realtime로 진짜 WebSocket 업그레이드(타당성 분석 참고).
+### Verified
+- `node --check`(chat API) OK · 인라인 33블록 0오류 · page/fn/메뉴 배선 · 보안 HIGH 0 · release.mjs (미인증 401)
+
 ## [2.54.0] - 2026-06-10
 ### Added (공고 수익화 #2b — 공고 작성에 할인권 적용 UI, 채용/강의 루프 완성)
 - 공고 등록 모달 결제 단계에 **등록가(채용 59,000·강의 99,000) + 보유 할인권 선택 + 할인 절감 + 최종 결제(입금액)** 동적 표시. 할인권 선택 시 `final=등록가×(1−할인율)` 자동 계산, 제출 시 `coupon_id` 전송 → 서버(2a)가 검증·소진·공고에 `price/coupon_id/coupon_rate` 기록. **보유 할인권 없으면 selector 숨김 = 기존과 동일**, 비로그인은 등록가 그대로.

@@ -3194,6 +3194,31 @@
     .cov-save-client { background:#15803d; color:#fff; border:none; border-radius:10px; padding:11px 18px; font-size:14px; font-weight:800; cursor:pointer; box-shadow:0 4px 14px rgba(21,128,61,.25); }
     @media (max-width:480px){ .cov-grid{grid-template-columns:1fr;} }
 
+    /* v2.55.0: 실시간 채팅 */
+    .chat-head { margin-bottom:12px; }
+    .chat-title { font-size:1.15rem; font-weight:800; color:var(--txt-hi); display:flex; align-items:center; gap:8px; }
+    .chat-on { font-size:9px; color:#22c55e; }
+    .chat-sub { font-size:12.5px; color:var(--txt-mid); margin-top:4px; }
+    .chat-gate { background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:24px; text-align:center; }
+    .chat-gate p { color:var(--txt-mid); font-size:14px; margin-bottom:14px; }
+    .chat-gate-btn { display:inline-block; background:#FEE500; color:#191600; font-weight:800; padding:11px 20px; border-radius:10px; text-decoration:none; }
+    .chat-log { height:min(58vh,520px); overflow-y:auto; background:var(--bg-card); border:1.5px solid var(--border); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:9px; }
+    .chat-msg { display:flex; gap:8px; align-items:flex-start; max-width:84%; }
+    .chat-msg.mine { align-self:flex-end; flex-direction:row-reverse; }
+    .chat-ava { width:30px; height:30px; border-radius:50%; background:var(--blue-mid); color:#fff; font-weight:800; font-size:12px; display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+    .chat-bubble { background:var(--bg); border:1px solid var(--border); border-radius:12px; padding:8px 12px; }
+    .chat-msg.mine .chat-bubble { background:var(--blue-mid); border-color:var(--blue-mid); }
+    .chat-nick { font-size:11px; font-weight:800; color:var(--blue-mid); margin-bottom:2px; }
+    .chat-msg.mine .chat-nick { display:none; }
+    .chat-body { font-size:13.5px; color:var(--txt-hi); line-height:1.45; white-space:pre-wrap; word-break:break-word; }
+    .chat-msg.mine .chat-body { color:#fff; }
+    .chat-time { font-size:10px; color:var(--txt-lo); margin-top:3px; }
+    .chat-input-bar { display:flex; gap:8px; margin-top:12px; }
+    .chat-input-bar input { flex:1; min-width:0; font-family:inherit; font-size:14px; color:var(--txt-hi); background:var(--bg-card); border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; outline:none; }
+    .chat-input-bar input:focus { border-color:var(--blue-mid); }
+    .chat-input-bar button { background:var(--blue-mid); color:#fff; border:none; border-radius:12px; padding:0 20px; font-size:14px; font-weight:800; cursor:pointer; flex-shrink:0; }
+    .chat-empty { text-align:center; color:var(--txt-lo); font-size:13px; padding:30px; margin:auto; }
+
     @media (max-width: 768px) {
       /* v2.41.0: 가로형 카드뉴스가 화면 폭을 더 쓰도록 패딩 축소 */
       .cn-stage { padding: 8px; }
@@ -8316,6 +8341,7 @@
       <div class="menu-float-grid">
         <!-- v2.47.0: 사이즈 정리 — wide(위2/아래2) + 일반 pill 5쌍(짝수) 정렬, 고아·줄바꿈 제거 -->
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인슈어커넥트뉴스'); goToPage('latest');">📰 인슈어커넥트 뉴스</button>
+        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','실시간채팅'); goToPage('chat');">💬 실시간 채팅</button>
         <button class="menu-pill menu-pill-wide" type="button" data-tour="clients" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">👥 내 고객 · 만기관리</button>
         <button class="menu-pill menu-pill-wide" type="button" onclick="window._covClient=null; trackCardClick('빠른메뉴','보장분석'); goToPage('coverage');">🧮 보장 분석 · 리모델링</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','전산'); goToPage('jeonsan');">전산</button>
@@ -9231,6 +9257,7 @@
     <section class="ic-m-section" data-tour="quickmenu">
       <div class="ic-m-section-head"><span>빠른 메뉴</span><button type="button" onclick="if(typeof icTourStart==='function')icTourStart()" title="처음이세요? 사용법 안내 보기" style="font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#4f6df0);border:none;border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,61,232,.3);">❓ 사용법</button></div>
       <div class="ic-m-core-grid">
+        <button class="ic-m-core-card" onclick="goToPage('chat')"><span class="cc-lb">💬 실시간 채팅</span></button>
         <button class="ic-m-core-card" data-tour="clients" onclick="goToPage('clients')"><span class="cc-lb">👥 내 고객</span></button>
         <button class="ic-m-core-card" onclick="window._covClient=null;goToPage('coverage')"><span class="cc-lb">🧮 보장 분석</span></button>
         <button class="ic-m-core-card" onclick="goToPage('underwrite')"><span class="cc-lb">🩺 인수 Q&amp;A</span></button>
@@ -10200,6 +10227,23 @@
     </div>
     <div class="cov-result" id="cov-result" style="display:none"></div>
     <div class="cov-disclaimer">※ 일반 권장 기준 <b>참고용 도구</b>입니다. 고객 연령·소득·부양가족·기왕력에 따라 적정 보장은 달라지며, 최종 판단·설명은 설계사가 합니다.</div>
+  </div>
+
+  <!-- ══════ PAGE: 실시간 채팅 (전체 라운지 · v2.55.0) ══════ -->
+  <div class="content" id="page-chat" style="display:none">
+    <div class="chat-head">
+      <div class="chat-title">💬 실시간 채팅 <span class="chat-on">●</span></div>
+      <div class="chat-sub">설계사 동료들과 실시간으로 소통하세요 (전체 라운지). 매너를 지켜주세요 🙏</div>
+    </div>
+    <div class="chat-gate" id="chat-gate" style="display:none">
+      <p>로그인하면 실시간 채팅에 참여할 수 있어요.</p>
+      <a class="chat-gate-btn" href="/api/auth/kakao/login">💬 카카오로 시작</a>
+    </div>
+    <div class="chat-log" id="chat-log"></div>
+    <div class="chat-input-bar" id="chat-input-bar">
+      <input id="chat-input" maxlength="500" placeholder="메시지 입력하기…" autocomplete="off" onkeydown="if(event.key==='Enter'){event.preventDefault();chatSend();}">
+      <button type="button" id="chat-send" onclick="chatSend()">전송</button>
+    </div>
   </div>
 
   <!-- ══════ PAGE: GA 전산 ══════ -->
@@ -11487,6 +11531,7 @@
       clients:          '👥 내 고객',
       underwrite:       '🩺 인수 Q&A',
       coverage:         '🧮 보장 분석',
+      chat:             '💬 실시간 채팅',
     };
     const ALL_PAGES = Object.keys(PAGE_NAMES);
 
@@ -11545,6 +11590,8 @@
       if (page === 'clients'    && typeof loadClients === 'function') { loadClients(); } // v2.43.0 미니 CRM
       if (page === 'underwrite' && typeof loadUnderwrite === 'function') { loadUnderwrite(true); } // v2.46.0 인수 Q&A
       if (page === 'coverage'   && typeof covEnter === 'function') { covEnter(); } // v2.48.0 보장 분석(+v2.49 CRM연동)
+      if (page === 'chat')      { if (typeof chatEnter === 'function') chatEnter(); } // v2.55.0 실시간 채팅
+      else if (typeof chatStop === 'function') { chatStop(); } // 채팅 떠나면 폴링 정지
 
       // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
       if (page === 'home' && !window._adsPushed) {
@@ -13240,6 +13287,54 @@
       }catch(e){ alert(e.message||'저장에 실패했어요.'); }
     }
     window._covCollect=_covCollect; window._covApply=_covApply; window.covEnter=covEnter; window.exitCovClient=exitCovClient; window.openCoverageForClient=openCoverageForClient; window.saveCoverageToClient=saveCoverageToClient;
+
+    /* ── v2.55.0: 실시간 채팅(전체 라운지) — 폴링 MVP ── */
+    let _chatLast=0, _chatTimer=null, _chatMe=null, _chatInit=false;
+    function _chatEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+    function _chatTime(s){ try{ var d=new Date(String(s).replace(' ','T')+'Z'); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }catch(_){ return ''; } }
+    function _chatAppend(msgs){
+      var log=document.getElementById('chat-log'); if(!log) return;
+      var atBottom = log.scrollHeight-log.scrollTop-log.clientHeight < 90;
+      msgs.forEach(function(m){
+        if(m.id<=_chatLast) return; _chatLast=m.id;
+        var mine = _chatMe!=null && m.member_id===_chatMe;
+        var ini=String(m.nickname||'회').slice(0,1);
+        var el=document.createElement('div'); el.className='chat-msg'+(mine?' mine':'');
+        el.innerHTML=(mine?'':'<span class="chat-ava">'+_chatEsc(ini)+'</span>')+'<div><div class="chat-nick">'+_chatEsc(m.nickname||'회원')+'</div><div class="chat-bubble"><div class="chat-body">'+_chatEsc(m.body)+'</div></div><div class="chat-time">'+_chatTime(m.created_at)+'</div></div>';
+        log.appendChild(el);
+      });
+      if(atBottom) log.scrollTop=log.scrollHeight;
+    }
+    async function _chatFetch(){
+      try{
+        var r=await fetch('/api/chat'+(_chatLast?('?since='+_chatLast):''),{credentials:'same-origin'});
+        if(r.status===401){ chatStop(); var g=document.getElementById('chat-gate'); if(g)g.style.display=''; var lg=document.getElementById('chat-log'); if(lg)lg.style.display='none'; var bb=document.getElementById('chat-input-bar'); if(bb)bb.style.display='none'; return; }
+        var d=await r.json(); if(!d||!d.ok) return;
+        _chatMe=d.me; var log=document.getElementById('chat-log'); if(!log) return;
+        if(!_chatInit){ log.innerHTML=''; if(!d.messages||!d.messages.length){ log.innerHTML='<div class="chat-empty">아직 메시지가 없어요. 첫 인사를 남겨보세요 👋</div>'; } }
+        if(d.messages&&d.messages.length){ if(log.querySelector('.chat-empty')) log.innerHTML=''; _chatAppend(d.messages); }
+        _chatInit=true;
+      }catch(_){}
+    }
+    function chatEnter(){
+      var g=document.getElementById('chat-gate'); if(g)g.style.display='none';
+      var log=document.getElementById('chat-log'); if(log){ log.style.display=''; if(!_chatInit) log.innerHTML='<div class="chat-empty">불러오는 중…</div>'; }
+      var bb=document.getElementById('chat-input-bar'); if(bb)bb.style.display='';
+      _chatFetch();
+      chatStop(); _chatTimer=setInterval(function(){ if(document.visibilityState!=='hidden') _chatFetch(); }, 2500);
+    }
+    function chatStop(){ if(_chatTimer){ clearInterval(_chatTimer); _chatTimer=null; } }
+    async function chatSend(){
+      var inp=document.getElementById('chat-input'); if(!inp) return; var body=inp.value.trim(); if(!body) return;
+      inp.value='';
+      try{
+        var r=await fetch('/api/chat',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:body})});
+        if(r.status===401){ inp.value=body; if(confirm('로그인 후 채팅할 수 있어요. 카카오로 로그인할까요?')) location.href='/api/auth/kakao/login'; return; }
+        if(r.status===429){ inp.value=body; return; }
+        _chatFetch();
+      }catch(_){ inp.value=body; }
+    }
+    window.chatEnter=chatEnter; window.chatStop=chatStop; window.chatSend=chatSend;
 
     /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
     (function() {
