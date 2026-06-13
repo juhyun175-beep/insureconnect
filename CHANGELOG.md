@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.53.0] - 2026-06-10
+### Added (공고 수익화 #2a — 등록 시 할인권 적용 백엔드, 추가형·무위험)
+- 채용/강의 **등록 POST에 옵션 `coupon_id` 처리** 추가: 비관리자(유저) 등록 시 보유 쿠폰(소유·active·해당타입·미만료) 검증 → **소진(`used`+공고 연결)** + 공고에 `price`/`coupon_id`/`coupon_rate` 기록. 쿠폰 없으면 **등록가(base) 그대로**, `coupon_id` 미전송이면 **완전히 기존 동작**(모달 연동 전까지 무변화). 모두 try/catch guarded — 실패해도 공고는 정상 생성.
+- `functions/_lib/coupons.js`에 `ensurePostingCouponCols`(공고테이블 `price`/`coupon_id`/`coupon_rate` 추가형 ALTER·중복무시)·`validateCoupon` 헬퍼. 기존 컬럼 무수정.
+- 다음(2b): 공고 작성 모달에 등록가·할인권 선택·절감·최종결제 표시 + `coupon_id` 전송.
+### Verified
+- `node --check`(coupons·recruitments·lectures) OK · 보안 HIGH 0 · release.mjs
+
 ## [2.52.0] - 2026-06-10
 ### Changed (로그인 게이트 — 2컬럼 랜딩 리디자인, 업로드 목업 반영)
 - 로그인 게이트(`#m-login-gate`)를 **2컬럼 랜딩**으로 재구성: 좌측 = 인피니티 로고+「보험으로 연결하다」 히어로 + 3체크 강점 + **실시간 채팅 목업 카드** + 「4가지 핵심 서비스」(커뮤니티·채용·강의·오프라인 모임) + 고객 후기 / 우측 = 로고+「시작은 단 3초면 충분해요」 + 카카오 로그인 + **3 신뢰배지**(안전·3초·연결) + 푸터(운영자 문의·운영시간). 모바일은 로그인 우선 1컬럼 스택.

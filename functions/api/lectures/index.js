@@ -1,6 +1,7 @@
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
+import { AD_BASE, finalPrice, ensurePostingCouponCols, validateCoupon } from '../../_lib/coupons.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -90,5 +91,24 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     approvedAt,
     user ? user.id : null
   ).first();
-  return json({ id: r.id, status });
+  const newId = r.id;
+
+  // v2.53.0: 등록가·할인권 — 비관리자(유저) 등록에만. 쿠폰 없으면 등록가(base) 그대로. 기존 흐름 무변경.
+  let priceInfo = null;
+  if (!isAdmin) {
+    try {
+      await ensurePostingCouponCols(env);
+      let rate = 0, usedId = null, usedType = null;
+      const cp = (user && body.coupon_id) ? await validateCoupon(env, user.id, body.coupon_id, 'lecture') : { ok: false };
+      if (cp.ok) { rate = cp.rate; usedId = cp.id; usedType = cp.coupon_type; }
+      const price = finalPrice('lecture', rate);
+      await env.DB.prepare(`UPDATE ic_lectures SET price=?, coupon_id=?, coupon_rate=? WHERE id=?`).bind(price, usedId, rate, newId).run().catch(() => {});
+      if (usedId && user) {
+        await env.DB.prepare(`UPDATE user_coupons SET status='used', used_at=datetime('now'), used_ad_type='lecture', used_ad_id=? WHERE id=? AND member_id=? AND status='active'`).bind(newId, usedId, user.id).run().catch(() => {});
+        try { await env.DB.prepare(`INSERT INTO coupon_logs (member_id, coupon_id, coupon_type, ad_type, discount_rate, action, used_at) VALUES (?,?,?,?,?, 'use', datetime('now'))`).bind(user.id, usedId, usedType, 'lecture', rate).run(); } catch (_) {}
+      }
+      priceInfo = { base: AD_BASE.lecture, rate, price };
+    } catch (_) {}
+  }
+  return json({ id: newId, status, price: priceInfo });
 });

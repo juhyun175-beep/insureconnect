@@ -104,3 +104,24 @@ export async function expireStale(env, memberId) {
     ).bind(memberId).run();
   } catch (_) {}
 }
+
+/** v2.53.0: 공고 테이블에 등록가·쿠폰 컬럼 보장(추가형 ALTER, 이미 있으면 무시). 기존 컬럼 무수정. */
+export async function ensurePostingCouponCols(env) {
+  for (const t of ['ic_recruitments', 'ic_lectures']) {
+    await env.DB.prepare(`ALTER TABLE ${t} ADD COLUMN price INTEGER`).run().catch(() => {});
+    await env.DB.prepare(`ALTER TABLE ${t} ADD COLUMN coupon_id INTEGER`).run().catch(() => {});
+    await env.DB.prepare(`ALTER TABLE ${t} ADD COLUMN coupon_rate INTEGER`).run().catch(() => {});
+  }
+}
+
+/** 쿠폰 유효성(소유·active·해당 공고타입·미만료). 소모는 하지 않음(공고 생성 후 별도 소모). */
+export async function validateCoupon(env, memberId, couponId, adType) {
+  const id = parseInt(couponId, 10);
+  if (!id || !memberId) return { ok: false };
+  const row = await env.DB.prepare(
+    `SELECT id, coupon_type, discount_rate FROM user_coupons
+     WHERE id=? AND member_id=? AND ad_type=? AND status='active' AND expires_at > datetime('now')`
+  ).bind(id, memberId, adType).first().catch(() => null);
+  if (!row) return { ok: false };
+  return { ok: true, id, rate: row.discount_rate || 0, coupon_type: row.coupon_type };
+}
