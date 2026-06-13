@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.60.0] - 2026-06-13
+### Added (관리자 할인권 수동 지급/회수)
+- 관리자(채용공고 관리)에 **「🎟️ 할인권 수동 지급·회수」 패널**: 회원 ID + 할인권 종류 선택 → **무상 지급**(포인트 미차감·14일 유효), 최근 발급 목록에서 **보유(active) 할인권 회수**(소프트, `status='revoked'`·감사 보존). 신규 `/api/admin/coupons`(GET 목록+카탈로그 / POST grant / PATCH revoke, admin) — 가격·타입은 코드 카탈로그(`COUPON_CATALOG`)에서만 해석, `coupon_logs`에 `admin_grant`/`admin_revoke` 기록.
+- 부수: 수익화 통계(`loadCouponStats`) 등록매출 합산에 **모임공고** 포함(2.57 백엔드와 동기화).
+### Verified
+- `node --check`(admin/coupons) OK · admin.html 인라인 3블록 0오류 · 지급/회수/목록 배선 그렙 일치 · 보안 HIGH 0 · release.mjs
+
 ## [2.59.0] - 2026-06-13
 ### Added (모임공고 #3b-C — 관리자 승인큐·관리, 모임공고 풀 운영 완성)
 - 관리자 **「사용자 신청」 승인대기 큐에 모임공고 통합**(채용·강의와 동일): 모임 pending 카드(주최·장소 표시)·✅승인/❌반려(generic `approveItem/rejectItem('meetings',id)`)·승인대기 배지/팝업 합산에 모임 포함. 강의 관리 탭에 **「🤝 모임공고 관리」**(노출·삭제 — `loadMeetings`/`deleteMeeting`/`featureAdmin('meetup')`) 추가.

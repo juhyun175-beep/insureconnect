@@ -3811,6 +3811,25 @@
         <div id="coupon-stats-body" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
       </div>
 
+      <!-- v2.60.0: 할인권 수동 지급/회수 -->
+      <div id="coupon-admin-box" style="margin:0 0 16px;padding:14px 16px;border-radius:12px;background:rgba(13,148,136,0.07);border:1px solid rgba(13,148,136,0.25);">
+        <div style="font-size:13px;font-weight:800;color:#0f766e;margin-bottom:10px;display:flex;align-items:center;gap:8px;">🎟️ 할인권 수동 지급·회수 <button type="button" onclick="loadCouponAdmin()" style="font-size:11px;background:none;border:1px solid rgba(13,148,136,0.4);color:#0f766e;border-radius:6px;padding:2px 8px;cursor:pointer;">새로고침</button></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px;">
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <label style="font-size:11px;color:var(--txt-lo);">회원 ID</label>
+            <input type="number" id="cpn-grant-member" placeholder="예: 42" style="width:90px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:3px;">
+            <label style="font-size:11px;color:var(--txt-lo);">할인권 종류</label>
+            <select id="cpn-grant-type" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;"></select>
+          </div>
+          <button type="button" onclick="cpnGrant()" style="padding:7px 14px;background:#0d9488;color:#fff;border:none;border-radius:7px;font-weight:800;font-size:12.5px;cursor:pointer;">지급</button>
+          <span style="font-size:11px;color:var(--txt-lo);flex:1;min-width:140px;">무상 발급(포인트 미차감)·14일 유효. 회원 ID는 「회원 관리」에서 확인.</span>
+        </div>
+        <div id="cpn-grant-status" style="font-size:12px;margin-bottom:8px;"></div>
+        <div id="coupon-admin-list" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
+      </div>
+
       <div class="nl-upload-box">
         <div class="nl-form" id="rc-form">
           <div class="nl-field" style="flex:1; min-width:180px;">
@@ -7168,9 +7187,9 @@
         if(!d||!d.ok){ box.textContent='불러오지 못했습니다.'; return; }
         var st={}; (d.byStatus||[]).forEach(function(s){ st[s.status]=s; });
         var na=(st.active&&st.active.n)||0, nu=(st.used&&st.used.n)||0, ne=(st.expired&&st.expired.n)||0, nr=(st.revoked&&st.revoked.n)||0;
-        var rev=(d.revenue&&((d.revenue.recruit.s||0)+(d.revenue.lecture.s||0)))||0;
-        var regN=(d.revenue&&((d.revenue.recruit.n||0)+(d.revenue.lecture.n||0)))||0;
-        var withCpn=(d.revenue&&((d.revenue.recruit.c||0)+(d.revenue.lecture.c||0)))||0;
+        var rev=(d.revenue&&((d.revenue.recruit.s||0)+(d.revenue.lecture.s||0)+((d.revenue.meetup&&d.revenue.meetup.s)||0)))||0;
+        var regN=(d.revenue&&((d.revenue.recruit.n||0)+(d.revenue.lecture.n||0)+((d.revenue.meetup&&d.revenue.meetup.n)||0)))||0;
+        var withCpn=(d.revenue&&((d.revenue.recruit.c||0)+(d.revenue.lecture.c||0)+((d.revenue.meetup&&d.revenue.meetup.c)||0)))||0;
         var head='<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;">'
           +_featChip('발급', (na+nu+ne+nr)+'장')+_featChip('사용', nu+'장')+_featChip('보유', na+'장')
           +_featChip('만료임박', (d.expiring_soon||0)+'장')+_featChip('소진 P', (d.points_spent||0)+'P')
@@ -7181,10 +7200,63 @@
         box.innerHTML=head+(types||'<div style="color:var(--txt-lo);">아직 발급된 할인권이 없습니다.</div>');
       }catch(e){ box.textContent='불러오지 못했습니다.'; }
     }
+
+    /* v2.60.0: 할인권 수동 지급/회수 */
+    async function loadCouponAdmin(){
+      var sel=document.getElementById('cpn-grant-type');
+      var list=document.getElementById('coupon-admin-list');
+      try{
+        var r=await fetch('/api/admin/coupons',{headers:adminHeaders()});
+        var d=await r.json();
+        if(!d||!d.ok){ if(list) list.textContent='불러오지 못했습니다.'; return; }
+        if(sel && !sel.options.length){
+          sel.innerHTML=(d.catalog||[]).map(function(c){ return '<option value="'+c.key+'">'+c.label+'</option>'; }).join('');
+        }
+        var rows=(d.coupons||[]).map(function(c){
+          var dl = c.status==='active' ? Math.max(0,Math.ceil((new Date(String(c.expires_at).replace(' ','T')+'Z')-new Date())/86400000)) : null;
+          var stColor={active:'#0f766e',used:'#64748b',expired:'#94a3b8',revoked:'#dc2626'}[c.status]||'#64748b';
+          var stLabel={active:'보유',used:'사용',expired:'만료',revoked:'회수'}[c.status]||c.status;
+          var who = c.member_nickname ? esc(c.member_nickname) : '';
+          return '<div style="display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--border);">'
+            +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">#'+c.member_id+' '+who+' · '+(CPN_AD[c.ad_type]||c.ad_type)+' '+c.discount_rate+'%'+(c.point_cost===0?' <span style="color:#0d9488;font-size:10px;">무상</span>':'')+'</span>'
+            +'<span style="color:'+stColor+';font-weight:700;white-space:nowrap;font-size:11px;">'+stLabel+(dl!==null?' D-'+dl:'')+'</span>'
+            +(c.status==='active'?'<button type="button" onclick="cpnRevoke('+c.id+')" style="font-size:11px;padding:4px 9px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">회수</button>':'')
+            +'</div>';
+        }).join('');
+        if(list) list.innerHTML=rows||'<div style="color:var(--txt-lo);">발급된 할인권이 없습니다.</div>';
+      }catch(e){ if(list) list.textContent='불러오지 못했습니다.'; }
+    }
+    async function cpnGrant(){
+      var mEl=document.getElementById('cpn-grant-member');
+      var mid=parseInt(mEl&&mEl.value,10);
+      var type=(document.getElementById('cpn-grant-type')||{}).value;
+      var st=document.getElementById('cpn-grant-status'); if(st){ st.style.color='var(--txt-lo)'; st.textContent=''; }
+      if(!mid){ if(st){ st.style.color='#dc2626'; st.textContent='회원 ID를 입력하세요.'; } return; }
+      if(!confirm('회원 #'+mid+' 에게 할인권을 무상 지급할까요?')) return;
+      try{
+        var r=await fetch('/api/admin/coupons',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({member_id:mid,coupon_type:type})});
+        var d=await r.json();
+        if(!r.ok||!d.ok){ throw new Error(d.error||('HTTP '+r.status)); }
+        if(st){ st.style.color='#0f766e'; st.textContent='✅ 지급 완료: #'+d.member_id+(d.member?(' '+d.member):'')+' · '+(CPN_AD[d.ad_type]||d.ad_type)+' '+d.rate+'%'; }
+        if(mEl) mEl.value='';
+        loadCouponAdmin(); loadCouponStats();
+      }catch(e){ if(st){ st.style.color='#dc2626'; st.textContent='지급 실패: '+e.message; } }
+    }
+    async function cpnRevoke(id){
+      if(!confirm('이 할인권을 회수할까요? (보유 상태만 가능, 되돌릴 수 없음)')) return;
+      try{
+        var r=await fetch('/api/admin/coupons',{method:'PATCH',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({coupon_id:id})});
+        var d=await r.json();
+        if(!r.ok||!d.ok){ throw new Error(d.error||('HTTP '+r.status)); }
+        loadCouponAdmin(); loadCouponStats();
+      }catch(e){ alert('회수 실패: '+e.message); }
+    }
+
     async function loadRecruitList() {
       loadFeatureStats();   // 상단노출 효과 통계 동시 로드
       loadShopStats();      // 포인트 상점 현황 동시 로드
       loadCouponStats();    // v2.56.0 할인권·수익화 통계 동시 로드
+      loadCouponAdmin();    // v2.60.0 할인권 수동 지급/회수
       const el = document.getElementById('rc-list');
       if (!el) return;
       try {
