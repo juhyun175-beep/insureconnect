@@ -339,7 +339,7 @@ export const onRequestGet = async ({ env, request }) => {
     function render(d){
       var points=d.points||0;
       var owned=(d.coupons||[]).filter(function(c){return c.status==='active';});
-      var sellable=(d.catalog||[]).filter(function(c){return c.ad_type==='recruit'||c.ad_type==='lecture';}); // 모임은 공고 출시 시 공개
+      var sellable=(d.catalog||[]).filter(function(c){return c.ad_type==='recruit'||c.ad_type==='lecture'||c.ad_type==='meetup';}); // v2.58.0: 모임공고 출시 → 모임 할인권 공개
       var shopHtml=sellable.map(function(c){
         var desc='등록가 '+won(c.base)+'원 → <b style="color:#16a34a">'+won(c.final)+'원</b> ('+c.rate+'% 할인)';
         return row(AD_ICO[c.ad_type]||'🎟️', c.ad_label+' '+c.rate+'% 할인권', desc, buyBtn(c.key,c.cost,points));

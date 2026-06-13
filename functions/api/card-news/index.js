@@ -8,7 +8,6 @@ export const onRequestOptions = () => corsPreflight();
  */
 export const onRequestGet = async ({ request, env }) => handle(async () => {
   const url = new URL(request.url);
-  const limit = Math.min(parseInt(url.searchParams.get('limit') || '200', 10), 500);
   const setId = url.searchParams.get('set_id');
 
   if (setId) {
@@ -19,10 +18,24 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     return json(rs.results || []);
   }
 
+  // v2.58.0 FIX(데이터누락): 공개 피드를 '슬라이드' LIMIT 이 아니라 '세트' 단위로 반환.
+  //   기존 `LIMIT 200(슬라이드)` 은 카드뉴스가 세트(여러 슬라이드)로 소비되는데 슬라이드 수를 잘라,
+  //   누적 슬라이드가 한도를 넘으면 오래된 '세트'가 통째로/부분으로 공개뷰에서 사라졌다
+  //   (DB·관리자(limit=300)에는 멀쩡 → "조금씩 사라진다"는 증상). 데이터는 안전, 조회만 누락이었음.
+  //   → 최신 N개 '세트'를 모든 슬라이드와 함께 반환. 세트는 절대 부분잘림/누락되지 않음.
+  const setLimit = Math.min(parseInt(url.searchParams.get('sets') || url.searchParams.get('limit') || '200', 10) || 200, 500);
   const rs = await env.DB.prepare(
-    `SELECT id, set_id, title, file_url, file_type, sort_order, created_at
-     FROM ic_card_news ORDER BY created_at DESC, sort_order ASC LIMIT ?`
-  ).bind(limit).all();
+    `SELECT cn.id, cn.set_id, cn.title, cn.file_url, cn.file_type, cn.sort_order, cn.created_at
+       FROM ic_card_news cn
+       JOIN (
+         SELECT set_id, MAX(id) AS mx, MAX(created_at) AS mc
+           FROM ic_card_news
+          GROUP BY set_id
+          ORDER BY mc DESC, mx DESC
+          LIMIT ?
+       ) s ON s.set_id = cn.set_id
+      ORDER BY s.mc DESC, s.mx DESC, cn.sort_order ASC`
+  ).bind(setLimit).all();
   return json(rs.results || []);
 });
 

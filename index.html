@@ -7824,7 +7824,7 @@
 
     /* 모달 안 채용/강의 모드 토글 */
     .sm-mode-toggle {
-      display: grid; grid-template-columns: 1fr 1fr; gap: 8px;
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
       margin-bottom: 18px;
       padding: 4px;
       background: var(--bg-soft, #f1f3f9);
@@ -7853,6 +7853,11 @@
       background: linear-gradient(135deg, #db2777, #ec4899);
       color: #fff;
       box-shadow: 0 4px 12px rgba(219,39,119,0.30);
+    }
+    .sm-mode-btn.active.meetup {
+      background: linear-gradient(135deg, #0d9488, #0ea5e9);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(13,148,136,0.30);
     }
     [data-theme="dark"] .sm-mode-toggle {
       background: rgba(255,255,255,0.04);
@@ -8351,6 +8356,7 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','청구서류'); goToPage('claimform');">청구</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','채용공고'); goToPage('recruit');">채용</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','강의'); goToPage('lecture');">강의</button>
+        <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','모임'); goToPage('meetup');">모임</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','인수QA'); goToPage('underwrite');">🩺 인수 Q&amp;A</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">💡 사례공유 +P</button>
@@ -8488,6 +8494,9 @@
             <button type="button" class="sm-mode-btn lecture" id="sm-mode-lecture" onclick="smSetMode('lecture')">
               🎓 강의공고
             </button>
+            <button type="button" class="sm-mode-btn meetup" id="sm-mode-meetup" onclick="smSetMode('meetup')">
+              🤝 모임공고
+            </button>
           </div>
 
           <div class="sm-field">
@@ -8501,6 +8510,18 @@
           <div class="sm-field" id="sm-field-instructor" style="display:none">
             <label for="sm-input-instructor">강사명 (선택)</label>
             <input type="text" id="sm-input-instructor" maxlength="60" placeholder="예: 홍길동 / 손해사정사">
+          </div>
+          <div class="sm-field" id="sm-field-host" style="display:none">
+            <label for="sm-input-host">주최 / 모임장 (선택)</label>
+            <input type="text" id="sm-input-host" maxlength="60" placeholder="예: 인슈어커넥트 스터디 / 홍길동">
+          </div>
+          <div class="sm-field" id="sm-field-location" style="display:none">
+            <label for="sm-input-location">장소 (선택)</label>
+            <input type="text" id="sm-input-location" maxlength="120" placeholder="예: 강남역 ○○스터디카페 / 온라인(Zoom)">
+          </div>
+          <div class="sm-field" id="sm-field-eventat" style="display:none">
+            <label for="sm-input-eventat">모임 일시 (선택)</label>
+            <input type="text" id="sm-input-eventat" maxlength="80" placeholder="예: 매주 화 19:30 / 11월 23일(토) 14시">
           </div>
           <div class="sm-field">
             <label for="sm-input-desc">상세 내용 <span class="req">*</span></label>
@@ -9270,6 +9291,7 @@
         <button class="ic-m-core-card" onclick="goToPage('knowledge')"><span class="cc-lb">보험지식</span></button>
         <button class="ic-m-core-card" onclick="goToPage('tools')"><span class="cc-lb">실무도구</span></button>
         <button class="ic-m-core-card" onclick="goToPage('lecture')"><span class="cc-new" data-mnew="lecture"></span><span class="cc-lb">강의</span></button>
+        <button class="ic-m-core-card" onclick="goToPage('meetup')"><span class="cc-new" data-mnew="meetup"></span><span class="cc-lb">모임</span></button>
         <button class="ic-m-core-card" onclick="goToPage('recruit')"><span class="cc-new" data-mnew="recruit"></span><span class="cc-lb">채용</span></button>
         <button class="ic-m-core-card" onclick="goToPage('latest')"><span class="cc-new" data-mnew="latest"></span><span class="cc-lb">인슈어커넥트 뉴스</span></button>
         <button class="ic-m-core-card" onclick="goToPage('partner')"><span class="cc-lb">파트너사</span></button>
@@ -9295,6 +9317,7 @@
       var SRC=[
         {k:'recruit',    urls:['/api/recruitments']},
         {k:'lecture',    urls:['/api/lectures']},
+        {k:'meetup',     urls:['/api/meetings']},
         {k:'board',      urls:['/api/board/posts?page=1']},
         {k:'newsletter', urls:['/api/newsletters']},
         // '최신' 피드 = 인슈어커넥트 뉴스(카드뉴스) + 보험지식
@@ -10473,6 +10496,30 @@
     </div>
   </div>
 
+  <!-- ══════ PAGE: 모임 ══════ -->
+  <div class="content" id="page-meetup" style="display:none">
+    <div class="section">
+      <div class="section-head" style="margin-bottom:18px">
+        <span class="sec-num">03</span>
+        <span class="sec-title">🤝 모임</span>
+        <span class="sec-line"></span>
+        <span class="sec-badge" id="meetup-count">—</span>
+      </div>
+      <div class="submit-cta-bar">
+        <div class="submit-cta-text">
+          <span style="font-size:16px;">🤝</span>
+          <span>오프라인 모임·스터디·세미나를 직접 공고하세요. 관리자 승인 후 게시됩니다.</span>
+        </div>
+        <button type="button" class="submit-cta-btn" onclick="openSubmitModal('meetup')">
+          📤 모임 직접 등록하기
+        </button>
+      </div>
+      <div id="meetup-page-body">
+        <p class="nl-empty">모임을 불러오는 중…</p>
+      </div>
+    </div>
+  </div>
+
   <!-- ══════ PAGE: 실무 도구 ══════ -->
   <div class="content" id="page-tools" style="display:none">
 
@@ -11524,6 +11571,7 @@
       claimform:        '보험사 청구서류',
       recruit:          '채용공고',
       lecture:          '🎓 강의',
+      meetup:           '🤝 모임',
       tools:            '실무 도구',
       rental:           '🚗 리스/렌트카',
       telecom:          '📱 통신/휴대폰',
@@ -11586,6 +11634,7 @@
       if (page === 'claimform'  && _shouldReloadPage('claimform'))  { loadClaimFormPage(); }
       if (page === 'recruit'    && _shouldReloadPage('recruit'))    { loadRecruitPage(); }
       if (page === 'lecture'    && _shouldReloadPage('lecture'))    { loadLecturePage(); }
+      if (page === 'meetup'     && _shouldReloadPage('meetup'))     { loadMeetupPage(); }
       if (page === 'telecom'    && typeof loadTelecomLineup === 'function') { loadTelecomLineup(); }
       if (page === 'clients'    && typeof loadClients === 'function') { loadClients(); } // v2.43.0 미니 CRM
       if (page === 'underwrite' && typeof loadUnderwrite === 'function') { loadUnderwrite(true); } // v2.46.0 인수 Q&A
@@ -12049,6 +12098,132 @@
     }
     window.shareLecture = shareLecture;
 
+    /* ══════ v2.58.0: 모임공고 (오프라인 모임·세미나·스터디) — 강의 패턴 클론 ══════ */
+    const meetupState = { items: [] };
+    async function loadMeetupPage() {
+      const body = document.getElementById('meetup-page-body');
+      const count = document.getElementById('meetup-count');
+      try {
+        const res = await fetch('/api/meetings');
+        const items = await res.json();
+        meetupState.items = items || [];
+        if (!items || !items.length) {
+          if (count) count.textContent = '0건';
+          body.innerHTML = '<p class="nl-empty">등록된 모임이 없습니다.</p>';
+          return;
+        }
+        if (count) count.textContent = `${items.length}건`;
+        await _ensureShareCounts();
+        const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        body.innerHTML = '<div class="rc-card-grid">' + items.map((it, i) => {
+          const d = new Date(it.created_at);
+          const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
+          const host = it.host ? esc(it.host) : '';
+          let thumb, typeBadge = '';
+          if (it.file_url && it.file_type === 'image') {
+            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy">`;
+            typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
+          } else if (it.file_url && it.file_type === 'pdf') {
+            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            typeBadge = '<span class="rc-card-type-badge">📄 PDF</span>';
+          } else {
+            thumb = `<span class="rc-card-thumb-fallback">🤝<small>모임</small></span>`;
+            typeBadge = '<span class="rc-card-type-badge">📝 일반</span>';
+          }
+          const meta = [it.location ? '📍 '+esc(it.location) : '', it.event_at ? '🗓 '+esc(it.event_at) : ''].filter(Boolean).join(' · ');
+          return `<button class="rc-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="openMeetupViewer(${i})">
+            <span class="rc-card-copy" role="button" tabindex="0" title="링크 복사" onclick="shareMeetup(${it.id}, event)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+            </span>
+            <div class="rc-card-thumb">${thumb}${it.featured ? '<span class="rc-card-feat-badge">🔝 상단노출</span>' : ''}${typeBadge}${_shareBadge('meetup', it.id)}</div>
+            <div class="rc-card-body">
+              ${host ? `<span class="rc-card-company">${host}</span>` : ''}
+              <div class="rc-card-title">${esc(it.title)}</div>
+              <div class="rc-card-date">${meta || dateStr}</div>
+            </div>
+          </button>`;
+        }).join('') + '</div>';
+      } catch (e) {
+        body.innerHTML = '<p class="nl-empty">모임을 불러올 수 없습니다.</p>';
+      }
+    }
+    window.loadMeetupPage = loadMeetupPage;
+
+    function openMeetupViewer(idx) {
+      const it = meetupState.items[idx];
+      if (!it) return;
+      try { if (it.id) trackClick(`meetup_${it.id}`, 'meetup_view'); } catch (_) {}
+      const modal = document.getElementById('rc-viewer');
+      if (!modal) { alert(it.title + '\n' + (it.description || '')); return; }
+      const d = new Date(it.created_at);
+      const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const fileBlock = it.file_url
+        ? `<div class="rc-viewer-file">
+             <a href="${it.file_url}" target="_blank" rel="noopener noreferrer" class="rc-viewer-file-link">
+               ${it.file_type === 'pdf' ? '📄 첨부 PDF 열기' : '🖼️ 첨부 이미지 열기'}
+             </a>
+             ${it.file_type === 'image' ? `<img src="${it.file_url}" alt="모임 이미지" class="rc-viewer-img">` : ''}
+           </div>`
+        : '';
+      const metaBlock = (it.location || it.event_at)
+        ? `<div class="rc-viewer-desc" style="background:rgba(13,148,136,0.06);border-left:3px solid #0d9488">${it.location ? '📍 장소: '+esc(it.location)+(it.event_at?'<br>':'') : ''}${it.event_at ? '🗓 일시: '+esc(it.event_at) : ''}</div>`
+        : '';
+      const descBlock = it.description
+        ? `<div class="rc-viewer-desc">${esc(it.description).replace(/\n/g,'<br>')}</div>`
+        : (it.file_url ? '' : '<div class="rc-viewer-empty">상세 내용이 등록되지 않았습니다.</div>');
+      const formBlock = it.form_url
+        ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('meetup_${it.id}','meetup_form')}catch(_){}">📝 참여 신청하기 →</a>`
+        : '';
+      document.getElementById('rc-viewer-body').innerHTML = `
+        <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
+        <div class="rc-viewer-head">
+          ${it.host ? `<div class="rc-viewer-company">🤝 ${esc(it.host)}</div>` : ''}
+          <div class="rc-viewer-title">${esc(it.title)}</div>
+          <div class="rc-viewer-date">${dateStr}</div>
+        </div>
+        ${metaBlock}${descBlock}${formBlock}${fileBlock}
+      `;
+      modal.classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    window.openMeetupViewer = openMeetupViewer;
+
+    async function shareMeetup(meetupId, evt) {
+      if (evt) { evt.stopPropagation(); evt.preventDefault(); }
+      const btn = evt && evt.currentTarget;
+      const url = `${location.origin}/og/meetup/${encodeURIComponent(meetupId)}`;
+      const result = await nativeShareWithFallback({
+        url, title: '모임공고',
+        text: '인슈어커넥트에서 모임 일정 확인하세요',
+        copyToast: '모임공고 링크가 복사되었습니다',
+        trackEvent: { name: `meetup_${meetupId}`, type: 'meetup_copy' }
+      });
+      if ((result === 'native' || result === 'copy') && btn) {
+        btn.classList.add('copied');
+        setTimeout(() => btn.classList.remove('copied'), 1400);
+      }
+    }
+    window.shareMeetup = shareMeetup;
+
+    /* 진입 시 ?meeting=<id> 파라미터 처리 → 모임 페이지 + 자동 오픈 */
+    function openMeetupFromURL() {
+      const qs = new URLSearchParams(location.search);
+      const mid = qs.get('meeting');
+      if (!mid) return;
+      const id = parseInt(mid, 10);
+      if (!id) return;
+      if (typeof goToPage === 'function') goToPage('meetup');
+      const tryOpen = (attempts) => {
+        if (typeof meetupState !== 'undefined' && meetupState.items && meetupState.items.length) {
+          const idx = meetupState.items.findIndex(x => x.id === id);
+          if (idx >= 0 && typeof openMeetupViewer === 'function') { openMeetupViewer(idx); return; }
+        }
+        if (attempts > 0) setTimeout(() => tryOpen(attempts - 1), 250);
+      };
+      setTimeout(() => tryOpen(20), 300);
+    }
+
     /* 진입 시 ?recruit=<id> 파라미터 있으면 채용공고 페이지로 이동 + 자동 오픈 */
     function openRecruitFromURL() {
       const qs = new URLSearchParams(location.search);
@@ -12085,10 +12260,11 @@
     }
     // 페이지 로드 시 실행
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); });
+      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); openMeetupFromURL(); });
     } else {
       openRecruitFromURL();
       openLectureFromURL();
+      openMeetupFromURL();
     }
 
     function openRecruitViewer(idx) {
@@ -12207,7 +12383,7 @@
         try { mode = localStorage.getItem('ic_submit_last_mode') || 'recruit'; } catch (_) { mode = 'recruit'; }
       }
       submitState.step = 1;
-      ['sm-input-title','sm-input-company','sm-input-instructor','sm-input-desc','sm-input-name','sm-input-contact','sm-input-form'].forEach(id => {
+      ['sm-input-title','sm-input-company','sm-input-instructor','sm-input-host','sm-input-location','sm-input-eventat','sm-input-desc','sm-input-name','sm-input-contact','sm-input-form'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
       const fileEl = document.getElementById('sm-input-file');
@@ -12221,30 +12397,36 @@
       document.body.style.overflow = 'hidden';
     }
     function smSetMode(mode) {
+      if (mode !== 'recruit' && mode !== 'lecture' && mode !== 'meetup') mode = 'recruit';
       submitState.mode = mode;
       try { localStorage.setItem('ic_submit_last_mode', mode); } catch (_) {}
-      const isLecture = mode === 'lecture';
-      document.getElementById('sm-title').textContent = isLecture ? '🎓 강의공고 등록' : '💼 채용공고 등록';
-      document.getElementById('sm-field-company').style.display = isLecture ? 'none' : '';
+      const isRecruit = mode === 'recruit', isLecture = mode === 'lecture', isMeetup = mode === 'meetup';
+      document.getElementById('sm-title').textContent = isMeetup ? '🤝 모임공고 등록' : (isLecture ? '🎓 강의공고 등록' : '💼 채용공고 등록');
+      document.getElementById('sm-field-company').style.display = isRecruit ? '' : 'none';
       document.getElementById('sm-field-instructor').style.display = isLecture ? '' : 'none';
+      const hf = document.getElementById('sm-field-host'); if (hf) hf.style.display = isMeetup ? '' : 'none';
+      const lf = document.getElementById('sm-field-location'); if (lf) lf.style.display = isMeetup ? '' : 'none';
+      const ef = document.getElementById('sm-field-eventat'); if (ef) ef.style.display = isMeetup ? '' : 'none';
       // 토글 버튼 active 상태
       const r = document.getElementById('sm-mode-recruit');
       const l = document.getElementById('sm-mode-lecture');
-      if (r) r.classList.toggle('active', mode === 'recruit');
-      if (l) l.classList.toggle('active', mode === 'lecture');
+      const m = document.getElementById('sm-mode-meetup');
+      if (r) r.classList.toggle('active', isRecruit);
+      if (l) l.classList.toggle('active', isLecture);
+      if (m) m.classList.toggle('active', isMeetup);
       // placeholder 도 모드에 맞게 갱신
       const titleEl = document.getElementById('sm-input-title');
-      if (titleEl) titleEl.placeholder = isLecture
-        ? '예: 손해사정 실무 강의 (10/15 ~ 11/26, 토 오전)'
-        : '예: 설계사 채용 (서울 강남)';
+      if (titleEl) titleEl.placeholder = isMeetup
+        ? '예: 보험설계사 영업 스터디 모집 (강남, 매주 화)'
+        : (isLecture ? '예: 손해사정 실무 강의 (10/15 ~ 11/26, 토 오전)' : '예: 설계사 채용 (서울 강남)');
       const descEl = document.getElementById('sm-input-desc');
-      if (descEl) descEl.placeholder = isLecture
-        ? '강의 일정·장소·강사·수강료·자격조건 등 상세 내용을 입력하세요.'
-        : '담당업무·자격요건·근무조건·연락방법 등 상세 내용을 입력하세요.';
+      if (descEl) descEl.placeholder = isMeetup
+        ? '모임 목적·대상·정원·회비·진행방식 등 상세 내용을 입력하세요.'
+        : (isLecture ? '강의 일정·장소·강사·수강료·자격조건 등 상세 내용을 입력하세요.' : '담당업무·자격요건·근무조건·연락방법 등 상세 내용을 입력하세요.');
       smRenderCoupons();
     }
     /* v2.54.0: 공고 등록 — 등록가·할인권 적용(포인트→쿠폰→할인). final=등록가×(1−할인율) */
-    const SM_BASE = { recruit: 59000, lecture: 99000 };
+    const SM_BASE = { recruit: 59000, lecture: 99000, meetup: 149000 };
     function smWon(n){ return Number(n||0).toLocaleString('ko-KR'); }
     var _smCoupons = null;
     async function smLoadCoupons(){
@@ -12254,7 +12436,7 @@
     }
     function smRenderCoupons(){
       const sel = document.getElementById('sm-coupon-sel'); if(!sel) return;
-      const adType = submitState.mode === 'lecture' ? 'lecture' : 'recruit';
+      const adType = SM_BASE[submitState.mode] ? submitState.mode : 'recruit';
       const bp = document.getElementById('sm-base-price'); if(bp) bp.textContent = smWon(SM_BASE[adType]);
       if(_smCoupons === null){ smUpdatePrice(); return; }
       const mine = _smCoupons.filter(function(c){ return c.status==='active' && c.ad_type===adType; });
@@ -12265,7 +12447,7 @@
       smUpdatePrice();
     }
     function smUpdatePrice(){
-      const adType = submitState.mode === 'lecture' ? 'lecture' : 'recruit';
+      const adType = SM_BASE[submitState.mode] ? submitState.mode : 'recruit';
       const base = SM_BASE[adType];
       const sel = document.getElementById('sm-coupon-sel');
       var rate = 0; if(sel && sel.selectedOptions && sel.selectedOptions[0]){ rate = parseInt(sel.selectedOptions[0].getAttribute('data-rate')||'0',10)||0; }
@@ -12335,9 +12517,8 @@
       btn.disabled = true; btn.textContent = '제출 중…';
       try {
         const mode = submitState.mode;
-        const isLecture = mode === 'lecture';
-        const folder = isLecture ? 'lectures' : 'recruitments';
-        const apiPath = isLecture ? '/api/lectures' : '/api/recruitments';
+        const folder = mode === 'meetup' ? 'meetings' : (mode === 'lecture' ? 'lectures' : 'recruitments');
+        const apiPath = mode === 'meetup' ? '/api/meetings' : (mode === 'lecture' ? '/api/lectures' : '/api/recruitments');
         const file = document.getElementById('sm-input-file').files[0];
         let fileUrl = null, fileType = null;
         if (file) {
@@ -12364,8 +12545,12 @@
           file_type: fileType,
           form_url: (document.getElementById('sm-input-form')?.value || '').trim() || null   // v2.1.29
         };
-        if (isLecture) {
+        if (mode === 'lecture') {
           payload.instructor = document.getElementById('sm-input-instructor').value.trim() || null;
+        } else if (mode === 'meetup') {
+          payload.host = document.getElementById('sm-input-host').value.trim() || null;
+          payload.location = document.getElementById('sm-input-location').value.trim() || null;
+          payload.event_at = document.getElementById('sm-input-eventat').value.trim() || null;
         } else {
           payload.company_name = document.getElementById('sm-input-company').value.trim() || null;
         }

@@ -10,7 +10,7 @@
  */
 import { json, corsPreflight } from '../../_lib/http.js';
 
-const ALLOWED_FOLDERS = new Set(['recruitments', 'lectures', 'rental-cards']);
+const ALLOWED_FOLDERS = new Set(['recruitments', 'lectures', 'meetings', 'rental-cards']);
 const ALLOWED_MIME = /^(image\/(png|jpe?g|webp|gif|heic|heif)|application\/pdf)$/i;
 const MAX_BYTES = 10 * 1024 * 1024;
 
