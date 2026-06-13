@@ -9,7 +9,7 @@ import { getUserFromRequest } from '../../_lib/auth.js';
 const COST = 50;   // 포인트
 const DAYS = 7;    // 노출 일수
 // 화이트리스트(사용자 입력을 테이블명에 직접 쓰지 않음 — 인젝션 차단)
-const TABLES = { recruit: 'ic_recruitments', lecture: 'ic_lectures' };
+const TABLES = { recruit: 'ic_recruitments', lecture: 'ic_lectures', meetup: 'ic_meetings' };
 
 export const onRequestOptions = () => corsPreflight();
 

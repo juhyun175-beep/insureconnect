@@ -166,6 +166,32 @@ export const onRequestGet = async ({ params, env, request }) => {
           inLanguage: 'ko-KR'
         };
       }
+    } else if (type === 'meetup') {
+      // v2.57.0: 모임공고 공유 미리보기 — 오프라인 모임·세미나·스터디 (Event)
+      const r = await env.DB.prepare(
+        `SELECT title, host, description, location, event_at, file_url, file_type, created_at FROM ic_meetings WHERE id = ? AND status = 'approved'`
+      ).bind(id).first();
+      if (r) {
+        title = r.title || title;
+        desc = r.location ? `[${r.location}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
+        image = (r.file_type === 'image' && r.file_url) ? absUrl(r.file_url) : dynamicOgImage('meetup', id);
+        target = `${SITE}/?meeting=${encodeURIComponent(id)}`;
+        indexable = true;
+        const fullDesc = (r.description || '').replace(/\s+/g, ' ').trim();
+        bodyContent = `<h1>${esc(r.title)}</h1>${r.host ? `<p><strong>주최: ${esc(r.host)}</strong></p>` : ''}${r.location ? `<p>📍 장소: ${esc(r.location)}</p>` : ''}${r.event_at ? `<p>🗓 일시: ${esc(r.event_at)}</p>` : ''}<div style="white-space:pre-line">${esc(fullDesc)}</div>`;
+        // Event schema for Google's Events
+        jsonLd = {
+          '@context': 'https://schema.org',
+          '@type': 'Event',
+          name: r.title,
+          description: fullDesc || r.title,
+          eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+          ...(r.location ? { location: { '@type': 'Place', name: r.location, address: { '@type': 'PostalAddress', addressCountry: 'KR' } } } : {}),
+          organizer: { '@type': 'Organization', name: r.host || 'InsureConnect', url: SITE },
+          image: image,
+          inLanguage: 'ko-KR'
+        };
+      }
     } else if (type === 'knowledge') {
       const r = await env.DB.prepare(
         `SELECT title, content, image_url, created_at FROM ic_knowledge_posts WHERE id = ?`

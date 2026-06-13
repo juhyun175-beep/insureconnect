@@ -107,7 +107,8 @@ export async function expireStale(env, memberId) {
 
 /** v2.53.0: 공고 테이블에 등록가·쿠폰 컬럼 보장(추가형 ALTER, 이미 있으면 무시). 기존 컬럼 무수정. */
 export async function ensurePostingCouponCols(env) {
-  for (const t of ['ic_recruitments', 'ic_lectures']) {
+  // ic_meetings 는 자체 스키마(_lib/meetings.js)에 컬럼 내장 — ALTER 는 no-op(이미 존재→catch). 일관성 위해 포함.
+  for (const t of ['ic_recruitments', 'ic_lectures', 'ic_meetings']) {
     await env.DB.prepare(`ALTER TABLE ${t} ADD COLUMN price INTEGER`).run().catch(() => {});
     await env.DB.prepare(`ALTER TABLE ${t} ADD COLUMN coupon_id INTEGER`).run().catch(() => {});
     await env.DB.prepare(`ALTER TABLE ${t} ADD COLUMN coupon_rate INTEGER`).run().catch(() => {});

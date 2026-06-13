@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.57.0] - 2026-06-13
+### Added (모임공고 #3b-A — 신규 공고타입 백엔드, 추가형·무위험)
+- **모임공고(오프라인 모임·세미나·스터디)** 신규 공고타입 백엔드. 채용/강의 패턴 그대로 클론 + 모임 고유 필드(주최 host·장소 location·일시 event_at).
+  - 신규 `ic_meetings` 테이블 **런타임 lazy 생성**(`_lib/meetings.js`, CREATE IF NOT EXISTS·등록가/쿠폰 컬럼 내장) — 별도 마이그레이션 없이 안전 추가.
+  - 신규 `GET/POST /api/meetings`(목록·등록, 비로그인 이름·연락처 필수+승인 게이트, 쿠폰 `ad_type='meetup'` 적용) · `GET/PATCH/DELETE /api/meetings/[id]`(상세·승인/반려·삭제, 최초 승인 3일 무료 상단노출).
+  - SSR `GET /meeting`(모임 허브·Event 카드·내부링크) + OG `/og/meetup/{id}`(Event schema·카톡 미리보기·`?meeting={id}` 착지) + `sitemap.xml`에 `/meeting`·`/og/meeting/{id}` 등록.
+  - 상단노출(`/api/postings/feature`)·효과통계(`feature-stats`)·관리자 수익화통계(`coupon-stats` 모임 매출)에 meetup 화이트리스트 추가.
+- 모두 **추가형**(신규 테이블·엔드포인트·OG 분기·화이트리스트 추가) — 기존 채용/강의/쿠폰 흐름 무수정. 다음(3b-B): 작성 모달 모임 모드·앱 목록·`?meeting=` 딥링크·관리자 승인큐·모임 할인권 상점 노출.
+### Verified
+- `node --check`(meetings·og·coupons·feature·feature-stats·coupon-stats·sitemap) OK · 보안 HIGH 0 · release.mjs
+
 ## [2.56.0] - 2026-06-10
 ### Added (공고 수익화 #3a — 관리자 쿠폰·수익화 통계, 추가형)
 - 관리자(채용공고 관리 패널)에 **「🎟️ 공고 할인권·수익화」 통계 패널**: 발급/사용/보유/만료임박 장수 · 포인트 소진(P) · **공고 등록 매출(최종가 합)·등록 건(할인 적용 건)** · 할인권 종류별 발급/사용. 신규 `GET /api/admin/coupon-stats`(admin) — `user_coupons`·`ic_point_log`(shop_coupon_*)·공고 `price` 집계(읽기 전용). `loadRecruitList`에서 동시 로드.

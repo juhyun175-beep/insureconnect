@@ -31,11 +31,12 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     } catch (_) { return []; }
   };
 
-  const [rec, lec] = await Promise.all([
+  const [rec, lec, mt] = await Promise.all([
     featuredOf('ic_recruitments', 'recruit', 'recruit_'),
     featuredOf('ic_lectures', 'lecture', 'lecture_'),
+    featuredOf('ic_meetings', 'meetup', 'meetup_'),   // v2.57.0: 모임공고
   ]);
-  const featured = [...rec, ...lec].sort((a, b) => String(b.featured_until).localeCompare(String(a.featured_until)));
+  const featured = [...rec, ...lec, ...mt].sort((a, b) => String(b.featured_until).localeCompare(String(a.featured_until)));
   const total_engagement = featured.reduce((s, f) => s + (f.engagement || 0), 0);
   const total_conversion = featured.reduce((s, f) => s + (f.form_clicks || 0), 0);
 

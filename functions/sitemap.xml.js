@@ -38,6 +38,7 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/telecom`, today, 'weekly', 0.8),
     urlEntry(`${BASE}/recruit`, today, 'daily', 0.85),
     urlEntry(`${BASE}/lecture`, today, 'daily', 0.85),
+    urlEntry(`${BASE}/meeting`, today, 'daily', 0.85),
     urlEntry(`${BASE}/newsletter`, today, 'weekly', 0.7),
     urlEntry(`${BASE}/community`, today, 'daily', 0.7),
   ];
@@ -98,6 +99,19 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/og/lecture/${r.id}`, fmtDate(r.updated_at || r.created_at), 'weekly', 0.9)
   );
 
+  // 모임공고 (v2.57.0)
+  let meetings = [];
+  try {
+    const rs = await env.DB.prepare(
+      `SELECT id, created_at, updated_at FROM ic_meetings
+       WHERE status = 'approved' ORDER BY created_at DESC LIMIT 1000`
+    ).all();
+    meetings = rs.results || [];
+  } catch (_) {}
+  const meetingUrls = meetings.map(r =>
+    urlEntry(`${BASE}/og/meeting/${r.id}`, fmtDate(r.updated_at || r.created_at), 'weekly', 0.9)
+  );
+
   // v2.38.0: 카드뉴스(og/news) 색인 제거 — 카드뉴스는 이미지형이라 크롤 가능한 본문 텍스트가
   //          제목+"보러가기" 링크뿐(≈157자) → thin/low-value 콘텐츠로 사이트 품질을 끌어내려
   //          AdSense 반려·"크롤됐지만 색인안됨"을 유발. og/news는 noindex 처리하고 sitemap에서도 제외.
@@ -126,6 +140,7 @@ ${[
   ...seoPostUrls,
   ...recruitUrls,
   ...lectureUrls,
+  ...meetingUrls,
   ...boardUrls,
 ].join('\n')}
 </urlset>`;
