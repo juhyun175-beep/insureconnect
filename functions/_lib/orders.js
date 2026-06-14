@@ -3,10 +3,9 @@
  *   기존 쿠폰(coupon_templates/user_coupons/coupon_logs)·가격(finalPrice) 시스템 위에 '주문 + 환불' 레이어만 추가.
  *   결제는 수기 무통장입금이므로 ad_orders 는 등록 주문/동의/상태 기록 + 환불 감사용. 새 포인트·결제수단 없음.
  *
- *   환불 정책(상태 기반, 관리자가 type 선택):
- *     - 결제완료·게시 전(pending)   → full        : 전액 환불 + 사용쿠폰 원복
- *     - 게시 후·공개 전              → partial90    : 90% 환불, 포인트/쿠폰 미복구
- *     - 공개 시작 후                 → 환불 불가(관리자 강제는 operator_full)
+ *   환불 정책(게시 기준, 관리자가 type 선택):
+ *     - 게시 전(pending/입금대기)   → full         : 전액 환불 + 사용쿠폰 원복
+ *     - 게시 후(published)          → 환불 불가(원칙). 운영자 재량 부분환불 시 partial90(90%)
  *     - 운영자 귀책                  → operator_full: 전액 환불 + 쿠폰 원복
  */
 

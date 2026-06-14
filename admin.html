@@ -4368,7 +4368,7 @@
           <div style="font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:6px;">💰 공고 주문/환불 관리</div>
           <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
             <li>공고 등록 주문(등록가·할인권·최종가)·<b>환불정책 동의 3종 기록</b> 확인 + 환불 승인/거절</li>
-            <li>환불: <b>전액</b>(게시 전·할인권 원복) / <b>90%</b>(게시 후·공개 전) / <b>거절</b>(사유 기록). 실제 입금 반환은 운영자가 수기 처리</li>
+            <li>환불: <b>전액</b>(게시 전·할인권 원복) / <b>부분(재량 90%)</b>(게시 후 운영자 재량) / <b>거절</b>(사유 기록). 실제 입금 반환은 운영자가 수기 처리</li>
             <li>「동의 기록 내보내기」로 전체 주문·동의 내역을 표(TSV)로 복사</li>
           </ul>
         </div>
@@ -6938,7 +6938,7 @@
             if(refunded){ act='<span style="color:#16a34a;font-weight:700;">환불완료</span>'; }
             else{
               act='<button type="button" onclick="refundDo('+o.id+",'full')\" style=\"background:rgba(220,38,38,0.14);color:#dc2626;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\">전액</button>"
-                +' <button type="button" onclick="refundDo('+o.id+",'partial90')\" style=\"background:rgba(245,158,11,0.16);color:#b45309;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\">90%</button>"
+                +' <button type="button" onclick="refundDo('+o.id+",'partial90')\" style=\"background:rgba(245,158,11,0.16);color:#b45309;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\" title=\"게시 후 운영자 재량 부분환불\">부분90%</button>"
                 +' <button type="button" onclick="refundReject('+o.id+')" style="background:rgba(120,140,180,0.15);color:var(--txt-hi);border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;">거절</button>';
             }
             return '<tr'+(refunded?' style="opacity:0.6"':'')+'>'
@@ -6955,7 +6955,7 @@
           var logs=d.logs||[];
           lg.innerHTML=logs.length?logs.map(function(l){
             return '<div style="display:flex;gap:8px;align-items:center;padding:5px 2px;border-bottom:1px solid var(--border);">'
-              +'<span style="font-weight:700;color:'+(l.status==='approved'?'#16a34a':'#dc2626')+';white-space:nowrap;">'+(l.status==='approved'?(l.refund_type==='partial90'?'90%환불':'전액환불'):'환불거절')+'</span>'
+              +'<span style="font-weight:700;color:'+(l.status==='approved'?'#16a34a':'#dc2626')+';white-space:nowrap;">'+(l.status==='approved'?(l.refund_type==='partial90'?'부분90%':'전액환불'):'환불거절')+'</span>'
               +'<span style="color:var(--txt-lo);white-space:nowrap;">주문#'+l.order_id+' · '+Number(l.amount||0).toLocaleString()+'원'+(l.coupon_restored?' · 할인권원복':'')+'</span>'
               +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt-mid);">'+esc(l.reason||'')+'</span>'
               +'<span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">'+String(l.created_at||'').slice(5,16).replace('T',' ')+'</span></div>';
@@ -6964,7 +6964,7 @@
       }catch(e){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; }
     }
     async function refundDo(orderId, type){
-      var label=type==='partial90'?'90% 환불':'전액 환불';
+      var label=type==='partial90'?'재량 부분환불(90%)':'전액 환불';
       var reason=prompt(label+' 사유(선택, 기록됨):','');
       if(reason===null) return;
       if(!confirm(label+'을 승인할까요?\n'+(type!=='partial90'?'· 사용한 할인권이 있으면 원복됩니다.\n':'')+'· 실제 입금 반환은 운영자가 수기로 처리하세요.')) return;
@@ -7117,7 +7117,7 @@
         const tag = type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
         const cm = (window._consentMap || {})[type + '_' + it.id];
         const consentLine = cm
-          ? `<div style="font-size:11px;font-weight:700;margin-top:4px;color:${(cm.r&&cm.p&&cm.f)?'#16a34a':'#dc2626'}">📜 환불정책 동의: 공개후환불제한 ${cm.r?'✓':'✗'} · 포인트/할인권 ${cm.p?'✓':'✗'} · 모집실패 ${cm.f?'✓':'✗'}${(cm.r&&cm.p&&cm.f)?'':' ⚠ 미동의 항목'}</div>`
+          ? `<div style="font-size:11px;font-weight:700;margin-top:4px;color:${(cm.r&&cm.p&&cm.f)?'#16a34a':'#dc2626'}">📜 환불정책 동의: 게시후환불제한 ${cm.r?'✓':'✗'} · 포인트/할인권 ${cm.p?'✓':'✗'} · 모집실패 ${cm.f?'✓':'✗'}${(cm.r&&cm.p&&cm.f)?'':' ⚠ 미동의 항목'}</div>`
           : '';
         return `
           <div class="pending-card ${type}">
