@@ -3,7 +3,7 @@ import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 import { AD_BASE, finalPrice, ensurePostingCouponCols, validateCoupon } from '../../_lib/coupons.js';
 import { createAdOrder } from '../../_lib/orders.js';
-import { ensureMeetingsTable } from '../../_lib/meetings.js';
+import { ensureMeetingsTable, ensureParticipantsTable } from '../../_lib/meetings.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -25,6 +25,7 @@ function sanitizeFormUrl(raw) {
 /** 모임공고 목록 — 기본 status='approved'. ?status=pending/all 은 관리자 전용. */
 export const onRequestGet = async ({ request, env }) => handle(async () => {
   await ensureMeetingsTable(env);
+  await ensureParticipantsTable(env); // v2.68.0: participant_count 서브쿼리용
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 200);
   const statusParam = url.searchParams.get('status') || 'approved';
@@ -38,7 +39,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const rs = await env.DB.prepare(
     `SELECT id, title, host, description, location, event_at, file_url, file_type, form_url, created_at,
             status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
-            CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured
+            CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured,
+            (SELECT COUNT(*) FROM ic_meeting_participants p WHERE p.meeting_id = ic_meetings.id) AS participant_count
      FROM ic_meetings WHERE ${where}
      ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
               (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN featured_until END) DESC,

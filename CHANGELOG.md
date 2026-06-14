@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.68.0] - 2026-06-13
+### Fixed
+- **홈 「📰 인슈어커넥트 뉴스」가 "불러올 수 없습니다"로 안 뜨던 버그** — 렌더 함수(`loadLiveMonitor`)의 `esc`가 스코프 밖이라 ReferenceError→catch 되던 문제. **로컬 `esc` 추가**로 해결.
+- **공고 등록 환불정책 동의 3체크박스 텍스트 가독성** — 흐린 `--txt-mid` → **고대비 텍스트(굵게)+앰버 강조 박스+큰 체크박스**(accent-color)로 또렷하게.
+### Added
+- **모임 참여(RSVP)** — 모임 상세에 **「🙋 참여하기/참여 취소」** + **👥 참여 N명·참여자 명단**(제3자도 공개 GET으로 확인). 홈 「진행중인 모임」·모임 목록 카드에 **👥 N명** 배지. 신규 `ic_meeting_participants`(회원당 1회 UNIQUE)·`GET/POST/DELETE /api/meeting-participants`·meetings GET에 `participant_count`.
+- **홈 광고배너 강조 애니메이션** — 글로우 펄스 + 샤인 스윕(호버 시 일시정지, `prefers-reduced-motion` 존중).
+### Verified
+- `node --check`(meetings·participants·meetings GET) OK · index 33블록 0오류 · 참여/뉴스/동의/배너 배선 그렙 일치 · 보안 HIGH 0 · release.mjs
+
 ## [2.67.0] - 2026-06-13
 ### Added (공고 수익화 환불 시스템 — 주문·환불·동의. 기존 기능 전부 유지)
 - **결제 직전 환불정책 필수 동의 3종**(공개후 환불제한·포인트/할인권 환불불가·모집실패 환불제외) — 모두 체크해야 제출 가능(`#sm-consent`, 미체크 시 버튼 비활성)·「정책 전문 보기」.

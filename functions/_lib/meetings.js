@@ -36,3 +36,18 @@ export async function ensureMeetingsTable(env) {
     `CREATE INDEX IF NOT EXISTS idx_meetings_status ON ic_meetings(status, featured_until)`
   ).run().catch(() => {});
 }
+
+/** v2.68.0: 모임 참여자(RSVP) 테이블 보장. 회원당 모임 1회(UNIQUE). 추가형. */
+export async function ensureParticipantsTable(env) {
+  await env.DB.prepare(
+    `CREATE TABLE IF NOT EXISTS ic_meeting_participants (
+       id INTEGER PRIMARY KEY AUTOINCREMENT,
+       meeting_id INTEGER NOT NULL,
+       member_id INTEGER NOT NULL,
+       nickname TEXT,
+       created_at TEXT NOT NULL DEFAULT (datetime('now')),
+       UNIQUE(meeting_id, member_id)
+     )`
+  ).run();
+  await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_mtp_meeting ON ic_meeting_participants(meeting_id)`).run().catch(() => {});
+}

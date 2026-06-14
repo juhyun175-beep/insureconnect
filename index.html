@@ -8608,11 +8608,11 @@
             </div>
           </div>
           <!-- v2.67.0: 환불 정책 필수 동의 (체크 전 결제 불가) -->
-          <div id="sm-consent" style="margin:14px 0 4px;padding:12px 14px;border:1px solid var(--border,rgba(0,0,0,0.1));border-radius:10px;background:var(--bg-soft,#f8fafc);">
-            <div style="font-size:12.5px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:8px;">📜 환불 정책 동의 <span style="color:#dc2626">(필수)</span> · <a href="#" onclick="smShowRefundPolicy();return false;" style="color:#1a3de8;font-weight:700;text-decoration:none;">정책 전문 보기</a></div>
-            <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--txt-mid,#475569);line-height:1.5;margin-bottom:7px;cursor:pointer;"><input type="checkbox" id="sm-consent-1" onchange="smUpdateConsent()" style="margin-top:2px;flex-shrink:0;"> <span>본 공고는 <b>공개 이후 환불이 제한</b>될 수 있음을 확인했습니다.</span></label>
-            <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--txt-mid,#475569);line-height:1.5;margin-bottom:7px;cursor:pointer;"><input type="checkbox" id="sm-consent-2" onchange="smUpdateConsent()" style="margin-top:2px;flex-shrink:0;"> <span><b>포인트 및 할인권은 환불·복구되지 않음</b>을 확인했습니다.</span></label>
-            <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--txt-mid,#475569);line-height:1.5;cursor:pointer;"><input type="checkbox" id="sm-consent-3" onchange="smUpdateConsent()" style="margin-top:2px;flex-shrink:0;"> <span><b>참가자 모집 실패·참여율 저조는 환불 사유가 아님</b>을 확인했습니다.</span></label>
+          <div id="sm-consent" style="margin:14px 0 4px;padding:13px 15px;border:1.5px solid rgba(245,158,11,0.45);border-radius:10px;background:rgba(245,158,11,0.10);">
+            <div style="font-size:13px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:10px;">📜 환불 정책 동의 <span style="color:#dc2626">(필수)</span> · <a href="#" onclick="smShowRefundPolicy();return false;" style="color:#1a3de8;font-weight:800;text-decoration:underline;">정책 전문 보기</a></div>
+            <label style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;font-weight:600;color:var(--txt-hi,#0f172a);line-height:1.55;margin-bottom:9px;cursor:pointer;"><input type="checkbox" id="sm-consent-1" onchange="smUpdateConsent()" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#f59e0b;"> <span>본 공고는 <b style="color:#b45309">공개 이후 환불이 제한</b>될 수 있음을 확인했습니다.</span></label>
+            <label style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;font-weight:600;color:var(--txt-hi,#0f172a);line-height:1.55;margin-bottom:9px;cursor:pointer;"><input type="checkbox" id="sm-consent-2" onchange="smUpdateConsent()" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#f59e0b;"> <span><b style="color:#b45309">포인트 및 할인권은 환불·복구되지 않음</b>을 확인했습니다.</span></label>
+            <label style="display:flex;gap:9px;align-items:flex-start;font-size:12.5px;font-weight:600;color:var(--txt-hi,#0f172a);line-height:1.55;cursor:pointer;"><input type="checkbox" id="sm-consent-3" onchange="smUpdateConsent()" style="margin-top:3px;flex-shrink:0;width:16px;height:16px;accent-color:#f59e0b;"> <span><b style="color:#b45309">참가자 모집 실패·참여율 저조는 환불 사유가 아님</b>을 확인했습니다.</span></label>
           </div>
           <div class="sm-actions">
             <button type="button" class="sm-btn sm-btn-secondary" onclick="submitStepBack()">← 뒤로</button>
@@ -9393,7 +9393,13 @@
         .ibh-aii-row .ibh{margin:0;}
         /* v2.33.0: 우측 광고 컬럼(제휴상품) — 삼따AI 오른쪽 배치(전환 유도). 좁은 화면 숨김(모바일 홈은 별도 레이아웃) */
         /* v2.36.0: 광고배너 높이를 옆 섹션(자유게시판·삼따AI)과 동일하게 stretch. 이미지의 어두운 배경과 블렌딩되도록 다크 배경 + contain(크롭 없음) */
-        .ibh-ad{display:flex;align-items:center;justify-content:center;align-self:stretch;border:none;padding:0;background:#0b1020;cursor:pointer;width:100%;font-family:inherit;border-radius:14px;overflow:hidden;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;}
+        .ibh-ad{display:flex;align-items:center;justify-content:center;align-self:stretch;border:none;padding:0;background:#0b1020;cursor:pointer;width:100%;font-family:inherit;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;animation:ibhAdGlow 2.4s ease-in-out infinite;}
+        .ibh-ad:hover{animation-play-state:paused;}
+        /* v2.68.0: 광고배너 강조 — 글로우 펄스 + 샤인 스윕 */
+        @keyframes ibhAdGlow{0%,100%{box-shadow:0 4px 16px rgba(12,31,184,0.10),0 0 0 0 rgba(245,158,11,0);}50%{box-shadow:0 8px 26px rgba(245,158,11,0.32),0 0 0 4px rgba(245,158,11,0.20);}}
+        @keyframes ibhAdShine{0%{transform:translateX(-130%) skewX(-18deg);}55%,100%{transform:translateX(320%) skewX(-18deg);}}
+        .ibh-ad::after{content:'';position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.38),transparent);transform:translateX(-130%) skewX(-18deg);animation:ibhAdShine 3.6s ease-in-out infinite;pointer-events:none;z-index:2;}
+        @media(prefers-reduced-motion:reduce){.ibh-ad{animation:none;}.ibh-ad::after{animation:none;display:none;}}
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
         .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
         @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
@@ -12198,7 +12204,7 @@
             <div class="rc-card-body">
               ${host ? `<span class="rc-card-company">${host}</span>` : ''}
               <div class="rc-card-title">${esc(it.title)}</div>
-              <div class="rc-card-date">${meta || dateStr}</div>
+              <div class="rc-card-date">${meta || dateStr}${it.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${it.participant_count}명</span>` : ''}</div>
             </div>
           </button>`;
         }).join('') + '</div>';
@@ -12242,12 +12248,44 @@
           <div class="rc-viewer-date">${dateStr}</div>
         </div>
         ${metaBlock}${descBlock}${formBlock}${fileBlock}
+        <div id="meetup-participate" style="margin-top:14px;"></div>
         <button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM('meetup', ${it.id})">💬 주최자에게 1:1 문의하기</button>
       `;
       modal.classList.add('open');
       document.body.style.overflow = 'hidden';
+      if (typeof mtpLoad === 'function') mtpLoad(it.id); // v2.68.0: 참여 현황
     }
     window.openMeetupViewer = openMeetupViewer;
+
+    /* v2.68.0: 모임 참여(RSVP) — 누가/몇 명 참여했는지 + 참여하기/취소 */
+    async function mtpLoad(meetingId){
+      var box=document.getElementById('meetup-participate'); if(!box) return;
+      box.innerHTML='<div style="font-size:12px;color:var(--txt-lo,#94a3b8);">참여 현황 불러오는 중…</div>';
+      try{
+        var r=await fetch('/api/meeting-participants?meeting_id='+meetingId,{credentials:'same-origin'});
+        var d=await r.json(); if(!d||!d.ok){ box.innerHTML=''; return; }
+        var names=(d.participants||[]).map(function(p){ return _chatEsc(p.nickname); });
+        var shown=names.slice(0,15).join(', ')+(names.length>15?(' 외 '+(names.length-15)+'명'):'');
+        box.innerHTML='<div style="padding:13px 15px;border:1px solid rgba(13,148,136,0.3);border-radius:12px;background:rgba(13,148,136,0.07);">'
+          +'<div style="font-size:13.5px;font-weight:800;color:#0d9488;margin-bottom:6px;">👥 참여 <span style="font-size:17px;">'+d.count+'</span>명</div>'
+          +(names.length?'<div style="font-size:12px;color:var(--txt-mid,#475569);line-height:1.6;margin-bottom:10px;">'+shown+'</div>':'<div style="font-size:12px;color:var(--txt-lo,#94a3b8);margin-bottom:10px;">아직 참여자가 없어요. 첫 참여자가 되어보세요!</div>')
+          +'<button type="button" onclick="mtpToggle('+meetingId+','+(d.mine?'false':'true')+')" style="width:100%;padding:11px;border:none;border-radius:10px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;'+(d.mine?'background:rgba(13,148,136,0.16);color:#0d9488;':'background:#0d9488;color:#fff;')+'">'+(d.mine?'✓ 참여 취소':'🙋 참여하기')+'</button>'
+          +'</div>';
+      }catch(_){ box.innerHTML=''; }
+    }
+    async function mtpToggle(meetingId, join){
+      try{
+        var r=join
+          ? await fetch('/api/meeting-participants',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({meeting_id:meetingId})})
+          : await fetch('/api/meeting-participants?meeting_id='+meetingId,{method:'DELETE',credentials:'same-origin'});
+        if(r.status===401){ if(confirm('로그인 후 참여할 수 있어요. 카카오로 로그인할까요?')) location.href='/api/auth/kakao/login'; return; }
+        var d=await r.json(); if(!r.ok||!d.ok){ alert((d&&d.error)||'처리 실패'); return; }
+        mtpLoad(meetingId);
+        if(typeof loadHomeMeetups==='function') loadHomeMeetups();
+        var pm=document.getElementById('page-meetup'); if(pm && pm.style.display!=='none' && typeof loadMeetupPage==='function') loadMeetupPage();
+      }catch(e){ alert('오류: '+e.message); }
+    }
+    window.mtpLoad=mtpLoad; window.mtpToggle=mtpToggle;
 
     async function shareMeetup(meetupId, evt) {
       if (evt) { evt.stopPropagation(); evt.preventDefault(); }
@@ -16109,6 +16147,7 @@
       // v2.64.0: 실시간 인기콘텐츠 → 인슈어커넥트 뉴스(최신순). 이름 유지(호출부/인터벌 그대로).
       const grid = document.getElementById('home-news-grid');
       if (!grid) return;
+      const esc = s => String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); // v2.68.0: 로컬 esc(스코프 의존 제거 → 렌더 실패 버그 수정)
       try {
         if ((typeof cardNewsState === 'undefined' || !cardNewsState.sets || !cardNewsState.sets.length) && typeof loadCardNews === 'function') {
           await loadCardNews();
@@ -17140,7 +17179,7 @@
             <div class="ic-job-body">
               ${sub ? `<div class="ic-job-company">${sub}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)}${it.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${it.participant_count}명</span>` : ''}</div>
             </div>
           </button>`;
         }).join('');
