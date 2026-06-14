@@ -8501,6 +8501,11 @@
             </button>
           </div>
 
+          <!-- v2.69.0: 할인권 등록비 할인 안내 -->
+          <div style="margin:0 0 14px;padding:9px 12px;border-radius:10px;background:rgba(13,148,136,0.08);border:1px solid rgba(13,148,136,0.28);font-size:11.5px;color:var(--txt-hi,#0f172a);line-height:1.55;">
+            🎟️ <b>등록비는 할인권으로 할인</b>받을 수 있어요 — 포인트로 교환하면 <b>채용 최대 15% · 강의 35% · 모임 49%</b> 할인. <a href="/me" target="_blank" rel="noopener" style="color:#0d9488;font-weight:800;">할인권 보기 →</a>
+          </div>
+
           <div class="sm-field">
             <label for="sm-input-title">제목 <span class="req">*</span></label>
             <input type="text" id="sm-input-title" maxlength="80" placeholder="예: 손해사정 실무 강의 / 설계사 채용 (서울)">
@@ -8601,6 +8606,7 @@
               <span class="sm-pay-label">최종 결제(입금액)</span>
               <span class="sm-pay-val sm-pay-amount"><span id="sm-final-price">59,000</span>원</span>
             </div>
+            <div id="sm-coupon-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(26,61,232,0.06);border:1px dashed rgba(26,61,232,0.32);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">🎟️ 할인권으로 등록비를 할인받을 수 있어요.</div>
             <div class="sm-pay-warn">
               ⚠ <strong>입금자명을 신청자명과 동일</strong>하게 입력해 주세요.<br>
               관리자가 입금 확인 + 승인 후 공고가 업로드됩니다 (영업일 기준 1~2일 소요).<br>
@@ -12526,6 +12532,7 @@
     }
     /* v2.54.0: 공고 등록 — 등록가·할인권 적용(포인트→쿠폰→할인). final=등록가×(1−할인율) */
     const SM_BASE = { recruit: 59000, lecture: 99000, meetup: 149000 };
+    const SM_MAX_RATE = { recruit: 15, lecture: 35, meetup: 49 }; // v2.69.0: 할인권 안내용 최대 할인율
     function smWon(n){ return Number(n||0).toLocaleString('ko-KR'); }
     var _smCoupons = null;
     async function smLoadCoupons(){
@@ -12543,6 +12550,13 @@
       mine.forEach(function(c){ var dl = Math.max(0, Math.ceil((new Date(String(c.expires_at).replace(' ','T')+'Z') - new Date())/86400000)); opts += '<option value="'+c.id+'" data-rate="'+c.discount_rate+'">'+c.discount_rate+'% 할인권 (D-'+dl+')</option>'; });
       sel.innerHTML = opts;
       const row = document.getElementById('sm-coupon-row'); if(row) row.style.display = mine.length ? '' : 'none';
+      const hint = document.getElementById('sm-coupon-hint');
+      if(hint){
+        const maxRate = SM_MAX_RATE[adType] || 0;
+        hint.innerHTML = mine.length
+          ? '🎟️ 보유 할인권 <b>'+mine.length+'개</b> — 위에서 선택하면 등록비가 자동 할인됩니다 (최대 '+maxRate+'%).'
+          : '🎟️ <b>할인권으로 등록비 최대 '+maxRate+'% 할인</b> 가능 — 포인트로 교환 후 사용하세요. <a href="/me" target="_blank" rel="noopener" style="color:#1a3de8;font-weight:800;">할인권 교환 →</a>';
+      }
       smUpdatePrice();
     }
     function smUpdatePrice(){
