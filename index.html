@@ -4786,24 +4786,21 @@
        홈 대시보드 - Hero / 기능 / 신뢰 / 푸터
     ══════════════════════════════ */
     /* ═══════ 상단 영역: 좌측(인기콘텐츠 + 허브+즐겨찾기) | 우측(모임방순위) ═══════ */
+    /* v2.73.0: 뉴스|대화순위(높이 일치) 1행 + 진행중 공고 전체너비 2행 — 대화순위 여백 제거 */
     .ic-top-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 280px;
+      grid-template-areas: "news kakao" "jobs jobs";
       gap: 14px;
       align-items: stretch;
       margin: 0 0 18px;
     }
     @media (max-width: 1024px) {
-      .ic-top-row { grid-template-columns: 1fr; }
+      .ic-top-row { grid-template-columns: 1fr; grid-template-areas: "news" "kakao" "jobs"; }
     }
-    .ic-top-left {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-      min-width: 0;
-    }
-    .ic-top-left > .live-monitor { margin-bottom: 0 !important; }
-    .ic-top-row > .ic-kakao-panel { margin-bottom: 0; }
+    .ic-top-row > #home-news-monitor { grid-area: news; min-width: 0; margin-bottom: 0 !important; }
+    .ic-top-row > .ic-jobs-pair { grid-area: jobs; margin: 0; min-width: 0; }
+    .ic-top-row > .ic-kakao-panel { grid-area: kakao; margin-bottom: 0; }
 
     /* ════════════════════════════════════════════
        MOBILE 전용 홈 (방식 2: JS 감지 시 노출)
@@ -9815,7 +9812,6 @@
 
     <!-- 상단 행: (실시간 인기 콘텐츠 + 허브/즐겨찾기) | 모임방 대화순위 -->
     <div class="ic-top-row">
-    <div class="ic-top-left">
     <!-- v2.64.0: 실시간 인기 콘텐츠 → 인슈어커넥트 뉴스(최신순) -->
     <div class="live-monitor" id="home-news-monitor">
       <div class="lm-header">
@@ -9885,8 +9881,6 @@
         </div>
       </section>
     </div>
-
-    </div><!-- /.ic-top-left -->
 
     <!-- 우측: 오픈채팅방 대화순위 (전체 높이 채움) -->
     <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
