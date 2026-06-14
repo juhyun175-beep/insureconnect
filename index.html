@@ -9273,10 +9273,7 @@
 
     <!-- v2.12.0: 모바일 빠른검색 섹션 제거 (로그인정보 카드의 '빠른 검색' 버튼으로 대체) -->
 
-    <!-- v2.71.0: 고객 렌트카·통신 견적 연결 CTA 삭제(요청). 그 자리에 모바일 광고배너 노출(관리자 업로드 /api/home-ad). -->
-    <button type="button" class="ibh-ad-m" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기" style="display:none">
-      <img src="" alt="" loading="lazy">
-    </button>
+    <!-- v2.71.0: 고객 렌트카·통신 견적 연결 CTA 삭제(요청). v2.72.0: 인라인 배너 대신 '자동 팝업 광고'로 노출(모달을 body로 이동해 모바일에서도 뜨도록). -->
 
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section" data-tour="quickmenu">
@@ -9398,11 +9395,6 @@
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
         .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
         @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
-        /* v2.71.0: 모바일 광고배너 — #page-home-mobile 내(모바일에서만 노출), 데스크탑 .ibh-ad 와 동일 config/애니 */
-        .ibh-ad-m{display:none;width:100%;border:none;padding:0;background:#0b1020;cursor:pointer;font-family:inherit;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(12,31,184,0.12);animation:ibhAdGlow 2.4s ease-in-out infinite;}
-        .ibh-ad-m img{display:block;width:100%;height:auto;}
-        .ibh-ad-m::after{content:'';position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.38),transparent);transform:translateX(-130%) skewX(-18deg);animation:ibhAdShine 3.6s ease-in-out infinite;pointer-events:none;z-index:2;}
-        @media(prefers-reduced-motion:reduce){.ibh-ad-m{animation:none;}.ibh-ad-m::after{display:none;}}
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
@@ -9568,7 +9560,7 @@
     <script>
       window.openHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; if(typeof trackCardClick==='function')trackCardClick('홈광고','배너클릭'); };
       window.closeHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.remove('open'); document.body.style.overflow=''; };
-      (function(){ var m=document.getElementById('home-ad-modal'); if(m) m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })();
+      (function(){ var m=document.getElementById('home-ad-modal'); if(m){ try{ document.body.appendChild(m); }catch(_){} m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); } document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })(); /* v2.72.0: 모달을 body로 이동 — 모바일에서 #page-home(display:none) 안에 갇혀 팝업이 안 뜨던 문제 해결 */
       /* v2.66.0: 관리자 업로드 다중 광고 이미지(순번) — 배너=1번 이미지, 팝업=전체 순서대로, 홈 진입 시 자동 팝업 */
       (function(){
         try{
@@ -9583,12 +9575,6 @@
               if(bimg){ bimg.src=imgs[0]; if(c.alt) bimg.alt=c.alt; }
               if(wrap) wrap.style.display='';
             } else if(wrap){ wrap.style.display='none'; }
-            // v2.71.0: 모바일 배너(.ibh-ad-m)도 동일 config 적용 (모바일에서만 보임)
-            var mwrap=document.querySelector('.ibh-ad-m'); var mimg=document.querySelector('.ibh-ad-m img');
-            if(c.enabled && imgs.length){
-              if(mimg){ mimg.src=imgs[0]; if(c.alt) mimg.alt=c.alt; }
-              if(mwrap) mwrap.style.display='block';
-            } else if(mwrap){ mwrap.style.display='none'; }
             // 클릭/자동 팝업: 전체 이미지를 1번부터 순서대로 나란히(스크롤)
             var scroll=document.querySelector('#home-ad-modal .had-scroll');
             if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(c.alt||'')+'" loading="lazy">'; }).join(''); }
