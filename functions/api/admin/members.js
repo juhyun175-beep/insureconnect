@@ -29,7 +29,8 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   await ensureMemberCols(env);
   const url = new URL(request.url);
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
-  const per = 50;
+  // v2.78.0: 페이지당 인원 선택(관리자 UI 10/20/50/100). 안전 범위 5~200, 기본 50.
+  const per = Math.min(200, Math.max(5, parseInt(url.searchParams.get('per') || '50', 10)));
   const rs = await env.DB.prepare(
     `SELECT m.id, m.nickname, m.role, m.created_at, m.last_login, m.last_seen,
             CASE WHEN b.member_id IS NOT NULL THEN 1 ELSE 0 END AS banned,
@@ -42,7 +43,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   const online = await env.DB.prepare(
     `SELECT COUNT(*) AS n FROM ic_members WHERE last_seen IS NOT NULL AND last_seen > datetime('now','-5 minutes')`
   ).first().catch(() => null);
-  return json({ members: rs.results || [], total: c?.n || 0, page, online_count: online?.n || 0 });
+  return json({ members: rs.results || [], total: c?.n || 0, page, per, online_count: online?.n || 0 });
 });
 
 export const onRequestPost = async ({ env, request }) => handle(async () => {
