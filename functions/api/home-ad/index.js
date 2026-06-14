@@ -1,21 +1,16 @@
 /**
  * v2.63.0: 홈 광고배너(삼따AI 옆) 설정 — /api/home-ad
- *   GET (공개) : 현재 배너 설정 반환. 미설정이면 기존 하드코딩 기본값 → 동작 무변경.
- *   PUT (관리자): 배너 이미지/팝업 이미지/CTA 링크/노출여부 설정.
+ * v2.66.0: 다중 이미지(순번) 지원 — images 배열(1번부터 순서대로). 팝업은 카드뉴스처럼 여러 장 표시.
+ *   GET (공개) : { enabled, images:[url...], link_url, alt }
+ *   PUT (관리자): images 배열·CTA 링크·노출여부 설정.
  *   저장: 범용 ic_site_config (key='home_ad', value=JSON), 런타임 lazy.
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 
 const KEY = 'home_ad';
-// v2.64.0: 하드코딩 배너 제거 — 관리자가 업로드하기 전까지 광고 미표시(기본 OFF·이미지 없음).
-const DEFAULTS = {
-  enabled: false,
-  banner_url: '',
-  popup_url: '',
-  link_url: '',
-  alt: '',
-};
+const MAX_IMAGES = 20;
+const DEFAULTS = { enabled: false, images: [], link_url: '', alt: '' };
 
 async function ensureTable(env) {
   await env.DB.prepare(
@@ -27,20 +22,28 @@ async function ensureTable(env) {
   ).run();
 }
 
-async function getConfig(env) {
-  await ensureTable(env);
-  const row = await env.DB.prepare(`SELECT value FROM ic_site_config WHERE key = ?`).bind(KEY).first().catch(() => null);
-  if (!row || !row.value) return { ...DEFAULTS };
-  try { return { ...DEFAULTS, ...JSON.parse(row.value) }; } catch (_) { return { ...DEFAULTS }; }
-}
-
-// 이미지 URL: 상대경로(/...) 또는 http(s) 만 허용. CTA 링크: http(s) 만 허용(javascript: 등 차단).
+// 이미지 URL: 상대경로(/...) 또는 http(s)만. CTA 링크: http(s)만(javascript: 등 차단).
 function safeUrl(v, { allowRelative }) {
   const s = String(v || '').trim();
   if (!s) return null;
   if (allowRelative && s.startsWith('/')) return s.slice(0, 500);
   if (/^https?:\/\//i.test(s)) return s.slice(0, 500);
   return undefined; // 무효
+}
+
+async function getConfig(env) {
+  await ensureTable(env);
+  const row = await env.DB.prepare(`SELECT value FROM ic_site_config WHERE key = ?`).bind(KEY).first().catch(() => null);
+  let c = { ...DEFAULTS };
+  if (row && row.value) { try { c = { ...DEFAULTS, ...JSON.parse(row.value) }; } catch (_) {} }
+  if (!Array.isArray(c.images)) c.images = [];
+  // 레거시 단일(banner_url/popup_url) → images 폴백
+  if (!c.images.length) {
+    if (c.banner_url) c.images.push(c.banner_url);
+    else if (c.popup_url) c.images.push(c.popup_url);
+  }
+  c.images = c.images.filter(Boolean).slice(0, MAX_IMAGES);
+  return { enabled: c.enabled === true, images: c.images, link_url: c.link_url || '', alt: c.alt || '' };
 }
 
 export const onRequestOptions = () => corsPreflight();
@@ -56,20 +59,24 @@ export const onRequestPut = async ({ request, env }) => handle(async () => {
   const b = await request.json().catch(() => ({}));
   const cur = await getConfig(env);
 
-  const next = { ...cur };
+  const next = { enabled: cur.enabled, images: cur.images, link_url: cur.link_url, alt: cur.alt };
   if (typeof b.enabled === 'boolean') next.enabled = b.enabled;
   if (b.alt != null) next.alt = String(b.alt).slice(0, 200);
-  for (const f of ['banner_url', 'popup_url']) {
-    if (b[f] != null && b[f] !== '') {
-      const u = safeUrl(b[f], { allowRelative: true });
-      if (u === undefined) return error(`${f}: 상대경로(/...) 또는 http(s) URL만 허용됩니다.`);
-      next[f] = u;
-    }
-  }
   if (b.link_url != null && b.link_url !== '') {
     const u = safeUrl(b.link_url, { allowRelative: false });
     if (u === undefined) return error('link_url: http(s) URL만 허용됩니다.');
     next.link_url = u;
+  } else if (b.link_url === '') {
+    next.link_url = '';
+  }
+  if (Array.isArray(b.images)) {
+    const out = [];
+    for (const im of b.images.slice(0, MAX_IMAGES)) {
+      const u = safeUrl(im, { allowRelative: true });
+      if (u === undefined) return error('images: 상대경로(/...) 또는 http(s) URL만 허용됩니다.');
+      if (u) out.push(u);
+    }
+    next.images = out;
   }
 
   await env.DB.prepare(

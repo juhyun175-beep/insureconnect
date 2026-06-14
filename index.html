@@ -9549,31 +9549,33 @@
       <div class="had-card">
         <button type="button" class="had-x" aria-label="닫기" onclick="closeHomeAd()">✕</button>
         <div class="had-scroll"><img class="had-img" src="" alt=""></div>
-        <a class="had-cta" href="https://naver.me/xD8zNndZ" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','상담클릭')">💬 상담 받아보기 →</a>
+        <a class="had-cta" href="#" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','상담클릭')">💬 자세히 보기 →</a>
       </div>
     </div>
     <script>
       window.openHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; if(typeof trackCardClick==='function')trackCardClick('홈광고','배너클릭'); };
       window.closeHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.remove('open'); document.body.style.overflow=''; };
       (function(){ var m=document.getElementById('home-ad-modal'); if(m) m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })();
-      /* v2.64.0: 관리자 업로드 광고만 표시(하드코딩 제거) + 홈 진입 시 자동 팝업 */
+      /* v2.66.0: 관리자 업로드 다중 광고 이미지(순번) — 배너=1번 이미지, 팝업=전체 순서대로, 홈 진입 시 자동 팝업 */
       (function(){
         try{
           fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
             if(!d||!d.ok||!d.config) return;
-            var c=d.config;
+            var c=d.config; var imgs=(c.images||[]).filter(Boolean);
+            function esc(s){ return String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
             var wrap=document.querySelector('.ibh-ad');
             var bimg=document.querySelector('.ibh-ad img');
-            // 배너: 노출 ON + 이미지 있을 때만
-            if(c.enabled!==false && c.banner_url){
-              if(bimg){ bimg.src=c.banner_url; if(c.alt) bimg.alt=c.alt; }
+            // 배너: 노출 ON + 이미지 있을 때만 (대표=1번 이미지)
+            if(c.enabled && imgs.length){
+              if(bimg){ bimg.src=imgs[0]; if(c.alt) bimg.alt=c.alt; }
               if(wrap) wrap.style.display='';
             } else if(wrap){ wrap.style.display='none'; }
-            // 클릭 팝업 이미지/링크
-            var pimg=document.querySelector('#home-ad-modal .had-img'); if(pimg){ if(c.popup_url) pimg.src=c.popup_url; if(c.alt) pimg.alt=c.alt; }
-            var cta=document.querySelector('#home-ad-modal .had-cta'); if(cta && c.link_url) cta.href=c.link_url;
-            // 홈 진입 시 자동 팝업 — 노출 ON + 팝업 이미지 있을 때, 페이지 로드당 1회, 홈에서만
-            if(c.enabled!==false && c.popup_url && !window._homeAdAutoShown && !document.body.classList.contains('nav-subpage')){
+            // 클릭/자동 팝업: 전체 이미지를 1번부터 순서대로 나란히(스크롤)
+            var scroll=document.querySelector('#home-ad-modal .had-scroll');
+            if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(c.alt||'')+'" loading="lazy">'; }).join(''); }
+            var cta=document.querySelector('#home-ad-modal .had-cta'); if(cta){ if(c.link_url){ cta.href=c.link_url; cta.style.display=''; } else { cta.style.display='none'; } }
+            // 홈 진입 시 자동 팝업 — 노출 ON + 이미지 있을 때, 페이지 로드당 1회, 홈에서만
+            if(c.enabled && imgs.length && !window._homeAdAutoShown && !document.body.classList.contains('nav-subpage')){
               window._homeAdAutoShown=true;
               setTimeout(function(){ try{ if(typeof openHomeAd==='function' && !document.body.classList.contains('nav-subpage')) openHomeAd(); }catch(_){} }, 900);
             }
@@ -13581,27 +13583,37 @@
     function closeDM(){ _dmStop(); var m=document.getElementById('dm-modal'); if(m)m.style.display='none'; document.body.style.overflow=''; _dmCtx=null; }
     function dmBack(){ if(_dmFromList) openDmRooms(); else closeDM(); }
 
-    async function openDmRooms(){
-      _dmShowModal(); _dmStop(); _dmFromList=false; _dmCtx=null;
+    /* 방 목록 렌더(공용) — 전체 내 문의함 / 주최자의 공고별 받은문의 둘 다 사용 */
+    function _dmShowRoomList(rooms, headTitle, emptyHtml){
+      _dmStop();
       document.getElementById('dm-thread').style.display='none';
       document.getElementById('dm-list').style.display='';
+      document.getElementById('dm-head-title').textContent=headTitle;
+      _dmRooms=rooms||[];
+      var list=document.getElementById('dm-list');
+      if(!_dmRooms.length){ list.innerHTML='<div class="dm-empty">'+emptyHtml+'</div>'; return; }
+      var AD={recruit:'채용',lecture:'강의',meetup:'모임'};
+      list.innerHTML=_dmRooms.map(function(rm,idx){
+        return '<button class="dm-room" type="button" onclick="openDmRoomIdx('+idx+')">'
+          +'<div class="dm-room-top"><span class="dm-room-tag">'+(AD[rm.ad_type]||'')+(rm.role==='owner'?' · 받은문의':'')+'</span><span class="dm-room-other">'+_chatEsc(rm.other_nick)+'</span></div>'
+          +'<div class="dm-room-title">'+_chatEsc(rm.title||'(제목 없음)')+'</div>'
+          +'<div class="dm-room-last">'+(rm.last_mine?'나: ':'')+_chatEsc(String(rm.last_body||'').slice(0,42))+'</div>'
+          +'</button>';
+      }).join('');
+    }
+    async function openDmRooms(){
+      _dmShowModal(); _dmStop(); _dmFromList=false; _dmCtx=null;
       document.getElementById('dm-back').style.display='none';
+      document.getElementById('dm-thread').style.display='none';
+      document.getElementById('dm-list').style.display='';
       document.getElementById('dm-head-title').textContent='📩 내 문의함';
       var list=document.getElementById('dm-list'); list.innerHTML='<div class="dm-empty">불러오는 중…</div>';
       try{
         var r=await fetch('/api/chat/dm?rooms=1',{credentials:'same-origin'});
         if(r.status===401){ list.innerHTML='<div class="dm-empty">로그인 후 이용할 수 있어요.<br><a href="/api/auth/kakao/login" style="color:#0d9488;font-weight:700;">카카오로 로그인 →</a></div>'; return; }
         var d=await r.json(); if(!d||!d.ok){ list.innerHTML='<div class="dm-empty">불러오지 못했어요.</div>'; return; }
-        _dmMe=d.me; _dmRooms=d.rooms||[];
-        if(!_dmRooms.length){ list.innerHTML='<div class="dm-empty">아직 문의 내역이 없어요.<br>공고 상세에서 「1:1 문의」로 시작해보세요.</div>'; return; }
-        var AD={recruit:'채용',lecture:'강의',meetup:'모임'};
-        list.innerHTML=_dmRooms.map(function(rm,idx){
-          return '<button class="dm-room" type="button" onclick="openDmRoomIdx('+idx+')">'
-            +'<div class="dm-room-top"><span class="dm-room-tag">'+(AD[rm.ad_type]||'')+(rm.role==='owner'?' · 받은문의':'')+'</span><span class="dm-room-other">'+_chatEsc(rm.other_nick)+'</span></div>'
-            +'<div class="dm-room-title">'+_chatEsc(rm.title||'(제목 없음)')+'</div>'
-            +'<div class="dm-room-last">'+(rm.last_mine?'나: ':'')+_chatEsc(String(rm.last_body||'').slice(0,42))+'</div>'
-            +'</button>';
-        }).join('');
+        _dmMe=d.me;
+        _dmShowRoomList(d.rooms||[], '📩 내 문의함', '아직 문의 내역이 없어요.<br>공고 상세에서 「1:1 문의」로 시작해보세요.');
       }catch(_){ list.innerHTML='<div class="dm-empty">불러오지 못했어요.</div>'; }
     }
     function openDmRoomIdx(i){ var rm=_dmRooms[i]; if(rm) _dmOpenThread({room_id:rm.room_id}, rm.title, true); }
@@ -13629,6 +13641,9 @@
         var d=await r.json();
         if(!r.ok||!d.ok){ if(first){ _dmStop(); log.innerHTML='<div class="dm-empty">'+_chatEsc((d&&d.error)||'문의방을 열 수 없어요.')+'</div>'; } return; }
         _dmMe=d.me;
+        // v2.66.0: 내가 그 공고의 주최자 → 이 공고에 들어온 문의 목록을 보여줌(답변 대상 선택)
+        if(first && d.is_owner){ _dmFromList=false; document.getElementById('dm-back').style.display='none';
+          _dmShowRoomList(d.rooms||[], '📩 받은 문의'+(d.title?' · '+d.title:''), '아직 이 공고에 들어온 문의가 없어요.<br>문의가 오면 여기에서 답장할 수 있어요.'); return; }
         if(first && d.title){ document.getElementById('dm-head-title').textContent='💬 '+d.title; }
         if(first){ log.innerHTML=''; if(!d.messages||!d.messages.length){ log.innerHTML='<div class="dm-empty">첫 메시지를 보내보세요 👋</div>'; } }
         if(d.messages&&d.messages.length){ if(log.querySelector('.dm-empty')) log.innerHTML=''; _dmAppend(d.messages); }

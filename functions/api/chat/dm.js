@@ -91,10 +91,37 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
     return json({ ok: true, me: user.id, rooms });
   }
 
+  // v2.66.0: ad_type+ad_id 로 열었는데 내가 그 공고의 '주인'이면 → 본인 공고에 들어온 문의 목록 반환(답변 대상 선택).
+  //   (기존엔 'ownerId===inquirerId' 로 막혀 주최자가 본인 공고 문의에 답변 못 하던 버그)
+  const qRoom = url.searchParams.get('room_id');
+  const qAdType = url.searchParams.get('ad_type');
+  const qAdId = parseInt(url.searchParams.get('ad_id') || '', 10);
+  if (!qRoom && POST_TABLES[qAdType] && qAdId) {
+    const post = await postingOf(env, qAdType, qAdId);
+    if (post && post.submitter_id && post.submitter_id === user.id) {
+      const rs = await env.DB.prepare(
+        `SELECT d.room_id, d.ad_type, d.ad_id, d.inquirer_id, d.ad_title,
+                d.body AS last_body, d.sender_id AS last_sender, d.created_at AS last_at, d.id AS last_id,
+                iq.nickname AS inquirer_nick
+           FROM ic_dm_messages d
+           LEFT JOIN ic_members iq ON iq.id = d.inquirer_id
+          WHERE d.owner_id = ? AND d.ad_type = ? AND d.ad_id = ?
+            AND d.id IN (SELECT MAX(id) FROM ic_dm_messages WHERE owner_id = ? AND ad_type = ? AND ad_id = ? GROUP BY room_id)
+          ORDER BY d.id DESC LIMIT 100`
+      ).bind(user.id, qAdType, qAdId, user.id, qAdType, qAdId).all().catch(() => ({ results: [] }));
+      const rooms = (rs.results || []).map((r) => ({
+        room_id: r.room_id, ad_type: r.ad_type, ad_id: r.ad_id, title: r.ad_title || post.title || '',
+        role: 'owner', other_nick: r.inquirer_nick || '문의자',
+        last_body: r.last_body, last_mine: r.last_sender === user.id, last_at: r.last_at, last_id: r.last_id,
+      }));
+      return json({ ok: true, me: user.id, is_owner: true, title: post.title || '', rooms });
+    }
+  }
+
   // 방 메시지
   const r = await resolveRoom(env, user, {
-    room_id: url.searchParams.get('room_id'),
-    ad_type: url.searchParams.get('ad_type'),
+    room_id: qRoom,
+    ad_type: qAdType,
     ad_id: url.searchParams.get('ad_id'),
   });
   if (r.error) return json({ error: r.error }, r.status || 400);
