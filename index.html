@@ -8607,9 +8607,16 @@
               🔝 <strong>승인 시 3일간 무료 상단노출</strong> 제공 · 이후 마이페이지에서 포인트(50P)로 7일씩 연장할 수 있어요.
             </div>
           </div>
+          <!-- v2.67.0: 환불 정책 필수 동의 (체크 전 결제 불가) -->
+          <div id="sm-consent" style="margin:14px 0 4px;padding:12px 14px;border:1px solid var(--border,rgba(0,0,0,0.1));border-radius:10px;background:var(--bg-soft,#f8fafc);">
+            <div style="font-size:12.5px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:8px;">📜 환불 정책 동의 <span style="color:#dc2626">(필수)</span> · <a href="#" onclick="smShowRefundPolicy();return false;" style="color:#1a3de8;font-weight:700;text-decoration:none;">정책 전문 보기</a></div>
+            <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--txt-mid,#475569);line-height:1.5;margin-bottom:7px;cursor:pointer;"><input type="checkbox" id="sm-consent-1" onchange="smUpdateConsent()" style="margin-top:2px;flex-shrink:0;"> <span>본 공고는 <b>공개 이후 환불이 제한</b>될 수 있음을 확인했습니다.</span></label>
+            <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--txt-mid,#475569);line-height:1.5;margin-bottom:7px;cursor:pointer;"><input type="checkbox" id="sm-consent-2" onchange="smUpdateConsent()" style="margin-top:2px;flex-shrink:0;"> <span><b>포인트 및 할인권은 환불·복구되지 않음</b>을 확인했습니다.</span></label>
+            <label style="display:flex;gap:8px;align-items:flex-start;font-size:12px;color:var(--txt-mid,#475569);line-height:1.5;cursor:pointer;"><input type="checkbox" id="sm-consent-3" onchange="smUpdateConsent()" style="margin-top:2px;flex-shrink:0;"> <span><b>참가자 모집 실패·참여율 저조는 환불 사유가 아님</b>을 확인했습니다.</span></label>
+          </div>
           <div class="sm-actions">
             <button type="button" class="sm-btn sm-btn-secondary" onclick="submitStepBack()">← 뒤로</button>
-            <button type="button" class="sm-btn sm-btn-primary" id="sm-submit-btn" onclick="submitFinal()">입금완료·신청제출</button>
+            <button type="button" class="sm-btn sm-btn-primary" id="sm-submit-btn" onclick="submitFinal()" disabled>입금완료·신청제출</button>
           </div>
           <div class="sm-status" id="sm-status-2"></div>
         </div>
@@ -12548,8 +12555,15 @@
       }
       smLoadCoupons();
       smShowStep(2);
+      smResetConsent();
     }
     function submitStepBack() { smShowStep(1); }
+    /* v2.67.0: 환불 정책 필수 동의 — 3개 모두 체크해야 제출 가능 */
+    function smResetConsent(){ ['sm-consent-1','sm-consent-2','sm-consent-3'].forEach(function(id){ var c=document.getElementById(id); if(c) c.checked=false; }); smUpdateConsent(); }
+    function smUpdateConsent(){ var b=document.getElementById('sm-submit-btn'); if(!b) return; var c1=document.getElementById('sm-consent-1'),c2=document.getElementById('sm-consent-2'),c3=document.getElementById('sm-consent-3'); b.disabled=!(c1&&c1.checked&&c2&&c2.checked&&c3&&c3.checked); }
+    window.smUpdateConsent=smUpdateConsent;
+    function smShowRefundPolicy(){ alert('📜 공고 등록 환불 정책\n\n① 결제완료·게시 전: 전액 환불 (사용 할인권 원복)\n② 게시 후·공개 전: 90% 환불 (포인트·할인권 미복구)\n③ 공개 시작 후: 환불 불가\n④ 운영자 귀책: 전액 환불\n\n· 상단노출: 사용 전 전액환불 / 사용 후 환불불가\n· 포인트·할인권: 환불·현금화·양도 불가, 미사용 취소만 가능, 14일 만료 자동소멸\n· 참가자 모집 실패·참여율 저조는 환불 사유가 아닙니다.\n· 허위공고·다계정·자동화·반복취소·시스템 악용 시 환불이 제한될 수 있습니다.'); }
+    window.smShowRefundPolicy=smShowRefundPolicy;
     function copyPayAccount(btn) {
       const acc = document.getElementById('sm-pay-account').textContent.trim();
       const fallback = () => {
@@ -12568,6 +12582,8 @@
       const btn = document.getElementById('sm-submit-btn');
       const status = document.getElementById('sm-status-2');
       status.className = 'sm-status'; status.textContent = '';
+      const _c1=document.getElementById('sm-consent-1'),_c2=document.getElementById('sm-consent-2'),_c3=document.getElementById('sm-consent-3');
+      if(!(_c1&&_c1.checked&&_c2&&_c2.checked&&_c3&&_c3.checked)){ status.textContent='⚠ 환불 정책 3가지에 모두 동의해 주세요.'; status.classList.add('error'); return; }
       btn.disabled = true; btn.textContent = '제출 중…';
       try {
         const mode = submitState.mode;
@@ -12610,6 +12626,7 @@
         }
         const _csel = document.getElementById('sm-coupon-sel'); // v2.54.0: 할인권 적용
         if (_csel && _csel.value) payload.coupon_id = parseInt(_csel.value, 10) || null;
+        payload.consent = { refund: !!(_c1&&_c1.checked), points: !!(_c2&&_c2.checked), fail: !!(_c3&&_c3.checked) }; // v2.67.0
         const insRes = await fetch(apiPath, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

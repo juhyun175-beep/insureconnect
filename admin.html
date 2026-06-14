@@ -3606,6 +3606,7 @@
 
         <button class="upload-tab" data-panel="up-reports" style="border-color:#f59e0b;color:#f59e0b;">🚨 신고</button>
         <button class="upload-tab" data-panel="up-dm" style="border-color:#0d9488;color:#0d9488;">💬 문의채팅</button>
+        <button class="upload-tab" data-panel="up-refunds" style="border-color:#f59e0b;color:#f59e0b;">💰 환불/주문</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
@@ -4361,6 +4362,33 @@
         </div>
       </div><!-- /#up-dm -->
 
+      <!-- v2.67.0: 공고 주문/환불 관리 + 동의 기록 -->
+      <div class="upload-panel" id="up-refunds">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(245,158,11,0.30);border-left:3px solid #f59e0b;border-radius:8px;background:linear-gradient(90deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#f59e0b;margin-bottom:6px;">💰 공고 주문/환불 관리</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>공고 등록 주문(등록가·할인권·최종가)·<b>환불정책 동의 3종 기록</b> 확인 + 환불 승인/거절</li>
+            <li>환불: <b>전액</b>(게시 전·할인권 원복) / <b>90%</b>(게시 후·공개 전) / <b>거절</b>(사유 기록). 실제 입금 반환은 운영자가 수기 처리</li>
+            <li>「동의 기록 내보내기」로 전체 주문·동의 내역을 표(TSV)로 복사</li>
+          </ul>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;flex-wrap:wrap;gap:8px;">
+          <div id="refund-summary" style="font-size:12.5px;font-weight:700;color:var(--txt-hi);">불러오는 중…</div>
+          <div style="display:flex;gap:8px;">
+            <button type="button" onclick="exportOrders()" style="padding:6px 12px;background:transparent;border:1px solid var(--blue-mid,#4a70f5);color:var(--blue-mid,#4a70f5);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">📋 동의 기록 내보내기</button>
+            <button type="button" onclick="loadRefunds()" style="padding:6px 12px;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 새로고침</button>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="mlist" style="width:100%;border-collapse:collapse;font-size:12px;min-width:760px;">
+            <thead><tr style="text-align:left;color:var(--txt-mid);"><th style="padding:8px;">#</th><th style="padding:8px;">공고</th><th style="padding:8px;">신청자</th><th style="padding:8px;">등록가→최종</th><th style="padding:8px;">동의</th><th style="padding:8px;">상태</th><th style="padding:8px;">환불</th></tr></thead>
+            <tbody id="refund-orders"><tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">불러오는 중…</td></tr></tbody>
+          </table>
+        </div>
+        <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:18px 0 8px;">최근 환불 처리</div>
+        <div id="refund-logs" style="font-size:12px;color:var(--txt-mid);"></div>
+      </div><!-- /#up-refunds -->
+
       <!-- v2.63.0: 홈 광고배너(삼따AI 옆) 관리 -->
       <div class="upload-panel" id="up-homead">
         <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(14,165,233,0.30);border-left:3px solid #0ea5e9;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.08),rgba(14,165,233,0.02));">
@@ -4939,6 +4967,7 @@
         if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
         if (target === 'up-coverages' && typeof loadCoverages === 'function') { loadCoverages(); }
         if (target === 'up-dm' && typeof loadDmAdmin === 'function') { loadDmAdmin(); }
+        if (target === 'up-refunds' && typeof loadRefunds === 'function') { loadRefunds(); }
         if (target === 'up-homead' && typeof loadHomeAdAdmin === 'function') { loadHomeAdAdmin(); }
       });
     });
@@ -6885,6 +6914,86 @@
       finally{ btn.disabled=false; btn.textContent='저장'; }
     }
 
+    /* v2.67.0: 공고 주문/환불 관리 + 동의 기록 */
+    var _refundOrders=[];
+    var _RF_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
+    var _RF_ST={pending_payment:'입금대기',published:'게시',refunded:'환불완료'};
+    async function loadRefunds(){
+      var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
+      if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">불러오는 중…</td></tr>';
+      try{
+        var r=await fetch('/api/admin/refunds',{headers:adminHeaders()});
+        var d=await r.json();
+        if(!d||!d.ok){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; return; }
+        _refundOrders=d.orders||[];
+        if(sm) sm.innerHTML='총 주문 '+_refundOrders.length+'건 · 환불 '+(d.refund_count||0)+'건 · 환불액 '+Number(d.refund_amount||0).toLocaleString()+'원';
+        if(!_refundOrders.length){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">아직 공고 주문이 없습니다.</td></tr>'; }
+        else if(tb){
+          tb.innerHTML=_refundOrders.map(function(o){
+            var consent=(o.consent_refund?'✓':'✗')+(o.consent_points?'✓':'✗')+(o.consent_fail?'✓':'✗');
+            var consentOk=o.consent_refund&&o.consent_points&&o.consent_fail;
+            var ps=o.posting_status||'-';
+            var refunded=o.refunded||o.status==='refunded';
+            var act;
+            if(refunded){ act='<span style="color:#16a34a;font-weight:700;">환불완료</span>'; }
+            else{
+              act='<button type="button" onclick="refundDo('+o.id+",'full')\" style=\"background:rgba(220,38,38,0.14);color:#dc2626;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\">전액</button>"
+                +' <button type="button" onclick="refundDo('+o.id+",'partial90')\" style=\"background:rgba(245,158,11,0.16);color:#b45309;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\">90%</button>"
+                +' <button type="button" onclick="refundReject('+o.id+')" style="background:rgba(120,140,180,0.15);color:var(--txt-hi);border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;">거절</button>';
+            }
+            return '<tr'+(refunded?' style="opacity:0.6"':'')+'>'
+              +'<td style="padding:8px;">'+o.id+'</td>'
+              +'<td style="padding:8px;">'+(_RF_AD[o.ad_type]||o.ad_type)+' · '+esc(String(o.title||'(삭제됨)').slice(0,22))+'</td>'
+              +'<td style="padding:8px;">'+esc(o.submitter_name||o.member_nick||'-')+'</td>'
+              +'<td style="padding:8px;white-space:nowrap;">'+Number(o.base_price||0).toLocaleString()+(o.coupon_rate?(' <span style="color:#16a34a">-'+o.coupon_rate+'%</span>'):'')+' → <b>'+Number(o.final_price||0).toLocaleString()+'</b></td>'
+              +'<td style="padding:8px;"><span title="환불제한·포인트·모집실패 동의" style="font-family:monospace;color:'+(consentOk?'#16a34a':'#dc2626')+';font-weight:800;">'+consent+'</span></td>'
+              +'<td style="padding:8px;">'+(_RF_ST[ps]||ps)+'</td>'
+              +'<td style="padding:8px;white-space:nowrap;">'+act+'</td></tr>';
+          }).join('');
+        }
+        if(lg){
+          var logs=d.logs||[];
+          lg.innerHTML=logs.length?logs.map(function(l){
+            return '<div style="display:flex;gap:8px;align-items:center;padding:5px 2px;border-bottom:1px solid var(--border);">'
+              +'<span style="font-weight:700;color:'+(l.status==='approved'?'#16a34a':'#dc2626')+';white-space:nowrap;">'+(l.status==='approved'?(l.refund_type==='partial90'?'90%환불':'전액환불'):'환불거절')+'</span>'
+              +'<span style="color:var(--txt-lo);white-space:nowrap;">주문#'+l.order_id+' · '+Number(l.amount||0).toLocaleString()+'원'+(l.coupon_restored?' · 할인권원복':'')+'</span>'
+              +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt-mid);">'+esc(l.reason||'')+'</span>'
+              +'<span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">'+String(l.created_at||'').slice(5,16).replace('T',' ')+'</span></div>';
+          }).join(''):'<div style="color:var(--txt-lo);">환불 처리 내역이 없습니다.</div>';
+        }
+      }catch(e){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; }
+    }
+    async function refundDo(orderId, type){
+      var label=type==='partial90'?'90% 환불':'전액 환불';
+      var reason=prompt(label+' 사유(선택, 기록됨):','');
+      if(reason===null) return;
+      if(!confirm(label+'을 승인할까요?\n'+(type!=='partial90'?'· 사용한 할인권이 있으면 원복됩니다.\n':'')+'· 실제 입금 반환은 운영자가 수기로 처리하세요.')) return;
+      try{
+        var r=await fetch('/api/admin/refunds',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({order_id:orderId,action:'approve',refund_type:type,reason:reason||''})});
+        var d=await r.json(); if(!r.ok||!d.ok) throw new Error((d&&d.error)||'실패');
+        alert('✅ 환불 처리: '+Number(d.amount||0).toLocaleString()+'원'+(d.coupon_restored?' · 할인권 원복':''));
+        loadRefunds();
+      }catch(e){ alert('환불 실패: '+e.message); }
+    }
+    async function refundReject(orderId){
+      var reason=prompt('환불 거절 사유(기록됨):','');
+      if(reason===null) return;
+      try{
+        var r=await fetch('/api/admin/refunds',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({order_id:orderId,action:'reject',reason:reason||''})});
+        var d=await r.json(); if(!r.ok||!d.ok) throw new Error((d&&d.error)||'실패');
+        loadRefunds();
+      }catch(e){ alert('처리 실패: '+e.message); }
+    }
+    function exportOrders(){
+      if(!_refundOrders.length){ alert('내보낼 주문이 없습니다.'); return; }
+      var head=['주문ID','공고타입','공고ID','제목','신청자','연락처','등록가','할인율','최종가','상태','동의_환불제한','동의_포인트','동의_모집실패','주문일시'].join('\t');
+      var rows=_refundOrders.map(function(o){ return [o.id,o.ad_type,o.ad_id||'',String(o.title||'').replace(/\t/g,' '),String(o.submitter_name||o.member_nick||'').replace(/\t/g,' '),String(o.submitter_contact||'').replace(/\t/g,' '),o.base_price||0,o.coupon_rate||0,o.final_price||0,o.status,o.consent_refund?'Y':'N',o.consent_points?'Y':'N',o.consent_fail?'Y':'N',o.created_at||''].join('\t'); });
+      var tsv=head+'\n'+rows.join('\n');
+      if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tsv).then(function(){ alert('📋 '+_refundOrders.length+'건의 주문·동의 기록을 복사했습니다.\n엑셀/시트에 붙여넣으세요.'); },function(){ _exportFallback(tsv); }); }
+      else _exportFallback(tsv);
+    }
+    function _exportFallback(tsv){ var ta=document.createElement('textarea'); ta.value=tsv; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); alert('📋 복사되었습니다.');}catch(_){ alert('복사 실패'); console.log(tsv); } document.body.removeChild(ta); }
+
     async function loadLectures() {
       const el = document.getElementById('lec-list');
       if (!el) return;
@@ -6970,6 +7079,8 @@
         const rcs = rcRes.ok ? await rcRes.json() : [];
         const lcs = lcRes.ok ? await lcRes.json() : [];
         const mts = mtRes.ok ? await mtRes.json() : [];
+        // v2.67.0: 환불정책 동의 기록 맵(공고타입_공고id → 동의 3종)
+        try{ const _or=await fetch('/api/admin/refunds',{headers:adminHeaders()}); const _od=await _or.json(); window._consentMap={}; (_od.orders||[]).forEach(function(o){ if(o.ad_id) window._consentMap[o.ad_type+'_'+o.ad_id]={r:o.consent_refund,p:o.consent_points,f:o.consent_fail}; }); }catch(_){ if(!window._consentMap) window._consentMap={}; }
         renderPendingList(rcs, lcs, mts);
         const total = (rcs.length || 0) + (lcs.length || 0) + (mts.length || 0);
         updatePendingBadge(total);
@@ -7004,6 +7115,10 @@
           : '';
         const tableName = type === 'recruit' ? 'recruitments' : (type === 'meetup' ? 'meetings' : 'lectures');
         const tag = type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
+        const cm = (window._consentMap || {})[type + '_' + it.id];
+        const consentLine = cm
+          ? `<div style="font-size:11px;font-weight:700;margin-top:4px;color:${(cm.r&&cm.p&&cm.f)?'#16a34a':'#dc2626'}">📜 환불정책 동의: 공개후환불제한 ${cm.r?'✓':'✗'} · 포인트/할인권 ${cm.p?'✓':'✗'} · 모집실패 ${cm.f?'✓':'✗'}${(cm.r&&cm.p&&cm.f)?'':' ⚠ 미동의 항목'}</div>`
+          : '';
         return `
           <div class="pending-card ${type}">
             <span class="pending-card-tag">${tag}</span>
@@ -7012,6 +7127,7 @@
               🕒 ${dateStr} · 신청자: <strong>${esc(it.submitter_name || '-')}</strong>
               · 연락처: ${esc(it.submitter_contact || '-')}
             </div>
+            ${consentLine}
             ${it.description ? `<div class="pending-card-desc">${esc(it.description)}</div>` : ''}
             ${fileBlock}
             <div class="pending-card-actions">
