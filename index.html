@@ -8645,6 +8645,43 @@
     </div>
   </div>
 
+  <!-- v2.77.0: 환불 정책 전문 모달 (등록 모달 위 레이어 · 스크롤) -->
+  <div class="sm-overlay" id="refund-policy-modal" style="z-index:100006;" onclick="if(event.target===this)smCloseRefundPolicy()">
+    <div class="sm-modal" style="max-width:560px;">
+      <div class="sm-head">
+        <h3 class="sm-title">📜 공고 등록 환불·취소 정책</h3>
+        <button class="sm-close" type="button" onclick="smCloseRefundPolicy()" aria-label="닫기">✕</button>
+      </div>
+      <div class="sm-body" style="font-size:13px;line-height:1.6;color:var(--txt-hi);">
+        <p style="margin:0 0 14px;padding:10px 12px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.35);border-radius:9px;font-weight:600;">공고 등록비는 <b>「게시(노출) 시작」 시점에 제공이 개시되는 광고 게재 용역</b>입니다.</p>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:#16a34a;margin-bottom:5px;">① 게시 전 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 결제확인 ~ 승인·노출 시작 전</span></div>
+          <ul style="margin:0;padding-left:18px;"><li><b>전액 환불</b></li><li>사용한 할인권 1회 복원, 포인트 결제분은 포인트로 환원</li></ul>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:#dc2626;margin-bottom:5px;">② 게시 후 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 승인·노출 개시 이후</span></div>
+          <ul style="margin:0;padding-left:18px;"><li><b>환불 불가</b></li><li>게재 기간·잔여일수·조회수·지원/참여/문의 실적과 무관</li><li>상단노출 등 부가옵션도 적용 시작 후 환불 불가</li></ul>
+        </div>
+        <div style="margin-bottom:14px;">
+          <div style="font-weight:800;color:#1a3de8;margin-bottom:5px;">③ 운영자 귀책 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 시스템 오류 미게재·정당한 사유 없는 삭제 등</span></div>
+          <ul style="margin:0;padding-left:18px;"><li>전액 환불 또는 동등 재게재</li></ul>
+        </div>
+        <div style="border-top:1px solid var(--border,rgba(0,0,0,0.08));padding-top:12px;">
+          <div style="font-weight:800;margin-bottom:6px;">공통</div>
+          <ul style="margin:0;padding-left:18px;color:var(--txt-mid);font-size:12.5px;line-height:1.65;">
+            <li>환불 신청은 결제일로부터 <b>7일 이내, 「게시 전」</b>에 한해 접수</li>
+            <li>포인트·할인권: 환불·현금화·양도 불가, 미사용분 취소만 가능, 발급 14일 경과 시 자동 소멸</li>
+            <li>참가자 모집 실패·지원율/참여율 저조 등 <b>성과 미달은 환불 사유가 아님</b></li>
+            <li>허위·중복·타인명의 공고, 다계정·자동화·반복 등록취소·시스템 악용 시 환불 없이 게시 중단·이용 제한</li>
+            <li>환불 확정 시 실제 입금 반환은 영업일 3~5일 내 결제 경로로 처리</li>
+            <li>관계 법령에 강행규정이 있는 경우 그 범위에서 우선 적용</li>
+          </ul>
+        </div>
+        <button type="button" onclick="smCloseRefundPolicy()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:10px;background:var(--txt-hi);color:var(--bg-card,#fff);font-weight:800;font-size:14px;cursor:pointer;">확인</button>
+      </div>
+    </div>
+  </div>
+
   <!-- v2.1.7: 렌트카 견적 모달 (다단계) -->
   <div class="sm-overlay" id="rental-inquiry-modal" onclick="if(event.target===this)closeRentalInquiry()">
     <div class="sm-modal rq-modal">
@@ -12589,8 +12626,9 @@
     function smResetConsent(){ ['sm-consent-1','sm-consent-2','sm-consent-3'].forEach(function(id){ var c=document.getElementById(id); if(c) c.checked=false; }); smUpdateConsent(); }
     function smUpdateConsent(){ var b=document.getElementById('sm-submit-btn'); if(!b) return; var c1=document.getElementById('sm-consent-1'),c2=document.getElementById('sm-consent-2'),c3=document.getElementById('sm-consent-3'); b.disabled=!(c1&&c1.checked&&c2&&c2.checked&&c3&&c3.checked); }
     window.smUpdateConsent=smUpdateConsent;
-    function smShowRefundPolicy(){ alert('📜 공고 등록 환불·취소 정책\n\n공고 등록비는 「게시(노출) 시작」 시점에 제공이 개시되는 광고 게재 용역입니다.\n\n① 게시 전 (결제확인 ~ 관리자 승인·노출 시작 전)\n  · 전액 환불\n  · 사용한 할인권 1회 복원, 포인트 결제분은 포인트로 환원\n\n② 게시 후 (관리자 승인·노출 시작 이후)\n  · 환불 불가\n  · 게재 기간·잔여일수·조회수·지원/참여/문의 실적과 무관\n  · 상단노출 등 부가옵션도 적용 시작 후 환불 불가\n\n③ 운영자 귀책 (시스템 오류 미게재·정당한 사유 없는 삭제 등)\n  · 전액 환불 또는 동등 재게재\n\n[공통]\n· 환불 신청은 결제일로부터 7일 이내, 「게시 전」에 한해 접수\n· 포인트·할인권: 환불·현금화·양도 불가, 미사용분 취소만 가능, 발급 14일 경과 시 자동 소멸\n· 참가자 모집 실패·지원율/참여율 저조 등 성과 미달은 환불 사유가 아님\n· 허위·중복·타인명의 공고, 다계정·자동화·반복 등록취소·시스템 악용 시 환불 없이 게시 중단·이용 제한\n· 환불 확정 시 실제 입금 반환은 영업일 3~5일 내 결제 경로로 처리\n· 관계 법령에 강행규정이 있는 경우 그 범위에서 우선 적용됩니다.\n\n본 정책에 동의하고 결제하면 위 기준이 적용됩니다.'); }
-    window.smShowRefundPolicy=smShowRefundPolicy;
+    function smShowRefundPolicy(){ var m=document.getElementById('refund-policy-modal'); if(m){ m.classList.add('open'); } else { alert('환불 정책을 불러올 수 없습니다.'); } }
+    function smCloseRefundPolicy(){ var m=document.getElementById('refund-policy-modal'); if(m) m.classList.remove('open'); }
+    window.smShowRefundPolicy=smShowRefundPolicy; window.smCloseRefundPolicy=smCloseRefundPolicy;
     function copyPayAccount(btn) {
       const acc = document.getElementById('sm-pay-account').textContent.trim();
       const fallback = () => {
