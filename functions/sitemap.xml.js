@@ -99,18 +99,9 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/og/lecture/${r.id}`, fmtDate(r.updated_at || r.created_at), 'weekly', 0.9)
   );
 
-  // 모임공고 (v2.57.0)
-  let meetings = [];
-  try {
-    const rs = await env.DB.prepare(
-      `SELECT id, created_at, updated_at FROM ic_meetings
-       WHERE status = 'approved' ORDER BY created_at DESC LIMIT 1000`
-    ).all();
-    meetings = rs.results || [];
-  } catch (_) {}
-  const meetingUrls = meetings.map(r =>
-    urlEntry(`${BASE}/og/meeting/${r.id}`, fmtDate(r.updated_at || r.created_at), 'weekly', 0.9)
-  );
+  // v2.70.0: 모임공고는 '참여 게이트'(상세 비공개·noindex) → 개별 og 페이지는 sitemap 제외.
+  //   디렉터리 /meeting(정적, 제목 목록)만 색인. 모임 상세는 로그인+참여 후 SPA에서.
+  const meetingUrls = [];
 
   // v2.38.0: 카드뉴스(og/news) 색인 제거 — 카드뉴스는 이미지형이라 크롤 가능한 본문 텍스트가
   //          제목+"보러가기" 링크뿐(≈157자) → thin/low-value 콘텐츠로 사이트 품질을 끌어내려

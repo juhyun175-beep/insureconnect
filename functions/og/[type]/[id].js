@@ -167,30 +167,18 @@ export const onRequestGet = async ({ params, env, request }) => {
         };
       }
     } else if (type === 'meetup') {
-      // v2.57.0: 모임공고 공유 미리보기 — 오프라인 모임·세미나·스터디 (Event)
+      // v2.70.0: 모임은 '참여 게이트' — 상세(장소·일시·신청폼·설명)는 로그인+참여해야 공개.
+      //   공유 미리보기·검색에는 제목·주최만 노출(noindex). 실제 상세는 SPA에서 참여 후.
       const r = await env.DB.prepare(
-        `SELECT title, host, description, location, event_at, file_url, file_type, created_at FROM ic_meetings WHERE id = ? AND status = 'approved'`
+        `SELECT title, host FROM ic_meetings WHERE id = ? AND status = 'approved'`
       ).bind(id).first();
       if (r) {
         title = r.title || title;
-        desc = r.location ? `[${r.location}] ${(r.description || '').slice(0, 80)}` : (r.description || '').slice(0, 100);
-        image = (r.file_type === 'image' && r.file_url) ? absUrl(r.file_url) : dynamicOgImage('meetup', id);
+        desc = (r.host ? `주최: ${r.host} · ` : '') + '로그인 후 참여하면 모임 장소·일시·신청 방법을 확인할 수 있어요.';
+        image = dynamicOgImage('meetup', id);
         target = `${SITE}/?meeting=${encodeURIComponent(id)}`;
-        indexable = true;
-        const fullDesc = (r.description || '').replace(/\s+/g, ' ').trim();
-        bodyContent = `<h1>${esc(r.title)}</h1>${r.host ? `<p><strong>주최: ${esc(r.host)}</strong></p>` : ''}${r.location ? `<p>📍 장소: ${esc(r.location)}</p>` : ''}${r.event_at ? `<p>🗓 일시: ${esc(r.event_at)}</p>` : ''}<div style="white-space:pre-line">${esc(fullDesc)}</div>`;
-        // Event schema for Google's Events
-        jsonLd = {
-          '@context': 'https://schema.org',
-          '@type': 'Event',
-          name: r.title,
-          description: fullDesc || r.title,
-          eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
-          ...(r.location ? { location: { '@type': 'Place', name: r.location, address: { '@type': 'PostalAddress', addressCountry: 'KR' } } } : {}),
-          organizer: { '@type': 'Organization', name: r.host || 'InsureConnect', url: SITE },
-          image: image,
-          inLanguage: 'ko-KR'
-        };
+        indexable = false; // 참여 게이트 — 상세 비공개라 색인하지 않음
+        bodyContent = `<h1>${esc(r.title)}</h1>${r.host ? `<p><strong>주최: ${esc(r.host)}</strong></p>` : ''}<p>🔒 이 모임의 <strong>장소·일시·신청 방법</strong>은 로그인 후 「참여하기」를 누르면 확인할 수 있습니다.</p>`;
       }
     } else if (type === 'knowledge') {
       const r = await env.DB.prepare(

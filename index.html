@@ -12220,64 +12220,55 @@
     }
     window.loadMeetupPage = loadMeetupPage;
 
+    /* v2.70.0: 모임 상세 = 참여 게이트. 목록엔 제목·주최만, 상세(장소·일시·신청·명단)는 로그인+참여해야 공개(서버 차단). */
+    var _mtViewerId = null;
     function openMeetupViewer(idx) {
       const it = meetupState.items[idx];
       if (!it) return;
-      try { if (it.id) trackClick(`meetup_${it.id}`, 'meetup_view'); } catch (_) {}
       const modal = document.getElementById('rc-viewer');
-      if (!modal) { alert(it.title + '\n' + (it.description || '')); return; }
-      const d = new Date(it.created_at);
-      const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
-      const esc = s => (s || '').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-      const fileBlock = it.file_url
-        ? `<div class="rc-viewer-file">
-             <a href="${it.file_url}" target="_blank" rel="noopener noreferrer" class="rc-viewer-file-link">
-               ${it.file_type === 'pdf' ? '📄 첨부 PDF 열기' : '🖼️ 첨부 이미지 열기'}
-             </a>
-             ${it.file_type === 'image' ? `<img src="${it.file_url}" alt="모임 이미지" class="rc-viewer-img">` : ''}
-           </div>`
-        : '';
-      const metaBlock = (it.location || it.event_at)
-        ? `<div class="rc-viewer-desc" style="background:rgba(13,148,136,0.06);border-left:3px solid #0d9488">${it.location ? '📍 장소: '+esc(it.location)+(it.event_at?'<br>':'') : ''}${it.event_at ? '🗓 일시: '+esc(it.event_at) : ''}</div>`
-        : '';
-      const descBlock = it.description
-        ? `<div class="rc-viewer-desc">${esc(it.description).replace(/\n/g,'<br>')}</div>`
-        : (it.file_url ? '' : '<div class="rc-viewer-empty">상세 내용이 등록되지 않았습니다.</div>');
-      const formBlock = it.form_url
-        ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('meetup_${it.id}','meetup_form')}catch(_){}">📝 참여 신청하기 →</a>`
-        : '';
-      document.getElementById('rc-viewer-body').innerHTML = `
-        <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
-        <div class="rc-viewer-head">
-          ${it.host ? `<div class="rc-viewer-company">🤝 ${esc(it.host)}</div>` : ''}
-          <div class="rc-viewer-title">${esc(it.title)}</div>
-          <div class="rc-viewer-date">${dateStr}</div>
-        </div>
-        ${metaBlock}${descBlock}${formBlock}${fileBlock}
-        <div id="meetup-participate" style="margin-top:14px;"></div>
-        <button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM('meetup', ${it.id})">💬 주최자에게 1:1 문의하기</button>
-      `;
+      if (!modal) { alert(it.title || '모임'); return; }
+      const esc = s => String(s==null?'':s).replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      _mtViewerId = it.id;
+      document.getElementById('rc-viewer-body').innerHTML =
+        '<button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>'
+        + '<div class="rc-viewer-head">'+(it.host?'<div class="rc-viewer-company">🤝 '+esc(it.host)+'</div>':'')+'<div class="rc-viewer-title">'+esc(it.title||'모임')+'</div></div>'
+        + '<div style="padding:24px;text-align:center;color:var(--txt-lo,#94a3b8);">불러오는 중…</div>';
       modal.classList.add('open');
       document.body.style.overflow = 'hidden';
-      if (typeof mtpLoad === 'function') mtpLoad(it.id); // v2.68.0: 참여 현황
+      _mtRenderViewer(it.id);
     }
     window.openMeetupViewer = openMeetupViewer;
 
-    /* v2.68.0: 모임 참여(RSVP) — 누가/몇 명 참여했는지 + 참여하기/취소 */
-    async function mtpLoad(meetingId){
-      var box=document.getElementById('meetup-participate'); if(!box) return;
-      box.innerHTML='<div style="font-size:12px;color:var(--txt-lo,#94a3b8);">참여 현황 불러오는 중…</div>';
-      try{
-        var r=await fetch('/api/meeting-participants?meeting_id='+meetingId,{credentials:'same-origin'});
-        var d=await r.json(); if(!d||!d.ok){ box.innerHTML=''; return; }
-        var names=(d.participants||[]).map(function(p){ return _chatEsc(p.nickname); });
-        var shown=names.slice(0,15).join(', ')+(names.length>15?(' 외 '+(names.length-15)+'명'):'');
-        box.innerHTML='<div style="padding:13px 15px;border:1px solid rgba(13,148,136,0.3);border-radius:12px;background:rgba(13,148,136,0.07);">'
-          +'<div style="font-size:13.5px;font-weight:800;color:#0d9488;margin-bottom:6px;">👥 참여 <span style="font-size:17px;">'+d.count+'</span>명</div>'
-          +(names.length?'<div style="font-size:12px;color:var(--txt-mid,#475569);line-height:1.6;margin-bottom:10px;">'+shown+'</div>':'<div style="font-size:12px;color:var(--txt-lo,#94a3b8);margin-bottom:10px;">아직 참여자가 없어요. 첫 참여자가 되어보세요!</div>')
-          +'<button type="button" onclick="mtpToggle('+meetingId+','+(d.mine?'false':'true')+')" style="width:100%;padding:11px;border:none;border-radius:10px;font-weight:800;font-size:13.5px;cursor:pointer;font-family:inherit;'+(d.mine?'background:rgba(13,148,136,0.16);color:#0d9488;':'background:#0d9488;color:#fff;')+'">'+(d.mine?'✓ 참여 취소':'🙋 참여하기')+'</button>'
-          +'</div>';
-      }catch(_){ box.innerHTML=''; }
+    async function _mtRenderViewer(id){
+      try { if (id) trackClick('meetup_'+id, 'meetup_view'); } catch(_){}
+      var body=document.getElementById('rc-viewer-body'); if(!body) return;
+      var esc=function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); };
+      var d;
+      try{ var r=await fetch('/api/meetings/'+id,{credentials:'same-origin'}); d=await r.json(); }catch(_){ d=null; }
+      if(!d||!d.ok){ body.innerHTML='<button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button><div style="padding:24px;text-align:center;color:var(--txt-lo)">불러올 수 없습니다.</div>'; return; }
+      var head='<button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>'
+        +'<div class="rc-viewer-head">'+(d.host?'<div class="rc-viewer-company">🤝 '+esc(d.host)+'</div>':'')+'<div class="rc-viewer-title">'+esc(d.title)+'</div></div>';
+      var countLine='<div style="font-size:13px;font-weight:800;color:#0d9488;margin-bottom:8px;">👥 참여 '+(d.participant_count||0)+'명</div>';
+      var partBtn='<button type="button" onclick="mtpToggle('+id+','+(d.mine?'false':'true')+')" style="width:100%;padding:12px;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;'+(d.mine?'background:rgba(13,148,136,0.16);color:#0d9488;':'background:#0d9488;color:#fff;')+'">'+(d.mine?'✓ 참여 취소':'🙋 로그인하고 참여하기')+'</button>';
+      var dmBtn='<button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM(\'meetup\', '+id+')">💬 주최자에게 1:1 문의하기</button>';
+      if(d.locked){
+        body.innerHTML=head
+          +'<div style="margin-top:14px;padding:20px 16px;border:1px dashed rgba(13,148,136,0.45);border-radius:12px;background:rgba(13,148,136,0.06);text-align:center;">'
+          +'<div style="font-size:32px;margin-bottom:4px;">🔒</div>'+countLine
+          +'<div style="font-size:12.5px;color:var(--txt-mid,#475569);line-height:1.65;margin:6px 0 14px;">이 모임의 <b>장소·일시·신청 방법·참여자 명단</b>은<br><b>로그인하고 참여</b>하면 확인할 수 있어요.</div>'
+          +partBtn+'</div>'+dmBtn;
+        return;
+      }
+      var names=(d.participants||[]).map(function(n){ return esc(n); });
+      var shown=names.slice(0,20).join(', ')+(names.length>20?(' 외 '+(names.length-20)+'명'):'');
+      var metaBlock=(d.location||d.event_at)?'<div class="rc-viewer-desc" style="background:rgba(13,148,136,0.06);border-left:3px solid #0d9488">'+(d.location?'📍 장소: '+esc(d.location)+(d.event_at?'<br>':''):'')+(d.event_at?'🗓 일시: '+esc(d.event_at):'')+'</div>':'';
+      var descBlock=d.description?'<div class="rc-viewer-desc">'+esc(d.description).replace(/\n/g,'<br>')+'</div>':'';
+      var formBlock=d.form_url?'<a class="rc-viewer-form" href="'+esc(d.form_url)+'" target="_blank" rel="noopener noreferrer" onclick="try{trackClick(\'meetup_'+id+'\',\'meetup_form\')}catch(_){}">📝 참여 신청하기 →</a>':'';
+      var fileBlock=d.file_url?'<div class="rc-viewer-file"><a href="'+esc(d.file_url)+'" target="_blank" rel="noopener noreferrer" class="rc-viewer-file-link">'+(d.file_type==='pdf'?'📄 첨부 PDF 열기':'🖼️ 첨부 이미지 열기')+'</a>'+(d.file_type==='image'?'<img src="'+esc(d.file_url)+'" alt="모임 이미지" class="rc-viewer-img">':'')+'</div>':'';
+      body.innerHTML=head
+        +'<div style="margin:12px 0;padding:12px 14px;border:1px solid rgba(13,148,136,0.3);border-radius:12px;background:rgba(13,148,136,0.07);">'+countLine
+        +(names.length?'<div style="font-size:12px;color:var(--txt-mid,#475569);line-height:1.6;margin-bottom:10px;">'+shown+'</div>':'')+partBtn+'</div>'
+        +metaBlock+descBlock+formBlock+fileBlock+dmBtn;
     }
     async function mtpToggle(meetingId, join){
       try{
@@ -12286,12 +12277,12 @@
           : await fetch('/api/meeting-participants?meeting_id='+meetingId,{method:'DELETE',credentials:'same-origin'});
         if(r.status===401){ if(confirm('로그인 후 참여할 수 있어요. 카카오로 로그인할까요?')) location.href='/api/auth/kakao/login'; return; }
         var d=await r.json(); if(!r.ok||!d.ok){ alert((d&&d.error)||'처리 실패'); return; }
-        mtpLoad(meetingId);
+        if(_mtViewerId===meetingId && typeof _mtRenderViewer==='function') _mtRenderViewer(meetingId); // 잠금 해제/재잠금
         if(typeof loadHomeMeetups==='function') loadHomeMeetups();
         var pm=document.getElementById('page-meetup'); if(pm && pm.style.display!=='none' && typeof loadMeetupPage==='function') loadMeetupPage();
       }catch(e){ alert('오류: '+e.message); }
     }
-    window.mtpLoad=mtpLoad; window.mtpToggle=mtpToggle;
+    window._mtRenderViewer=_mtRenderViewer; window.mtpToggle=mtpToggle;
 
     async function shareMeetup(meetupId, evt) {
       if (evt) { evt.stopPropagation(); evt.preventDefault(); }

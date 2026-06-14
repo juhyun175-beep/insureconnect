@@ -28,6 +28,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   if (!meetingId) return error('meeting_id required');
   const user = await getUserFromRequest(env, request);
   const r = await countAndList(env, meetingId, user ? user.id : null);
+  // v2.70.0: 명단은 참여자만(참여 게이트) — 비참여자는 count만, 명단 비공개.
+  if (!r.mine) r.participants = [];
   return json({ ok: true, ...r });
 });
 

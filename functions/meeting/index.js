@@ -22,25 +22,24 @@ export const onRequestGet = async ({ env }) => {
   let items = [];
   try {
     const rs = await env.DB.prepare(
-      `SELECT id, title, host, description, location, event_at, created_at
+      `SELECT id, title, host, created_at
        FROM ic_meetings WHERE status = 'approved' ORDER BY created_at DESC LIMIT 100`
     ).all();
     items = rs.results || [];
   } catch (_) {}
 
+  // v2.70.0: 모임은 참여 게이트 — 목록엔 제목·주최만(상세는 SPA에서 로그인+참여 후)
   const cards = items.map(it => {
     const isNew = daysAgo(it.created_at) <= 7;
-    const excerpt = (it.description || '').replace(/\s+/g, ' ').trim().slice(0, 80);
     return `
-    <a class="lec" href="/og/meeting/${esc(it.id)}">
+    <a class="lec" href="/?meeting=${esc(it.id)}">
       <div class="lec-top">
         ${it.host ? `<span class="lec-by">주최 ${esc(it.host)}</span>` : '<span class="lec-by lec-by-na">모임</span>'}
         ${isNew ? '<span class="lec-new">NEW</span>' : ''}
       </div>
       <div class="lec-title">${esc(it.title)}</div>
-      <div class="lec-meta">${it.location ? `📍 ${esc(it.location)}` : ''}${it.location && it.event_at ? ' · ' : ''}${it.event_at ? `🗓 ${esc(it.event_at)}` : ''}</div>
-      ${excerpt ? `<div class="lec-desc">${esc(excerpt)}${(it.description || '').length > 80 ? '…' : ''}</div>` : ''}
-      <span class="lec-cta">모임 상세 →</span>
+      <div class="lec-meta">🔒 로그인·참여 시 장소·일시·신청 방법 공개</div>
+      <span class="lec-cta">참여하고 상세 보기 →</span>
     </a>`;
   }).join('');
 

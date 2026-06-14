@@ -30,22 +30,25 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 200);
   const statusParam = url.searchParams.get('status') || 'approved';
 
-  if (statusParam !== 'approved') {
-    if (!verifyAdmin(request, env)) return unauthorized();
-  }
+  const isAdmin = verifyAdmin(request, env);
+  if (statusParam !== 'approved' && !isAdmin) return unauthorized();
 
   const where = statusParam === 'all' ? '1=1' : 'status = ?';
   const params = statusParam === 'all' ? [] : [statusParam];
-  const rs = await env.DB.prepare(
-    `SELECT id, title, host, description, location, event_at, file_url, file_type, form_url, created_at,
-            status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
-            CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured,
-            (SELECT COUNT(*) FROM ic_meeting_participants p WHERE p.meeting_id = ic_meetings.id) AS participant_count
-     FROM ic_meetings WHERE ${where}
-     ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
-              (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN featured_until END) DESC,
-              created_at DESC LIMIT ?`
-  ).bind(...params, limit).all();
+  const featuredExpr = `CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured`;
+  const partCount = `(SELECT COUNT(*) FROM ic_meeting_participants p WHERE p.meeting_id = ic_meetings.id) AS participant_count`;
+  const orderTail = `ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
+                              (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN featured_until END) DESC,
+                              created_at DESC LIMIT ?`;
+  // v2.70.0: 공개 목록은 제목·주최·참여수만(상세는 참여 게이트). 관리자만 전체 필드.
+  const sql = isAdmin
+    ? `SELECT id, title, host, description, location, event_at, file_url, file_type, form_url, created_at,
+              status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
+              ${featuredExpr}, ${partCount}
+       FROM ic_meetings WHERE ${where} ${orderTail}`
+    : `SELECT id, title, host, created_at, status, featured_until, ${featuredExpr}, ${partCount}
+       FROM ic_meetings WHERE ${where} ${orderTail}`;
+  const rs = await env.DB.prepare(sql).bind(...params, limit).all();
   return json(rs.results || []);
 });
 
