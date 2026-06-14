@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.75.0] - 2026-06-14
+### Performance (Tier 2 — 안전 미니파이: 배포 산출물 경량화)
+- 배포 시 `index.html`·`admin.html`를 **html-minifier-terser**(npx, 로컬 의존성 없음)로 안전 미니파이. **소스는 불변**(배포 직후 원본 복원 → 커밋엔 항상 읽기 좋은 원본). 설정 `scripts/htmlmin.json`: `compress`·`mangle` **OFF**(전역명·`onclick` 핸들러 보존), `caseSensitive`(인라인 SVG `viewBox` 보존), `conservativeCollapse`(인라인 간격 보존). 공백·주석·CSS만 정리.
+- 미설치/파싱 실패 시 **graceful skip** → 원본 그대로 배포(절대 깨지지 않음).
+- 결과: index **940KB→682KB(−27%)**, gzip 전송 **207KB→156KB(−25%, 약 50KB↓/미캐시 로드)** · admin **501KB→381KB(−24%)**. 첫 로딩 파싱·전송 경감.
+### Verified
+- 미니파이 산출물 인라인 33블록 0오류 · 핵심 마커(`viewBox`·`onclick`·`loadHomeFeed`·`applyTheme`) 보존 · 소스 복원 확인 · 보안 HIGH 0 · release.mjs
+
 ## [2.74.0] - 2026-06-14
 ### Performance (Tier 1 — 런타임 경량화 · 재방문 캐시)
 - **루트(/) 캐시 헤더 버그 수정**: `_headers`의 `/index.html` 규칙이 실제 진입 URL인 `/`에는 적용되지 않아 홈이 매번 `max-age=0`(재검증 왕복)로 떨어지던 문제 → `/`에 `max-age=60, stale-while-revalidate=600` 명시 규칙 추가. 재방문/새로고침 체감속도↑.

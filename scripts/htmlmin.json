@@ -1,0 +1,8 @@
+{
+  "caseSensitive": true,
+  "collapseWhitespace": true,
+  "conservativeCollapse": true,
+  "removeComments": true,
+  "minifyCSS": true,
+  "minifyJS": { "compress": false, "mangle": false }
+}

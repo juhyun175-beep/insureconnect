@@ -25,6 +25,27 @@ const log = (...a) => console.log('[release]', ...a);
 const run = (cmd) => execSync(cmd, { encoding: 'utf8', stdio: ['inherit', 'pipe', 'pipe'] });
 const runSafe = (cmd) => { try { return run(cmd); } catch (e) { return (e.stdout || '') + (e.stderr || ''); } };
 
+// v2.75.0: 배포 산출물만 안전 미니파이(소스 불변). html-minifier-terser(npx, 로컬 node_modules 없음).
+//   설정 scripts/htmlmin.json — compress/mangle OFF(전역명·onclick 보존), caseSensitive(인라인 SVG viewBox 보존).
+//   실패/미설치 시 graceful skip → 원본 그대로 배포. 배포 직후 원본 복원(아래 deploy 단계).
+const MINIFY_CFG = 'scripts/htmlmin.json';
+function minifyInPlace(file) {
+  const tmp = file + '.tmpmin';
+  try {
+    run(`npx --yes html-minifier-terser@7.2.0 --config-file ${MINIFY_CFG} "${file}" -o "${tmp}"`);
+    const min = readFileSync(tmp, 'utf8');
+    rmSync(tmp, { force: true });
+    const orig = readFileSync(file, 'utf8');
+    if (!min || min.length < 1000 || min.length >= orig.length) return null; // sanity / no-gain → skip
+    writeFileSync(file, min);
+    return orig; // caller restores this after deploy
+  } catch (e) {
+    try { rmSync(tmp, { force: true }); } catch (_) {}
+    log(`minify skip ${file}: ${String((e && e.message) || e).slice(0, 100)}`);
+    return null;
+  }
+}
+
 // 1) 버전 (CHANGELOG 최상단 [x.y.z])
 let version = '0.0.0';
 try {
@@ -43,9 +64,21 @@ if (high !== 0) { console.error('[release] ABORT: security HIGH != 0 (or scan un
 
 if (DRY) { log('--dry: scan passed, version', version, '— skipping deploy/commit.'); process.exit(0); }
 
+// 2.5) 안전 미니파이 — 배포 산출물만(소스 불변, 배포 직후 복원). v2.75.0
+log('minify (deploy artifact only)…');
+const MIN_FILES = ['index.html', 'admin.html'];
+const restoreMap = {};
+for (const f of MIN_FILES) {
+  const orig = minifyInPlace(f);
+  if (orig != null) { restoreMap[f] = orig; log(`  ${f}: minified for deploy`); }
+}
+
 // 3) 배포 (--branch=main, 프로덕션 도메인 갱신)
 log('deploy --branch=main…');
 const dep = runSafe(`npx wrangler pages deploy . --project-name=${PROJECT} --branch=main --commit-message="release v${version}" --commit-dirty=true`);
+// 업로드 완료 직후 읽기 좋은 원본 복원(어떤 process.exit보다 먼저) — 커밋·작업트리에는 항상 원본이 남도록
+for (const f of Object.keys(restoreMap)) { try { writeFileSync(f, restoreMap[f]); } catch (_) {} }
+if (Object.keys(restoreMap).length) log('restored readable source');
 const url = (dep.match(/https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.pages\.dev/i) || [])[0];
 if (!url) { console.error('[release] ABORT: deploy URL not found.\n', dep.slice(-600)); process.exit(1); }
 log('deployed', url);
