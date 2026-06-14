@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.65.0] - 2026-06-13
+### Added (관리자 회원관리 업그레이드 — 차단·삭제·실시간 접속)
+- 관리자 회원 목록에 **차단/차단해제**(`ic_banned_members` — 즉시 로그아웃 + 게시판 작성 차단)·**계정 삭제**(세션·차단기록·회원행 제거, 글은 닉네임으로 보존)·**실시간 접속 표시**(🟢 접속중 · 현재 접속 N명, `last_seen` 5분 기준) 추가. 회원 탭 보는 동안 20초 자동 갱신. **관리자 계정은 차단·삭제 불가**(footgun 방지).
+- 신규 `POST /api/me/ping`(로그인 회원 `last_seen` 하트비트) + SPA가 로그인 시 90초마다 핑(비로그인은 1회 후 중단). `members` GET이 `banned`·`online`·`online_count` 반환, POST `action:ban/unban`, DELETE `?member_id=` 지원.
+### Verified
+- `node --check`(members·ping) OK · admin/index 인라인 0오류 · 차단/삭제/접속 배선 그렙 일치 · 관리자 보호 가드 · 보안 HIGH 0 · release.mjs
+
 ## [2.64.0] - 2026-06-13
 ### Changed (광고배너 완전 관리자화 + 홈 개편)
 - **하드코딩 광고배너(`/connect.webp`·naver 링크) 전면 제거** — 홈 배너·홈 클릭팝업·**SEO 전 페이지 광고팝업**이 모두 관리자 업로드(`/api/home-ad`)만 사용. 설정 전까지 광고 미표시, 관리자가 새 이미지를 올리면 **모든 위치(홈+SEO)에서 매번 교체**.

@@ -4244,8 +4244,8 @@
         <div class="roledist" id="mt-roles"></div>
         <div id="mt-chart" style="margin:14px 0 18px;"></div>
         <div id="mt-referrals" style="margin:0 0 18px;"></div>
-        <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;">회원 목록 · 등급 변경</div>
-        <table class="mlist"><thead><tr><th>순번</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th></tr></thead><tbody id="mt-members"><tr><td colspan="5">불러오는 중…</td></tr></tbody></table>
+        <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">회원 목록 · 등급/차단/삭제 <span id="mt-online" style="font-size:11.5px;font-weight:800;color:#22c55e;"></span></div>
+        <table class="mlist"><thead><tr><th>순번</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th><th>상태</th><th>관리</th></tr></thead><tbody id="mt-members"><tr><td colspan="7">불러오는 중…</td></tr></tbody></table>
         <div id="mt-pager" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;font-size:12.5px;color:var(--txt-mid,#9fb0c8);"></div>
       </div><!-- /#up-members -->
 
@@ -5366,7 +5366,17 @@
         const l = await lRes.json();
         renderMetrics(m);
         renderMemberList(l.members || [], l.total || 0, l.page || MEMBER_PAGE);
+        const onEl = document.getElementById('mt-online');
+        if (onEl) onEl.innerHTML = '🟢 현재 접속 ' + (l.online_count || 0) + '명 <span style="color:var(--txt-lo,#5b6b85);font-weight:600">(최근 5분)</span>';
         try { renderReferrals(await rRes.json()); } catch (_) {}
+        // v2.65.0: 회원 탭을 보고 있는 동안 20초마다 자동 갱신(실시간 접속 반영)
+        if (!window._membersPollStarted) {
+          window._membersPollStarted = true;
+          setInterval(function () {
+            const p = document.getElementById('up-members');
+            if (p && p.classList.contains('active') && document.visibilityState !== 'hidden') loadMembersDash();
+          }, 20000);
+        }
       } catch (e) {
         const el = document.getElementById('mt-cards');
         if (el) el.innerHTML = '<div class="mt-card"><div class="mt-lbl">불러오기 실패: ' + esc(e.message) + '</div></div>';
@@ -5445,7 +5455,7 @@
       page = Math.max(1, parseInt(page || 1, 10));
       const pager = document.getElementById('mt-pager');
       if (!members.length) {
-        tb.innerHTML = '<tr><td colspan="5">' + (page > 1 ? '이 페이지에는 회원이 없습니다.' : '아직 가입 회원이 없습니다.') + '</td></tr>';
+        tb.innerHTML = '<tr><td colspan="7">' + (page > 1 ? '이 페이지에는 회원이 없습니다.' : '아직 가입 회원이 없습니다.') + '</td></tr>';
         if (pager && page > 1) { pager.innerHTML = ''; gotoMemberPage(page - 1); }
         return;
       }
@@ -5457,10 +5467,25 @@
         const opts = ['member', 'certified', 'premium', 'admin'].map(function (r) {
           return '<option value="' + r + '"' + (u.role === r ? ' selected' : '') + '>' + ROLE_LABELS[r] + '</option>';
         }).join('');
-        return '<tr><td title="DB #' + u.id + '">' + seq + '</td><td>' + esc(u.nickname || '회원') + '</td>'
+        const statusCell = u.online
+          ? '<span style="color:#22c55e;font-weight:800"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#22c55e;margin-right:4px;box-shadow:0 0 5px #22c55e"></span>접속중</span>'
+          : '<span style="color:var(--txt-lo,#5b6b85)">오프라인</span>';
+        let actionCell;
+        if (u.role === 'admin') {
+          actionCell = '<span style="color:var(--txt-lo,#5b6b85);font-size:11px">관리자</span>';
+        } else {
+          const banBtn = u.banned
+            ? '<button type="button" onclick="setMemberBan(' + u.id + ',false)" style="background:rgba(34,197,94,0.14);color:#16a34a;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;">차단해제</button>'
+            : '<button type="button" onclick="setMemberBan(' + u.id + ',true)" style="background:rgba(245,158,11,0.16);color:#b45309;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;">차단</button>';
+          actionCell = banBtn + '<button type="button" onclick="deleteMember(' + u.id + ')" style="background:rgba(220,38,38,0.14);color:#dc2626;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;margin-left:5px;">삭제</button>';
+        }
+        return '<tr' + (u.banned ? ' style="opacity:0.5"' : '') + '><td title="DB #' + u.id + '">' + seq + '</td>'
+          + '<td>' + esc(u.nickname || '회원') + (u.banned ? ' <span style="font-size:9.5px;font-weight:800;color:#fff;background:#dc2626;padding:1px 5px;border-radius:4px;">차단</span>' : '') + '</td>'
           + '<td><select class="role-sel" onchange="changeMemberRole(' + u.id + ', this.value)">' + opts + '</select></td>'
           + '<td>' + esc(String(u.created_at || '').slice(0, 10)) + '</td>'
-          + '<td>' + esc(String(u.last_login || '').slice(0, 10)) + '</td></tr>';
+          + '<td>' + esc(String(u.last_login || '').slice(0, 10)) + '</td>'
+          + '<td>' + statusCell + '</td>'
+          + '<td>' + actionCell + '</td></tr>';
       }).join('');
       // 페이지네이션 컨트롤
       if (pager) {
@@ -5497,6 +5522,28 @@
           body: JSON.stringify({ member_id: memberId, role: role }),
         });
         if (!res.ok) { alert('등급 변경 실패'); return; }
+        loadMembersDash();
+      } catch (e) { alert('오류: ' + e.message); }
+    }
+    /* v2.65.0: 회원 차단/해제 · 삭제 */
+    async function setMemberBan(id, ban) {
+      if (!confirm(ban ? '이 회원을 차단할까요?\n· 즉시 로그아웃 + 게시판 작성 차단' : '이 회원의 차단을 해제할까요?')) return;
+      try {
+        const res = await fetch('/api/admin/members', {
+          method: 'POST', headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ member_id: id, action: ban ? 'ban' : 'unban' }),
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok || !d.ok) { alert((d && d.error) || '처리 실패'); return; }
+        loadMembersDash();
+      } catch (e) { alert('오류: ' + e.message); }
+    }
+    async function deleteMember(id) {
+      if (!confirm('이 회원 계정을 삭제할까요?\n· 세션·로그인 제거 (작성한 글은 닉네임으로 보존)\n· 되돌릴 수 없습니다')) return;
+      try {
+        const res = await fetch('/api/admin/members?member_id=' + id, { method: 'DELETE', headers: adminHeaders() });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok || !d.ok) { alert((d && d.error) || '삭제 실패'); return; }
         loadMembersDash();
       } catch (e) { alert('오류: ' + e.message); }
     }

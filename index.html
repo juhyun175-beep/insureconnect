@@ -13662,6 +13662,12 @@
     }
     window.openDM=openDM; window.openDMRoom=openDMRoom; window.openDmRooms=openDmRooms; window.openDmRoomIdx=openDmRoomIdx; window.closeDM=closeDM; window.dmSend=dmSend; window.dmBack=dmBack;
 
+    /* v2.65.0: 접속 하트비트 — 로그인 회원의 last_seen 갱신(관리자 실시간 접속 표시). 1회만 핑하고, 로그인일 때만 90초 반복 */
+    (function(){
+      function ping(cb){ fetch('/api/me/ping',{method:'POST',credentials:'same-origin',keepalive:true}).then(function(r){return r.json();}).then(function(d){ if(cb)cb(!!(d&&d.ok)); }).catch(function(){ if(cb)cb(false); }); }
+      ping(function(loggedIn){ if(!loggedIn) return; setInterval(function(){ if(document.visibilityState!=='hidden') ping(); }, 90000); });
+    })();
+
     /* ══════════════ 체류 시간 추적 (D1 기반 가벼운 카운터) ══════════════ */
     (function() {
       let _activeSec = 0;            // 활성 누적 초
