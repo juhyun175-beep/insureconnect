@@ -9273,20 +9273,9 @@
 
     <!-- v2.12.0: 모바일 빠른검색 섹션 제거 (로그인정보 카드의 '빠른 검색' 버튼으로 대체) -->
 
-    <!-- v2.21.0: 고객 생활혜택(렌트카·통신 견적) 연결 CTA (퍼널 진입 유도 · trackCardClick로 추적) -->
-    <style>
-      .m-quote-cta{display:flex;align-items:center;gap:12px;width:100%;padding:13px 15px;border-radius:14px;border:1px solid rgba(16,185,129,0.32);background:linear-gradient(135deg,rgba(16,185,129,0.09),rgba(5,150,105,0.06));cursor:pointer;font-family:inherit;text-align:left;}
-      [data-theme="dark"] .m-quote-cta{background:linear-gradient(135deg,rgba(16,185,129,0.15),rgba(5,150,105,0.08));border-color:rgba(16,185,129,0.36);}
-      .m-quote-cta .mqc-ico{font-size:23px;flex-shrink:0;}
-      .m-quote-cta .mqc-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px;}
-      .m-quote-cta .mqc-txt b{font-size:14px;font-weight:800;color:var(--txt-hi);}
-      .m-quote-cta .mqc-txt span{font-size:11.5px;color:var(--txt-mid);}
-      .m-quote-cta .mqc-go{font-size:20px;color:#10b981;flex-shrink:0;font-weight:800;}
-    </style>
-    <button type="button" class="m-quote-cta" onclick="trackCardClick('홈배너','고객견적연결'); goToPage('partner');">
-      <span class="mqc-ico">🚗📱</span>
-      <span class="mqc-txt"><b>고객 렌트카·통신 견적 연결</b><span>내 고객에게 생활 혜택까지 — 클릭 한 번으로 안내</span></span>
-      <span class="mqc-go">›</span>
+    <!-- v2.71.0: 고객 렌트카·통신 견적 연결 CTA 삭제(요청). 그 자리에 모바일 광고배너 노출(관리자 업로드 /api/home-ad). -->
+    <button type="button" class="ibh-ad-m" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기" style="display:none">
+      <img src="" alt="" loading="lazy">
     </button>
 
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
@@ -9409,6 +9398,11 @@
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
         .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
         @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
+        /* v2.71.0: 모바일 광고배너 — #page-home-mobile 내(모바일에서만 노출), 데스크탑 .ibh-ad 와 동일 config/애니 */
+        .ibh-ad-m{display:none;width:100%;border:none;padding:0;background:#0b1020;cursor:pointer;font-family:inherit;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(12,31,184,0.12);animation:ibhAdGlow 2.4s ease-in-out infinite;}
+        .ibh-ad-m img{display:block;width:100%;height:auto;}
+        .ibh-ad-m::after{content:'';position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.38),transparent);transform:translateX(-130%) skewX(-18deg);animation:ibhAdShine 3.6s ease-in-out infinite;pointer-events:none;z-index:2;}
+        @media(prefers-reduced-motion:reduce){.ibh-ad-m{animation:none;}.ibh-ad-m::after{display:none;}}
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
@@ -9584,11 +9578,17 @@
             function esc(s){ return String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
             var wrap=document.querySelector('.ibh-ad');
             var bimg=document.querySelector('.ibh-ad img');
-            // 배너: 노출 ON + 이미지 있을 때만 (대표=1번 이미지)
+            // 배너(데스크탑): 노출 ON + 이미지 있을 때만 (대표=1번 이미지)
             if(c.enabled && imgs.length){
               if(bimg){ bimg.src=imgs[0]; if(c.alt) bimg.alt=c.alt; }
               if(wrap) wrap.style.display='';
             } else if(wrap){ wrap.style.display='none'; }
+            // v2.71.0: 모바일 배너(.ibh-ad-m)도 동일 config 적용 (모바일에서만 보임)
+            var mwrap=document.querySelector('.ibh-ad-m'); var mimg=document.querySelector('.ibh-ad-m img');
+            if(c.enabled && imgs.length){
+              if(mimg){ mimg.src=imgs[0]; if(c.alt) mimg.alt=c.alt; }
+              if(mwrap) mwrap.style.display='block';
+            } else if(mwrap){ mwrap.style.display='none'; }
             // 클릭/자동 팝업: 전체 이미지를 1번부터 순서대로 나란히(스크롤)
             var scroll=document.querySelector('#home-ad-modal .had-scroll');
             if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(c.alt||'')+'" loading="lazy">'; }).join(''); }
