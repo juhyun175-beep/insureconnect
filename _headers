@@ -16,6 +16,9 @@
   X-XSS-Protection: 0
 
 # HTML은 매번 새로 가져오되 stale-while-revalidate로 체감속도 ↑ (1분 fresh + 10분 background revalidate)
+# v2.74.0: 루트(/)는 /index.html 규칙에 안 잡혀 기본 max-age=0(매번 재검증)로 떨어지던 버그 → 명시적 규칙 추가
+/
+  Cache-Control: public, max-age=60, stale-while-revalidate=600
 /index.html
   Cache-Control: public, max-age=60, stale-while-revalidate=600
 /admin.html

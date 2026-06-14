@@ -11156,6 +11156,10 @@
       document.querySelectorAll('.side-theme-btn').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.themeVal === val);
       });
+      // v2.74.0: 모바일 테마 버튼도 동일 경로에서 동기화 → 1초 폴링(_mApplyThemeActive setInterval) 제거, 이벤트 구동화
+      document.querySelectorAll('.ic-m-theme-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.themeVal === val);
+      });
     }
 
     // 페이지 로드 시 저장된 테마 적용
@@ -16899,7 +16903,8 @@
       /* 다음 초의 시작 시점에 맞춰 정렬 → 이후 매초 갱신 */
       const now = new Date();
       const delay = 1000 - now.getMilliseconds();
-      setTimeout(() => { tick(); setInterval(tick, 1000); }, delay);
+      // v2.74.0: 데스크톱 시계는 데스크톱 레이아웃 + 탭 활성일 때만 매초 갱신(모바일/숨김 탭 낭비 제거)
+      setTimeout(() => { tick(); setInterval(() => { if (document.visibilityState === 'visible' && !document.body.classList.contains('ic-mobile')) tick(); }, 1000); }, delay);
     }
     if (document.readyState === 'loading') {
       document.addEventListener('DOMContentLoaded', start);
@@ -17312,7 +17317,8 @@
       setEl('m-clock-day-top', days[d.getDay()]);
       setEl('m-clock-date-top', `${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`);
     }
-    setInterval(_mClockTick, 1000);
+    // v2.74.0: 모바일 시계는 모바일 레이아웃 + 탭 활성일 때만 매초 갱신(데스크톱/숨김 탭에서 숨은 요소 매초 쓰기 낭비 제거)
+    setInterval(() => { if (document.visibilityState === 'visible' && document.body.classList.contains('ic-mobile')) _mClockTick(); }, 1000);
     _mClockTick();
 
     /** 모바일 통계 */
@@ -17327,7 +17333,7 @@
         if (T) T.textContent = (d.total_visits || 0).toLocaleString();
       } catch (_) {}
     }
-    setInterval(loadMobileStats, 60000);
+    setInterval(() => { if (document.visibilityState === 'visible') loadMobileStats(); }, 60000); // v2.74.0: 탭 활성일 때만
 
     /** 모바일 테마 버튼 active 동기화 */
     function _mApplyThemeActive() {
@@ -17336,7 +17342,7 @@
         b.classList.toggle('active', b.dataset.themeVal === saved);
       });
     }
-    setInterval(_mApplyThemeActive, 1000); // 간단 동기화
+    // v2.74.0: 1초 폴링 제거 — 테마 active 동기화는 applyTheme()(테마 변경 시점)에서 이벤트 구동으로 처리. _mApplyThemeActive()는 초기 1회만 호출.
 
     /** 모바일 홈 데이터 로드 (PC와 같은 API 사용) */
     async function loadMobileHome() {
