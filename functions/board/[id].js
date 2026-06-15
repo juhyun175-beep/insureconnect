@@ -168,7 +168,7 @@ ${seoCtaFooter(SITE)}
     try{
       var res=await fetch('/api/board/posts/'+POST_ID+'/comments',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({content:c})});
       var d=await res.json();
-      if(!res.ok){ err.textContent=d.error||'등록 실패'; btn.disabled=false; return; }
+      if(!res.ok){ if(d&&d.code==='banned'&&d.contact){ err.innerHTML='이용이 제한된 계정입니다. <a href="'+d.contact+'" target="_blank" rel="noopener noreferrer" style="color:#1a3de8;font-weight:800;text-decoration:underline;">💬 관리자에게 문의하기</a>'; } else { err.textContent=(d&&d.error)||'등록 실패'; } btn.disabled=false; return; }
       location.reload();
     }catch(e){ err.textContent='네트워크 오류'; btn.disabled=false; }
   });

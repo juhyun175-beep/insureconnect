@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.81.0] - 2026-06-14
+### Added (게시판 글쓰기 차단 메시지에도 관리자 문의 카톡 링크)
+- 차단 회원이 자유게시판 **글/댓글 작성**을 시도하면, 기존 「운영자에게 문의해주세요」 평문 → **클릭 가능한 「💬 관리자에게 문의하기」 링크**(오픈채팅)로 변경. 서버가 `code:'banned'` + `contact` URL을 동봉(`/api/board/posts`·`/api/board/posts/[id]/comments`), SSR 게시판 페이지(`functions/board/index.js`·`[id].js`)가 이를 클릭 링크로 렌더.
+- 문의 URL은 `moderation.js`의 단일 상수 **`ADMIN_CONTACT_KAKAO`** — 카카오 콜백 차단 페이지(v2.80.0)와 동일 링크 유지. 로그인 차단·글쓰기 차단 양쪽에서 일관된 문의 경로 제공.
+### Verified
+- 5개 파일 parse(`moderation`·`posts`·`comments`·`board/index`·`board/[id]`) · 마커 확인 · 보안 HIGH 0 · release.mjs
+
 ## [2.80.0] - 2026-06-14
 ### Added (차단 회원 로그인 안내 — 관리자 문의 카톡방 링크)
 - 관리자가 차단한 회원이 카카오 로그인을 시도하면 **세션을 만들지 않고** 자기완결 안내 페이지를 노출: 「🚫 로그인이 제한되었습니다 · 운영 정책에 따라 이용 제한 · **💬 관리자에게 문의하기**(오픈채팅) · 홈으로」. 닉네임 표시·`noindex`·`no-store`.

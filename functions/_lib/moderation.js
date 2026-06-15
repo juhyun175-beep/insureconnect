@@ -4,6 +4,10 @@
  *   - 차단 회원(ic_banned_members) / 신고(ic_board_reports) — ALTER 없이 신규 테이블만 사용
  */
 
+// v2.81.0: 관리자 문의 오픈채팅(사이트 연락처와 동일). 차단 안내에서 공유.
+//   ※ 카카오 콜백 차단 페이지(functions/api/auth/kakao/callback.js)의 URL과 동일하게 유지할 것.
+export const ADMIN_CONTACT_KAKAO = 'https://open.kakao.com/o/sAZWQ7pi';
+
 // 흔한 한글/영문 비속어 (부분일치, 공백 제거 후 검사)
 const BAD_WORDS = [
   '시발', '씨발', '시바', '씨바', '시발년', '씨발놈', '병신', '븅신', '지랄', '지랄남',

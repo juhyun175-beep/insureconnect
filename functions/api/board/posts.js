@@ -5,7 +5,7 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { getUserFromRequest, maybePromoteByPoints } from '../../_lib/auth.js';
-import { findProfanity, isSpammy, isBanned } from '../../_lib/moderation.js';
+import { findProfanity, isSpammy, isBanned, ADMIN_CONTACT_KAKAO } from '../../_lib/moderation.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -30,7 +30,7 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
 export const onRequestPost = async ({ env, request }) => handle(async () => {
   const user = await getUserFromRequest(env, request);
   if (!user) return error('로그인이 필요합니다.', 401);
-  if (await isBanned(env, user.id)) return error('이용이 제한된 계정입니다. 운영자에게 문의해주세요.', 403);
+  if (await isBanned(env, user.id)) return json({ error: '이용이 제한된 계정입니다. 관리자에게 문의해 주세요.', code: 'banned', contact: ADMIN_CONTACT_KAKAO }, 403);
 
   let body = {};
   try { body = await request.json(); } catch (_) { return error('Invalid JSON'); }
