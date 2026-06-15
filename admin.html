@@ -3846,15 +3846,15 @@
         <div style="font-size:13px;font-weight:800;color:#0f766e;margin-bottom:10px;display:flex;align-items:center;gap:8px;">🎟️ 할인권 수동 지급·회수 <button type="button" onclick="loadCouponAdmin()" style="font-size:11px;background:none;border:1px solid rgba(13,148,136,0.4);color:#0f766e;border-radius:6px;padding:2px 8px;cursor:pointer;">새로고침</button></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px;">
           <div style="display:flex;flex-direction:column;gap:3px;">
-            <label style="font-size:11px;color:var(--txt-lo);">회원 ID</label>
-            <input type="number" id="cpn-grant-member" placeholder="예: 42" style="width:90px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;">
+            <label style="font-size:11px;color:var(--txt-lo);">회원 #ID</label>
+            <input type="number" id="cpn-grant-member" placeholder="예: 45" style="width:90px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;">
           </div>
           <div style="display:flex;flex-direction:column;gap:3px;">
             <label style="font-size:11px;color:var(--txt-lo);">할인권 종류</label>
             <select id="cpn-grant-type" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;"></select>
           </div>
           <button type="button" onclick="cpnGrant()" style="padding:7px 14px;background:#0d9488;color:#fff;border:none;border-radius:7px;font-weight:800;font-size:12.5px;cursor:pointer;">지급</button>
-          <span style="font-size:11px;color:var(--txt-lo);flex:1;min-width:140px;">무상 발급(포인트 미차감)·14일 유효. 회원 ID는 「회원 관리」에서 확인.</span>
+          <span style="font-size:11px;color:var(--txt-lo);flex:1;min-width:140px;">무상 발급(포인트 미차감)·14일 유효. <b>회원 목록의 파란 #ID</b>(순번 아님!)를 입력 — 지급 전 닉네임이 표시됩니다.</span>
         </div>
         <div id="cpn-grant-status" style="font-size:12px;margin-bottom:8px;"></div>
         <div id="coupon-admin-list" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
@@ -4272,7 +4272,7 @@
         <div id="mt-chart" style="margin:14px 0 18px;"></div>
         <div id="mt-referrals" style="margin:0 0 18px;"></div>
         <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">회원 목록 · 등급/차단/삭제 <span id="mt-online" style="font-size:11.5px;font-weight:800;color:#22c55e;"></span><label style="margin-left:auto;font-size:11.5px;font-weight:700;color:var(--txt-mid,#9fb0c8);display:flex;align-items:center;gap:5px;">표시 <select id="mt-per" class="role-sel" onchange="setMemberPer(this.value)"><option value="10">10명씩</option><option value="20">20명씩</option><option value="50">50명씩</option><option value="100">100명씩</option></select></label></div>
-        <table class="mlist"><thead><tr><th>순번</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th><th>상태</th><th>관리</th></tr></thead><tbody id="mt-members"><tr><td colspan="7">불러오는 중…</td></tr></tbody></table>
+        <table class="mlist"><thead><tr><th>회원ID</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th><th>상태</th><th>관리</th></tr></thead><tbody id="mt-members"><tr><td colspan="7">불러오는 중…</td></tr></tbody></table>
         <div id="mt-pager" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;font-size:12.5px;color:var(--txt-mid,#9fb0c8);"></div>
       </div><!-- /#up-members -->
 
@@ -5522,6 +5522,9 @@
       // 표시는 순번(1…N) — id DESC 정렬이라 첫 행(최신)이 가장 큰 번호. 페이지 오프셋 반영.
       const totalNum = (typeof total === 'number' && total >= members.length) ? total : members.length;
       const base = totalNum - (page - 1) * MEMBER_PER; // 이 페이지 첫 행의 순번
+      // v2.79.0: 할인권 지급 시 닉네임 검증용 id→nickname 맵
+      window._adminMemberNick = window._adminMemberNick || {};
+      members.forEach(function (u) { window._adminMemberNick[u.id] = u.nickname || ('회원#' + u.id); });
       tb.innerHTML = members.map(function (u, i) {
         const seq = base - i;
         const opts = ['member', 'certified', 'premium', 'admin'].map(function (r) {
@@ -5539,7 +5542,7 @@
             : '<button type="button" onclick="setMemberBan(' + u.id + ',true)" style="background:rgba(245,158,11,0.16);color:#b45309;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;">차단</button>';
           actionCell = banBtn + '<button type="button" onclick="deleteMember(' + u.id + ')" style="background:rgba(220,38,38,0.14);color:#dc2626;border:none;border-radius:6px;padding:4px 8px;font-size:11px;font-weight:700;cursor:pointer;margin-left:5px;">삭제</button>';
         }
-        return '<tr' + (u.banned ? ' style="opacity:0.5"' : '') + '><td title="DB #' + u.id + '">' + seq + '</td>'
+        return '<tr' + (u.banned ? ' style="opacity:0.5"' : '') + '><td title="순번 ' + seq + ' · 할인권 지급은 이 ID로"><b style="color:var(--neon-cyan,#00c8ee)">#' + u.id + '</b> <span style="font-size:9.5px;color:var(--txt-lo,#5b6b85)">' + seq + '</span></td>'
           + '<td>' + esc(u.nickname || '회원') + (u.banned ? ' <span style="font-size:9.5px;font-weight:800;color:#fff;background:#dc2626;padding:1px 5px;border-radius:4px;">차단</span>' : '') + '</td>'
           + '<td><select class="role-sel" onchange="changeMemberRole(' + u.id + ', this.value)">' + opts + '</select></td>'
           + '<td>' + esc(String(u.created_at || '').slice(0, 10)) + '</td>'
@@ -7716,10 +7719,16 @@
     async function cpnGrant(){
       var mEl=document.getElementById('cpn-grant-member');
       var mid=parseInt(mEl&&mEl.value,10);
-      var type=(document.getElementById('cpn-grant-type')||{}).value;
+      var typeSel=document.getElementById('cpn-grant-type');
+      var type=(typeSel||{}).value;
+      var typeLabel=((typeSel&&typeSel.options&&typeSel.options[typeSel.selectedIndex])||{}).text||type;
       var st=document.getElementById('cpn-grant-status'); if(st){ st.style.color='var(--txt-lo)'; st.textContent=''; }
-      if(!mid){ if(st){ st.style.color='#dc2626'; st.textContent='회원 ID를 입력하세요.'; } return; }
-      if(!confirm('회원 #'+mid+' 에게 할인권을 무상 지급할까요?')) return;
+      if(!mid){ if(st){ st.style.color='#dc2626'; st.textContent='회원 ID를 입력하세요. (회원 목록의 파란 #ID)'; } return; }
+      if(!type){ if(st){ st.style.color='#dc2626'; st.textContent='할인권 종류를 선택하세요.'; } return; }
+      // v2.79.0: 지급 전 닉네임으로 대상 검증 (순번≠DB ID 혼동으로 엉뚱한 회원에게 지급되던 문제 방지)
+      var nick=(window._adminMemberNick||{})[mid];
+      var who=nick?('«'+nick+'»'):'(닉네임 미확인 — 회원 목록에서 #ID를 다시 확인하세요)';
+      if(!confirm('회원 #'+mid+' '+who+' 에게\n['+typeLabel+']을(를) 무상 지급할까요?')) return;
       try{
         var r=await fetch('/api/admin/coupons',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({member_id:mid,coupon_type:type})});
         var d=await r.json();
