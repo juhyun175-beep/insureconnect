@@ -7,6 +7,46 @@ import { resolveReferrer, recordReferralAndMaybeUpgrade } from '../../../_lib/re
 
 const home = (reason) => new Response(null, { status: 302, headers: { 'Location': `${SITE}/?login=${reason}` } });
 
+// v2.80.0: 관리자 문의 오픈채팅(사이트 연락처와 동일). 차단 안내 페이지에서 사용.
+const ADMIN_KAKAO = 'https://open.kakao.com/o/sAZWQ7pi';
+const escHtml = (s) => String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/** 차단된 회원 로그인 시도 시 보여줄 안내 페이지(자기완결 HTML). */
+function bannedHtml(nick) {
+  const n = escHtml(nick || '회원');
+  return `<!DOCTYPE html>
+<html lang="ko"><head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>로그인 제한 안내 · 인슈어커넥트</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard','Apple SD Gothic Neo','Malgun Gothic',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#0f172a,#1e1b4b 55%,#3b0764)}
+  .card{background:#fff;border-radius:22px;max-width:420px;width:100%;padding:38px 30px 28px;box-shadow:0 24px 70px rgba(0,0,0,.42);text-align:center}
+  .ico{width:74px;height:74px;border-radius:50%;background:linear-gradient(135deg,#fef2f2,#fee2e2);display:flex;align-items:center;justify-content:center;font-size:38px;margin:0 auto 18px}
+  h1{font-size:21px;font-weight:900;letter-spacing:-.4px;margin-bottom:11px;color:#dc2626}
+  p{font-size:14px;line-height:1.65;color:#475569}
+  p .nick{font-weight:800;color:#1a3de8}
+  .box{background:#f8fafc;border:1px solid #e2e8f0;border-radius:13px;padding:14px 15px;margin:18px 0 22px;font-size:13px;color:#64748b;line-height:1.62}
+  .kbtn{display:flex;align-items:center;justify-content:center;gap:9px;width:100%;padding:15px;border-radius:13px;background:#fee500;color:#191600;font-size:15.5px;font-weight:800;text-decoration:none;box-shadow:0 7px 20px rgba(254,229,0,.5)}
+  .kbtn:active{transform:translateY(1px)}
+  .home{display:inline-block;margin-top:15px;font-size:13px;color:#94a3b8;text-decoration:none;font-weight:700}
+  .brand{margin-top:20px;font-size:11px;color:#cbd5e1;letter-spacing:.05em}
+</style></head>
+<body>
+  <div class="card">
+    <div class="ico">🚫</div>
+    <h1>로그인이 제한되었습니다</h1>
+    <p><span class="nick">${n}</span>님, 회원님 계정은 운영 정책에 따라<br>현재 <b>이용이 제한</b>되어 있습니다.</p>
+    <div class="box">제한 사유 확인 또는 <b>해제 문의</b>는 아래 관리자 문의방으로 연락해 주세요. 확인 후 신속히 안내드리겠습니다.</div>
+    <a class="kbtn" href="${ADMIN_KAKAO}" target="_blank" rel="noopener noreferrer">💬 관리자에게 문의하기</a>
+    <a class="home" href="${SITE}/">홈으로 돌아가기</a>
+    <div class="brand">InsureConnect · 인슈어커넥트</div>
+  </div>
+</body></html>`;
+}
+
 export const onRequestGet = async ({ env, request }) => {
   try {
     const url = new URL(request.url);
@@ -66,6 +106,14 @@ export const onRequestGet = async ({ env, request }) => {
          alert_optin=excluded.alert_optin`
     ).bind(kakaoId, nickname, profileImage, email, now, now, accessToken, refreshToken, tokenExpires, optin).run();
     const row = await env.DB.prepare(`SELECT id FROM ic_members WHERE kakao_id = ?`).bind(kakaoId).first();
+
+    // v2.80.0: 관리자가 차단한 회원은 로그인 거부 — 세션 미생성 + 안내 페이지(관리자 문의 카톡방) 노출
+    const isBannedRow = await env.DB.prepare(`SELECT member_id FROM ic_banned_members WHERE member_id = ?`).bind(row.id).first().catch(() => null);
+    if (isBannedRow) {
+      const bh = new Headers({ 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'no-store' });
+      bh.append('Set-Cookie', cookie('ic_oauth_state', '', { clear: true }));
+      return new Response(bannedHtml(nickname), { status: 403, headers: bh });
+    }
 
     // v2.8.0: 신규 회원이면 추천 귀속 + 임계값 도달 시 추천인 자동 등급업
     const cookies = parseCookies(request);
