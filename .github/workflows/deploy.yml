@@ -1,0 +1,41 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Security scan (HIGH 0 gate)
+        run: |
+          out=$(node scripts/security-scan.mjs 2>&1)
+          echo "$out"
+          high=$(echo "$out" | grep -oiP 'HIGH\s*\K\d+' || echo "-1")
+          if [ "$high" != "0" ]; then
+            echo "ABORT: security HIGH != 0"
+            exit 1
+          fi
+
+      - name: Minify HTML (deploy artifact only)
+        run: |
+          npx --yes html-minifier-terser@7.2.0 \
+            --config-file scripts/htmlmin.json \
+            index.html -o index.html || true
+          npx --yes html-minifier-terser@7.2.0 \
+            --config-file scripts/htmlmin.json \
+            admin.html -o admin.html || true
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy . --project-name=insureconnect-hub --branch=main --commit-dirty=true
