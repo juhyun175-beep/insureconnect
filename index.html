@@ -9477,7 +9477,6 @@
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
-        .ibh-aii-row .ibh-col > .ibh-ad{flex:1 1 auto;margin:0;min-height:90px;}
         .home-aii{display:flex;flex-direction:column;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:260px;box-shadow:var(--sh-sm);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
         .aii-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap;}
@@ -9560,11 +9559,8 @@
       </div>
       </section>
       <div class="home-ref" id="home-ref" style="display:none;" data-tour="invite"></div>
-      <!-- 제휴상품 광고 (A안: 삼따AI 히어로 우측 레일로 이동) -->
-      <button type="button" class="ibh-ad" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기" style="display:none">
-        <img src="" alt="" loading="lazy">
-      </button>
       </div><!-- /.ibh-col -->
+      <!-- v2.89.0: 제휴광고 인라인 배너 제거 — 광고는 홈 진입 자동 팝업(전체 이미지)으로 노출 유지. 레일=자유게시판+포인트받기 → 삼따AI 하단이 포인트받기 하단에 정렬 -->
       <!-- 삼따AI 퀵 위젯 -->
       <section class="home-aii" aria-label="삼따AI" data-tour="ai">
         <div class="aii-head">
