@@ -7814,6 +7814,12 @@
     .side-account #ic-auth { margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
     .side-account .side-search-btn,
     .side-account .side-submit-single { width: 100%; margin: 0; }
+    /* v2.84.0: 로그인정보 액션 버튼 2열 그리드 (채팅·고객·보장분석·공고등록) */
+    .side-quick2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .side-quick2 .menu-pill { min-height:50px; padding:6px; line-height:1.28; word-break:keep-all; }
+    .side-quick2 .menu-pill.is-cta { color:#b45309; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.09); font-weight:800; }
+    .side-quick2 .menu-pill.is-cta:hover { border-color:#f59e0b; color:#92400e; background:rgba(245,158,11,0.15); }
+    [data-theme="dark"] .side-quick2 .menu-pill.is-cta { color:#fbbf24; border-color:rgba(245,158,11,0.42); }
     @media (max-width: 480px) {
       .side-submit-single { margin: 4px 14px 8px; padding: 12px 14px; }
       .side-submit-single .sss-title { font-size: 13.5px; }
@@ -8296,16 +8302,12 @@
     <!-- v2.8.1: 로그인/마이페이지 · 내 공고 등록 · 빠른 검색 — 한 그룹으로 정렬(들쭉날쭉 제거) -->
     <div class="side-account" data-tour="account">
       <div id="ic-auth"></div>
-      <button type="button" class="menu-pill" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat');">실시간 채팅</button>
-      <button type="button" class="menu-pill" data-tour="clients" onclick="trackCardClick('로그인정보','내고객'); goToPage('clients');">내 고객 · 만기관리</button>
-      <button type="button" class="menu-pill" onclick="window._covClient=null; trackCardClick('로그인정보','보장분석'); goToPage('coverage');">보장 분석 · 리모델링</button>
-      <button type="button" class="side-submit-single" onclick="openSubmitModal()">
-        <span class="sss-icon">📤</span>
-        <span class="sss-text">
-          <span class="sss-title">내 공고 직접 등록</span>
-          <span class="sss-sub">💼 채용 · 🎓 강의</span>
-        </span>
-      </button>
+      <div class="side-quick2">
+        <button type="button" class="menu-pill" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat');">실시간 채팅</button>
+        <button type="button" class="menu-pill" data-tour="clients" onclick="trackCardClick('로그인정보','내고객'); goToPage('clients');">내 고객 · 만기관리</button>
+        <button type="button" class="menu-pill" onclick="window._covClient=null; trackCardClick('로그인정보','보장분석'); goToPage('coverage');">보장 분석 · 리모델링</button>
+        <button type="button" class="menu-pill is-cta" onclick="openSubmitModal()">내 공고 직접 등록</button>
+      </div>
       <button class="side-search-btn" onclick="openGlobalSearch()" type="button" aria-label="빠른 검색 열기">
         <span class="ssb-icon">🔍</span>
         <span class="ssb-label">빠른 검색</span>
