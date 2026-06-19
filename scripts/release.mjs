@@ -101,6 +101,12 @@ if (!NO_COMMIT) {
     log('committed v' + version);
   } catch (_) { log('commit skipped (nothing to commit / hook).'); }
   finally { try { rmSync('.release-msg.tmp', { force: true }); } catch (_) {} }
+
+  // 6) GitHub push
+  try {
+    run('git push origin HEAD:main');
+    log('pushed to github');
+  } catch (e) { log('github push skipped:', String((e && e.message) || e).slice(0, 100)); }
 }
 
 console.log(`\n[release] OK  v${version} -> ${url}  (HIGH 0)`);
