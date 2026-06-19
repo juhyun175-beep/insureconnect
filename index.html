@@ -9457,7 +9457,10 @@
     <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
     <div class="ibh-aii-row">
       <style>
-        .ibh-aii-row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 360px;gap:14px;align-items:stretch;margin:18px 0 24px;}
+        /* v2.86.0: A안 — 삼따AI 히어로(좌) + 자유게시판·포인트받기·광고 우측 레일 */
+        .ibh-aii-row{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(0,1fr);grid-template-areas:"ai rail";gap:14px;align-items:stretch;margin:18px 0 24px;}
+        .ibh-aii-row > .home-aii{grid-area:ai;}
+        .ibh-aii-row > .ibh-col{grid-area:rail;}
         .ibh-aii-row .ibh{margin:0;}
         /* v2.33.0: 우측 광고 컬럼(제휴상품) — 삼따AI 오른쪽 배치(전환 유도). 좁은 화면 숨김(모바일 홈은 별도 레이아웃) */
         /* v2.36.0: 광고배너 높이를 옆 섹션(자유게시판·삼따AI)과 동일하게 stretch. 이미지의 어두운 배경과 블렌딩되도록 다크 배경 + contain(크롭 없음) */
@@ -9470,11 +9473,11 @@
         @media(prefers-reduced-motion:reduce){.ibh-ad{animation:none;}.ibh-ad::after{animation:none;display:none;}}
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
         .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
-        @media(max-width:1100px){ .ibh-aii-row{grid-template-columns:1fr 1fr;} .ibh-ad{display:none;} }
+        @media(max-width:1024px){ .ibh-aii-row{grid-template-columns:1fr;grid-template-areas:"ai" "rail";} }
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
-        @media(max-width:900px){ .ibh-aii-row{grid-template-columns:1fr;} }
+        .ibh-aii-row .ibh-col > .ibh-ad{flex:1 1 auto;margin:0;min-height:130px;}
         .home-aii{display:flex;flex-direction:column;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:340px;box-shadow:var(--sh-sm);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
         .aii-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap;}
@@ -9518,27 +9521,6 @@
         .aii-share-cta b{color:#7c3aed;}
         [data-theme="dark"] .aii-share-cta{color:#c4b5fd;background:rgba(124,58,237,0.16);border-color:rgba(124,58,237,0.45);}
         [data-theme="dark"] .aii-share-cta b{color:#c4b5fd;}
-        /* v2.20.0: 사례 기여 리더보드 (성장 4/8) — AI 테마 블루/인디고, 비면 JS가 숨김 */
-        .home-clb{margin-top:12px;padding:12px 14px;border-radius:12px;background:rgba(26,61,232,0.05);border:1px solid rgba(26,61,232,0.14);}
-        [data-theme="dark"] .home-clb{background:rgba(99,102,241,0.10);border-color:rgba(99,102,241,0.22);}
-        .clb-ttl{font-size:11.5px;font-weight:800;color:#1a3de8;margin-bottom:6px;}
-        [data-theme="dark"] .clb-ttl{color:#a5b4fc;}
-        .clb-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0;}
-        .clb-rk{width:34px;font-weight:800;color:#3730a3;flex-shrink:0;}
-        [data-theme="dark"] .clb-rk{color:#c7d2fe;}
-        .clb-nm{flex:1;display:flex;align-items:center;gap:6px;color:var(--txt-hi,#0f172a);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
-        [data-theme="dark"] .clb-nm{color:#e6edf3;}
-        .clb-n{font-weight:800;color:#1a3de8;flex-shrink:0;}
-        [data-theme="dark"] .clb-n{color:#a5b4fc;}
-        .clb-bdg{font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:999px;flex-shrink:0;}
-        .clb-bdg.ct{color:#1a3de8;background:rgba(26,61,232,0.12);}
-        .clb-bdg.pm{color:#7c3aed;background:rgba(124,58,237,0.14);}
-        [data-theme="dark"] .clb-bdg.ct{color:#a5b4fc;background:rgba(99,102,241,0.18);}
-        [data-theme="dark"] .clb-bdg.pm{color:#c4b5fd;background:rgba(124,58,237,0.22);}
-        .clb-me{margin-top:7px;font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#1a3de8,#7c3aed);border-radius:8px;padding:6px 9px;text-align:center;}
-        .clb-cta{display:block;margin-top:8px;font-size:11px;font-weight:700;color:#1a3de8;text-decoration:none;text-align:center;}
-        [data-theme="dark"] .clb-cta{color:#a5b4fc;}
-        .clb-cta:hover{text-decoration:underline;}
       </style>
       <div class="ibh-col">
       <section class="ibh" aria-label="자유게시판" data-tour="board">
@@ -9578,6 +9560,10 @@
       </div>
       </section>
       <div class="home-ref" id="home-ref" style="display:none;" data-tour="invite"></div>
+      <!-- 제휴상품 광고 (A안: 삼따AI 히어로 우측 레일로 이동) -->
+      <button type="button" class="ibh-ad" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기" style="display:none">
+        <img src="" alt="" loading="lazy">
+      </button>
       </div><!-- /.ibh-col -->
       <!-- 삼따AI 퀵 위젯 -->
       <section class="home-aii" aria-label="삼따AI" data-tour="ai">
@@ -9605,13 +9591,7 @@
           <div class="aii-hint" id="home-aii-hint"></div>
           <div class="aii-share-act" id="home-aii-share" style="display:none;margin-top:10px;"></div>
         </div>
-        <!-- v2.20.0: 사례 기여 리더보드 (성장 4/8) — 기여자가 있으면 JS가 노출 -->
-        <div class="home-clb" id="home-clb" style="display:none;"></div>
       </section>
-      <!-- v2.34.0: 제휴상품 광고 (삼따AI 오른쪽) — 클릭 시 팝업(확대 + 상담 받아보기 CTA) -->
-      <button type="button" class="ibh-ad" onclick="openHomeAd()" aria-label="제휴상품 안내 — 눌러서 자세히 보기" style="display:none">
-        <img src="" alt="" loading="lazy">
-      </button>
     </div>
 
     <!-- v2.34.0: 홈 광고 팝업 (배너 클릭 → 확대 배너 + 「상담 받아보기」 → 네이버폼) -->
@@ -9784,35 +9764,6 @@
         }
         if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
       })();
-    </script>
-    <script>
-      // v2.20.0: 사례 기여 리더보드 (성장 4/8) — referral/leaderboard 패턴 미러링, 비면 숨김
-      async function loadCaseContributors(){
-        var box=document.getElementById('home-clb'); if(!box) return;
-        function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
-        function badge(g){
-          if(g==='premium') return '<span class="clb-bdg pm">💎 프리미엄</span>';
-          if(g==='certified') return '<span class="clb-bdg ct">✓ 인증</span>';
-          return '';
-        }
-        try{
-          var r=await fetch('/api/cases/contributors',{credentials:'same-origin'});
-          var lb=await r.json();
-          if(!lb||!lb.ok) return;
-          var hasTop=lb.top&&lb.top.length;
-          var hasMe=lb.me&&lb.me.n>0;
-          if(!hasTop&&!hasMe) return; // 완전 비면 숨김(referral 동일)
-          var rows=hasTop?lb.top.map(function(t){
-            var medal=t.rank===1?'🥇':t.rank===2?'🥈':t.rank===3?'🥉':(t.rank+'위');
-            return '<div class="clb-row"><span class="clb-rk">'+medal+'</span><span class="clb-nm">'+esc(t.name)+badge(t.grade)+'</span><span class="clb-n">'+t.n+'건</span></div>';
-          }).join(''):'';
-          var mine=hasMe?('<div class="clb-me">내 기여 '+lb.me.n+'건 · '+(lb.me.rank?(lb.me.rank+'위'):'순위권 밖')+'</div>'):'';
-          var cta='<a class="clb-cta" href="/ai#share">💬 나도 사례 등록하고 순위 오르기 +10P →</a>';
-          box.innerHTML='<div class="clb-ttl">🏆 사례 기여 순위'+(hasTop?(' TOP'+lb.top.length):'')+'</div>'+rows+mine+cta;
-          box.style.display='block';
-        }catch(_){ /* 무시 */ }
-      }
-      document.addEventListener('DOMContentLoaded', loadCaseContributors);
     </script>
     <script>
       // v2.12.1: 홈에서 바로 사례 기반 답변 (인라인 RAG)
