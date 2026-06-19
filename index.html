@@ -9475,10 +9475,10 @@
         .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
         @media(max-width:1024px){ .ibh-aii-row{grid-template-columns:1fr;grid-template-areas:"ai" "rail";} }
         /* v2.15.8: 좌측 컬럼 = 자유게시판 + 친구초대(스택), 우측 = 삼따AI. 행 높이 = 좌측 기준 → AI 답변시 레이아웃 고정 */
-        .ibh-col{display:flex;flex-direction:column;gap:14px;min-width:0;}
+        .ibh-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh,.ibh-aii-row .ibh-col > .home-ref{margin:0;}
-        .ibh-aii-row .ibh-col > .ibh-ad{flex:1 1 auto;margin:0;min-height:130px;}
-        .home-aii{display:flex;flex-direction:column;padding:18px 20px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:340px;box-shadow:var(--sh-sm);}
+        .ibh-aii-row .ibh-col > .ibh-ad{flex:1 1 auto;margin:0;min-height:90px;}
+        .home-aii{display:flex;flex-direction:column;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:260px;box-shadow:var(--sh-sm);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
         .aii-head{display:flex;align-items:center;gap:9px;margin-bottom:8px;flex-wrap:wrap;}
         .aii-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a);}
@@ -9665,7 +9665,7 @@
       .home-ref-prog{font-size:11.5px;color:var(--txt-lo,#64748b);margin-top:10px;}
       .home-ref-prog b{color:#b45309;}
       [data-theme="dark"] .home-ref-prog b{color:#fbbf24;}
-      .home-ref-lb{margin-top:11px;padding-top:10px;border-top:1px dashed rgba(245,158,11,0.3);}
+      .home-ref-lb{display:none;}
       .rlb-ttl{font-size:11.5px;font-weight:800;color:#b45309;margin-bottom:6px;}
       [data-theme="dark"] .rlb-ttl{color:#fbbf24;}
       .rlb-row{display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0;}
@@ -9827,7 +9827,7 @@
       var el=document.getElementById('home-board-list'); if(!el) return;
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
       fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
-        var posts=(d.posts||[]).slice(0,5);
+        var posts=(d.posts||[]).slice(0,3);
         if(!posts.length){ el.innerHTML='<div class="ibh-empty">아직 글이 없어요. <a href="/board" style="color:#f97316;font-weight:700;">첫 글 남기기 →</a></div>'; return; }
         el.innerHTML=posts.map(function(p){
           return '<a class="ibh-row" href="/board/'+p.id+'"><span class="ibh-rt">'+e(p.title)+'</span>'
