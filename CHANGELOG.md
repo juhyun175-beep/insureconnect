@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.87.0] - 2026-06-18
+### Changed (홈 삼따AI 히어로 폭 축소)
+- 「너무 넓다」 피드백 반영 → `ibh-aii-row` 삼따AI 히어로 컬럼 비율 **1.55:1 → 1.2:1** 축소(히어로 약 61% → 55%). 우측 레일(자유게시판·포인트받기·광고) 폭이 소폭 늘어 균형.
+### Verified
+- 보안 HIGH 0(REVIEW 51 기존) · release.mjs
+
 ## [2.86.0] - 2026-06-18
 ### Changed (홈 삼따AI 섹션 정리 + 상단 행 레이아웃 재구성 — 삼따AI 히어로)
 - 삼따AI 섹션에서 「사례 기여 순위」(`home-clb`) 전체 삭제 — CSS·HTML·JS(`loadCaseContributors`) 모두 제거.
