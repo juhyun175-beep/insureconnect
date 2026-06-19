@@ -28,7 +28,10 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const rs = await env.DB.prepare(
     `SELECT id, title, company_name, description, file_url, file_type, form_url, created_at,
             status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
-            CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured
+            CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured,
+            COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
+                      WHERE company_name = 'recruit_' || ic_recruitments.id
+                        AND company_type = 'recruit_view'), 0) AS views
      FROM ic_recruitments WHERE ${where}
      ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
               (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN featured_until END) DESC,

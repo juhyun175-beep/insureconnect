@@ -37,6 +37,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const params = statusParam === 'all' ? [] : [statusParam];
   const featuredExpr = `CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured`;
   const partCount = `(SELECT COUNT(*) FROM ic_meeting_participants p WHERE p.meeting_id = ic_meetings.id) AS participant_count`;
+  // v2.85.0: 공고별 조회수(meetup_view) — 홈 카드 표시용
+  const viewsExpr = `COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily WHERE company_name = 'meetup_' || ic_meetings.id AND company_type = 'meetup_view'), 0) AS views`;
   const orderTail = `ORDER BY (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END) DESC,
                               (CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN featured_until END) DESC,
                               created_at DESC LIMIT ?`;
@@ -44,9 +46,9 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const sql = isAdmin
     ? `SELECT id, title, host, description, location, event_at, file_url, file_type, form_url, created_at,
               status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
-              ${featuredExpr}, ${partCount}
+              ${featuredExpr}, ${partCount}, ${viewsExpr}
        FROM ic_meetings WHERE ${where} ${orderTail}`
-    : `SELECT id, title, host, created_at, status, featured_until, ${featuredExpr}, ${partCount}
+    : `SELECT id, title, host, created_at, status, featured_until, ${featuredExpr}, ${partCount}, ${viewsExpr}
        FROM ic_meetings WHERE ${where} ${orderTail}`;
   const rs = await env.DB.prepare(sql).bind(...params, limit).all();
   return json(rs.results || []);

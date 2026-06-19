@@ -4790,16 +4790,15 @@
     .ic-top-row {
       display: grid;
       grid-template-columns: minmax(0, 1fr) 280px;
-      grid-template-areas: "news kakao" "jobs jobs";
+      grid-template-areas: "news kakao";
       gap: 14px;
       align-items: stretch;
       margin: 0 0 18px;
     }
     @media (max-width: 1024px) {
-      .ic-top-row { grid-template-columns: 1fr; grid-template-areas: "news" "kakao" "jobs"; }
+      .ic-top-row { grid-template-columns: 1fr; grid-template-areas: "news" "kakao"; }
     }
     .ic-top-row > #home-news-monitor { grid-area: news; min-width: 0; margin-bottom: 0 !important; }
-    .ic-top-row > .ic-jobs-pair { grid-area: jobs; margin: 0; min-width: 0; }
     .ic-top-row > .ic-kakao-panel { grid-area: kakao; margin-bottom: 0; }
 
     /* ════════════════════════════════════════════
@@ -6177,7 +6176,7 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: 14px;
-      margin-bottom: 24px;
+      margin: 18px 0 24px;
     }
     .ic-jobs-pair > .ic-jobs { margin: 0; min-width: 0; }
     @media (max-width: 1024px) {
@@ -6290,6 +6289,9 @@
       color: var(--txt-lo);
       margin-top: 1px;
     }
+    /* v2.85.0: 카드 조회수 메타 */
+    .ic-job-views { display: inline-flex; align-items: center; gap: 2px; color: var(--txt-lo); font-weight: 600; }
+    .ic-job-views svg { opacity: .75; margin-bottom: -1px; }
     .ic-jobs-empty {
       padding: 28px 16px;
       text-align: center;
@@ -9401,6 +9403,57 @@
       </div>
     </div>
 
+    <!-- v2.85.0: 채용·강의·모임 공고 섹션 — 실시간 방문기록 보드 바로 아래로 이동 -->
+    <div class="ic-jobs-pair">
+      <!-- ══ 진행중인 채용공고 ══ -->
+      <section class="ic-jobs" aria-label="진행중인 채용공고">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            진행중인 채용공고
+            <span class="ic-jobs-pill">HIRING</span>
+          </div>
+        </div>
+        <div class="ic-jobs-grid" id="home-jobs-grid" data-tour="jobs">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
+
+      <!-- ══ 진행중인 강의 ══ -->
+      <section class="ic-jobs" aria-label="진행중인 강의">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            진행중인 강의
+            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
+          </div>
+        </div>
+        <div class="ic-jobs-grid" id="home-lectures-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
+
+      <!-- ══ 진행중인 모임 ══ -->
+      <section class="ic-jobs" aria-label="진행중인 모임">
+        <div class="ic-jobs-head">
+          <div class="ic-jobs-title">
+            진행중인 모임
+            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#0d9488,#0ea5e9);">MEET</span>
+          </div>
+        </div>
+        <div class="ic-jobs-grid" id="home-meetups-grid">
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+          <div class="ic-jobs-skel"></div>
+        </div>
+      </section>
+    </div>
+
     <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
     <div class="ibh-aii-row">
       <style>
@@ -9855,57 +9908,6 @@
         <div class="lm-skel" style="height:130px;border-radius:13px"></div>
         <div class="lm-skel" style="height:130px;border-radius:13px"></div>
       </div>
-    </div>
-
-    <!-- v2.1.25: 좌측 하단 — 「진행중인 채용공고/강의」가 (구) 허브·즐겨찾기 자리로 이동 -->
-    <div class="ic-jobs-pair">
-      <!-- ══ 진행중인 채용공고 ══ -->
-      <section class="ic-jobs" aria-label="진행중인 채용공고">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            진행중인 채용공고
-            <span class="ic-jobs-pill">HIRING</span>
-          </div>
-        </div>
-        <div class="ic-jobs-grid" id="home-jobs-grid" data-tour="jobs">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
-
-      <!-- ══ 진행중인 강의 ══ -->
-      <section class="ic-jobs" aria-label="진행중인 강의">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            진행중인 강의
-            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
-          </div>
-        </div>
-        <div class="ic-jobs-grid" id="home-lectures-grid">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
-
-      <!-- ══ 진행중인 모임 ══ -->
-      <section class="ic-jobs" aria-label="진행중인 모임">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            진행중인 모임
-            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#0d9488,#0ea5e9);">MEET</span>
-          </div>
-        </div>
-        <div class="ic-jobs-grid" id="home-meetups-grid">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
     </div>
 
     <!-- 우측: 오픈채팅방 대화순위 (전체 높이 채움) -->
@@ -16838,6 +16840,10 @@
     window._ensureShareCounts = _ensureShareCounts;
     window._shareBadge        = _shareBadge;
 
+    /* v2.85.0: 카드 조회수 메타 (eye 아이콘 + 숫자) — 채용·강의·모임 공고 공통 */
+    function _viewsMeta(n){
+      return `<span class="ic-job-views" title="조회수"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>${(Number(n)||0).toLocaleString()}</span>`;
+    }
     async function loadHomeJobs() {
       const grid = document.getElementById('home-jobs-grid');
       if (!grid) return;
@@ -16873,7 +16879,7 @@
             <div class="ic-job-body">
               ${it.company_name ? `<div class="ic-job-company">${esc(it.company_name)}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}</div>
             </div>
           </button>`;
         }).join('');
@@ -16993,7 +16999,7 @@
             <div class="ic-job-body">
               ${it.instructor ? `<div class="ic-job-company">${esc(it.instructor)}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}</div>
             </div>
           </button>`;
         }).join('');
@@ -17047,7 +17053,7 @@
             <div class="ic-job-body">
               ${sub ? `<div class="ic-job-company">${sub}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)}${it.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${it.participant_count}명</span>` : ''}</div>
+              <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}${it.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${it.participant_count}명</span>` : ''}</div>
             </div>
           </button>`;
         }).join('');
