@@ -7814,13 +7814,6 @@
     .side-account #ic-auth { margin: 0; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
     .side-account .side-search-btn,
     .side-account .side-submit-single { width: 100%; margin: 0; }
-    /* 실시간 채팅 — 빠른메뉴에서 로그인정보 섹션으로 이동(v2.82.0) */
-    .side-chat-btn { display:flex; align-items:center; gap:8px; width:100%; margin:0; background:linear-gradient(135deg,#1a3de8,#4a70f5); color:#fff; border:none; border-radius:10px; font-weight:800; font-size:13.5px; padding:10px 12px; cursor:pointer; font-family:inherit; transition:filter .12s; }
-    .side-chat-btn:hover { filter:brightness(1.07); }
-    .side-chat-btn .scb-ico { font-size:15px; line-height:1; }
-    .side-chat-btn .scb-text { flex:1; text-align:left; }
-    .side-chat-btn .scb-live { width:7px; height:7px; border-radius:50%; background:#22e07b; animation:scbPulse 1.8s infinite; }
-    @keyframes scbPulse { 0%{box-shadow:0 0 0 0 rgba(34,224,123,.55)} 70%{box-shadow:0 0 0 6px rgba(34,224,123,0)} 100%{box-shadow:0 0 0 0 rgba(34,224,123,0)} }
     @media (max-width: 480px) {
       .side-submit-single { margin: 4px 14px 8px; padding: 12px 14px; }
       .side-submit-single .sss-title { font-size: 13.5px; }
@@ -8303,11 +8296,9 @@
     <!-- v2.8.1: 로그인/마이페이지 · 내 공고 등록 · 빠른 검색 — 한 그룹으로 정렬(들쭉날쭉 제거) -->
     <div class="side-account" data-tour="account">
       <div id="ic-auth"></div>
-      <button type="button" class="side-chat-btn" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat');" aria-label="실시간 채팅 열기">
-        <span class="scb-ico" aria-hidden="true">💬</span>
-        <span class="scb-text">실시간 채팅</span>
-        <span class="scb-live" aria-hidden="true"></span>
-      </button>
+      <button type="button" class="menu-pill" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat');">실시간 채팅</button>
+      <button type="button" class="menu-pill" data-tour="clients" onclick="trackCardClick('로그인정보','내고객'); goToPage('clients');">내 고객 · 만기관리</button>
+      <button type="button" class="menu-pill" onclick="window._covClient=null; trackCardClick('로그인정보','보장분석'); goToPage('coverage');">보장 분석 · 리모델링</button>
       <button type="button" class="side-submit-single" onclick="openSubmitModal()">
         <span class="sss-icon">📤</span>
         <span class="sss-text">
@@ -8359,8 +8350,6 @@
       <div class="menu-float-grid">
         <!-- v2.47.0: 사이즈 정리 — wide(위2/아래2) + 일반 pill 5쌍(짝수) 정렬, 고아·줄바꿈 제거 -->
         <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','인슈어커넥트뉴스'); goToPage('latest');">인슈어커넥트 뉴스</button>
-        <button class="menu-pill menu-pill-wide" type="button" data-tour="clients" onclick="trackCardClick('빠른메뉴','내고객'); goToPage('clients');">내 고객 · 만기관리</button>
-        <button class="menu-pill menu-pill-wide" type="button" onclick="window._covClient=null; trackCardClick('빠른메뉴','보장분석'); goToPage('coverage');">보장 분석 · 리모델링</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','전산'); goToPage('jeonsan');">전산</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','GA전산'); goToPage('ga');">GA</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','수납전산'); goToPage('payment');">수납</button>
@@ -8371,7 +8360,6 @@
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','모임'); goToPage('meetup');">모임</button>
         <button class="menu-pill" type="button" aria-label="실무도구 패널 열기" onclick="toggleToolsPanel();">실무도구</button>
         <button class="menu-pill" type="button" onclick="trackCardClick('빠른메뉴','인수QA'); goToPage('underwrite');">인수 Q&amp;A</button>
-        <button class="menu-pill menu-pill-wide" type="button" onclick="trackCardClick('빠른메뉴','사례공유'); location.href='/ai#share';">사례공유 +P</button>
       </div>
     </div>
 
@@ -8385,17 +8373,6 @@
         <span class="scb-text">
           <span class="scb-name">CREW 300 <span class="scb-live">LIVE</span></span>
           <span class="scb-sub">보험설계사 300+ 활동 중</span>
-        </span>
-        <span class="scb-arrow">›</span>
-      </a>
-      <a class="side-comm-btn manager"
-         href="https://open.kakao.com/o/gka8SGqi"
-         target="_blank" rel="noopener noreferrer"
-         onclick="trackClick('MANAGERLINK 오픈채팅 참여','sidebar'); armCommunityFallback('MANAGER LINK');">
-        <span class="scb-icon"><picture><source srcset="managerlink.webp" type="image/webp"><img src="managerlink.png" alt="MANAGER LINK" loading="lazy" decoding="async"></picture></span>
-        <span class="scb-text">
-          <span class="scb-name">MANAGER LINK</span>
-          <span class="scb-sub">설계매니저 커뮤니티</span>
         </span>
         <span class="scb-arrow">›</span>
       </a>
@@ -9097,7 +9074,7 @@
       {sel:"[data-tour='ai']",title:"🤖 삼따AI",body:"보험 질문을 입력하고 물어보기를 누르면, 실제 인수·보상 사례를 근거로 답해줘요. 어려운 고지·심사도 바로 확인할 수 있어요!"},
       {sel:"[data-tour='board']",title:"💬 자유게시판",body:"동료 설계사들과 정보를 나누고 궁금한 점을 질문할 수 있어요. 최신 글이 여기에 올라와요."},
       {sel:"[data-tour='invite']",title:"🎁 친구 추천·초대",body:"내 초대 링크로 친구가 가입하면 둘 다 포인트를 받아요. 포인트는 삼따AI 이용 등에 쓸 수 있어요."},
-      {sel:"[data-tour='community']",title:"👥 커뮤니티 참여",body:"CREW 300·MANAGER LINK 오픈채팅에 참여하면 더 많은 보험설계사와 실시간으로 소통할 수 있어요."},
+      {sel:"[data-tour='community']",title:"👥 커뮤니티 참여",body:"CREW 300 오픈채팅에 참여하면 더 많은 보험설계사와 실시간으로 소통할 수 있어요."},
       {sel:"[data-tour='contact']",title:"✏️ 운영자 문의",body:"이용 중 궁금하거나 불편한 점은 여기서 운영자에게 바로 문의하세요. 이제 직접 둘러보세요! 다시 보려면 오른쪽 아래 ❓ 사용법 버튼을 누르면 돼요."}
     ];
     var _ictI=0, _ictSteps=IC_TOUR;
@@ -9264,9 +9241,7 @@
     <!-- v2.8.27: 모바일 로그인 계정 카드 (PC 사이드바 계정 카드 이식 — 로그인 시에만 표시) -->
     <div class="m-account-card" id="m-account-card" style="display:none;" data-tour="account">
       <div id="ic-auth-m"></div>
-      <button type="button" class="side-chat-btn" style="margin-bottom:9px;" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat')" aria-label="실시간 채팅 열기">
-        <span class="scb-ico" aria-hidden="true">💬</span><span class="scb-text">실시간 채팅</span><span class="scb-live" aria-hidden="true"></span>
-      </button>
+      <button type="button" class="menu-pill" style="width:100%;margin:0 0 9px;" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat')">실시간 채팅</button>
       <!-- v2.12.2: 앱공유 · 운영자문의 · 파트너전용 (3열) — 내공고등록은 로그인정보 버튼줄로 이동 -->
       <div class="m-acc-util3">
         <button type="button" class="m-acc-util" onclick="shareApp()"><span>🔗</span>앱 공유</button>
@@ -9345,7 +9320,6 @@
         <button class="ic-m-core-card" onclick="goToPage('partner')"><span class="cc-lb">파트너사</span></button>
         <a class="ic-m-core-card" href="/ai"><span class="cc-lb">삼따AI</span></a>
         <a class="ic-m-core-card" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="trackClick('CREW300 오픈채팅 참여','quickmenu'); armCommunityFallback('CREW 300');"><span class="cc-lb">CREW 300</span></a>
-        <a class="ic-m-core-card" href="https://open.kakao.com/o/gka8SGqi" target="_blank" rel="noopener noreferrer" onclick="trackClick('MANAGERLINK 오픈채팅 참여','quickmenu'); armCommunityFallback('MANAGER LINK');"><span class="cc-lb">MANAGER LINK</span></a>
       </div>
     </section>
 
