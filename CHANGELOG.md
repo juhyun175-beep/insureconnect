@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.92.0] - 2026-06-21
+### Fixed (GSC 색인 위생 — canonical 정정/보강으로 "리디렉션·대체 표준태그" 색인 제외 해소)
+- **`guide.html` canonical `/guide.html` → `/guide`**: 기존값이 Cloudflare Pages 클린URL 정책상 308 리디렉션되는 URL이라, Google이 "리디렉션이 포함된 페이지"·"적절한 표준 태그가 포함된 대체 페이지"로 색인 제외하는 신호를 유발 → 최종 클린 URL 자기참조로 정정.
+- **`privacy.html`·`terms.html`·`disclaimer.html`에 self-canonical(`/privacy`·`/terms`·`/disclaimer`) 추가**: canonical 부재로 `.html`(308)↔클린URL 중복 판정 여지가 있던 것을 명시적 클린 URL 자기참조로 신호 일원화. privacy 중복 robots 태그도 1개로 정리.
+- 배경: GSC "색인 생성되지 않음" 4사유(noindex 1·리디렉션 1·대체 canonical 1·크롤됨-색인안됨 5) 점검 결과 대부분 신생 `.pages.dev` 사이트의 정상 dedup/저권위 현상이며, 코드로 고칠 수 있는 canonical 위생만 본 릴리스에서 처리. 색인 가속(사이트맵 재제출·URL 색인요청)은 GSC 수동 작업 필요.
+### Verified
+- 7개 정적 페이지 canonical 전부 **클린 URL 자기참조**·`name="robots"` 각 1개 확인 · 사이트맵 206 URL(보험글 120편) 200 페치 정상 · `node --check`(영향 없음, HTML만) · 보안 HIGH 0(REVIEW 51 기존) · release.mjs
+
 ## [2.91.0] - 2026-06-21
 ### Added (AdSense 소유권 확인 메타태그 — 승인 검증 경로 정적화)
 - 홈(`index.html`) + 정적 페이지 6종(about·contact·guide·terms·disclaimer·privacy)의 `<head>`에 **`<meta name="google-adsense-account" content="ca-pub-7787620251169899">`** 삽입(총 7개 파일). 기존 홈은 `adsbygoogle.js`를 **`load`+2초 idle 지연 주입**이라 Google 검증 봇이 홈에서 코드를 못 찾던 정황(반복 반려의 유력 원인) → **정적 메타태그로 소유권 검증을 즉시·확실히 통과**하도록 전환. guide.html은 기존 정적 `adsbygoogle.js`+광고유닛은 유지하고 메타태그만 추가.
