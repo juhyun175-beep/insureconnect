@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.90.0] - 2026-06-20
+### Changed (주간 다이제스트 활성화)
+- `wrangler.toml`에 `DIGEST_SEND_ENABLED = "1"` 추가 → 주간 다이제스트 실제 발송 모드 ON. 기존 dry 모드(미발송·집계만) → 매주 월요일 08:00 KST 카톡 메모 + 웹푸시 발송 시작.
+- 발송 게이트: `DIGEST_SEND_ENABLED=1` + 6일 빈도 가드 + 콘텐츠 존재 여부 모두 통과 시 발송. opt-in(`alert_optin=1`) 회원 카카오·active 웹푸시 구독자 대상.
+### Verified
+- `DIGEST_SEND_ENABLED` 값 wrangler.toml [vars] 반영 확인 · weekly-digest.js 게이트 로직 기존 동일 · release.mjs
+
 ## [2.89.0] - 2026-06-18
 ### Changed (홈 삼따AI 행 추가 압축 — 광고 인라인 배너 제거)
 - 우측 레일의 제휴광고 인라인 배너(`.ibh-ad`) 제거 → 레일 = 자유게시판 + 포인트받기 → **삼따AI 히어로 하단이 포인트받기 하단에 정확히 정렬** + 행 높이 추가 단축(≈470 → ≈370px, 최초 대비 ≈40%↓).
