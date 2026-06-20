@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.91.0] - 2026-06-21
+### Added (AdSense 소유권 확인 메타태그 — 승인 검증 경로 정적화)
+- 홈(`index.html`) + 정적 페이지 6종(about·contact·guide·terms·disclaimer·privacy)의 `<head>`에 **`<meta name="google-adsense-account" content="ca-pub-7787620251169899">`** 삽입(총 7개 파일). 기존 홈은 `adsbygoogle.js`를 **`load`+2초 idle 지연 주입**이라 Google 검증 봇이 홈에서 코드를 못 찾던 정황(반복 반려의 유력 원인) → **정적 메타태그로 소유권 검증을 즉시·확실히 통과**하도록 전환. guide.html은 기존 정적 `adsbygoogle.js`+광고유닛은 유지하고 메타태그만 추가.
+### Fixed (og/recruit·lecture canonical → self, 사이트맵 색인 회복)
+- `/og/recruit/{id}`·`/og/lecture/{id}`가 사이트맵엔 등록(priority 0.9)되면서 canonical이 `target.split('?')[0]`로 **홈('/')으로 접혀** "홈 중복"으로 색인 제외되던 버그 수정. 쿼리형 타깃(`?recruit=`·`?lecture=` SPA 뷰, 전용 색인페이지 없음)은 og 페이지 자신을 canonical(self)로(사이트맵 URL과 일치), 경로형(`/knowledge/`·`/board/`)은 전용 SSR 페이지 canonical 유지 → 채용공고가 고유 콘텐츠 페이지로 색인.
+### Verified
+- 프로덕션 D1 조회: published SEO 아티클 **120편(11개 카테고리)**·승인 채용 4건 — 크롤 가능 콘텐츠 깊이 충분(thin-content 아님). · `name="google-adsense-account"` 7개 HTML 파일 각 1회 확인 · og `[id].js` `node --check` OK · ads.txt/robots/privacy(광고·쿠키 고지)/sitemap 정상 · 보안 HIGH 0(REVIEW 51 기존) · release.mjs
+
 ## [2.90.0] - 2026-06-20
 ### Changed (주간 다이제스트 활성화)
 - `wrangler.toml`에 `DIGEST_SEND_ENABLED = "1"` 추가 → 주간 다이제스트 실제 발송 모드 ON. 기존 dry 모드(미발송·집계만) → 매주 월요일 08:00 KST 카톡 메모 + 웹푸시 발송 시작.

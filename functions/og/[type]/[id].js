@@ -243,6 +243,13 @@ export const onRequestGet = async ({ params, env, request }) => {
 
   const robotsTag = indexable ? 'index,follow' : 'noindex,nofollow';
 
+  // v2.91.0: canonical 정정 — 쿼리형 타깃(?recruit=·?lecture= 등 SPA 뷰)은 전용 색인 페이지가 없어
+  //   기존 target.split('?')[0] 가 홈('/')으로 접혀, 사이트맵에 등록된 og 페이지가 "홈 중복"으로 색인 제외됐다.
+  //   → 쿼리형이면 og 페이지 자신(self)을 canonical로(사이트맵 URL과 일치), 경로형(/knowledge/·/board/)은
+  //     전용 SSR 페이지를 canonical로 유지.
+  const selfUrl = `${SITE}/og/${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
+  const canonicalUrl = target.includes('?') ? selfUrl : target.split('?')[0];
+
   const html = `<!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -250,7 +257,7 @@ export const onRequestGet = async ({ params, env, request }) => {
 <title>${esc(title)}</title>
 <meta name="description" content="${esc(desc)}">
 <meta name="robots" content="${robotsTag}">
-<link rel="canonical" href="${esc(target.split('?')[0])}">
+<link rel="canonical" href="${esc(canonicalUrl)}">
 
 <meta property="og:type" content="article">
 <meta property="og:title" content="${esc(title)}">
