@@ -7,7 +7,7 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <!-- Google AdSense 소유권 확인 메타태그 (정적 — 검증 봇이 홈 <head>에서 즉시 탐지) -->
   <meta name="google-adsense-account" content="ca-pub-7787620251169899">
-  <meta name="version" content="2.93.0" />
+  <meta name="version" content="2.94.0" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고, 사례 기반 AI(삼따AI)까지 한 곳에서." />
   <!-- v2.13.3: 구조화 데이터(JSON-LD) — AEO/GEO (AI·답변엔진이 브랜드·서비스 이해) -->
@@ -9023,35 +9023,71 @@
       <div class="had-card">
         <button type="button" class="had-x" aria-label="닫기" onclick="closeHomeAd()">✕</button>
         <div class="had-scroll"><img class="had-img" src="" alt=""></div>
-        <a class="had-cta" href="#" target="_blank" rel="noopener noreferrer" onclick="if(typeof trackCardClick==='function')trackCardClick('홈광고','상담클릭')">💬 자세히 보기 →</a>
+        <a class="had-cta" href="#" target="_blank" rel="noopener noreferrer" onclick="homeAdCta()">💬 자세히 보기 →</a>
       </div>
     </div>
     <script>
-      window.openHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; if(typeof trackCardClick==='function')trackCardClick('홈광고','배너클릭'); };
+      /* v2.94.0: 다중 캠페인 광고 — source: 'auto'(자동팝업→popimp) | 'banner'(배너클릭→click) */
+      window.openHomeAd=function(source){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.add('open'); document.body.style.overflow='hidden'; try{ if(typeof trackCardClick==='function' && window._homeAdCampId) trackCardClick('홈광고',(source==='auto'?'popimp:':'click:')+window._homeAdCampId); }catch(_){} };
       window.closeHomeAd=function(){ var m=document.getElementById('home-ad-modal'); if(!m)return; m.classList.remove('open'); document.body.style.overflow=''; };
+      window.homeAdCta=function(){ try{ if(typeof trackCardClick==='function' && window._homeAdCampId) trackCardClick('홈광고','cta:'+window._homeAdCampId); }catch(_){} };
       (function(){ var m=document.getElementById('home-ad-modal'); if(m){ try{ document.body.appendChild(m); }catch(_){} m.addEventListener('click',function(e){ if(e.target===m) closeHomeAd(); }); } document.addEventListener('keydown',function(e){ if(e.key==='Escape' && m && m.classList.contains('open')) closeHomeAd(); }); })(); /* v2.72.0: 모달을 body로 이동 — 모바일에서 #page-home(display:none) 안에 갇혀 팝업이 안 뜨던 문제 해결 */
-      /* v2.66.0: 관리자 업로드 다중 광고 이미지(순번) — 배너=1번 이미지, 팝업=전체 순서대로, 홈 진입 시 자동 팝업 */
+      /* v2.94.0: 다중 캠페인 — 서버가 노출중(활성+스케줄) 캠페인만 반환 → 로테이션 선택 + 팝업 빈도 제어 + 노출/클릭 추적 */
       (function(){
+        function esc(s){ return String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+        function pickCampaign(cfg){
+          var arr=(cfg.campaigns||[]).filter(function(c){ return c && c.images && c.images.length; });
+          if(!arr.length) return null;
+          if(arr.length===1) return arr[0];
+          var rot=cfg.rotation||'sequential', i;
+          if(rot==='random'){ return arr[Math.floor(Math.random()*arr.length)]; }
+          if(rot==='weight'){
+            var tot=0; for(i=0;i<arr.length;i++) tot+=Math.max(1,arr[i].weight||1);
+            var r=Math.random()*tot;
+            for(i=0;i<arr.length;i++){ r-=Math.max(1,arr[i].weight||1); if(r<=0) return arr[i]; }
+            return arr[arr.length-1];
+          }
+          var n=0; try{ n=parseInt(localStorage.getItem('ic_homead_seq')||'0',10)||0; localStorage.setItem('ic_homead_seq', String((n+1)%100000)); }catch(_){}
+          return arr[n % arr.length];
+        }
+        function popupAllowed(popup){
+          if(!popup || popup.enabled===false) return false;
+          var freq=popup.frequency||'once_day';
+          if(freq==='off') return false;
+          if(freq==='always') return true;
+          try{
+            if(freq==='session'){ if(sessionStorage.getItem('ic_homead_pop')) return false; sessionStorage.setItem('ic_homead_pop','1'); return true; }
+            if(freq==='once_day'){ var today=new Date(Date.now()+9*3600*1000).toISOString().slice(0,10); if(localStorage.getItem('ic_homead_pop_day')===today) return false; localStorage.setItem('ic_homead_pop_day', today); return true; }
+          }catch(_){ return true; }
+          return true;
+        }
         try{
           fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
             if(!d||!d.ok||!d.config) return;
-            var c=d.config; var imgs=(c.images||[]).filter(Boolean);
-            function esc(s){ return String(s==null?'':s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+            var cfg=d.config;
+            var camp=pickCampaign(cfg);
+            if(!camp){ var w0=document.querySelector('.ibh-ad'); if(w0) w0.style.display='none'; return; }
+            window._homeAdCampId=camp.id||'main';
+            var imgs=(camp.images||[]).filter(Boolean);
+            // 배너(.ibh-ad, v2.89 이후 기본 미존재 — null-guard로 재추가 대비): 대표=1번 이미지
             var wrap=document.querySelector('.ibh-ad');
             var bimg=document.querySelector('.ibh-ad img');
-            // 배너(데스크탑): 노출 ON + 이미지 있을 때만 (대표=1번 이미지)
-            if(c.enabled && imgs.length){
-              if(bimg){ bimg.src=imgs[0]; if(c.alt) bimg.alt=c.alt; }
-              if(wrap) wrap.style.display='';
+            if(wrap && imgs.length){
+              if(bimg){ bimg.src=imgs[0]; if(camp.alt) bimg.alt=camp.alt; }
+              wrap.style.display='';
+              wrap.onclick=function(){ if(typeof openHomeAd==='function') openHomeAd('banner'); };
+              try{ if(typeof trackCardClick==='function') trackCardClick('홈광고','imp:'+window._homeAdCampId); }catch(_){}
             } else if(wrap){ wrap.style.display='none'; }
-            // 클릭/자동 팝업: 전체 이미지를 1번부터 순서대로 나란히(스크롤)
+            // 팝업 콘텐츠: 전체 이미지 순서대로 + CTA(문구·링크는 캠페인별)
             var scroll=document.querySelector('#home-ad-modal .had-scroll');
-            if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(c.alt||'')+'" loading="lazy">'; }).join(''); }
-            var cta=document.querySelector('#home-ad-modal .had-cta'); if(cta){ if(c.link_url){ cta.href=c.link_url; cta.style.display=''; } else { cta.style.display='none'; } }
-            // 홈 진입 시 자동 팝업 — 노출 ON + 이미지 있을 때, 페이지 로드당 1회, 홈에서만
-            if(c.enabled && imgs.length && !window._homeAdAutoShown && !document.body.classList.contains('nav-subpage')){
+            if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(camp.alt||'')+'" loading="lazy">'; }).join(''); }
+            var cta=document.querySelector('#home-ad-modal .had-cta');
+            if(cta){ if(camp.link_url){ cta.href=camp.link_url; cta.textContent=camp.cta_text||'💬 자세히 보기 →'; cta.style.display=''; } else { cta.style.display='none'; } }
+            // 홈 진입 자동 팝업 — 빈도 게이트 통과 + 페이지 로드당 1회 + 홈에서만
+            if(imgs.length && !window._homeAdAutoShown && !document.body.classList.contains('nav-subpage') && popupAllowed(cfg.popup)){
               window._homeAdAutoShown=true;
-              setTimeout(function(){ try{ if(typeof openHomeAd==='function' && !document.body.classList.contains('nav-subpage')) openHomeAd(); }catch(_){} }, 900);
+              var delay=(cfg.popup && cfg.popup.delay_ms!=null)?cfg.popup.delay_ms:900;
+              setTimeout(function(){ try{ if(typeof openHomeAd==='function' && !document.body.classList.contains('nav-subpage')) openHomeAd('auto'); }catch(_){} }, delay);
             }
           }).catch(function(){});
         }catch(_){}

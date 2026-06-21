@@ -4272,32 +4272,69 @@
         <div id="refund-logs" style="font-size:12px;color:var(--txt-mid);"></div>
       </div><!-- /#up-refunds -->
 
-      <!-- v2.63.0: 홈 광고배너(삼따AI 옆) 관리 -->
+      <!-- v2.94.0: 홈 광고배너 — 다중 캠페인·로테이션·스케줄·팝업제어·성과 -->
       <div class="upload-panel" id="up-homead">
         <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(14,165,233,0.30);border-left:3px solid #0ea5e9;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.08),rgba(14,165,233,0.02));">
-          <div style="font-size:12px;font-weight:700;color:#0ea5e9;margin-bottom:6px;letter-spacing:0.03em;">🖼 홈 광고배너 (삼따AI 옆)</div>
+          <div style="font-size:12px;font-weight:700;color:#0ea5e9;margin-bottom:6px;letter-spacing:0.03em;">🖼 홈 광고배너 (삼따AI 옆) — 다중 캠페인</div>
           <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
-            <li>홈 자유게시판·삼따AI 우측 <b>제휴상품 광고배너</b>의 이미지·클릭 팝업·상담 링크를 직접 교체</li>
-            <li>이미지를 올리거나 URL을 직접 입력 · 저장 후 홈 새로고침 시 반영 · 노출 끄면 배너 숨김</li>
+            <li><b>여러 캠페인</b>을 만들어 방문마다 번갈아/랜덤 노출(로테이션). 캠페인별 이미지·링크·게시기간 따로 설정.</li>
+            <li>각 캠페인: <b>배너=1번 이미지</b>, 클릭·자동팝업=<b>전체 순서대로</b>. 게시 시작/종료일·노출여부로 자동 on/off.</li>
+            <li>저장 후 홈 새로고침 시 반영. 성과(노출·클릭·CTR)는 아래 대시보드에서 확인.</li>
           </ul>
         </div>
-        <div class="nl-upload-box">
+
+        <!-- 전역 설정: 로테이션 + 팝업 -->
+        <div class="nl-upload-box" style="margin-bottom:14px;">
           <div class="nl-form">
-            <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--txt-hi);"><input type="checkbox" id="ha-enabled"> 배너 노출</label>
-            <div class="nl-field"><label>광고 이미지 (여러 장 가능 · 파일명 순서대로 1번부터)</label>
-              <label class="nl-file-label">📎 이미지 추가<input type="file" id="ha-files" accept="image/*" multiple><span class="nl-file-name" id="ha-files-name">없음</span></label>
-              <div style="font-size:11px;color:var(--txt-lo);margin-top:4px;line-height:1.6;">선택 즉시 업로드되어 아래 목록에 추가됩니다(파일명 1,2,3… 순). <b>배너는 1번 이미지</b>, 클릭·자동 팝업은 <b>전체를 순서대로</b> 표시(인슈어커넥트 뉴스처럼).</div>
+            <div class="nl-field">
+              <label>로테이션 (노출중 캠페인 2개 이상일 때)</label>
+              <select id="ha-rotation" style="width:100%;padding:8px 10px;font-size:13px;">
+                <option value="sequential">순차 — 방문마다 다음 캠페인</option>
+                <option value="random">랜덤</option>
+                <option value="weight">가중치 — weight 높을수록 자주</option>
+              </select>
             </div>
-            <div id="ha-images" style="margin:8px 0 4px;"></div>
-            <div class="nl-field"><label>CTA 링크 (💬 자세히 보기 → · 비우면 버튼 숨김)</label>
-              <input type="url" id="ha-link-url" placeholder="https://naver.me/..." style="font-family:inherit;">
+            <div class="nl-field" style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--txt-hi);white-space:nowrap;"><input type="checkbox" id="ha-popup-enabled"> 자동 팝업 사용</label>
+              <div style="flex:1;min-width:150px;">
+                <label>팝업 빈도</label>
+                <select id="ha-popup-freq" style="width:100%;padding:8px 10px;font-size:13px;">
+                  <option value="once_day">하루 1회</option>
+                  <option value="session">세션당 1회</option>
+                  <option value="always">매번</option>
+                  <option value="off">끄기 (배너만)</option>
+                </select>
+              </div>
+              <div style="width:140px;">
+                <label>팝업 지연(ms)</label>
+                <input type="number" id="ha-popup-delay" min="0" max="10000" step="100" value="900" style="width:100%;padding:8px 10px;font-size:13px;">
+              </div>
             </div>
-            <div class="nl-field"><label>대체텍스트(alt)</label>
-              <input type="text" id="ha-alt" placeholder="배너 설명(접근성·SEO)" style="font-family:inherit;">
-            </div>
-            <button class="nl-upload-btn" id="ha-save-btn" onclick="haSave()">저장</button>
-            <p class="nl-status" id="ha-status"></p>
           </div>
+        </div>
+
+        <!-- 캠페인 목록 (JS 렌더) -->
+        <div id="ha-campaigns"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;">
+          <button type="button" class="nl-upload-btn" style="background:rgba(14,165,233,0.14);color:#0ea5e9;flex:0 0 auto;" onclick="haAddCampaign()">➕ 캠페인 추가</button>
+          <button type="button" class="nl-upload-btn" id="ha-save-btn" style="flex:1;min-width:140px;" onclick="haSave()">💾 전체 저장</button>
+        </div>
+        <p class="nl-status" id="ha-status"></p>
+
+        <!-- 성과 대시보드 -->
+        <div style="margin-top:20px;border-top:1px solid var(--border);padding-top:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:10px;">
+            <p class="dash-section-title" style="margin:0;">📊 캠페인 성과 (노출·클릭·CTR)</p>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <select id="ha-stats-days" onchange="haLoadStats()" style="padding:5px 8px;font-size:11px;background:var(--bg-card);color:var(--txt-hi);border:1px solid var(--border);border-radius:6px;">
+                <option value="7">최근 7일</option>
+                <option value="14" selected>최근 14일</option>
+                <option value="30">최근 30일</option>
+              </select>
+              <button type="button" onclick="haLoadStats()" style="padding:5px 10px;font-size:11px;background:transparent;border:1px solid #0ea5e9;color:#0ea5e9;border-radius:6px;cursor:pointer;font-weight:700;">🔄 새로고침</button>
+            </div>
+          </div>
+          <div id="ha-stats"><p class="empty-msg">성과 로딩 중…</p></div>
         </div>
       </div><!-- /#up-homead -->
 
@@ -6315,11 +6352,89 @@
       }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
     }
 
-    /* v2.66.0: 홈 광고배너 — 다중 이미지(순번) 관리 */
-    var _haImages = [];
-    (function(){ var el=document.getElementById('ha-files'); if(el) el.addEventListener('change', function(){ haAddFiles(this.files); }); })();
-    async function haAddFiles(files){
+    /* v2.94.0: 홈 광고배너 — 다중 캠페인·로테이션·스케줄·팝업·성과 관리 */
+    var _haCfg = { campaigns: [], rotation: 'sequential', popup: { enabled: true, frequency: 'once_day', delay_ms: 900 } };
+    var _HA_DEFAULT_CTA = '💬 자세히 보기 →';
+
+    async function loadHomeAdAdmin(){
+      try{
+        var r=await fetch('/api/home-ad?all=1',{headers:adminHeaders()}); var d=await r.json();
+        if(d&&d.ok&&d.config){
+          _haCfg=d.config;
+          if(!Array.isArray(_haCfg.campaigns)) _haCfg.campaigns=[];
+          if(!_haCfg.popup) _haCfg.popup={enabled:true,frequency:'once_day',delay_ms:900};
+          if(!_haCfg.rotation) _haCfg.rotation='sequential';
+        }
+        var rot=document.getElementById('ha-rotation'); if(rot) rot.value=_haCfg.rotation;
+        var pe=document.getElementById('ha-popup-enabled'); if(pe) pe.checked=_haCfg.popup.enabled!==false;
+        var pf=document.getElementById('ha-popup-freq'); if(pf) pf.value=_haCfg.popup.frequency||'once_day';
+        var pd=document.getElementById('ha-popup-delay'); if(pd) pd.value=(_haCfg.popup.delay_ms!=null?_haCfg.popup.delay_ms:900);
+        haRenderCampaigns();
+        haLoadStats();
+      }catch(e){}
+    }
+
+    function haRenderCampaigns(){
+      var box=document.getElementById('ha-campaigns'); if(!box) return;
+      if(!_haCfg.campaigns.length){ box.innerHTML='<div style="font-size:12.5px;color:var(--txt-lo);padding:12px;border:1px dashed var(--border);border-radius:10px;text-align:center;">캠페인이 없습니다. 「➕ 캠페인 추가」를 눌러 시작하세요.</div>'; return; }
+      box.innerHTML=_haCfg.campaigns.map(function(c,idx){ return haCampCardHtml(c,idx); }).join('');
+    }
+
+    function haCampCardHtml(c, idx){
+      var imgs=(c.images||[]).map(function(u,i){
+        return '<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;margin-bottom:5px;background:var(--bg);">'
+          +'<span style="font-weight:800;color:#0ea5e9;min-width:18px;text-align:center;">'+(i+1)+'</span>'
+          +'<img src="'+esc(u)+'" alt="" style="width:48px;height:32px;object-fit:cover;border-radius:5px;border:1px solid var(--border);">'
+          +'<span style="flex:1;min-width:0;font-size:10.5px;color:var(--txt-lo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(u)+'</span>'
+          +'<button type="button" onclick="haImgMove('+idx+','+i+',-1)" '+(i===0?'disabled':'')+' style="border:none;background:rgba(120,140,180,0.15);color:var(--txt-hi);border-radius:5px;padding:3px 7px;cursor:pointer;font-weight:700;">↑</button>'
+          +'<button type="button" onclick="haImgMove('+idx+','+i+',1)" '+(i===((c.images||[]).length-1)?'disabled':'')+' style="border:none;background:rgba(120,140,180,0.15);color:var(--txt-hi);border-radius:5px;padding:3px 7px;cursor:pointer;font-weight:700;">↓</button>'
+          +'<button type="button" onclick="haImgRemove('+idx+','+i+')" style="border:none;background:rgba(220,38,38,0.14);color:#dc2626;border-radius:5px;padding:3px 7px;cursor:pointer;font-weight:700;">×</button>'
+          +'</div>';
+      }).join('') || '<div style="font-size:11px;color:var(--txt-lo);padding:4px 0 8px;">이미지 없음 — 아래에서 추가하세요. (배너=1번, 팝업=전체)</div>';
+
+      return '<div style="border:1px solid var(--border);border-left:3px solid '+(c.enabled?'#10b981':'#64748b')+';border-radius:10px;padding:12px 14px;margin-bottom:12px;background:var(--bg-card);">'
+        +'<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">'
+          +'<span style="font-size:11px;font-weight:800;color:#0ea5e9;background:rgba(14,165,233,0.12);padding:2px 8px;border-radius:5px;white-space:nowrap;">캠페인 '+(idx+1)+'</span>'
+          +'<input type="text" value="'+esc(c.name||'')+'" oninput="haField('+idx+',\'name\',this.value)" placeholder="캠페인 이름" style="flex:1;min-width:120px;padding:6px 9px;font-size:13px;font-weight:700;">'
+          +'<label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--txt-hi);white-space:nowrap;"><input type="checkbox" '+(c.enabled?'checked':'')+' onchange="haField('+idx+',\'enabled\',this.checked)"> 노출</label>'
+          +'<button type="button" onclick="haRemoveCampaign('+idx+')" style="border:none;background:rgba(220,38,38,0.14);color:#dc2626;border-radius:6px;padding:5px 10px;cursor:pointer;font-weight:700;font-size:11px;white-space:nowrap;">캠페인 삭제</button>'
+        +'</div>'
+        +'<div>'+imgs+'</div>'
+        +'<label class="nl-file-label" style="margin:4px 0 10px;">📎 이미지 추가<input type="file" accept="image/*" multiple onchange="haAddFiles(this.files,'+idx+')"><span class="nl-file-name">배너=1번 · 팝업=전체(순서대로)</span></label>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;">'
+          +'<div style="flex:2;min-width:180px;"><label style="font-size:11px;color:var(--txt-lo);">CTA 링크 (비우면 버튼 숨김)</label><input type="url" value="'+esc(c.link_url||'')+'" oninput="haField('+idx+',\'link_url\',this.value)" placeholder="https://naver.me/..." style="width:100%;padding:6px 9px;font-size:12.5px;"></div>'
+          +'<div style="flex:1;min-width:130px;"><label style="font-size:11px;color:var(--txt-lo);">CTA 문구</label><input type="text" value="'+esc(c.cta_text||'')+'" oninput="haField('+idx+',\'cta_text\',this.value)" placeholder="'+_HA_DEFAULT_CTA+'" style="width:100%;padding:6px 9px;font-size:12.5px;"></div>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">'
+          +'<div style="flex:2;min-width:160px;"><label style="font-size:11px;color:var(--txt-lo);">대체텍스트(alt)</label><input type="text" value="'+esc(c.alt||'')+'" oninput="haField('+idx+',\'alt\',this.value)" placeholder="배너 설명(접근성·SEO)" style="width:100%;padding:6px 9px;font-size:12.5px;"></div>'
+          +'<div style="width:90px;"><label style="font-size:11px;color:var(--txt-lo);">가중치</label><input type="number" min="1" max="100" value="'+(c.weight||1)+'" oninput="haField('+idx+',\'weight\',this.value)" style="width:100%;padding:6px 9px;font-size:12.5px;"></div>'
+        +'</div>'
+        +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">'
+          +'<div style="flex:1;min-width:130px;"><label style="font-size:11px;color:var(--txt-lo);">게시 시작 (비우면 즉시)</label><input type="date" value="'+esc(c.start_at||'')+'" oninput="haField('+idx+',\'start_at\',this.value)" style="width:100%;padding:6px 9px;font-size:12.5px;"></div>'
+          +'<div style="flex:1;min-width:130px;"><label style="font-size:11px;color:var(--txt-lo);">게시 종료 (비우면 무기한)</label><input type="date" value="'+esc(c.end_at||'')+'" oninput="haField('+idx+',\'end_at\',this.value)" style="width:100%;padding:6px 9px;font-size:12.5px;"></div>'
+        +'</div>'
+      +'</div>';
+    }
+
+    function haField(idx, key, val){
+      var c=_haCfg.campaigns[idx]; if(!c) return;
+      if(key==='enabled'){ c.enabled=!!val; haRenderCampaigns(); }
+      else if(key==='weight'){ c.weight=Math.max(1,Math.min(100,parseInt(val,10)||1)); }
+      else { c[key]=val; }
+    }
+    function haAddCampaign(){
+      if(_haCfg.campaigns.length>=20){ alert('캠페인은 최대 20개입니다.'); return; }
+      _haCfg.campaigns.push({ id:'c'+Date.now().toString(36)+Math.random().toString(36).slice(2,5), name:'캠페인 '+(_haCfg.campaigns.length+1), enabled:false, images:[], link_url:'', alt:'', cta_text:_HA_DEFAULT_CTA, weight:1, start_at:'', end_at:'' });
+      haRenderCampaigns();
+    }
+    function haRemoveCampaign(idx){
+      if(!confirm('이 캠페인을 삭제할까요? (「전체 저장」 시 반영)')) return;
+      _haCfg.campaigns.splice(idx,1); haRenderCampaigns();
+    }
+    async function haAddFiles(files, idx){
       if(!files || !files.length) return;
+      var c=_haCfg.campaigns[idx]; if(!c) return;
+      if(!Array.isArray(c.images)) c.images=[];
       var st=document.getElementById('ha-status'); if(st){ st.style.color='var(--txt-lo)'; st.textContent='이미지 업로드 중…'; }
       var arr=Array.prototype.slice.call(files).sort(function(a,b){ return a.name.localeCompare(b.name, undefined, {numeric:true, sensitivity:'base'}); });
       try{
@@ -6329,57 +6444,58 @@
           var path='banner_'+Date.now()+'_'+Math.random().toString(36).slice(2,8)+'.'+ext;
           var up=await fetch('/api/files/home-ad/'+path,{method:'POST',headers:adminHeaders({'Content-Type':f.type,'x-upsert':'true'}),body:f});
           if(!up.ok) throw new Error('업로드 실패: '+f.name);
-          _haImages.push('/api/files/home-ad/'+path);
+          c.images.push('/api/files/home-ad/'+path);
         }
-        haRenderImages();
-        var fi=document.getElementById('ha-files'); if(fi) fi.value='';
-        if(st){ st.style.color='#10b981'; st.textContent='✅ '+arr.length+'장 추가됨 — 「저장」을 눌러 반영하세요.'; }
+        haRenderCampaigns();
+        if(st){ st.style.color='#10b981'; st.textContent='✅ '+arr.length+'장 추가됨 — 「전체 저장」을 눌러 반영하세요.'; }
       }catch(e){ if(st){ st.style.color='#ef4444'; st.textContent='❌ '+e.message; } }
     }
-    function haRenderImages(){
-      var box=document.getElementById('ha-images'); if(!box) return;
-      if(!_haImages.length){ box.innerHTML='<div style="font-size:12px;color:var(--txt-lo);padding:8px 0;">등록된 이미지가 없습니다. 위에서 이미지를 추가하세요.</div>'; return; }
-      box.innerHTML=_haImages.map(function(u,i){
-        return '<div style="display:flex;align-items:center;gap:10px;padding:7px 9px;border:1px solid var(--border);border-radius:9px;margin-bottom:6px;background:var(--bg);">'
-          +'<span style="font-weight:800;color:#0ea5e9;min-width:20px;text-align:center;">'+(i+1)+'</span>'
-          +'<img src="'+esc(u)+'" alt="" style="width:54px;height:38px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">'
-          +'<span style="flex:1;min-width:0;font-size:11px;color:var(--txt-lo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(u)+'</span>'
-          +'<button type="button" onclick="haMove('+i+',-1)" '+(i===0?'disabled':'')+' style="border:none;background:rgba(120,140,180,0.15);color:var(--txt-hi);border-radius:6px;padding:4px 8px;cursor:pointer;font-weight:700;">↑</button>'
-          +'<button type="button" onclick="haMove('+i+',1)" '+(i===_haImages.length-1?'disabled':'')+' style="border:none;background:rgba(120,140,180,0.15);color:var(--txt-hi);border-radius:6px;padding:4px 8px;cursor:pointer;font-weight:700;">↓</button>'
-          +'<button type="button" onclick="haRemove('+i+')" style="border:none;background:rgba(220,38,38,0.14);color:#dc2626;border-radius:6px;padding:4px 8px;cursor:pointer;font-weight:700;">삭제</button>'
-          +'</div>';
-      }).join('');
-    }
-    function haMove(i,dir){ var j=i+dir; if(j<0||j>=_haImages.length) return; var t=_haImages[i]; _haImages[i]=_haImages[j]; _haImages[j]=t; haRenderImages(); }
-    function haRemove(i){ _haImages.splice(i,1); haRenderImages(); }
-    async function loadHomeAdAdmin(){
-      try{
-        var r=await fetch('/api/home-ad'); var d=await r.json();
-        if(!d||!d.ok) return; var c=d.config||{};
-        var ena=document.getElementById('ha-enabled'); if(ena) ena.checked = c.enabled===true;
-        var lk=document.getElementById('ha-link-url'); if(lk) lk.value=c.link_url||'';
-        var al=document.getElementById('ha-alt'); if(al) al.value=c.alt||'';
-        _haImages=(c.images||[]).slice();
-        haRenderImages();
-      }catch(e){}
+    function haImgMove(idx,i,dir){ var c=_haCfg.campaigns[idx]; if(!c||!c.images) return; var j=i+dir; if(j<0||j>=c.images.length) return; var t=c.images[i]; c.images[i]=c.images[j]; c.images[j]=t; haRenderCampaigns(); }
+    function haImgRemove(idx,i){ var c=_haCfg.campaigns[idx]; if(!c||!c.images) return; c.images.splice(i,1); haRenderCampaigns(); }
+
+    function haReadGlobals(){
+      var rot=document.getElementById('ha-rotation'); if(rot) _haCfg.rotation=rot.value;
+      var pe=document.getElementById('ha-popup-enabled'); var pf=document.getElementById('ha-popup-freq'); var pd=document.getElementById('ha-popup-delay');
+      _haCfg.popup={ enabled: pe?pe.checked:true, frequency: pf?pf.value:'once_day', delay_ms: pd?Math.max(0,Math.min(10000,parseInt(pd.value,10)||900)):900 };
     }
     async function haSave(){
+      haReadGlobals();
       var btn=document.getElementById('ha-save-btn'); var st=document.getElementById('ha-status');
-      btn.disabled=true; btn.textContent='⏳ 저장 중…'; if(st){ st.textContent=''; }
+      btn.disabled=true; var ot=btn.textContent; btn.textContent='⏳ 저장 중…'; if(st){ st.textContent=''; }
       try{
-        var payload={
-          enabled: document.getElementById('ha-enabled').checked,
-          images: _haImages,
-          link_url: document.getElementById('ha-link-url').value.trim(),
-          alt: document.getElementById('ha-alt').value.trim()
-        };
-        var r=await fetch('/api/home-ad',{method:'PUT',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify(payload)});
+        var r=await fetch('/api/home-ad',{method:'PUT',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify(_haCfg)});
         var d=await r.json();
         if(!r.ok||!d.ok) throw new Error((d&&d.error)||('HTTP '+r.status));
-        if(st){ st.textContent='✅ 저장 완료 ('+((d.config&&d.config.images&&d.config.images.length)||0)+'장 · 홈 새로고침 시 반영)'; st.style.color='#10b981'; }
-        _haImages=((d.config&&d.config.images)||_haImages).slice(); haRenderImages();
+        if(d.config){ _haCfg=d.config; haRenderCampaigns(); }
+        var act=(_haCfg.campaigns||[]).filter(function(c){return c.enabled;}).length;
+        if(st){ st.textContent='✅ 저장 완료 (캠페인 '+(_haCfg.campaigns||[]).length+'개 · 노출 '+act+'개 · 홈 새로고침 시 반영)'; st.style.color='#10b981'; }
       }catch(e){ if(st){ st.textContent='❌ '+e.message; st.style.color='#ef4444'; } }
-      finally{ btn.disabled=false; btn.textContent='저장'; }
+      finally{ btn.disabled=false; btn.textContent=ot; }
+    }
+    async function haLoadStats(){
+      var box=document.getElementById('ha-stats'); if(!box) return;
+      var daysEl=document.getElementById('ha-stats-days'); var days=daysEl?daysEl.value:14;
+      box.innerHTML='<p class="empty-msg">성과 로딩 중…</p>';
+      try{
+        var r=await fetch('/api/home-ad?stats=1&days='+days,{headers:adminHeaders()}); var d=await r.json();
+        if(!d||!d.ok){ box.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; return; }
+        var rows=d.stats||[];
+        if(!rows.length){ box.innerHTML='<p class="empty-msg">아직 노출·클릭 기록이 없습니다. (배너가 노출되면 집계됩니다)</p>'; return; }
+        box.innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr style="background:rgba(14,165,233,0.06);border-bottom:1px solid #0ea5e9;">'
+          +'<th style="text-align:left;padding:8px 9px;font-size:10.5px;letter-spacing:0.08em;color:#0ea5e9;">캠페인</th>'
+          +'<th style="text-align:right;padding:8px 9px;font-size:10.5px;letter-spacing:0.08em;color:#0ea5e9;">노출</th>'
+          +'<th style="text-align:right;padding:8px 9px;font-size:10.5px;letter-spacing:0.08em;color:#0ea5e9;">클릭</th>'
+          +'<th style="text-align:right;padding:8px 9px;font-size:10.5px;letter-spacing:0.08em;color:#0ea5e9;">CTR</th></tr></thead><tbody>'
+          +rows.map(function(s){
+            var ctr=s.ctr||0;
+            return '<tr style="border-bottom:1px solid var(--border);">'
+              +'<td style="padding:9px;font-weight:700;color:var(--txt-hi);">'+esc(s.name||s.campaign_id)+'<div style="font-size:10px;color:var(--txt-lo);font-weight:400;">배너 '+(s.banner_imp||0)+' · 팝업 '+(s.popup_imp||0)+' 노출</div></td>'
+              +'<td style="padding:9px;text-align:right;font-variant-numeric:tabular-nums;">'+(s.impressions||0).toLocaleString()+'</td>'
+              +'<td style="padding:9px;text-align:right;font-variant-numeric:tabular-nums;color:#ff006e;font-weight:700;">'+(s.clicks||0).toLocaleString()+'</td>'
+              +'<td style="padding:9px;text-align:right;font-weight:800;color:'+(ctr>=3?'#10b981':ctr>=1?'#fbbf24':'var(--txt-mid)')+';">'+ctr+'%</td>'
+            +'</tr>';
+          }).join('')+'</tbody></table></div>';
+      }catch(e){ box.innerHTML='<p class="empty-msg">로드 실패: '+esc(e.message)+'</p>'; }
     }
 
     /* v2.67.0: 공고 주문/환불 관리 + 동의 기록 */
