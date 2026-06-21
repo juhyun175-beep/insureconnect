@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.96.3] - 2026-06-21
+### Performance (홈 스크롤 잔여 버벅임 — 이미지 디코드 + 쇼케이스 카드 컬링)
+- v2.96.2(box-shadow 펄스 제거)로 사용자 "확실히 부드러워짐" 확인. 남은 잔여 = 순수 콘텐츠 페인트(카드·이미지).
+- **이미지 `decoding="async"` 전면 적용**: 동적 렌더 이미지 전부(홈 피드·쇼케이스·뉴스·카드뉴스·GA로고·지식카드 등)에 추가(기존 정적 1곳만 있던 것 → 전체). 스크롤 중 메인스레드 동기 이미지 디코드 stall 제거.
+- **쇼케이스 카드 `content-visibility`**: `.ic-job-card`(채용/강의/모임)도 화면 밖이면 paint 스킵(홈 피드 `.hf-card`는 v2.96.0부터 적용 중).
+### Verified
+- index.html 인라인 `<script>` 0 errors · 보안스캔 HIGH 0 · release.mjs
+
 ## [2.96.2] - 2026-06-21
 ### Fixed (홈 스크롤 버벅임 진짜 원인 — box-shadow 펄스 애니메이션의 매 프레임 repaint)
 - **LoAF + Paint Flashing 측정으로 확정**: 버벅임은 JS/레이아웃/누수가 아니라 **순수 페인트**(프레임당 200~360ms, 23fps). Paint flashing 결과 상단 "진행중" 칩 3개(`jobsPulse` on `.ic-jobs-pill`)+도움말 FAB(`ictHelpPulse`)가 **매 프레임 초록(=repaint)**. 정체는 **`box-shadow`를 애니메이트하는 무한 펄스** — box-shadow 애니는 GPU 합성이 안 돼 매 프레임 repaint + 스크롤 콘텐츠 레이어 캐싱까지 깨 풀 리페인트 유발. (대조군 `ic-share-pulse`는 `transform:scale`이라 실행 중에도 repaint 0 = 직접 증거)

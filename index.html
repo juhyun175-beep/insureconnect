@@ -7,7 +7,7 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <!-- Google AdSense 소유권 확인 메타태그 (정적 — 검증 봇이 홈 <head>에서 즉시 탐지) -->
   <meta name="google-adsense-account" content="ca-pub-7787620251169899">
-  <meta name="version" content="2.96.2" />
+  <meta name="version" content="2.96.3" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고, 사례 기반 AI(삼따AI)까지 한 곳에서." />
   <!-- v2.13.3: 구조화 데이터(JSON-LD) — AEO/GEO (AI·답변엔진이 브랜드·서비스 이해) -->
@@ -6649,6 +6649,8 @@
         animation-iteration-count: 1 !important;
       }
     }
+    /* v2.96.3: 쇼케이스(채용/강의/모임) 카드도 화면 밖이면 렌더(paint) 스킵 */
+    .ic-job-card { content-visibility: auto; contain-intrinsic-size: auto 190px; }
 
     /* ══════════════════════════════
        우측 고정 네비게이션 버튼 그룹
@@ -9113,7 +9115,7 @@
             } else if(wrap){ wrap.style.display='none'; }
             // 팝업 콘텐츠: 전체 이미지 순서대로 + CTA(문구·링크는 캠페인별)
             var scroll=document.querySelector('#home-ad-modal .had-scroll');
-            if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(camp.alt||'')+'" loading="lazy">'; }).join(''); }
+            if(scroll){ scroll.innerHTML = imgs.map(function(u){ return '<img class="had-img" src="'+esc(u)+'" alt="'+esc(camp.alt||'')+'" loading="lazy" decoding="async">'; }).join(''); }
             var cta=document.querySelector('#home-ad-modal .had-cta');
             if(cta){ if(camp.link_url){ cta.href=camp.link_url; cta.textContent=camp.cta_text||'💬 자세히 보기 →'; cta.style.display=''; } else { cta.style.display='none'; } }
             // 홈 진입 자동 팝업 — 빈도 게이트 통과 + 페이지 로드당 1회 + 홈에서만
@@ -10666,7 +10668,7 @@
       a.style.setProperty('--c', 'var(--blue-mid)');
       a.style.animationDelay = (idx * 40) + 'ms';
       const logoHtml = ga.logo
-        ? `<img src="${ga.logo}" alt="${ga.name}" loading="lazy" onerror="this.parentElement.classList.add('no-img');this.outerHTML='<span class=\\'c-badge-text\\' style=\\'font-size:14px;\\'>${ga.abbr}</span>'">`
+        ? `<img src="${ga.logo}" alt="${ga.name}" loading="lazy" decoding="async" onerror="this.parentElement.classList.add('no-img');this.outerHTML='<span class=\\'c-badge-text\\' style=\\'font-size:14px;\\'>${ga.abbr}</span>'">`
         : `<span class="c-badge-text" style="font-size:14px;">${ga.abbr}</span>`;
       const badgeCls = ga.logo ? 'c-badge' : 'c-badge no-img';
       a.innerHTML = `
@@ -11150,10 +11152,10 @@
           let thumb;
           let typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
             typeBadge = '<span class="rc-card-type-badge">📄 PDF</span>';
           } else {
             thumb = `<span class="rc-card-thumb-fallback">📝<small>TEXT</small></span>`;
@@ -11207,10 +11209,10 @@
           const instr = it.instructor ? esc(it.instructor) : '';
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
             typeBadge = '<span class="rc-card-type-badge">📄 PDF</span>';
           } else {
             thumb = `<span class="rc-card-thumb-fallback">🎓<small>강의</small></span>`;
@@ -11381,10 +11383,10 @@
           const host = it.host ? esc(it.host) : '';
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
             typeBadge = '<span class="rc-card-type-badge">📄 PDF</span>';
           } else {
             thumb = `<span class="rc-card-thumb-fallback">🤝<small>모임</small></span>`;
@@ -11605,9 +11607,9 @@
       if (type === 'pdf') {
         // 네이티브 iframe — 브라우저 내장 PDF 뷰어가 모바일에서도 페이지 스크롤/줌 처리
         content.innerHTML = closeBtn + openExt +
-          `<iframe src="${url}#view=FitH" allow="fullscreen" loading="lazy"></iframe>`;
+          `<iframe src="${url}#view=FitH" allow="fullscreen" loading="lazy" decoding="async"></iframe>`;
       } else {
-        content.innerHTML = closeBtn + openExt + `<img src="${url}" alt="소식지" loading="lazy">`;
+        content.innerHTML = closeBtn + openExt + `<img src="${url}" alt="소식지" loading="lazy" decoding="async">`;
       }
       viewer.classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -11970,7 +11972,7 @@
         const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
         const cover = s.items[0];
         const thumb = cover && cover.file_type === 'image'
-          ? `<img src="${cover.file_url}" alt="${s.title}" loading="lazy">`
+          ? `<img src="${cover.file_url}" alt="${s.title}" loading="lazy" decoding="async">`
           : `<span class="cn-tile-fallback">📰</span>`;
         return `
           <button class="cn-tile" data-i="${i}" type="button">
@@ -13058,7 +13060,7 @@
         if (count) count.textContent = posts.length;
         body.innerHTML = `<div class="kn-grid">${posts.map(p => {
           const cover = p.image_url
-            ? `<div class="kn-card-cover"><img src="${knEsc(p.image_url)}" alt="" loading="lazy"></div>`
+            ? `<div class="kn-card-cover"><img src="${knEsc(p.image_url)}" alt="" loading="lazy" decoding="async"></div>`
             : `<div class="kn-card-cover">📚</div>`;
           const plain  = stripKnTags(p.content);
           const excerpt = knEsc(plain.slice(0,80)) + (plain.length > 80 ? '…' : '');
@@ -13187,7 +13189,7 @@
         }
         const m = line.match(/^\[img:(https?:\/\/[^\]]+)\]$/);
         if (m) {
-          result.push(`<img src="${knEsc(m[1])}" class="kn-inline-img" alt="" loading="lazy">`);
+          result.push(`<img src="${knEsc(m[1])}" class="kn-inline-img" alt="" loading="lazy" decoding="async">`);
         } else if (line.trim() === '') {
           result.push('<br>');
         } else {
@@ -15031,7 +15033,7 @@
             const t = esc(item.title || '');
             const isImg = item.file_type && item.file_type.startsWith('image');
             const thumb = (isImg && item.file_url)
-              ? `<div class="hf-thumb"><img src="${item.file_url}" alt="${t}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>🗞</span></div>'"></div>`
+              ? `<div class="hf-thumb"><img src="${item.file_url}" alt="${t}" loading="lazy" decoding="async" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>🗞</span></div>'"></div>`
               : `<div class="hf-thumb-none"><span>🗞</span></div>`;
             return `<div class="hf-card" onclick="homeFeedOpenNews('${item.set_id}')" tabindex="0" role="button" aria-label="${t}">
               ${thumb}
@@ -15044,7 +15046,7 @@
           } else {
             const t = esc(item.title || '');
             const thumb = item.image_url
-              ? `<div class="hf-thumb"><img src="${item.image_url}" alt="${t}" loading="lazy" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>📚</span></div>'"></div>`
+              ? `<div class="hf-thumb"><img src="${item.image_url}" alt="${t}" loading="lazy" decoding="async" onerror="this.parentElement.outerHTML='<div class=\\'hf-thumb-none\\'><span>📚</span></div>'"></div>`
               : `<div class="hf-thumb-none"><span>📚</span></div>`;
             return `<div class="hf-card" onclick="homeFeedOpenKnowledge(${item.id})" tabindex="0" role="button" aria-label="${t}">
               ${thumb}
@@ -15149,7 +15151,7 @@
         if (popup.file_type === 'pdf') {
           html += `<div class="hp-file"><iframe src="${popup.file_url}" title="첨부 PDF"></iframe></div>`;
         } else {
-          html += `<div class="hp-file"><img src="${popup.file_url}" alt="첨부 이미지" loading="lazy"></div>`;
+          html += `<div class="hp-file"><img src="${popup.file_url}" alt="첨부 이미지" loading="lazy" decoding="async"></div>`;
         }
       }
       body.innerHTML = html || '<p style="color:var(--txt-lo);">내용이 없습니다.</p>';
@@ -15354,7 +15356,7 @@
           const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
           const cover = s.items && s.items[0];
           const thumb = (cover && cover.file_type === 'image')
-            ? `<img src="${esc(cover.file_url)}" alt="${esc(s.title||'')}" loading="lazy">`
+            ? `<img src="${esc(cover.file_url)}" alt="${esc(s.title||'')}" loading="lazy" decoding="async">`
             : `<span class="cn-tile-fallback">📰</span>`;
           return `<button class="cn-tile" type="button" onclick="openCardNewsModal(${i})">
             <div class="cn-tile-thumb">${thumb}<span class="cn-tile-count">${(s.items && s.items.length) || 0}장</span></div>
@@ -16185,10 +16187,10 @@
           let thumb;
           let typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
             typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
           } else {
             thumb = `<span class="ic-job-thumb-fallback">📝</span>`;
@@ -16306,10 +16308,10 @@
         grid.innerHTML = items.map((it, i) => {
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
             typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
           } else {
             thumb = `<span class="ic-job-thumb-fallback">🎓</span>`;
@@ -16359,10 +16361,10 @@
         grid.innerHTML = items.map((it, i) => {
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy">`;
+            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy"></iframe>`;
+            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
             typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
           } else {
             thumb = `<span class="ic-job-thumb-fallback">🤝</span>`;
