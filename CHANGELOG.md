@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.96.2] - 2026-06-21
+### Fixed (홈 스크롤 버벅임 진짜 원인 — box-shadow 펄스 애니메이션의 매 프레임 repaint)
+- **LoAF + Paint Flashing 측정으로 확정**: 버벅임은 JS/레이아웃/누수가 아니라 **순수 페인트**(프레임당 200~360ms, 23fps). Paint flashing 결과 상단 "진행중" 칩 3개(`jobsPulse` on `.ic-jobs-pill`)+도움말 FAB(`ictHelpPulse`)가 **매 프레임 초록(=repaint)**. 정체는 **`box-shadow`를 애니메이트하는 무한 펄스** — box-shadow 애니는 GPU 합성이 안 돼 매 프레임 repaint + 스크롤 콘텐츠 레이어 캐싱까지 깨 풀 리페인트 유발. (대조군 `ic-share-pulse`는 `transform:scale`이라 실행 중에도 repaint 0 = 직접 증거)
+- **box-shadow 펄스 7종 → opacity/transform(합성) 변환**: `jobsPulse`·`ictHelpPulse`·`scb-crew-pulse`·`lm-pulse`·`pwa-pulse`·`mlgPulse`·`ibhAdGlow`. 정적 그림자는 요소에 유지, 펄스 느낌도 유지하되 **매 프레임 repaint 제거**. (v2.96.0~.1의 left→transform·scroll-pause·content-visibility·requestIdleCallback 수정과 누적)
+### Verified
+- index.html 인라인 `<script>` 0 errors · box-shadow 애니 키프레임 잔존 0 · 보안스캔 HIGH 0 · release.mjs
+
 ## [2.96.1] - 2026-06-21
 ### Fixed (홈 스크롤 후속 — v2.96.0 스크롤-퍼즈 미작동 교정 + 광고 로더 예외 수정)
 - **스크롤-퍼즈 타깃 교정**: v2.96.0의 `body.ic-scrolling` 토글이 `window` scroll에 붙어 있었으나, 홈은 `.content`(#page-home)의 `overflow-y:auto` **안쪽 컨테이너에서 스크롤**됨 → window 리스너가 못 잡아 ②번 처방이 **한 번도 작동 안 함**. `document` **캡처 단계**(`capture:true`)로 변경(scroll은 버블 안 하지만 캡처는 전파) → 내부 스크롤 포착해 스크롤 중 장식 애니메이션 정지 정상화. (콘솔 측정으로 발견 유도)

@@ -7,7 +7,7 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <!-- Google AdSense 소유권 확인 메타태그 (정적 — 검증 봇이 홈 <head>에서 즉시 탐지) -->
   <meta name="google-adsense-account" content="ca-pub-7787620251169899">
-  <meta name="version" content="2.96.1" />
+  <meta name="version" content="2.96.2" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고, 사례 기반 AI(삼따AI)까지 한 곳에서." />
   <!-- v2.13.3: 구조화 데이터(JSON-LD) — AEO/GEO (AI·답변엔진이 브랜드·서비스 이해) -->
@@ -975,8 +975,8 @@
       animation: scb-live-dot 1.2s ease-in-out infinite;
     }
     @keyframes scb-crew-pulse {
-      0%,100% { transform: scale(1); box-shadow: 0 3px 12px rgba(254,229,0,0.45); }
-      50%     { transform: scale(1.025); box-shadow: 0 5px 20px rgba(254,229,0,0.70); }
+      0%,100% { transform: scale(1); }
+      50%     { transform: scale(1.025); }
     }
     @keyframes scb-crew-shine {
       0%,55%  { transform: translateX(0); }
@@ -1228,8 +1228,8 @@
       animation: none;
     }
     @keyframes pwa-pulse {
-      0%, 100% { box-shadow: 0 2px 12px rgba(26,61,232,0.30); }
-      50%       { box-shadow: 0 2px 20px rgba(26,61,232,0.55); }
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.78; }
     }
     .side-footer-link:hover { background: rgba(26,61,232,0.06); color: var(--blue-mid); }
     .side-stats {
@@ -4572,7 +4572,7 @@
     .mlg-social { display:inline-flex; align-items:center; gap:8px; margin:14px auto 0; padding:7px 14px; border-radius:999px; background:#ecfdf5; border:1px solid #a7f3d0; font-size:12px; font-weight:700; color:#065f46; }
     [data-theme="dark"] .mlg-social { background:rgba(16,185,129,.12); border-color:rgba(16,185,129,.3); color:#6ee7b7; }
     .mlg-social .dot { width:8px; height:8px; border-radius:50%; background:#10b981; animation:mlgPulse 1.8s infinite; flex-shrink:0; }
-    @keyframes mlgPulse { 0%{box-shadow:0 0 0 0 rgba(16,185,129,.5)} 70%{box-shadow:0 0 0 7px rgba(16,185,129,0)} 100%{box-shadow:0 0 0 0 rgba(16,185,129,0)} }
+    @keyframes mlgPulse { 0%,100%{opacity:1} 60%{opacity:0.5} }
     .mlg-social b { color:inherit; font-weight:900; }
     .mlg-invite { margin:0 0 18px; padding:11px 14px; border-radius:12px; background:linear-gradient(135deg,#fef3c7,#fde68a); border:1px solid #fbbf24; color:#92400e; font-size:13px; font-weight:700; }
     [data-theme="dark"] .mlg-invite { background:linear-gradient(135deg,rgba(245,158,11,.18),rgba(249,115,22,.12)); border-color:rgba(245,158,11,.4); color:#fcd34d; }
@@ -5817,9 +5817,10 @@
       box-shadow: 0 2px 8px rgba(239,68,68,0.30);
       animation: jobsPulse 2.2s ease-in-out infinite;
     }
+    /* v2.96.2: box-shadow 애니 → opacity(합성). 정적 box-shadow는 .ic-jobs-pill에 유지. 매 프레임 repaint 제거 */
     @keyframes jobsPulse {
-      0%, 100% { box-shadow: 0 2px 8px rgba(239,68,68,0.30); }
-      50%       { box-shadow: 0 2px 16px rgba(239,68,68,0.55); }
+      0%, 100% { opacity: 1; }
+      50%       { opacity: 0.7; }
     }
     .ic-jobs-spacer { flex: 1; }
     .ic-jobs-all {
@@ -6263,8 +6264,8 @@
       animation: lm-pulse 1.6s ease-in-out infinite;
     }
     @keyframes lm-pulse {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.75); }
-      50%      { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+      0%, 100% { opacity: 1; }
+      50%      { opacity: 0.45; }
     }
     .lm-title {
       font-size: 14px;
@@ -8484,7 +8485,7 @@
     [data-theme="dark"] .ict-prev{background:#26304a;color:#9db5ff;}
     .ict-next{background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:10px;font-weight:800;font-size:14px;padding:10px 17px;cursor:pointer;font-family:inherit;}
     .ict-help{position:fixed;right:15px;bottom:80px;z-index:9000;background:linear-gradient(135deg,#1a3de8,#4f6df0);color:#fff;border:none;border-radius:999px;font-weight:800;font-size:13.5px;padding:11px 17px;box-shadow:0 8px 20px rgba(26,61,232,.35);cursor:pointer;font-family:inherit;animation:ictHelpPulse 2.6s ease-in-out infinite;}
-    @keyframes ictHelpPulse{0%,100%{box-shadow:0 8px 20px rgba(26,61,232,.35);transform:scale(1);}50%{box-shadow:0 10px 26px rgba(26,61,232,.55),0 0 0 7px rgba(26,61,232,.13);transform:scale(1.05);}}
+    @keyframes ictHelpPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}} /* v2.96.2: box-shadow 애니 제거(repaint), scale만 유지 */
     @media (prefers-reduced-motion:reduce){ .ict-help{animation:none;} }
     /* v2.17.2: 모바일에서 우하단 사용법 버튼이 MANAGER LINK 등 우측 카드를 가리던 문제 → 좌측으로 이동 */
     /* v2.17.7: 모바일에선 FAB가 빠른메뉴 카드를 가려서 숨김 → 빠른메뉴에 '❓ 사용법' 카드로 대체 */
@@ -8916,7 +8917,7 @@
         .ibh-ad{display:flex;align-items:center;justify-content:center;align-self:stretch;border:none;padding:0;background:#0b1020;cursor:pointer;width:100%;font-family:inherit;border-radius:14px;overflow:hidden;position:relative;box-shadow:0 4px 16px rgba(12,31,184,0.10);transition:transform .15s,box-shadow .15s;animation:ibhAdGlow 2.4s ease-in-out infinite;}
         .ibh-ad:hover{animation-play-state:paused;}
         /* v2.68.0: 광고배너 강조 — 글로우 펄스 + 샤인 스윕 */
-        @keyframes ibhAdGlow{0%,100%{box-shadow:0 4px 16px rgba(12,31,184,0.10),0 0 0 0 rgba(245,158,11,0);}50%{box-shadow:0 8px 26px rgba(245,158,11,0.32),0 0 0 4px rgba(245,158,11,0.20);}}
+        @keyframes ibhAdGlow{0%,100%{opacity:1;}50%{opacity:0.88;}} /* v2.96.2: box-shadow 애니 제거(repaint) */
         @keyframes ibhAdShine{0%{transform:translateX(-130%) skewX(-18deg);}55%,100%{transform:translateX(320%) skewX(-18deg);}}
         .ibh-ad::after{content:'';position:absolute;top:0;left:0;width:35%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,0.38),transparent);transform:translateX(-130%) skewX(-18deg);animation:ibhAdShine 3.6s ease-in-out infinite;pointer-events:none;z-index:2;}
         @media(prefers-reduced-motion:reduce){.ibh-ad{animation:none;}.ibh-ad::after{animation:none;display:none;}}
