@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.96.1] - 2026-06-21
+### Fixed (홈 스크롤 후속 — v2.96.0 스크롤-퍼즈 미작동 교정 + 광고 로더 예외 수정)
+- **스크롤-퍼즈 타깃 교정**: v2.96.0의 `body.ic-scrolling` 토글이 `window` scroll에 붙어 있었으나, 홈은 `.content`(#page-home)의 `overflow-y:auto` **안쪽 컨테이너에서 스크롤**됨 → window 리스너가 못 잡아 ②번 처방이 **한 번도 작동 안 함**. `document` **캡처 단계**(`capture:true`)로 변경(scroll은 버블 안 하지만 캡처는 전파) → 내부 스크롤 포착해 스크롤 중 장식 애니메이션 정지 정상화. (콘솔 측정으로 발견 유도)
+- **requestIdleCallback 예외 수정**: `(window.requestIdleCallback || setTimeout)(loadAds, 2000)` 2곳([index.html](index.html) AdSense 로더) — `requestIdleCallback`의 2번째 인자는 숫자가 아니라 `IdleRequestOptions` 객체라 **Chrome/Edge에서 매 로드마다 `TypeError` throw → `loadAds` 미실행 → AdSense(`adsbygoogle.js`) 미로딩**(대다수 사용자 광고 미노출 + 콘솔 예외). 폴백 함수 패턴(`function(fn){ return setTimeout(fn,2000); }`)으로 교정 → 예외 제거 + 광고 정상 로드. (v2.12.2에서 동일 버그를 다른 곳만 고치고 이 2곳은 누락돼 있던 것)
+### Verified
+- index.html 인라인 `<script>` 문법 0 errors(new Function) · 잘못된 `requestIdleCallback||setTimeout` 호출 잔존 0 · 보안스캔 HIGH 0 · release.mjs
+
 ## [2.96.0] - 2026-06-21
 ### Performance (홈 대시보드 스크롤 버벅임 — 상시 무한 애니메이션 repaint/relayout 부하 완화)
 - **원인 진단**: 홈 대시보드에 `infinite` CSS 애니메이션 **34개**가 오프스크린·저모션 가드 없이 상시 구동. 이 중 절반이 매 프레임 **repaint/relayout**을 강제하는 무거운 속성(`left`·`box-shadow`·`background-position`)을 애니메이트 → 스크롤 프레임과 메인/래스터 스레드를 경쟁 → 오래 켜둘수록 누적 부하(thermal throttling·메모리 압박)로 "갈수록 심해지는" 버벅임. (정적 분석으로 무한스크롤/인터벌/리스너/DOM 누수는 배제 — 렌더는 전부 replace·가드 정상)

@@ -7,7 +7,7 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <!-- Google AdSense 소유권 확인 메타태그 (정적 — 검증 봇이 홈 <head>에서 즉시 탐지) -->
   <meta name="google-adsense-account" content="ca-pub-7787620251169899">
-  <meta name="version" content="2.96.0" />
+  <meta name="version" content="2.96.1" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고, 사례 기반 AI(삼따AI)까지 한 곳에서." />
   <!-- v2.13.3: 구조화 데이터(JSON-LD) — AEO/GEO (AI·답변엔진이 브랜드·서비스 이해) -->
@@ -64,10 +64,10 @@
       }
       // 페이지가 사실상 로드된 후 idle 타이밍에 삽입
       if (document.readyState === 'complete') {
-        (window.requestIdleCallback || setTimeout)(loadAds, 2000);
+        (window.requestIdleCallback || function(fn){ return setTimeout(fn, 2000); })(loadAds);
       } else {
         window.addEventListener('load', function() {
-          (window.requestIdleCallback || setTimeout)(loadAds, 2000);
+          (window.requestIdleCallback || function(fn){ return setTimeout(fn, 2000); })(loadAds);
         }, { once: true });
       }
     })();
@@ -8555,15 +8555,16 @@
     window.addEventListener('resize', icTourReflow);
     window.addEventListener('scroll', icTourReflow, {passive:true});
 
-    /* v2.96.0: 스크롤 중 홈 장식 애니메이션 일시정지 — body.ic-scrolling 토글(passive, 180ms 디바운스).
-       CSS 'body.ic-scrolling #page-home *' 규칙과 짝. 전역 1회만 등록(리스너 누적 없음). */
+    /* v2.96.1: 스크롤 중 홈 장식 애니메이션 일시정지 — body.ic-scrolling 토글(180ms 디바운스).
+       홈은 .content(#page-home)의 overflow-y:auto 안쪽에서 스크롤됨 → window가 아니라 document
+       '캡처 단계'로 포착해야 잡힘(scroll은 버블 안 하지만 캡처는 전파). 전역 1회만 등록. */
     (function(){
       var t = null;
-      window.addEventListener('scroll', function(){
+      document.addEventListener('scroll', function(){
         if (t === null) document.body.classList.add('ic-scrolling');
         else clearTimeout(t);
         t = setTimeout(function(){ t = null; document.body.classList.remove('ic-scrolling'); }, 180);
-      }, {passive:true});
+      }, {passive:true, capture:true});
     })();
     // v2.17.6: 홈 진입 시 자동 시작 — 계정당 1회(서버 tour_seen). 이후엔 ❓ 사용법 버튼으로 수동 재시청.
     function icTourMaybeAutoStart(){
