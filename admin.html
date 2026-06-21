@@ -3330,11 +3330,10 @@
           <button class="ssn-nav-btn" id="ss-prev" onclick="ssSlide(-1)" disabled>◀</button>
           <div class="ssn-tabs" id="ss-tabs">
             <button class="ssn-tab active" onclick="ssGo(0)">📈 방문 개요</button>
-            <button class="ssn-tab" onclick="ssGo(1)">🖱 클릭 통계</button>
-            <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
-            <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
-            <button class="ssn-tab" onclick="ssGo(4)">📈 유입 경로</button>
-            <button class="ssn-tab" onclick="ssGo(5)">👥 회원/지표</button>
+            <button class="ssn-tab" onclick="ssGo(1)">⏱ 체류 시간</button>
+            <button class="ssn-tab" onclick="ssGo(2)">🔥 인기 콘텐츠</button>
+            <button class="ssn-tab" onclick="ssGo(3)">📈 유입 경로</button>
+            <button class="ssn-tab" onclick="ssGo(4)">👥 회원/지표</button>
           </div>
           <button class="ssn-nav-btn" id="ss-next" onclick="ssSlide(1)">▶</button>
         </div>
@@ -3386,20 +3385,6 @@
               </div>
             </div>
 
-            <!-- ── Slide 1: 메뉴 클릭 + 카드별 클릭 ── -->
-            <div class="stats-slide">
-              <p class="slide-title">클릭 통계</p>
-
-              <!-- 카드별 7일 추이 구분선 (좌·우 버튼 모두 노출) -->
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 메뉴 버튼 7일 클릭 추이</span>
-                <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
-              </div>
-
-              <div id="card-stats-body">
-                <p class="cs-empty">> 로딩 중…</p>
-              </div>
-            </div>
 
             <!-- ── Slide 2: 체류 시간 ── -->
             <div class="stats-slide">
@@ -5820,79 +5805,6 @@
       if (updEl) updEl.textContent = `· 업데이트 ${hh}:${mm}`;
     }
 
-    /* ── 카드별 클릭 통계 렌더 ── */
-    const MENU_LABEL = {
-      '우측버튼':  '↗ 우측 네비 버튼',
-      '좌측버튼':  '↖ 좌측 빨간 버튼 (리스/렌트카)',
-      // v2.0.6: 하단네비 통계 제거
-    };
-    async function loadCardStats() {
-      const el = document.getElementById('card-stats-body');
-      if (!el) return;
-      try {
-        const res = await fetch(`/api/stats/cards`);
-        const rows = await res.json();
-
-        if (!Array.isArray(rows) || rows.length === 0) {
-          el.innerHTML = '<p class="cs-empty">> 아직 집계된 데이터가 없습니다.</p>';
-          ssUpdateHeight();
-          return;
-        }
-
-        /* 메뉴별 그룹화 — 좌측 빨간 버튼도 함께 노출 (v2.1.24) */
-        const menuOrder = ['우측버튼', '좌측버튼'];
-        const groups = {};
-        rows.forEach(r => {
-          if (!groups[r.menu]) groups[r.menu] = [];
-          groups[r.menu].push(r);
-        });
-        /* v2.15.3: 좌·우 pill 버튼이 하나의 팝업으로 통합됨 → 클릭통계도 하나의 그룹으로 합쳐 표시
-           (추적·렌트카/통신 퍼널은 menu값 '우측버튼'/'좌측버튼' 그대로 보존 — 표시만 병합) */
-        const mergedCards = [];
-        menuOrder.forEach(menu => (groups[menu] || []).forEach(r => mergedCards.push({ ...r, _menu: menu })));
-        mergedCards.sort((a, b) => (b.total || 0) - (a.total || 0));
-
-        let html = '';
-        if (mergedCards.length) {
-          const cardItems = mergedCards.map(({ card, total, _menu }) => {
-            const chartId = `cs-chart-${_menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
-            return `<div class="cs-card-chart">
-              <div class="cs-card-name">${esc(card)}</div>
-              <div class="cs-card-total">${(total||0).toLocaleString()}</div>
-              <div class="cs-card-canvas-wrap" id="${chartId}"><canvas></canvas></div>
-            </div>`;
-          }).join('');
-          html += `<div class="cs-menu-group">
-            <div class="cs-menu-header">🎯 바로가기 팝업 (메뉴 버튼 통합)</div>
-            <div class="cs-cards-grid">${cardItems}</div>
-          </div>`;
-        }
-        if (!html) {
-          el.innerHTML = '<p class="cs-empty">> 메뉴 버튼 클릭 데이터가 아직 없습니다.</p>';
-          ssUpdateHeight();
-          return;
-        }
-        el.innerHTML = html;
-
-        /* 캐시 저장 (슬라이드 전환 재렌더용) — menuOrder에 있는 것만 */
-        _cachedCardCharts = rows
-          .filter(({ menu }) => menuOrder.includes(menu))
-          .map(({ menu, card, data }) => ({ menu, card, data }));
-
-        /* 차트 렌더 */
-        requestAnimationFrame(() => {
-          rows.filter(({ menu }) => menuOrder.includes(menu)).forEach(({ menu, card, data }) => {
-            const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/[\s()]/g,'')}`;
-            renderLineChart(id, data, 'clicks');
-          });
-          ssUpdateHeight();
-        });
-
-      } catch (err) {
-        el.innerHTML = `<p class="cs-empty">> 로드 오류: ${esc(String(err))}</p>`;
-        ssUpdateHeight();
-      }
-    }
 
     /* ── 통합 기록지표 슬라이더 ── */
     let _ssIdx = 0;
@@ -5936,14 +5848,6 @@
         if (_ssIdx === 0 && _cachedMainStats) {
           renderLineChart('chart-visits', _cachedMainStats.daily_visits_7d, 'visits');
           renderLineChart('chart-clicks', _cachedMainStats.daily_clicks_7d, 'clicks');
-        }
-        if (_ssIdx === 1) {
-          if (_cachedCardCharts) {
-            _cachedCardCharts.forEach(({ menu, card, data }) => {
-              const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/\s/g,'')}`;
-              renderLineChart(id, data, 'clicks');
-            });
-          }
         }
         ssUpdateHeight();
       });
@@ -6085,7 +5989,6 @@
     }
 
     let _cachedMainStats  = null;
-    let _cachedCardCharts = null;
 
     /* ── 실시간 자동 갱신 (10초 간격, 탭이 보일 때만) ── */
     let _autoTimer = null;
@@ -6104,7 +6007,6 @@
             /* 자정 KST 넘어감 → 강제 리셋 갱신 */
             _lastKstDate = cur;
             _cachedMainStats  = null;
-            _cachedCardCharts = null;
           }
           loadDashboard();
         }
@@ -6115,7 +6017,6 @@
           if (cur !== _lastKstDate) {
             _lastKstDate = cur;
             _cachedMainStats  = null;
-            _cachedCardCharts = null;
           }
           loadDashboard();
         }
@@ -6172,8 +6073,6 @@
         /* 체류 시간 통계 */
         loadSessionStats();
 
-        /* 카드별 클릭 7일 추이 */
-        loadCardStats();
 
         /* 인기 콘텐츠 (조회/공유유입/복사) */
         loadPopularContent();

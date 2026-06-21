@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.95.0] - 2026-06-21
+### Removed (렌트카·통신 잔여 정리 — 죽은 API 파일 + 「클릭 통계」 탭)
+- **죽은 데이터 API 파일 9개 삭제**: `rental-vehicles`·`telecom-devices`·`rental-inquiries`(각 `index.js`+`[id].js`)·`telecom-inquiries`·`rental-stats`·`telecom-stats`(각 `index.js`). v2.93.0 프론트 철수로 호출처가 사라진 핸들러 — **D1 테이블·데이터는 보존**(되돌리려면 git 복원). 남은 `fetch` 호출처 **0** 확인.
+- **관리자 「통합 기록지표」의 「🖱 클릭 통계」 탭 완전 제거**: 탭 버튼·슬라이드·`loadCardStats`·`MENU_LABEL`·`menuOrder`·`_cachedCardCharts`·`ssGo` 차트블록·`loadDashboard` 호출까지 모두 삭제. 슬라이더 **6탭→5탭 재인덱싱**(방문개요·체류시간·인기콘텐츠·유입경로·회원지표 = `ssGo(0~4)`). 추적 발생원이 사라진 좌/우버튼('리스/렌트카' 잔재) 라벨도 제거.
+### Note
+- `/api/stats/cards`(클릭통계 전용 엔드포인트)는 이제 호출처 없음 — 범용성 고려해 일단 보존. `analyze.js`·`metrics.js`는 렌트카·통신 전환 채널을 참조하나 0으로 집계(과거 데이터 표시·live 파일이라 보존).
+### Verified
+- admin 인라인 `<script>` 문법 **0 errors** · 슬라이더 **5탭=5슬라이드**(정적3+런타임이동2) 정합 · `_cachedCardCharts`/`loadCardStats`/`card-stats-body` 잔존 **0** · 삭제 API `fetch` 호출처 **0** · 보안스캔 HIGH 0 · release.mjs
+
 ## [2.94.0] - 2026-06-21
 ### Added (홈 광고배너 강화 — 다중 캠페인·로테이션·노출 스케줄·팝업 제어·성과 대시보드)
 - **다중 캠페인·로테이션**: `/api/home-ad` 데이터를 단일 배너 → **캠페인 배열**로 재설계. 레거시 `{enabled,images,link_url,alt}` → `campaigns[0]('main')` **자동 이관**(읽기 시 in-memory 변환, 저장 시 영속화 — 무중단). 캠페인 여러 개를 **순차(방문마다 다음)/랜덤/가중치**로 노출. 캠페인별 이미지(순번)·CTA링크·CTA문구·alt·weight 개별 설정.
