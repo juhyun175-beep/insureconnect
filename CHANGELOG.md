@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.96.0] - 2026-06-21
+### Performance (홈 대시보드 스크롤 버벅임 — 상시 무한 애니메이션 repaint/relayout 부하 완화)
+- **원인 진단**: 홈 대시보드에 `infinite` CSS 애니메이션 **34개**가 오프스크린·저모션 가드 없이 상시 구동. 이 중 절반이 매 프레임 **repaint/relayout**을 강제하는 무거운 속성(`left`·`box-shadow`·`background-position`)을 애니메이트 → 스크롤 프레임과 메인/래스터 스레드를 경쟁 → 오래 켜둘수록 누적 부하(thermal throttling·메모리 압박)로 "갈수록 심해지는" 버벅임. (정적 분석으로 무한스크롤/인터벌/리스너/DOM 누수는 배제 — 렌더는 전부 replace·가드 정상)
+- **left→transform 변환**: 시샤인 3종(`scb-crew-shine`·`vs-shine`·`crew-hero-shine`)을 `left` 애니메이션 → `transform: translateX` **등가 변환**(left 오프셋=translateX×요소폭 수학검증, 시각 동일). 매 프레임 **레이아웃(reflow) 제거** → compositor 전용으로 강등.
+- **스크롤 중 일시정지**: 스크롤하는 동안 홈(`#page-home`·`#page-home-mobile`)의 장식 애니메이션을 `body.ic-scrolling`으로 일시정지 → 스크롤 프레임에 메인스레드 양보. passive 스크롤 리스너 **1개**·180ms 디바운스(리스너 누적 없음), 멈추면 자동 재개. `transition`은 영향 없음.
+- **content-visibility**: `.hf-card`(홈 피드)에 `content-visibility:auto`+`contain-intrinsic-size:auto 260px` → 화면 밖 카드는 layout/paint **스킵**(무료 가상화). 카드 100+여도 스크롤 비용 일정(콘텐츠·DOM·SEO 영향 없음).
+- **접근성**: `prefers-reduced-motion: reduce` **전면 적용**(`*` 무한 장식 애니메이션 사실상 정지) — 기존 3곳만 가드 → 전체로 확대.
+### Verified
+- index.html 인라인 `<script>` 문법 **0 errors**(30개, JSON-LD/module 제외 `new Function`) · keyframes 변환 시각 등가(수학검증) · sw.js 무캐싱 확인(stale 없음) · 보안스캔 HIGH 0 · release.mjs
+
 ## [2.95.0] - 2026-06-21
 ### Removed (렌트카·통신 잔여 정리 — 죽은 API 파일 + 「클릭 통계」 탭)
 - **죽은 데이터 API 파일 9개 삭제**: `rental-vehicles`·`telecom-devices`·`rental-inquiries`(각 `index.js`+`[id].js`)·`telecom-inquiries`·`rental-stats`·`telecom-stats`(각 `index.js`). v2.93.0 프론트 철수로 호출처가 사라진 핸들러 — **D1 테이블·데이터는 보존**(되돌리려면 git 복원). 남은 `fetch` 호출처 **0** 확인.

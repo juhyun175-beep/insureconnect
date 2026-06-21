@@ -7,7 +7,7 @@
   <meta name="google-site-verification" content="-gkmbL8lMV5BttPTf_64jkShef9SLFuVMXxA-X8dngE" />
   <!-- Google AdSense 소유권 확인 메타태그 (정적 — 검증 봇이 홈 <head>에서 즉시 탐지) -->
   <meta name="google-adsense-account" content="ca-pub-7787620251169899">
-  <meta name="version" content="2.95.0" />
+  <meta name="version" content="2.96.0" />
   <link rel="canonical" href="https://insureconnect-hub.pages.dev/"  />
   <meta name="description" content="보험설계사를 위한 통합 허브. 카드뉴스, 전산, 소식지, 청구서류, 채용공고, 사례 기반 AI(삼따AI)까지 한 곳에서." />
   <!-- v2.13.3: 구조화 데이터(JSON-LD) — AEO/GEO (AI·답변엔진이 브랜드·서비스 이해) -->
@@ -979,8 +979,8 @@
       50%     { transform: scale(1.025); box-shadow: 0 5px 20px rgba(254,229,0,0.70); }
     }
     @keyframes scb-crew-shine {
-      0%,55%  { left: -120%; }
-      85%,100% { left: 140%; }
+      0%,55%  { transform: translateX(0); }
+      85%,100% { transform: translateX(433%); }
     }
     @keyframes scb-arrow-bounce {
       0%,100% { transform: translateX(0); }
@@ -1016,8 +1016,8 @@
       pointer-events: none;
     }
     @keyframes vs-shine {
-      0%, 70% { left: -120%; }
-      95%,100% { left: 150%; }
+      0%, 70% { transform: translateX(0); }
+      95%,100% { transform: translateX(540%); }
     }
     .vs-live {
       display: inline-flex; align-items: center; gap: 5px;
@@ -1164,8 +1164,8 @@
       background: #000;
     }
     @keyframes crew-hero-shine {
-      0%,60% { left: -120%; }
-      88%,100% { left: 160%; }
+      0%,60% { transform: translateX(0); }
+      88%,100% { transform: translateX(560%); }
     }
     /* 모바일에선 컴팩트 */
     @media (max-width: 768px) {
@@ -6542,6 +6542,9 @@
       transition: box-shadow 0.16s, transform 0.16s, border-color 0.16s;
       display: flex;
       flex-direction: column;
+      /* v2.96.0: 화면 밖 카드는 렌더(layout/paint) 스킵 → 카드가 많아도 스크롤 비용 일정 */
+      content-visibility: auto;
+      contain-intrinsic-size: auto 260px;
     }
     .hf-card:hover {
       box-shadow: 0 6px 24px rgba(12,31,184,0.14);
@@ -6628,6 +6631,23 @@
     .hf-skeleton-line.long { width: 80%; }
     .hf-skeleton-line.short { width: 45%; }
     @keyframes hf-shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+
+    /* ══════════════════════════════════════════════════════════
+       v2.96.0: 홈 대시보드 스크롤 성능 — 상시 무한 애니메이션의 repaint/relayout 부하 완화
+    ══════════════════════════════════════════════════════════ */
+    /* (1) 스크롤 중에는 홈의 장식 애니메이션을 일시정지 → 스크롤 프레임에 메인스레드 양보.
+           스크롤이 멈추면(JS가 180ms 후 .ic-scrolling 해제) 자동 재개. transition은 영향 없음. */
+    body.ic-scrolling #page-home *, body.ic-scrolling #page-home *::before, body.ic-scrolling #page-home *::after,
+    body.ic-scrolling #page-home-mobile *, body.ic-scrolling #page-home-mobile *::before, body.ic-scrolling #page-home-mobile *::after {
+      animation-play-state: paused !important;
+    }
+    /* (2) 모션 최소화 선호 사용자: 모든 무한 장식 애니메이션 사실상 정지(접근성 + 상시 CPU/GPU 부하 제거) */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+      }
+    }
 
     /* ══════════════════════════════
        우측 고정 네비게이션 버튼 그룹
@@ -8534,6 +8554,17 @@
     function icTourReflow(){ var ov=document.getElementById('ic-tour'); if(ov&&ov.style.display==='block'){ var t=icTourFind(_ictSteps[_ictI].sel); if(t) icTourPos(t); else icTourPosCenter(); } }
     window.addEventListener('resize', icTourReflow);
     window.addEventListener('scroll', icTourReflow, {passive:true});
+
+    /* v2.96.0: 스크롤 중 홈 장식 애니메이션 일시정지 — body.ic-scrolling 토글(passive, 180ms 디바운스).
+       CSS 'body.ic-scrolling #page-home *' 규칙과 짝. 전역 1회만 등록(리스너 누적 없음). */
+    (function(){
+      var t = null;
+      window.addEventListener('scroll', function(){
+        if (t === null) document.body.classList.add('ic-scrolling');
+        else clearTimeout(t);
+        t = setTimeout(function(){ t = null; document.body.classList.remove('ic-scrolling'); }, 180);
+      }, {passive:true});
+    })();
     // v2.17.6: 홈 진입 시 자동 시작 — 계정당 1회(서버 tour_seen). 이후엔 ❓ 사용법 버튼으로 수동 재시청.
     function icTourMaybeAutoStart(){
       try{
