@@ -9,7 +9,7 @@ function vapidOf(env) {
   return {
     publicKey: env.VAPID_PUBLIC_KEY,
     privateKey: env.VAPID_PRIVATE_KEY,
-    subject: env.VAPID_SUBJECT || 'mailto:admin@insureconnect-hub.pages.dev',
+    subject: env.VAPID_SUBJECT || 'mailto:admin@insureconnect.co.kr',
   };
 }
 

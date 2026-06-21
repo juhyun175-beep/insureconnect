@@ -6,7 +6,7 @@
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 const ALPH = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789'; // 혼동 문자 제외
 const DAILY_LIMIT = 30;
 function genId() { const r = crypto.getRandomValues(new Uint8Array(8)); return [...r].map((x) => ALPH[x % ALPH.length]).join(''); }

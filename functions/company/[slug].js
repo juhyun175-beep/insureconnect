@@ -7,7 +7,7 @@ import { INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
 import { renderAggregation, AGGREGATIONS, renderClaimFormsHub } from '../_lib/company-aggregation.js';
 
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');

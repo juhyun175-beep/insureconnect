@@ -9,7 +9,7 @@
  * 응답 = 빈 HTML + OG meta + 메타 refresh로 실제 페이지로 즉시 이동.
  * 카카오톡 봇은 OG meta만 읽고, 실제 사용자는 즉시 redirect됨.
  */
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 const FALLBACK_IMG = `${SITE}/logo-full.png`;
 
 /** v2.1.42: 동적 OG 이미지 — 업로드 이미지 없을 때 사용

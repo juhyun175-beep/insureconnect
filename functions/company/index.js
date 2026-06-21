@@ -5,7 +5,7 @@
 import { INSURERS } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
 
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;

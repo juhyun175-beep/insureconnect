@@ -13,7 +13,7 @@ import { isBot } from '../../_lib/bot.js';
 import { SEO_CATEGORY_MAP } from '../../_lib/seo-categories.js';
 import { seoCtaFooter, seoShareBar } from '../../_lib/seo-cta.js';
 
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 
 const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')

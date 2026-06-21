@@ -3,162 +3,162 @@
 > 보험설계사를 위한 통합 정보 허브. 국내 생명·손해보험사의 설계사 전산(사이버창구) 바로가기·고객센터 전화·보험금 청구 팩스·청구서류 양식·상품공시, GA(법인보험대리점) 전산, 그리고 실손·암·자동차·종신보험 등 보험 전문 정보 게시판을 한 곳에서 제공합니다. 모든 정보는 일반적 안내이며 구체적 보장 여부는 가입 상품의 약관과 보험사 안내를 기준으로 합니다.
 
 ## 핵심 허브
-- [보험사 전산·고객센터·청구 안내](https://insureconnect-hub.pages.dev/company): 보험사별 설계사 전산 바로가기, 대표전화/보상접수, 청구 팩스, 상품공시
-- [보험사 고객센터 전화번호 총정리](https://insureconnect-hub.pages.dev/company/customer-center)
-- [보험금 청구 팩스번호 모음](https://insureconnect-hub.pages.dev/company/claim-fax)
-- [보험금 청구서류 양식 다운로드](https://insureconnect-hub.pages.dev/company/claim-forms)
-- [GA 법인대리점 전산 바로가기](https://insureconnect-hub.pages.dev/ga)
-- [보험 정보 게시판(전체)](https://insureconnect-hub.pages.dev/insurance)
-- [보험설계사 채용·구인공고 모음](https://insureconnect-hub.pages.dev/recruit): 지점 리크루팅·GA 모집·정착지원 채용공고 집계
-- [보험설계사 교육·강의·세미나 일정](https://insureconnect-hub.pages.dev/lecture): 영업교육·상품교육·세미나·웨비나 강의 집계
-- [보험 카드뉴스·소식지 아카이브](https://insureconnect-hub.pages.dev/newsletter): InsureConnect 카드뉴스 및 보험사 소식지·영업자료
-- [보험설계사 커뮤니티 인기글](https://insureconnect-hub.pages.dev/community): 현장 설계사들의 영업 노하우·후기·정보공유 인기글
-- [보험설계사·법인 전용 리스·렌터카 우대 견적](https://insureconnect-hub.pages.dev/rental): 국산·수입 전 차종 무료 견적, 전문매니저 1:1 상담
-- [보험설계사·법인 전용 휴대폰·통신 우대 견적](https://insureconnect-hub.pages.dev/telecom): 단말기 성지 시세·요금제 컨설팅·법인폰 무료 견적
+- [보험사 전산·고객센터·청구 안내](https://insureconnect.co.kr/company): 보험사별 설계사 전산 바로가기, 대표전화/보상접수, 청구 팩스, 상품공시
+- [보험사 고객센터 전화번호 총정리](https://insureconnect.co.kr/company/customer-center)
+- [보험금 청구 팩스번호 모음](https://insureconnect.co.kr/company/claim-fax)
+- [보험금 청구서류 양식 다운로드](https://insureconnect.co.kr/company/claim-forms)
+- [GA 법인대리점 전산 바로가기](https://insureconnect.co.kr/ga)
+- [보험 정보 게시판(전체)](https://insureconnect.co.kr/insurance)
+- [보험설계사 채용·구인공고 모음](https://insureconnect.co.kr/recruit): 지점 리크루팅·GA 모집·정착지원 채용공고 집계
+- [보험설계사 교육·강의·세미나 일정](https://insureconnect.co.kr/lecture): 영업교육·상품교육·세미나·웨비나 강의 집계
+- [보험 카드뉴스·소식지 아카이브](https://insureconnect.co.kr/newsletter): InsureConnect 카드뉴스 및 보험사 소식지·영업자료
+- [보험설계사 커뮤니티 인기글](https://insureconnect.co.kr/community): 현장 설계사들의 영업 노하우·후기·정보공유 인기글
+- [보험설계사·법인 전용 리스·렌터카 우대 견적](https://insureconnect.co.kr/rental): 국산·수입 전 차종 무료 견적, 전문매니저 1:1 상담
+- [보험설계사·법인 전용 휴대폰·통신 우대 견적](https://insureconnect.co.kr/telecom): 단말기 성지 시세·요금제 컨설팅·법인폰 무료 견적
 
 ## 보험 정보 게시판 — 카테고리별 문서
 
-### 보험금청구 ([목록](https://insureconnect-hub.pages.dev/insurance/claim))
-- [보험금 청구 절차 — 접수부터 지급까지 단계별 가이드](https://insureconnect-hub.pages.dev/insurance/claim/insurance-claim-process-steps): 사고·질병 발생 후 보험금을 받기까지의 흐름을 접수, 서류 제출, 심사, 지급 4단계로 나눠 설명하고 지연 시 대처법까지 안내합니다.
-- [보험금 청구 소멸시효 3년 — 놓치면 못 받는 기한](https://insureconnect-hub.pages.dev/insurance/claim/claim-deadline-3-years): 보험금청구권의 소멸시효 3년의 의미와 기산점, 시효가 지난 뒤의 대응까지 정리해 청구 누락을 예방하도록 돕습니다.
-- [진단서와 진료기록의 차이 — 청구에 무엇을 낼까](https://insureconnect-hub.pages.dev/insurance/claim/diagnosis-vs-medical-records): 진단서, 소견서, 진료기록(차트)의 차이와 각 서류가 보험금 청구에서 하는 역할을 비교해, 상황에 맞는 서류 준비를 돕습니다.
-- [보험금 분쟁 대응 — 금융감독원 민원 활용법](https://insureconnect-hub.pages.dev/insurance/claim/claim-dispute-fss-complaint): 보험금 지급이 거절·지연되거나 과실비율에 이견이 있을 때 활용할 수 있는 금융감독원 민원과 분쟁조정 절차를 정리했습니다.
-- [입원일당 청구 — 작지만 챙기면 쏠쏠한 보장](https://insureconnect-hub.pages.dev/insurance/claim/hospitalization-daily-benefit): 입원일당(입원급여금)의 개념과 청구 요건, 같은 입원에 대한 중복 청구 가능 여부를 정리했습니다.
-- [후유장해 보험금 — 지급률은 어떻게 정해질까](https://insureconnect-hub.pages.dev/insurance/claim/disability-benefit-criteria): 상해·질병 후유장해 보험금의 지급률 산정 기준과 장해분류표, 청구 시 진단의 중요성을 정리했습니다.
-- [사망보험금 청구 — 수익자와 상속, 무엇을 챙길까](https://insureconnect-hub.pages.dev/insurance/claim/death-benefit-and-inheritance): 사망보험금 청구 시 필요한 서류와 수익자 지정의 의미, 상속과의 관계를 정리해 유족이 헤매지 않도록 돕습니다.
-- [상해와 질병 구분 — 같은 입원도 보험금이 다른 이유](https://insureconnect-hub.pages.dev/insurance/claim/accident-vs-disease-classification): 상해보험금과 질병보험금의 차이, 원인 구분이 지급에 미치는 영향과 분쟁 시 입증 포인트를 정리했습니다.
-- [장기요양·간병 보험금 — 노인장기요양등급과 보장](https://insureconnect-hub.pages.dev/insurance/claim/long-term-care-benefit): 노인장기요양보험 등급과 민간 간병보험의 관계, 장기요양 상태에서 받는 보험금 구조를 정리했습니다.
-- [치매 진단비 — CDR 척도와 중증·경증 구분](https://insureconnect-hub.pages.dev/insurance/claim/dementia-diagnosis-benefit): 치매 진단비 지급 기준으로 쓰이는 CDR(임상치매척도)의 의미와 경증·중증 보장 차이를 정리했습니다.
-- [보험사 의료자문 — 내 진단이 뒤집힐 수 있을까](https://insureconnect-hub.pages.dev/insurance/claim/medical-advice-dispute): 보험금 심사 과정의 의료자문 제도가 무엇이며, 자문 결과에 이견이 있을 때의 대응을 정리했습니다.
-- [소액 보험금 간편청구 — 빠르게 받는 법](https://insureconnect-hub.pages.dev/insurance/claim/small-claim-easy-filing): 소액 의료비의 간편청구 요건과 모바일·간소화 서비스 활용법을 정리해 빠른 청구를 돕습니다.
-- [골절·화상 진단비 — 다쳤을 때 챙기는 정액 보장](https://insureconnect-hub.pages.dev/insurance/claim/fracture-burn-benefit): 골절진단비·화상진단비 등 상해 관련 정액 보장의 지급 요건과 청구 시 확인할 점을 정리했습니다.
-- [여러 보험사에 동시 청구 — 정액 보장은 각각 받는다](https://insureconnect-hub.pages.dev/insurance/claim/multiple-insurer-claim): 여러 보험에 가입했을 때 정액 보장의 중복 청구 방법과 실손의 비례보상 차이를 실무적으로 정리했습니다.
-- [보험금 지급이 늦어지면 — 지연이자와 대응](https://insureconnect-hub.pages.dev/insurance/claim/payout-delay-interest): 보험금 지급 지연 시 가산되는 지연이자의 개념과, 부당한 지연에 대한 대응 방법을 정리했습니다.
-- [진료기록 발급 — 누가, 어떻게, 무엇을 뗄까](https://insureconnect-hub.pages.dev/insurance/claim/medical-records-issuance): 보험 청구·분쟁에 필요한 진료기록(의무기록) 사본 발급 권한과 절차, 종류를 정리했습니다.
-- [질병사망과 상해사망 — 사망보험금도 원인이 중요하다](https://insureconnect-hub.pages.dev/insurance/claim/disease-vs-accident-death): 질병으로 인한 사망과 사고로 인한 상해사망의 보장 차이, 가입 담보에 따른 지급 여부를 정리했습니다.
-- [사고사실확인원 — 상해 청구의 핵심 입증 서류](https://insureconnect-hub.pages.dev/insurance/claim/accident-fact-confirmation): 교통사고·일반 상해 청구에서 사고 발생을 입증하는 사고사실확인원의 종류와 발급, 활용을 정리했습니다.
+### 보험금청구 ([목록](https://insureconnect.co.kr/insurance/claim))
+- [보험금 청구 절차 — 접수부터 지급까지 단계별 가이드](https://insureconnect.co.kr/insurance/claim/insurance-claim-process-steps): 사고·질병 발생 후 보험금을 받기까지의 흐름을 접수, 서류 제출, 심사, 지급 4단계로 나눠 설명하고 지연 시 대처법까지 안내합니다.
+- [보험금 청구 소멸시효 3년 — 놓치면 못 받는 기한](https://insureconnect.co.kr/insurance/claim/claim-deadline-3-years): 보험금청구권의 소멸시효 3년의 의미와 기산점, 시효가 지난 뒤의 대응까지 정리해 청구 누락을 예방하도록 돕습니다.
+- [진단서와 진료기록의 차이 — 청구에 무엇을 낼까](https://insureconnect.co.kr/insurance/claim/diagnosis-vs-medical-records): 진단서, 소견서, 진료기록(차트)의 차이와 각 서류가 보험금 청구에서 하는 역할을 비교해, 상황에 맞는 서류 준비를 돕습니다.
+- [보험금 분쟁 대응 — 금융감독원 민원 활용법](https://insureconnect.co.kr/insurance/claim/claim-dispute-fss-complaint): 보험금 지급이 거절·지연되거나 과실비율에 이견이 있을 때 활용할 수 있는 금융감독원 민원과 분쟁조정 절차를 정리했습니다.
+- [입원일당 청구 — 작지만 챙기면 쏠쏠한 보장](https://insureconnect.co.kr/insurance/claim/hospitalization-daily-benefit): 입원일당(입원급여금)의 개념과 청구 요건, 같은 입원에 대한 중복 청구 가능 여부를 정리했습니다.
+- [후유장해 보험금 — 지급률은 어떻게 정해질까](https://insureconnect.co.kr/insurance/claim/disability-benefit-criteria): 상해·질병 후유장해 보험금의 지급률 산정 기준과 장해분류표, 청구 시 진단의 중요성을 정리했습니다.
+- [사망보험금 청구 — 수익자와 상속, 무엇을 챙길까](https://insureconnect.co.kr/insurance/claim/death-benefit-and-inheritance): 사망보험금 청구 시 필요한 서류와 수익자 지정의 의미, 상속과의 관계를 정리해 유족이 헤매지 않도록 돕습니다.
+- [상해와 질병 구분 — 같은 입원도 보험금이 다른 이유](https://insureconnect.co.kr/insurance/claim/accident-vs-disease-classification): 상해보험금과 질병보험금의 차이, 원인 구분이 지급에 미치는 영향과 분쟁 시 입증 포인트를 정리했습니다.
+- [장기요양·간병 보험금 — 노인장기요양등급과 보장](https://insureconnect.co.kr/insurance/claim/long-term-care-benefit): 노인장기요양보험 등급과 민간 간병보험의 관계, 장기요양 상태에서 받는 보험금 구조를 정리했습니다.
+- [치매 진단비 — CDR 척도와 중증·경증 구분](https://insureconnect.co.kr/insurance/claim/dementia-diagnosis-benefit): 치매 진단비 지급 기준으로 쓰이는 CDR(임상치매척도)의 의미와 경증·중증 보장 차이를 정리했습니다.
+- [보험사 의료자문 — 내 진단이 뒤집힐 수 있을까](https://insureconnect.co.kr/insurance/claim/medical-advice-dispute): 보험금 심사 과정의 의료자문 제도가 무엇이며, 자문 결과에 이견이 있을 때의 대응을 정리했습니다.
+- [소액 보험금 간편청구 — 빠르게 받는 법](https://insureconnect.co.kr/insurance/claim/small-claim-easy-filing): 소액 의료비의 간편청구 요건과 모바일·간소화 서비스 활용법을 정리해 빠른 청구를 돕습니다.
+- [골절·화상 진단비 — 다쳤을 때 챙기는 정액 보장](https://insureconnect.co.kr/insurance/claim/fracture-burn-benefit): 골절진단비·화상진단비 등 상해 관련 정액 보장의 지급 요건과 청구 시 확인할 점을 정리했습니다.
+- [여러 보험사에 동시 청구 — 정액 보장은 각각 받는다](https://insureconnect.co.kr/insurance/claim/multiple-insurer-claim): 여러 보험에 가입했을 때 정액 보장의 중복 청구 방법과 실손의 비례보상 차이를 실무적으로 정리했습니다.
+- [보험금 지급이 늦어지면 — 지연이자와 대응](https://insureconnect.co.kr/insurance/claim/payout-delay-interest): 보험금 지급 지연 시 가산되는 지연이자의 개념과, 부당한 지연에 대한 대응 방법을 정리했습니다.
+- [진료기록 발급 — 누가, 어떻게, 무엇을 뗄까](https://insureconnect.co.kr/insurance/claim/medical-records-issuance): 보험 청구·분쟁에 필요한 진료기록(의무기록) 사본 발급 권한과 절차, 종류를 정리했습니다.
+- [질병사망과 상해사망 — 사망보험금도 원인이 중요하다](https://insureconnect.co.kr/insurance/claim/disease-vs-accident-death): 질병으로 인한 사망과 사고로 인한 상해사망의 보장 차이, 가입 담보에 따른 지급 여부를 정리했습니다.
+- [사고사실확인원 — 상해 청구의 핵심 입증 서류](https://insureconnect.co.kr/insurance/claim/accident-fact-confirmation): 교통사고·일반 상해 청구에서 사고 발생을 입증하는 사고사실확인원의 종류와 발급, 활용을 정리했습니다.
 
-### 실손보험 ([목록](https://insureconnect-hub.pages.dev/insurance/actual-loss))
-- [실손보험 청구 서류 총정리 — 무엇을 어떻게 준비할까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-claim-documents): 실손의료비 청구에 필요한 서류를 외래·입원·약제비로 나눠 정리하고, 소액 청구 간소화와 전자청구 방법까지 한눈에 안내합니다.
-- [1~4세대 실손보험 차이 비교 — 내 실손은 어느 세대일까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-generations-compare): 판매 시기에 따라 자기부담금과 보장 구조가 다른 1~4세대 실손보험의 핵심 차이를 표로 비교하고, 전환 판단 기준을 정리했습니다.
-- [실손보험 보장 안 되는 항목 — 비급여·면책 정리](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-non-payment-items): 실손보험에서 보장되지 않거나 제한되는 대표 항목(미용·예방·일부 비급여)을 정리해, 청구 전 헛걸음을 줄이는 데 도움을 줍니다.
-- [통원과 입원의 차이 — 실손 보장 한도가 갈리는 기준](https://insureconnect-hub.pages.dev/insurance/actual-loss/outpatient-vs-inpatient): 실손보험에서 통원과 입원이 보장 한도·자기부담에서 어떻게 다른지, 애매한 경우(낮병동·당일 처치)의 판단 기준을 정리했습니다.
-- [도수치료 실손 청구 주의점 — 횟수가 많을 때](https://insureconnect-hub.pages.dev/insurance/actual-loss/manual-therapy-claim-notes): 도수치료를 실손으로 청구할 때 자주 생기는 추가 자료 요청과 의학적 필요성 쟁점을 정리해 분쟁을 예방합니다.
-- [해외에서 치료받으면 실손 청구되나 — 국내외 보장 차이](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-overseas-treatment): 해외 여행·체류 중 진료를 받았을 때 실손보험 보장 여부와 청구 방법, 국내 환산 기준을 정리했습니다.
-- [실손보험 중복가입 — 두 개 들면 두 배 받을까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-duplicate-claim): 실손보험을 둘 이상 가입했을 때 비례보상 원칙으로 실제 비용 한도 내에서만 보장되는 구조를 설명합니다.
-- [실손보험료가 오르는 이유 — 갱신과 인상 구조](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-renewal-premium-rise): 실손보험료가 갱신마다 오르는 원리(손해율·연령·재가입)와 부담을 줄이는 방법을 정리했습니다.
-- [어린이 실손보험 — 자녀 의료비 대비 포인트](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-child-insurance): 자녀의 잦은 병원 이용을 대비하는 어린이 실손의 가입 시점·보장 범위와 성인 전환 시 유의점을 정리했습니다.
-- [정신과 진료와 실손 — 어디까지 보장될까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-mental-health): 실손보험의 정신질환(F코드) 보장 확대 흐름과, 급여·비급여 구분에 따른 보장 차이를 정리했습니다.
-- [MRI·CT 비급여 검사 — 실손으로 얼마나 보장될까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-mri-ct-coverage): 고가 영상검사(MRI·CT)의 급여·비급여 구분과 세대별 실손 보장 차이, 청구 시 유의점을 정리했습니다.
-- [비급여 주사제 실손 — 영양제·고가주사 보장 쟁점](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-injection-coverage): 비급여 주사(영양·면역 등)의 실손 보장 여부를 가르는 치료 목적성과 세대별 한도를 정리했습니다.
-- [치과 치료와 실손보험 — 어디까지 되고 안 될까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-dental-coverage): 스케일링·충치·임플란트 등 치과 치료의 실손 보장 여부와, 치아보험이 따로 필요한 이유를 정리했습니다.
-- [임신·출산과 보험 — 실손은 되나, 태아보험은 왜 들까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-pregnancy-childbirth): 임신·출산 관련 실손 보장의 한계와 태아보험(어린이보험 태아특약)이 대비하는 영역을 정리했습니다.
-- [실손 청구가 거절되는 흔한 이유 — 미리 막는 법](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-claim-rejection-reasons): 실손보험 청구가 거절·삭감되는 대표 사유(면책, 치료 목적성, 서류 미비 등)와 예방·대응법을 정리했습니다.
-- [실손 자기부담금 — 내가 얼마를 부담할까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-self-pay-rate): 실손보험의 급여·비급여 자기부담 비율과 통원 공제금액의 구조를 세대별로 정리해, 실제 받는 금액을 가늠하도록 돕습니다.
-- [응급실 이용과 실손 — 비응급으로 가면 손해?](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-emergency-room): 응급실 진료의 실손 보장과, 비응급 상태로 대형병원 응급실 이용 시 본인부담이 커지는 구조를 정리했습니다.
-- [한방치료와 실손 — 첩약·약침은 보장될까](https://insureconnect-hub.pages.dev/insurance/actual-loss/silbi-oriental-medicine): 한방치료의 급여·비급여 구분과 실손 보장 한계, 한방 비급여(첩약·약침 등)의 처리 경향을 정리했습니다.
+### 실손보험 ([목록](https://insureconnect.co.kr/insurance/actual-loss))
+- [실손보험 청구 서류 총정리 — 무엇을 어떻게 준비할까](https://insureconnect.co.kr/insurance/actual-loss/silbi-claim-documents): 실손의료비 청구에 필요한 서류를 외래·입원·약제비로 나눠 정리하고, 소액 청구 간소화와 전자청구 방법까지 한눈에 안내합니다.
+- [1~4세대 실손보험 차이 비교 — 내 실손은 어느 세대일까](https://insureconnect.co.kr/insurance/actual-loss/silbi-generations-compare): 판매 시기에 따라 자기부담금과 보장 구조가 다른 1~4세대 실손보험의 핵심 차이를 표로 비교하고, 전환 판단 기준을 정리했습니다.
+- [실손보험 보장 안 되는 항목 — 비급여·면책 정리](https://insureconnect.co.kr/insurance/actual-loss/silbi-non-payment-items): 실손보험에서 보장되지 않거나 제한되는 대표 항목(미용·예방·일부 비급여)을 정리해, 청구 전 헛걸음을 줄이는 데 도움을 줍니다.
+- [통원과 입원의 차이 — 실손 보장 한도가 갈리는 기준](https://insureconnect.co.kr/insurance/actual-loss/outpatient-vs-inpatient): 실손보험에서 통원과 입원이 보장 한도·자기부담에서 어떻게 다른지, 애매한 경우(낮병동·당일 처치)의 판단 기준을 정리했습니다.
+- [도수치료 실손 청구 주의점 — 횟수가 많을 때](https://insureconnect.co.kr/insurance/actual-loss/manual-therapy-claim-notes): 도수치료를 실손으로 청구할 때 자주 생기는 추가 자료 요청과 의학적 필요성 쟁점을 정리해 분쟁을 예방합니다.
+- [해외에서 치료받으면 실손 청구되나 — 국내외 보장 차이](https://insureconnect.co.kr/insurance/actual-loss/silbi-overseas-treatment): 해외 여행·체류 중 진료를 받았을 때 실손보험 보장 여부와 청구 방법, 국내 환산 기준을 정리했습니다.
+- [실손보험 중복가입 — 두 개 들면 두 배 받을까](https://insureconnect.co.kr/insurance/actual-loss/silbi-duplicate-claim): 실손보험을 둘 이상 가입했을 때 비례보상 원칙으로 실제 비용 한도 내에서만 보장되는 구조를 설명합니다.
+- [실손보험료가 오르는 이유 — 갱신과 인상 구조](https://insureconnect.co.kr/insurance/actual-loss/silbi-renewal-premium-rise): 실손보험료가 갱신마다 오르는 원리(손해율·연령·재가입)와 부담을 줄이는 방법을 정리했습니다.
+- [어린이 실손보험 — 자녀 의료비 대비 포인트](https://insureconnect.co.kr/insurance/actual-loss/silbi-child-insurance): 자녀의 잦은 병원 이용을 대비하는 어린이 실손의 가입 시점·보장 범위와 성인 전환 시 유의점을 정리했습니다.
+- [정신과 진료와 실손 — 어디까지 보장될까](https://insureconnect.co.kr/insurance/actual-loss/silbi-mental-health): 실손보험의 정신질환(F코드) 보장 확대 흐름과, 급여·비급여 구분에 따른 보장 차이를 정리했습니다.
+- [MRI·CT 비급여 검사 — 실손으로 얼마나 보장될까](https://insureconnect.co.kr/insurance/actual-loss/silbi-mri-ct-coverage): 고가 영상검사(MRI·CT)의 급여·비급여 구분과 세대별 실손 보장 차이, 청구 시 유의점을 정리했습니다.
+- [비급여 주사제 실손 — 영양제·고가주사 보장 쟁점](https://insureconnect.co.kr/insurance/actual-loss/silbi-injection-coverage): 비급여 주사(영양·면역 등)의 실손 보장 여부를 가르는 치료 목적성과 세대별 한도를 정리했습니다.
+- [치과 치료와 실손보험 — 어디까지 되고 안 될까](https://insureconnect.co.kr/insurance/actual-loss/silbi-dental-coverage): 스케일링·충치·임플란트 등 치과 치료의 실손 보장 여부와, 치아보험이 따로 필요한 이유를 정리했습니다.
+- [임신·출산과 보험 — 실손은 되나, 태아보험은 왜 들까](https://insureconnect.co.kr/insurance/actual-loss/silbi-pregnancy-childbirth): 임신·출산 관련 실손 보장의 한계와 태아보험(어린이보험 태아특약)이 대비하는 영역을 정리했습니다.
+- [실손 청구가 거절되는 흔한 이유 — 미리 막는 법](https://insureconnect.co.kr/insurance/actual-loss/silbi-claim-rejection-reasons): 실손보험 청구가 거절·삭감되는 대표 사유(면책, 치료 목적성, 서류 미비 등)와 예방·대응법을 정리했습니다.
+- [실손 자기부담금 — 내가 얼마를 부담할까](https://insureconnect.co.kr/insurance/actual-loss/silbi-self-pay-rate): 실손보험의 급여·비급여 자기부담 비율과 통원 공제금액의 구조를 세대별로 정리해, 실제 받는 금액을 가늠하도록 돕습니다.
+- [응급실 이용과 실손 — 비응급으로 가면 손해?](https://insureconnect.co.kr/insurance/actual-loss/silbi-emergency-room): 응급실 진료의 실손 보장과, 비응급 상태로 대형병원 응급실 이용 시 본인부담이 커지는 구조를 정리했습니다.
+- [한방치료와 실손 — 첩약·약침은 보장될까](https://insureconnect.co.kr/insurance/actual-loss/silbi-oriental-medicine): 한방치료의 급여·비급여 구분과 실손 보장 한계, 한방 비급여(첩약·약침 등)의 처리 경향을 정리했습니다.
 
-### 종신보험 ([목록](https://insureconnect-hub.pages.dev/insurance/whole-life))
-- [종신보험과 정기보험의 차이 — 무엇을 선택할까](https://insureconnect-hub.pages.dev/insurance/whole-life/whole-life-vs-term): 평생 보장의 종신보험과 정해진 기간만 보장하는 정기보험의 보험료·환급·활용 차이를 비교해 선택 기준을 정리했습니다.
-- [종신보험 해지환급금 — 왜 초기엔 적을까](https://insureconnect-hub.pages.dev/insurance/whole-life/whole-life-surrender-value): 종신보험 해지환급금이 가입 초기에 적은 이유(사업비·위험보험료)와 환급률이 회복되는 구조, 해지 전 점검 사항을 정리했습니다.
-- [변액보험·유니버셜 기초 — 이름이 어려운 보험 이해하기](https://insureconnect-hub.pages.dev/insurance/whole-life/variable-universal-basics): 변액보험과 유니버셜 기능의 개념을 쉽게 풀어 설명하고, 투자·유동성 특징과 가입 시 유의점을 정리했습니다.
-- [종신보험 연금전환 — 노후에 보장을 연금으로 바꾸기](https://insureconnect-hub.pages.dev/insurance/whole-life/annuity-conversion-feature): 종신보험의 연금전환 기능이 무엇이며 어떤 상황에서 유용한지, 전용 연금보험과의 차이를 정리했습니다.
-- [종신보험과 상속설계 — 유동성과 자산 이전](https://insureconnect-hub.pages.dev/insurance/whole-life/legacy-estate-planning): 종신보험이 상속에서 유동성 확보와 자산 이전 수단으로 활용되는 원리와 유의점을 정리했습니다.
-- [연금보험 기초 — 세제적격과 비적격의 차이](https://insureconnect-hub.pages.dev/insurance/whole-life/annuity-insurance-basics): 노후 준비 수단인 연금보험의 세제적격(연금저축)과 세제비적격(연금보험)의 차이를 쉽게 정리했습니다.
-- [저축성보험과 비과세 — 보장보다 적립이 목적이라면](https://insureconnect-hub.pages.dev/insurance/whole-life/savings-insurance-basics): 저축성보험의 구조와 보장성보험과의 차이, 비과세 혜택의 일반 요건과 유의점을 정리했습니다.
-- [연금 수령 방식 — 종신·확정·상속형 무엇을 고를까](https://insureconnect-hub.pages.dev/insurance/whole-life/pension-receiving-methods): 연금보험의 대표 수령 방식인 종신형·확정기간형·상속형의 차이와 선택 기준을 정리했습니다.
-- [소득보장보험 — 아파서 일 못 할 때의 생활비](https://insureconnect-hub.pages.dev/insurance/whole-life/disability-income-protection): 질병·상해로 일하지 못할 때 소득 공백을 보완하는 소득보장(취업불능) 보험의 개념과 확인 포인트를 정리했습니다.
+### 종신보험 ([목록](https://insureconnect.co.kr/insurance/whole-life))
+- [종신보험과 정기보험의 차이 — 무엇을 선택할까](https://insureconnect.co.kr/insurance/whole-life/whole-life-vs-term): 평생 보장의 종신보험과 정해진 기간만 보장하는 정기보험의 보험료·환급·활용 차이를 비교해 선택 기준을 정리했습니다.
+- [종신보험 해지환급금 — 왜 초기엔 적을까](https://insureconnect.co.kr/insurance/whole-life/whole-life-surrender-value): 종신보험 해지환급금이 가입 초기에 적은 이유(사업비·위험보험료)와 환급률이 회복되는 구조, 해지 전 점검 사항을 정리했습니다.
+- [변액보험·유니버셜 기초 — 이름이 어려운 보험 이해하기](https://insureconnect.co.kr/insurance/whole-life/variable-universal-basics): 변액보험과 유니버셜 기능의 개념을 쉽게 풀어 설명하고, 투자·유동성 특징과 가입 시 유의점을 정리했습니다.
+- [종신보험 연금전환 — 노후에 보장을 연금으로 바꾸기](https://insureconnect.co.kr/insurance/whole-life/annuity-conversion-feature): 종신보험의 연금전환 기능이 무엇이며 어떤 상황에서 유용한지, 전용 연금보험과의 차이를 정리했습니다.
+- [종신보험과 상속설계 — 유동성과 자산 이전](https://insureconnect.co.kr/insurance/whole-life/legacy-estate-planning): 종신보험이 상속에서 유동성 확보와 자산 이전 수단으로 활용되는 원리와 유의점을 정리했습니다.
+- [연금보험 기초 — 세제적격과 비적격의 차이](https://insureconnect.co.kr/insurance/whole-life/annuity-insurance-basics): 노후 준비 수단인 연금보험의 세제적격(연금저축)과 세제비적격(연금보험)의 차이를 쉽게 정리했습니다.
+- [저축성보험과 비과세 — 보장보다 적립이 목적이라면](https://insureconnect.co.kr/insurance/whole-life/savings-insurance-basics): 저축성보험의 구조와 보장성보험과의 차이, 비과세 혜택의 일반 요건과 유의점을 정리했습니다.
+- [연금 수령 방식 — 종신·확정·상속형 무엇을 고를까](https://insureconnect.co.kr/insurance/whole-life/pension-receiving-methods): 연금보험의 대표 수령 방식인 종신형·확정기간형·상속형의 차이와 선택 기준을 정리했습니다.
+- [소득보장보험 — 아파서 일 못 할 때의 생활비](https://insureconnect.co.kr/insurance/whole-life/disability-income-protection): 질병·상해로 일하지 못할 때 소득 공백을 보완하는 소득보장(취업불능) 보험의 개념과 확인 포인트를 정리했습니다.
 
-### 암보험 ([목록](https://insureconnect-hub.pages.dev/insurance/cancer))
-- [암 진단비 지급 기준 — 언제 어떻게 인정될까](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-diagnosis-benefit-criteria): 암 진단비가 지급되는 핵심 기준인 조직검사 확정진단과 약관상 암 분류를 설명하고, 진단 시점·서류 준비 요령을 정리했습니다.
-- [유사암·소액암과 일반암의 차이 — 보장 금액이 갈리는 이유](https://insureconnect-hub.pages.dev/insurance/cancer/minor-cancer-vs-general-cancer): 갑상선암·제자리암·경계성종양 등 유사암이 일반암과 어떻게 다르게 보장되는지, 가입 전 확인할 점을 정리했습니다.
-- [갱신형 vs 비갱신형 암보험 — 무엇이 유리할까](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-renewal-vs-nonrenewal): 갱신형과 비갱신형 암보험의 보험료 구조 차이를 비교하고, 연령·가입기간에 따른 선택 기준을 정리했습니다.
-- [항암치료비 보장 — 표적·면역항암 시대의 보험](https://insureconnect-hub.pages.dev/insurance/cancer/anticancer-treatment-benefit): 표적치료·면역항암 등 고가 항암치료가 늘면서 중요해진 항암치료비 보장의 구조와 진단비와의 차이를 정리했습니다.
-- [암보험 90일 면책 — 가입 직후 진단되면 어떻게 될까](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-90day-waiting): 암보험에 흔히 적용되는 가입 후 면책기간(약 90일)의 의미와, 이 기간에 진단되었을 때의 처리를 정리했습니다.
-- [암 입원·요양병원 보장 — 어디까지 인정될까](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-hospitalization-benefit): 암 치료를 위한 입원과 요양병원 입원의 보장 인정 기준, 치료 목적성 쟁점을 정리했습니다.
-- [어린이 암보험 — 태아·자녀 가입 시 챙길 점](https://insureconnect-hub.pages.dev/insurance/cancer/childhood-cancer-insurance): 태아·어린이 암보험 가입 시 보장 범위, 소아암 특성, 납입면제 등 부모가 확인할 핵심을 정리했습니다.
-- [재발·전이암 보장 — 두 번째 암은 또 받을 수 있을까](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-recurrence-metastasis): 암의 재발·전이 시 진단비 추가 지급 여부와 약관상 재진단암·2차암 보장 구조를 정리했습니다.
-- [암보험 설계 — 진단비와 치료비, 어떻게 균형 잡을까](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-insurance-design-balance): 암보험을 설계할 때 진단비 일시금과 치료비 보장의 비중을 어떻게 맞출지, 유사암·재진단까지 고려한 균형 포인트를 정리했습니다.
-- [주요 암 종류와 보장 포인트 — 위·폐·간·유방암 개괄](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-types-overview): 발생이 잦은 주요 암별 특징과 보험에서 확인할 보장 포인트를 개괄해, 암보험 점검에 도움을 줍니다.
-- [암 진단 시 보험료 납입면제 — 치료에 집중하게 하는 장치](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-premium-waiver): 암 등 중대 질병 진단 시 이후 보험료가 면제되는 납입면제 기능의 조건과 확인 포인트를 정리했습니다.
-- [암 병기(스테이지)와 보험 — 진행 정도가 보장에 미치는 영향](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-stage-and-benefit): 암 병기(0기~4기)의 의미와, 병기가 진단비·유사암 분류 등 보험 보장과 어떻게 연결되는지 정리했습니다.
-- [갑상선암 보험 보장 — 왜 진단비가 적게 나올까](https://insureconnect-hub.pages.dev/insurance/cancer/thyroid-cancer-coverage): 갑상선암이 보험에서 유사암(소액)으로 분류되는 이유와, 전이 시 일반암으로 보는 경우 등 보장 포인트를 정리했습니다.
-- [암 검사비(PET-CT 등)와 보험 — 진단·추적검사 보장](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-checkup-pet-ct): PET-CT 등 고가 암 관련 검사비의 실손·암보험 보장 여부와 의학적 필요성 쟁점을 정리했습니다.
-- [암 진단 후 세컨드 오피니언 — 보험과 치료 결정](https://insureconnect-hub.pages.dev/insurance/cancer/cancer-second-opinion): 암 진단 후 다른 의료진의 의견(세컨드 오피니언)을 구할 때 보험 청구·진단 확정과의 관계를 정리했습니다.
+### 암보험 ([목록](https://insureconnect.co.kr/insurance/cancer))
+- [암 진단비 지급 기준 — 언제 어떻게 인정될까](https://insureconnect.co.kr/insurance/cancer/cancer-diagnosis-benefit-criteria): 암 진단비가 지급되는 핵심 기준인 조직검사 확정진단과 약관상 암 분류를 설명하고, 진단 시점·서류 준비 요령을 정리했습니다.
+- [유사암·소액암과 일반암의 차이 — 보장 금액이 갈리는 이유](https://insureconnect.co.kr/insurance/cancer/minor-cancer-vs-general-cancer): 갑상선암·제자리암·경계성종양 등 유사암이 일반암과 어떻게 다르게 보장되는지, 가입 전 확인할 점을 정리했습니다.
+- [갱신형 vs 비갱신형 암보험 — 무엇이 유리할까](https://insureconnect.co.kr/insurance/cancer/cancer-renewal-vs-nonrenewal): 갱신형과 비갱신형 암보험의 보험료 구조 차이를 비교하고, 연령·가입기간에 따른 선택 기준을 정리했습니다.
+- [항암치료비 보장 — 표적·면역항암 시대의 보험](https://insureconnect.co.kr/insurance/cancer/anticancer-treatment-benefit): 표적치료·면역항암 등 고가 항암치료가 늘면서 중요해진 항암치료비 보장의 구조와 진단비와의 차이를 정리했습니다.
+- [암보험 90일 면책 — 가입 직후 진단되면 어떻게 될까](https://insureconnect.co.kr/insurance/cancer/cancer-90day-waiting): 암보험에 흔히 적용되는 가입 후 면책기간(약 90일)의 의미와, 이 기간에 진단되었을 때의 처리를 정리했습니다.
+- [암 입원·요양병원 보장 — 어디까지 인정될까](https://insureconnect.co.kr/insurance/cancer/cancer-hospitalization-benefit): 암 치료를 위한 입원과 요양병원 입원의 보장 인정 기준, 치료 목적성 쟁점을 정리했습니다.
+- [어린이 암보험 — 태아·자녀 가입 시 챙길 점](https://insureconnect.co.kr/insurance/cancer/childhood-cancer-insurance): 태아·어린이 암보험 가입 시 보장 범위, 소아암 특성, 납입면제 등 부모가 확인할 핵심을 정리했습니다.
+- [재발·전이암 보장 — 두 번째 암은 또 받을 수 있을까](https://insureconnect.co.kr/insurance/cancer/cancer-recurrence-metastasis): 암의 재발·전이 시 진단비 추가 지급 여부와 약관상 재진단암·2차암 보장 구조를 정리했습니다.
+- [암보험 설계 — 진단비와 치료비, 어떻게 균형 잡을까](https://insureconnect.co.kr/insurance/cancer/cancer-insurance-design-balance): 암보험을 설계할 때 진단비 일시금과 치료비 보장의 비중을 어떻게 맞출지, 유사암·재진단까지 고려한 균형 포인트를 정리했습니다.
+- [주요 암 종류와 보장 포인트 — 위·폐·간·유방암 개괄](https://insureconnect.co.kr/insurance/cancer/cancer-types-overview): 발생이 잦은 주요 암별 특징과 보험에서 확인할 보장 포인트를 개괄해, 암보험 점검에 도움을 줍니다.
+- [암 진단 시 보험료 납입면제 — 치료에 집중하게 하는 장치](https://insureconnect.co.kr/insurance/cancer/cancer-premium-waiver): 암 등 중대 질병 진단 시 이후 보험료가 면제되는 납입면제 기능의 조건과 확인 포인트를 정리했습니다.
+- [암 병기(스테이지)와 보험 — 진행 정도가 보장에 미치는 영향](https://insureconnect.co.kr/insurance/cancer/cancer-stage-and-benefit): 암 병기(0기~4기)의 의미와, 병기가 진단비·유사암 분류 등 보험 보장과 어떻게 연결되는지 정리했습니다.
+- [갑상선암 보험 보장 — 왜 진단비가 적게 나올까](https://insureconnect.co.kr/insurance/cancer/thyroid-cancer-coverage): 갑상선암이 보험에서 유사암(소액)으로 분류되는 이유와, 전이 시 일반암으로 보는 경우 등 보장 포인트를 정리했습니다.
+- [암 검사비(PET-CT 등)와 보험 — 진단·추적검사 보장](https://insureconnect.co.kr/insurance/cancer/cancer-checkup-pet-ct): PET-CT 등 고가 암 관련 검사비의 실손·암보험 보장 여부와 의학적 필요성 쟁점을 정리했습니다.
+- [암 진단 후 세컨드 오피니언 — 보험과 치료 결정](https://insureconnect.co.kr/insurance/cancer/cancer-second-opinion): 암 진단 후 다른 의료진의 의견(세컨드 오피니언)을 구할 때 보험 청구·진단 확정과의 관계를 정리했습니다.
 
-### 자동차보험 ([목록](https://insureconnect-hub.pages.dev/insurance/car))
-- [자동차보험 과실비율 — 어떻게 정해질까](https://insureconnect-hub.pages.dev/insurance/car/car-fault-ratio-basics): 과실비율의 산정 원리와 기본과실·수정요소, 분쟁 시 활용할 수 있는 과실비율분쟁심의위원회까지 정리했습니다.
-- [자동차보험 할인할증등급 — 사고 나면 얼마나 오를까](https://insureconnect-hub.pages.dev/insurance/car/car-discount-surcharge-system): 무사고 할인과 사고 시 할증이 작동하는 할인할증등급·사고점수 구조를 설명하고, 물적사고 할증기준금액의 의미를 정리했습니다.
-- [대인배상 I과 II의 차이 — 의무보험과 추가보장](https://insureconnect-hub.pages.dev/insurance/car/liability-coverage-1-and-2): 자동차보험 대인배상 I(책임보험)과 대인배상 II의 역할과 한도 차이를 설명하고, 왜 둘 다 필요한지 정리했습니다.
-- [마일리지·블랙박스 특약 — 자동차보험료 줄이는 법](https://insureconnect-hub.pages.dev/insurance/car/mileage-and-blackbox-discount): 주행거리에 따른 마일리지 할인과 블랙박스 장착 할인 등 자동차보험료를 낮추는 대표 특약을 정리했습니다.
-- [자기차량손해(자차) — 가입할까 말까](https://insureconnect-hub.pages.dev/insurance/car/own-damage-coverage): 내 차 수리비를 보장하는 자기차량손해의 보장 범위와 자기부담금, 차량 가치에 따른 가입 판단 기준을 정리했습니다.
-- [무보험차상해 — 가해자가 보험이 없을 때 나를 지키는 담보](https://insureconnect-hub.pages.dev/insurance/car/uninsured-motorist-coverage): 뺑소니·무보험 차량에 의한 사고에서 내 피해를 보장하는 무보험차상해의 역할과 보장 범위를 정리했습니다.
-- [자기신체사고와 자동차상해 — 내가 다쳤을 때의 보장](https://insureconnect-hub.pages.dev/insurance/car/self-bodily-vs-driver-injury): 운전자 본인과 동승자의 부상을 보장하는 자기신체사고(자손)와 자동차상해(자상)의 차이를 비교했습니다.
-- [자동차보험 갱신 점검 — 매년 확인하면 좋은 것들](https://insureconnect-hub.pages.dev/insurance/car/car-insurance-renewal-tips): 자동차보험 갱신 시 보장 범위·특약·할인을 점검해 보험료를 최적화하는 체크포인트를 정리했습니다.
-- [긴급출동·렌트 특약 — 사고·고장 시 도움이 되는 보장](https://insureconnect-hub.pages.dev/insurance/car/roadside-and-rental-rider): 자동차보험의 긴급출동 서비스와 렌트(대차)·교통비 지원 특약의 차이와 활용법을 정리했습니다.
-- [교통사고 증거 확보 — 블랙박스와 현장 대응](https://insureconnect-hub.pages.dev/insurance/car/dashcam-accident-evidence): 사고 직후 과실·보상에서 유리해지기 위한 블랙박스 활용과 현장 증거 확보, 신고 절차를 정리했습니다.
-- [운전자보험 핵심 — 자동차보험과 무엇이 다를까](https://insureconnect-hub.pages.dev/insurance/car/driver-insurance-essentials): 교통사고처리지원금·벌금·변호사선임비용 등 운전자보험의 핵심 보장과, 자동차보험과의 차이를 정리했습니다.
-- [교통사고 후 합의와 형사 절차 — 기초 이해](https://insureconnect-hub.pages.dev/insurance/car/accident-settlement-and-criminal): 교통사고 후 민사 합의와 형사 처벌의 관계, 중과실 사고에서 운전자가 알아야 할 기본 절차를 정리했습니다.
-- [초보운전 자동차보험 — 첫 가입 보험료가 비싼 이유](https://insureconnect-hub.pages.dev/insurance/car/new-driver-premium): 운전 경력이 짧은 초보운전자의 보험료가 높은 이유와, 합리적으로 낮추는 방법을 정리했습니다.
-- [가족·자녀할인 등 자동차보험 할인 — 놓치기 쉬운 항목](https://insureconnect-hub.pages.dev/insurance/car/family-and-child-discount): 자녀할인, 가족 운전 한정, 대중교통 할인 등 놓치기 쉬운 자동차보험 할인 항목을 정리했습니다.
-- [자동차 전손(전부손해) — 차량가액 보상의 기준](https://insureconnect-hub.pages.dev/insurance/car/total-loss-and-valuation): 수리비가 차량 가치를 넘는 전손 처리의 의미와, 차량기준가액에 따른 보상 산정을 정리했습니다.
-- [주차 중 물피도주 — 가해자를 못 찾으면 어떻게 보상받을까](https://insureconnect-hub.pages.dev/insurance/car/parking-hit-and-run): 주차된 내 차가 긁히고 가해자가 도주한 경우의 보상 방법과 물피도주 신고 절차를 정리했습니다.
-- [중고차 보험 — 명의이전과 경력 승계](https://insureconnect-hub.pages.dev/insurance/car/used-car-insurance-transfer): 중고차 구매 시 자동차보험 가입 절차와 명의이전, 보험 경력·할인 승계 관련 핵심을 정리했습니다.
-- [이륜차(오토바이) 보험 — 의무보험과 배달 운행](https://insureconnect-hub.pages.dev/insurance/car/two-wheeler-insurance): 오토바이 의무보험과 유상운송(배달) 시 필요한 보장, 가입 시 유의점을 정리했습니다.
+### 자동차보험 ([목록](https://insureconnect.co.kr/insurance/car))
+- [자동차보험 과실비율 — 어떻게 정해질까](https://insureconnect.co.kr/insurance/car/car-fault-ratio-basics): 과실비율의 산정 원리와 기본과실·수정요소, 분쟁 시 활용할 수 있는 과실비율분쟁심의위원회까지 정리했습니다.
+- [자동차보험 할인할증등급 — 사고 나면 얼마나 오를까](https://insureconnect.co.kr/insurance/car/car-discount-surcharge-system): 무사고 할인과 사고 시 할증이 작동하는 할인할증등급·사고점수 구조를 설명하고, 물적사고 할증기준금액의 의미를 정리했습니다.
+- [대인배상 I과 II의 차이 — 의무보험과 추가보장](https://insureconnect.co.kr/insurance/car/liability-coverage-1-and-2): 자동차보험 대인배상 I(책임보험)과 대인배상 II의 역할과 한도 차이를 설명하고, 왜 둘 다 필요한지 정리했습니다.
+- [마일리지·블랙박스 특약 — 자동차보험료 줄이는 법](https://insureconnect.co.kr/insurance/car/mileage-and-blackbox-discount): 주행거리에 따른 마일리지 할인과 블랙박스 장착 할인 등 자동차보험료를 낮추는 대표 특약을 정리했습니다.
+- [자기차량손해(자차) — 가입할까 말까](https://insureconnect.co.kr/insurance/car/own-damage-coverage): 내 차 수리비를 보장하는 자기차량손해의 보장 범위와 자기부담금, 차량 가치에 따른 가입 판단 기준을 정리했습니다.
+- [무보험차상해 — 가해자가 보험이 없을 때 나를 지키는 담보](https://insureconnect.co.kr/insurance/car/uninsured-motorist-coverage): 뺑소니·무보험 차량에 의한 사고에서 내 피해를 보장하는 무보험차상해의 역할과 보장 범위를 정리했습니다.
+- [자기신체사고와 자동차상해 — 내가 다쳤을 때의 보장](https://insureconnect.co.kr/insurance/car/self-bodily-vs-driver-injury): 운전자 본인과 동승자의 부상을 보장하는 자기신체사고(자손)와 자동차상해(자상)의 차이를 비교했습니다.
+- [자동차보험 갱신 점검 — 매년 확인하면 좋은 것들](https://insureconnect.co.kr/insurance/car/car-insurance-renewal-tips): 자동차보험 갱신 시 보장 범위·특약·할인을 점검해 보험료를 최적화하는 체크포인트를 정리했습니다.
+- [긴급출동·렌트 특약 — 사고·고장 시 도움이 되는 보장](https://insureconnect.co.kr/insurance/car/roadside-and-rental-rider): 자동차보험의 긴급출동 서비스와 렌트(대차)·교통비 지원 특약의 차이와 활용법을 정리했습니다.
+- [교통사고 증거 확보 — 블랙박스와 현장 대응](https://insureconnect.co.kr/insurance/car/dashcam-accident-evidence): 사고 직후 과실·보상에서 유리해지기 위한 블랙박스 활용과 현장 증거 확보, 신고 절차를 정리했습니다.
+- [운전자보험 핵심 — 자동차보험과 무엇이 다를까](https://insureconnect.co.kr/insurance/car/driver-insurance-essentials): 교통사고처리지원금·벌금·변호사선임비용 등 운전자보험의 핵심 보장과, 자동차보험과의 차이를 정리했습니다.
+- [교통사고 후 합의와 형사 절차 — 기초 이해](https://insureconnect.co.kr/insurance/car/accident-settlement-and-criminal): 교통사고 후 민사 합의와 형사 처벌의 관계, 중과실 사고에서 운전자가 알아야 할 기본 절차를 정리했습니다.
+- [초보운전 자동차보험 — 첫 가입 보험료가 비싼 이유](https://insureconnect.co.kr/insurance/car/new-driver-premium): 운전 경력이 짧은 초보운전자의 보험료가 높은 이유와, 합리적으로 낮추는 방법을 정리했습니다.
+- [가족·자녀할인 등 자동차보험 할인 — 놓치기 쉬운 항목](https://insureconnect.co.kr/insurance/car/family-and-child-discount): 자녀할인, 가족 운전 한정, 대중교통 할인 등 놓치기 쉬운 자동차보험 할인 항목을 정리했습니다.
+- [자동차 전손(전부손해) — 차량가액 보상의 기준](https://insureconnect.co.kr/insurance/car/total-loss-and-valuation): 수리비가 차량 가치를 넘는 전손 처리의 의미와, 차량기준가액에 따른 보상 산정을 정리했습니다.
+- [주차 중 물피도주 — 가해자를 못 찾으면 어떻게 보상받을까](https://insureconnect.co.kr/insurance/car/parking-hit-and-run): 주차된 내 차가 긁히고 가해자가 도주한 경우의 보상 방법과 물피도주 신고 절차를 정리했습니다.
+- [중고차 보험 — 명의이전과 경력 승계](https://insureconnect.co.kr/insurance/car/used-car-insurance-transfer): 중고차 구매 시 자동차보험 가입 절차와 명의이전, 보험 경력·할인 승계 관련 핵심을 정리했습니다.
+- [이륜차(오토바이) 보험 — 의무보험과 배달 운행](https://insureconnect.co.kr/insurance/car/two-wheeler-insurance): 오토바이 의무보험과 유상운송(배달) 시 필요한 보장, 가입 시 유의점을 정리했습니다.
 
-### 설계사실무 ([목록](https://insureconnect-hub.pages.dev/insurance/practice))
-- [초회 상담 체크리스트 — 첫 만남에서 챙길 것들](https://insureconnect-hub.pages.dev/insurance/practice/first-consultation-checklist): 보험설계사의 초회 상담에서 신뢰를 쌓고 니즈를 파악하기 위한 준비물과 대화 흐름, 컴플라이언스 유의점을 정리했습니다.
-- [보장분석 체크리스트 — 고객 증권 점검하는 법](https://insureconnect-hub.pages.dev/insurance/practice/policy-analysis-checklist): 설계사가 고객의 기존 보험을 점검할 때 확인해야 할 보장 항목·중복·공백을 체크리스트로 정리했습니다.
-- [계약 후 관리와 소개 — 유지율을 높이는 사후관리](https://insureconnect-hub.pages.dev/insurance/practice/referral-after-contract): 계약 체결 후의 정기 점검과 자연스러운 소개 요청으로 유지율과 신규 고객을 함께 늘리는 사후관리 방법을 정리했습니다.
-- [니즈 기반 영업 — 상품을 팔기 전에 필요를 찾는 법](https://insureconnect-hub.pages.dev/insurance/practice/needs-based-selling): 고객의 실제 필요에서 출발하는 니즈 기반 영업의 흐름과 질문 기술, 컴플라이언스 관점을 정리했습니다.
-- [불완전판매 예방 — 설계사가 꼭 지켜야 할 3대 기본](https://insureconnect-hub.pages.dev/insurance/practice/compliance-incomplete-sale): 불완전판매를 막기 위한 설명의무·적합성 원칙·서류 확인 등 설계사 컴플라이언스의 핵심을 정리했습니다.
-- [보험료 세액공제 — 연말정산에서 챙기는 보장성보험](https://insureconnect-hub.pages.dev/insurance/practice/insurance-tax-deduction): 연말정산 시 보장성보험료 세액공제의 일반 요건과 대상, 확인 방법을 정리했습니다(세법은 변경될 수 있음).
-- [온라인 가망고객 발굴 — SNS 시대의 설계사 마케팅 기본](https://insureconnect-hub.pages.dev/insurance/practice/digital-prospecting): 블로그·SNS·콘텐츠를 활용한 가망고객 발굴의 기본 원칙과 컴플라이언스 유의점을 정리했습니다.
-- [비교설명 의무 — 여러 상품을 권할 때의 기본](https://insureconnect-hub.pages.dev/insurance/practice/insurance-comparison-ethics): 여러 보험사 상품을 다루는 설계사(GA 등)의 비교설명 의무와, 고객 신뢰를 지키는 윤리적 권유의 기본을 정리했습니다.
-- [고아계약 관리 — 담당 설계사가 없는 고객 케어](https://insureconnect-hub.pages.dev/insurance/practice/orphan-policy-management): 담당 설계사가 바뀌거나 없는 고아계약(미배정 계약)을 관리해 유지율과 신뢰를 높이는 실무를 정리했습니다.
+### 설계사실무 ([목록](https://insureconnect.co.kr/insurance/practice))
+- [초회 상담 체크리스트 — 첫 만남에서 챙길 것들](https://insureconnect.co.kr/insurance/practice/first-consultation-checklist): 보험설계사의 초회 상담에서 신뢰를 쌓고 니즈를 파악하기 위한 준비물과 대화 흐름, 컴플라이언스 유의점을 정리했습니다.
+- [보장분석 체크리스트 — 고객 증권 점검하는 법](https://insureconnect.co.kr/insurance/practice/policy-analysis-checklist): 설계사가 고객의 기존 보험을 점검할 때 확인해야 할 보장 항목·중복·공백을 체크리스트로 정리했습니다.
+- [계약 후 관리와 소개 — 유지율을 높이는 사후관리](https://insureconnect.co.kr/insurance/practice/referral-after-contract): 계약 체결 후의 정기 점검과 자연스러운 소개 요청으로 유지율과 신규 고객을 함께 늘리는 사후관리 방법을 정리했습니다.
+- [니즈 기반 영업 — 상품을 팔기 전에 필요를 찾는 법](https://insureconnect.co.kr/insurance/practice/needs-based-selling): 고객의 실제 필요에서 출발하는 니즈 기반 영업의 흐름과 질문 기술, 컴플라이언스 관점을 정리했습니다.
+- [불완전판매 예방 — 설계사가 꼭 지켜야 할 3대 기본](https://insureconnect.co.kr/insurance/practice/compliance-incomplete-sale): 불완전판매를 막기 위한 설명의무·적합성 원칙·서류 확인 등 설계사 컴플라이언스의 핵심을 정리했습니다.
+- [보험료 세액공제 — 연말정산에서 챙기는 보장성보험](https://insureconnect.co.kr/insurance/practice/insurance-tax-deduction): 연말정산 시 보장성보험료 세액공제의 일반 요건과 대상, 확인 방법을 정리했습니다(세법은 변경될 수 있음).
+- [온라인 가망고객 발굴 — SNS 시대의 설계사 마케팅 기본](https://insureconnect.co.kr/insurance/practice/digital-prospecting): 블로그·SNS·콘텐츠를 활용한 가망고객 발굴의 기본 원칙과 컴플라이언스 유의점을 정리했습니다.
+- [비교설명 의무 — 여러 상품을 권할 때의 기본](https://insureconnect.co.kr/insurance/practice/insurance-comparison-ethics): 여러 보험사 상품을 다루는 설계사(GA 등)의 비교설명 의무와, 고객 신뢰를 지키는 윤리적 권유의 기본을 정리했습니다.
+- [고아계약 관리 — 담당 설계사가 없는 고객 케어](https://insureconnect.co.kr/insurance/practice/orphan-policy-management): 담당 설계사가 바뀌거나 없는 고아계약(미배정 계약)을 관리해 유지율과 신뢰를 높이는 실무를 정리했습니다.
 
-### 리쿠르팅 ([목록](https://insureconnect-hub.pages.dev/insurance/recruit-tips))
-- [신입 설계사 정착 — 활동관리로 6개월을 버티는 법](https://insureconnect-hub.pages.dev/insurance/recruit-tips/fp-activity-management): 신입 보험설계사의 초기 정착을 좌우하는 활동량 관리, 가망고객 파이프라인, 학습 루틴을 실무 관점에서 정리했습니다.
-- [경력 설계사 이직 — 옮기기 전 점검할 것들](https://insureconnect-hub.pages.dev/insurance/recruit-tips/career-fp-transition): 경력 보험설계사가 소속을 옮길 때 고려할 고객 관리, 수수료 환수, 상품 취급 범위 등 현실적 체크포인트를 정리했습니다.
-- [보험설계사 소득 구조 — 수수료는 어떻게 들어올까](https://insureconnect-hub.pages.dev/insurance/recruit-tips/fp-income-structure): 초년도·차년도 수수료, 유지수수료, 시책 등 보험설계사 소득의 구성과 환수 리스크를 이해하기 쉽게 정리했습니다.
-- [보험설계사 자격시험과 등록 — 시작 전 알아야 할 절차](https://insureconnect-hub.pages.dev/insurance/recruit-tips/fp-exam-license): 보험설계사가 되기 위한 자격시험(생명·손해·제3보험)과 위촉·등록 절차의 기본을 정리했습니다.
+### 리쿠르팅 ([목록](https://insureconnect.co.kr/insurance/recruit-tips))
+- [신입 설계사 정착 — 활동관리로 6개월을 버티는 법](https://insureconnect.co.kr/insurance/recruit-tips/fp-activity-management): 신입 보험설계사의 초기 정착을 좌우하는 활동량 관리, 가망고객 파이프라인, 학습 루틴을 실무 관점에서 정리했습니다.
+- [경력 설계사 이직 — 옮기기 전 점검할 것들](https://insureconnect.co.kr/insurance/recruit-tips/career-fp-transition): 경력 보험설계사가 소속을 옮길 때 고려할 고객 관리, 수수료 환수, 상품 취급 범위 등 현실적 체크포인트를 정리했습니다.
+- [보험설계사 소득 구조 — 수수료는 어떻게 들어올까](https://insureconnect.co.kr/insurance/recruit-tips/fp-income-structure): 초년도·차년도 수수료, 유지수수료, 시책 등 보험설계사 소득의 구성과 환수 리스크를 이해하기 쉽게 정리했습니다.
+- [보험설계사 자격시험과 등록 — 시작 전 알아야 할 절차](https://insureconnect.co.kr/insurance/recruit-tips/fp-exam-license): 보험설계사가 되기 위한 자격시험(생명·손해·제3보험)과 위촉·등록 절차의 기본을 정리했습니다.
 
-### 수술코드 ([목록](https://insureconnect-hub.pages.dev/insurance/surgery-code))
-- [수술보험금 분류 이해 — 1~5종은 무슨 기준일까](https://insureconnect-hub.pages.dev/insurance/surgery-code/surgery-benefit-classification): 수술보험금이 수술의 난이도·종류에 따라 종(등급)으로 나뉘어 지급되는 구조와, 청구 시 확인할 점을 정리했습니다.
-- [내시경 수술 보험금 — 수술로 인정될까](https://insureconnect-hub.pages.dev/insurance/surgery-code/endoscopic-surgery-benefit): 내시경·복강경 시술이 약관상 수술에 해당하는지 판단하는 기준과, 수술보험금 청구 시 챙길 서류를 정리했습니다.
-- [백내장 수술 보험금 — 다초점렌즈 논란 정리](https://insureconnect-hub.pages.dev/insurance/surgery-code/cataract-surgery-claim): 백내장 수술의 입원·통원 분류와 다초점렌즈(비급여) 보장을 둘러싼 쟁점을 정리해 청구 전 이해를 돕습니다.
+### 수술코드 ([목록](https://insureconnect.co.kr/insurance/surgery-code))
+- [수술보험금 분류 이해 — 1~5종은 무슨 기준일까](https://insureconnect.co.kr/insurance/surgery-code/surgery-benefit-classification): 수술보험금이 수술의 난이도·종류에 따라 종(등급)으로 나뉘어 지급되는 구조와, 청구 시 확인할 점을 정리했습니다.
+- [내시경 수술 보험금 — 수술로 인정될까](https://insureconnect.co.kr/insurance/surgery-code/endoscopic-surgery-benefit): 내시경·복강경 시술이 약관상 수술에 해당하는지 판단하는 기준과, 수술보험금 청구 시 챙길 서류를 정리했습니다.
+- [백내장 수술 보험금 — 다초점렌즈 논란 정리](https://insureconnect.co.kr/insurance/surgery-code/cataract-surgery-claim): 백내장 수술의 입원·통원 분류와 다초점렌즈(비급여) 보장을 둘러싼 쟁점을 정리해 청구 전 이해를 돕습니다.
 
-### 질병코드 ([목록](https://insureconnect-hub.pages.dev/insurance/disease-code))
-- [KCD 질병코드란 — 보험 보장과 무슨 관계일까](https://insureconnect-hub.pages.dev/insurance/disease-code/what-is-kcd-code): 진단서에 적히는 KCD 질병분류코드의 의미와, 이 코드가 암·유사암 등 보험 보장 판단에 어떻게 쓰이는지 설명합니다.
-- [뇌혈관·심장질환 코드 — 진단비 보장 범위가 갈리는 지점](https://insureconnect-hub.pages.dev/insurance/disease-code/cerebro-cardio-codes): 뇌졸중·뇌출혈·급성심근경색 등 코드 범위에 따라 진단비 보장이 달라지는 구조를 쉽게 설명합니다.
-- [상해(손상) 분류 코드 — 사고로 다쳤을 때의 보장 기준](https://insureconnect-hub.pages.dev/insurance/disease-code/injury-classification-codes): 상해보험에서 손상(S·T 코드) 분류가 보장 판단에 어떻게 쓰이는지와, 질병과의 구분 쟁점을 정리했습니다.
-- [산정특례와 보험 — 중증질환 본인부담 경감 제도 이해](https://insureconnect-hub.pages.dev/insurance/disease-code/special-copay-registration): 암·희귀난치질환 등의 본인부담을 줄여주는 산정특례 제도와, 실손 등 보험 보장과의 관계를 정리했습니다.
-- [정신질환 코드(F코드)와 보험 — 보장과 고지](https://insureconnect-hub.pages.dev/insurance/disease-code/mental-disorder-codes): 정신질환을 분류하는 F코드의 의미와, 보험 가입(고지)·보장에서 유의할 점을 정리했습니다.
+### 질병코드 ([목록](https://insureconnect.co.kr/insurance/disease-code))
+- [KCD 질병코드란 — 보험 보장과 무슨 관계일까](https://insureconnect.co.kr/insurance/disease-code/what-is-kcd-code): 진단서에 적히는 KCD 질병분류코드의 의미와, 이 코드가 암·유사암 등 보험 보장 판단에 어떻게 쓰이는지 설명합니다.
+- [뇌혈관·심장질환 코드 — 진단비 보장 범위가 갈리는 지점](https://insureconnect.co.kr/insurance/disease-code/cerebro-cardio-codes): 뇌졸중·뇌출혈·급성심근경색 등 코드 범위에 따라 진단비 보장이 달라지는 구조를 쉽게 설명합니다.
+- [상해(손상) 분류 코드 — 사고로 다쳤을 때의 보장 기준](https://insureconnect.co.kr/insurance/disease-code/injury-classification-codes): 상해보험에서 손상(S·T 코드) 분류가 보장 판단에 어떻게 쓰이는지와, 질병과의 구분 쟁점을 정리했습니다.
+- [산정특례와 보험 — 중증질환 본인부담 경감 제도 이해](https://insureconnect.co.kr/insurance/disease-code/special-copay-registration): 암·희귀난치질환 등의 본인부담을 줄여주는 산정특례 제도와, 실손 등 보험 보장과의 관계를 정리했습니다.
+- [정신질환 코드(F코드)와 보험 — 보장과 고지](https://insureconnect.co.kr/insurance/disease-code/mental-disorder-codes): 정신질환을 분류하는 F코드의 의미와, 보험 가입(고지)·보장에서 유의할 점을 정리했습니다.
 
-### 약관해설 ([목록](https://insureconnect-hub.pages.dev/insurance/terms))
-- [보험약관 보는 법 — 처음 보는 사람을 위한 기초](https://insureconnect-hub.pages.dev/insurance/terms/how-to-read-policy): 보장내용·면책·지급사유 등 약관에서 꼭 확인할 항목과 용어를 정리해, 약관을 스스로 읽고 판단하는 기초를 잡아줍니다.
-- [면책기간과 감액기간 — 가입 직후 보장의 함정](https://insureconnect-hub.pages.dev/insurance/terms/waiting-period-and-reduction): 암 등 일부 보장에 적용되는 면책기간과 감액기간의 의미를 설명하고, 가입 직후 진단 시 보험금이 달라지는 이유를 정리했습니다.
-- [청약철회와 품질보증해지 — 가입 후 무를 수 있는 권리](https://insureconnect-hub.pages.dev/insurance/terms/cancel-and-quality-guarantee): 가입 후 마음이 바뀌거나 불완전판매가 있었을 때 활용하는 청약철회와 품질보증해지의 조건·차이를 정리했습니다.
-- [기왕증과 보장 — 이미 있던 병은 어떻게 처리될까](https://insureconnect-hub.pages.dev/insurance/terms/pre-existing-condition): 기왕증(이전부터 있던 질병)이 보험금 지급에 미치는 영향과 인과관계·기여도 감액 개념을 정리했습니다.
-- [헷갈리는 보험 용어 정리 — 보험료·보험금·해지환급금](https://insureconnect-hub.pages.dev/insurance/terms/insurance-glossary-basics): 보험료와 보험금, 피보험자와 수익자, 해지환급금 등 자주 헷갈리는 기본 용어를 한 번에 정리했습니다.
-- [보험료 연체와 부활 — 실효된 계약 되살리기](https://insureconnect-hub.pages.dev/insurance/terms/grace-period-and-reinstatement): 보험료 연체 시 납입최고기간과 실효의 의미, 실효된 계약을 되살리는 부활 제도와 조건을 정리했습니다.
-- [약관대출(보험계약대출) — 해지 없이 급전 마련하기](https://insureconnect-hub.pages.dev/insurance/terms/policy-loan-basics): 해지환급금 범위 내에서 받는 약관대출의 구조와 이자, 미상환 시 영향을 정리해 합리적 활용을 돕습니다.
-- [계약자·수익자 변경 — 누구 이름으로 둘까](https://insureconnect-hub.pages.dev/insurance/terms/beneficiary-and-policyholder-change): 계약자와 수익자의 차이, 변경 절차와 변경 시 고려할 보장·세제 영향을 정리했습니다.
-- [보험 공통 면책사유 — 어떤 경우엔 보장이 안 될까](https://insureconnect-hub.pages.dev/insurance/terms/common-exclusions): 고의·자해, 음주·무면허 운전, 위법행위 등 보험에서 공통적으로 보장하지 않는 대표 면책사유를 정리했습니다.
-- [갱신형 특약과 보증갱신 — 나이 들어도 유지할 수 있을까](https://insureconnect-hub.pages.dev/insurance/terms/guaranteed-renewable): 갱신형 특약의 보험료 인상과 보증갱신(재가입 보장)의 의미를 설명해 장기 유지 판단을 돕습니다.
-- [계약 무효·취소·해지 — 비슷해 보이는 세 가지의 차이](https://insureconnect-hub.pages.dev/insurance/terms/void-cancel-terminate): 보험계약의 무효, 취소, 해지가 각각 어떤 상황에서 적용되고 보험료·보장에 어떤 영향을 주는지 정리했습니다.
-- [보험나이 계산 — 만나이와 다른 이유](https://insureconnect-hub.pages.dev/insurance/terms/insurance-age-calculation): 보험료 산정 기준이 되는 보험나이(상령일)의 계산법과, 가입 시점이 보험료에 미치는 영향을 정리했습니다.
-- [보험료 납입 방법과 유예 — 자동이체·카드납·납입유예](https://insureconnect-hub.pages.dev/insurance/terms/auto-transfer-and-grace): 보험료 납입 방법별 특징과, 납입이 어려울 때 활용하는 납입유예·감액완납 등 유지 방법을 정리했습니다.
+### 약관해설 ([목록](https://insureconnect.co.kr/insurance/terms))
+- [보험약관 보는 법 — 처음 보는 사람을 위한 기초](https://insureconnect.co.kr/insurance/terms/how-to-read-policy): 보장내용·면책·지급사유 등 약관에서 꼭 확인할 항목과 용어를 정리해, 약관을 스스로 읽고 판단하는 기초를 잡아줍니다.
+- [면책기간과 감액기간 — 가입 직후 보장의 함정](https://insureconnect.co.kr/insurance/terms/waiting-period-and-reduction): 암 등 일부 보장에 적용되는 면책기간과 감액기간의 의미를 설명하고, 가입 직후 진단 시 보험금이 달라지는 이유를 정리했습니다.
+- [청약철회와 품질보증해지 — 가입 후 무를 수 있는 권리](https://insureconnect.co.kr/insurance/terms/cancel-and-quality-guarantee): 가입 후 마음이 바뀌거나 불완전판매가 있었을 때 활용하는 청약철회와 품질보증해지의 조건·차이를 정리했습니다.
+- [기왕증과 보장 — 이미 있던 병은 어떻게 처리될까](https://insureconnect.co.kr/insurance/terms/pre-existing-condition): 기왕증(이전부터 있던 질병)이 보험금 지급에 미치는 영향과 인과관계·기여도 감액 개념을 정리했습니다.
+- [헷갈리는 보험 용어 정리 — 보험료·보험금·해지환급금](https://insureconnect.co.kr/insurance/terms/insurance-glossary-basics): 보험료와 보험금, 피보험자와 수익자, 해지환급금 등 자주 헷갈리는 기본 용어를 한 번에 정리했습니다.
+- [보험료 연체와 부활 — 실효된 계약 되살리기](https://insureconnect.co.kr/insurance/terms/grace-period-and-reinstatement): 보험료 연체 시 납입최고기간과 실효의 의미, 실효된 계약을 되살리는 부활 제도와 조건을 정리했습니다.
+- [약관대출(보험계약대출) — 해지 없이 급전 마련하기](https://insureconnect.co.kr/insurance/terms/policy-loan-basics): 해지환급금 범위 내에서 받는 약관대출의 구조와 이자, 미상환 시 영향을 정리해 합리적 활용을 돕습니다.
+- [계약자·수익자 변경 — 누구 이름으로 둘까](https://insureconnect.co.kr/insurance/terms/beneficiary-and-policyholder-change): 계약자와 수익자의 차이, 변경 절차와 변경 시 고려할 보장·세제 영향을 정리했습니다.
+- [보험 공통 면책사유 — 어떤 경우엔 보장이 안 될까](https://insureconnect.co.kr/insurance/terms/common-exclusions): 고의·자해, 음주·무면허 운전, 위법행위 등 보험에서 공통적으로 보장하지 않는 대표 면책사유를 정리했습니다.
+- [갱신형 특약과 보증갱신 — 나이 들어도 유지할 수 있을까](https://insureconnect.co.kr/insurance/terms/guaranteed-renewable): 갱신형 특약의 보험료 인상과 보증갱신(재가입 보장)의 의미를 설명해 장기 유지 판단을 돕습니다.
+- [계약 무효·취소·해지 — 비슷해 보이는 세 가지의 차이](https://insureconnect.co.kr/insurance/terms/void-cancel-terminate): 보험계약의 무효, 취소, 해지가 각각 어떤 상황에서 적용되고 보험료·보장에 어떤 영향을 주는지 정리했습니다.
+- [보험나이 계산 — 만나이와 다른 이유](https://insureconnect.co.kr/insurance/terms/insurance-age-calculation): 보험료 산정 기준이 되는 보험나이(상령일)의 계산법과, 가입 시점이 보험료에 미치는 영향을 정리했습니다.
+- [보험료 납입 방법과 유예 — 자동이체·카드납·납입유예](https://insureconnect.co.kr/insurance/terms/auto-transfer-and-grace): 보험료 납입 방법별 특징과, 납입이 어려울 때 활용하는 납입유예·감액완납 등 유지 방법을 정리했습니다.
 
-### 인수사례 ([목록](https://insureconnect-hub.pages.dev/insurance/underwrite))
-- [고지의무와 인수심사 — 가입 전 꼭 알아야 할 기본](https://insureconnect-hub.pages.dev/insurance/underwrite/disclosure-duty-basics): 보험 가입 시 고지의무의 의미와 위반 시 불이익, 인수심사(언더라이팅)의 기본 흐름을 정리해 안전한 가입을 돕습니다.
-- [유병자보험·간편심사 — 병이 있어도 가입하는 길](https://insureconnect-hub.pages.dev/insurance/underwrite/simplified-issue-insurance): 유병자도 가입할 수 있는 간편심사(간편가입) 보험의 구조와 일반 심사와의 차이, 주의점을 정리했습니다.
-- [직업급수와 상해보험 — 위험한 직업은 가입이 어려울까](https://insureconnect-hub.pages.dev/insurance/underwrite/occupation-risk-class): 상해보험 인수에서 직업급수가 보험료·가입에 미치는 영향과, 직업 변경 시 알릴 의무를 정리했습니다.
-- [건강검진 이상소견과 보험 가입 — 인수심사에 미치는 영향](https://insureconnect-hub.pages.dev/insurance/underwrite/health-checkup-underwriting): 건강검진에서 이상소견이 나왔을 때 보험 가입(인수심사)에 미치는 영향과 고지·대응 방법을 정리했습니다.
-- [고령자 보험 가입 — 나이 들어도 들 수 있는 보장](https://insureconnect-hub.pages.dev/insurance/underwrite/senior-insurance): 고령자의 보험 가입 시 인수 제한과 간편심사·고령자 전용 상품의 특징, 주의점을 정리했습니다.
-- [외국인 보험 가입 — 체류자격과 건강보험 관계](https://insureconnect-hub.pages.dev/insurance/underwrite/foreigner-insurance): 국내 체류 외국인의 민간 보험 가입 가능성과 체류자격·건강보험 가입 여부에 따른 차이를 정리했습니다.
+### 인수사례 ([목록](https://insureconnect.co.kr/insurance/underwrite))
+- [고지의무와 인수심사 — 가입 전 꼭 알아야 할 기본](https://insureconnect.co.kr/insurance/underwrite/disclosure-duty-basics): 보험 가입 시 고지의무의 의미와 위반 시 불이익, 인수심사(언더라이팅)의 기본 흐름을 정리해 안전한 가입을 돕습니다.
+- [유병자보험·간편심사 — 병이 있어도 가입하는 길](https://insureconnect.co.kr/insurance/underwrite/simplified-issue-insurance): 유병자도 가입할 수 있는 간편심사(간편가입) 보험의 구조와 일반 심사와의 차이, 주의점을 정리했습니다.
+- [직업급수와 상해보험 — 위험한 직업은 가입이 어려울까](https://insureconnect.co.kr/insurance/underwrite/occupation-risk-class): 상해보험 인수에서 직업급수가 보험료·가입에 미치는 영향과, 직업 변경 시 알릴 의무를 정리했습니다.
+- [건강검진 이상소견과 보험 가입 — 인수심사에 미치는 영향](https://insureconnect.co.kr/insurance/underwrite/health-checkup-underwriting): 건강검진에서 이상소견이 나왔을 때 보험 가입(인수심사)에 미치는 영향과 고지·대응 방법을 정리했습니다.
+- [고령자 보험 가입 — 나이 들어도 들 수 있는 보장](https://insureconnect.co.kr/insurance/underwrite/senior-insurance): 고령자의 보험 가입 시 인수 제한과 간편심사·고령자 전용 상품의 특징, 주의점을 정리했습니다.
+- [외국인 보험 가입 — 체류자격과 건강보험 관계](https://insureconnect.co.kr/insurance/underwrite/foreigner-insurance): 국내 체류 외국인의 민간 보험 가입 가능성과 체류자격·건강보험 가입 여부에 따른 차이를 정리했습니다.
 
 ## 안내
 - 본 사이트의 보험 정보는 교육·참고용 일반 정보이며, 보험금 지급 등 구체적 사안은 약관과 보험사 공식 안내가 우선합니다.
 - 보험사 고객센터·전산·청구 정보는 변경될 수 있으니 공식 채널에서 최종 확인을 권장합니다.
-- 운영: InsureConnect (https://insureconnect-hub.pages.dev)
+- 운영: InsureConnect (https://insureconnect.co.kr)

@@ -8,7 +8,7 @@ const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
 
 const TRUSTED_IMAGE_PREFIX = `${SB_URL}/storage/`;
-const DEFAULT_OG_IMAGE     = 'https://insureconnect-hub.pages.dev/logo-full.png';
+const DEFAULT_OG_IMAGE     = 'https://insureconnect.co.kr/logo-full.png';
 
 const SB_HEADERS = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
 
@@ -60,9 +60,23 @@ function isInternalPath(p) {
   return BLOCK_EXT.test(p) || BLOCK_DIR.test(p) || BLOCK_FILE.test(p) || /pdf_extract\.txt$/i.test(p);
 }
 
+const CANONICAL_HOST = 'insureconnect.co.kr';
+
 export async function onRequest(context) {
   const { request, next } = context;
   const reqUrl = new URL(request.url);
+
+  // v2.97.0: 커스텀 도메인 정식 운영 — pages.dev 접근은 정규 도메인으로 301 영구이동.
+  //   목적: 중복 색인(.pages.dev ↔ .co.kr) 방지·SEO 신호 통합·브랜딩. 사이트맵/canonical도 .co.kr 단일.
+  //   API(POST 등 비멱등 요청)·프리뷰 배포(<hash>.insureconnect-hub.pages.dev)는 깨지지 않도록
+  //   '정확히 운영 호스트 + 비 /api 경로'만 리다이렉트한다(크롤러는 HTML·sitemap만 타므로 충분).
+  if (reqUrl.hostname === 'insureconnect-hub.pages.dev' && !reqUrl.pathname.startsWith('/api/')) {
+    const dest = new URL(request.url);
+    dest.hostname = CANONICAL_HOST;
+    dest.protocol = 'https:';
+    dest.port = '';
+    return Response.redirect(dest.toString(), 301);
+  }
 
   // 내부 파일 직접 접근 차단 (정보노출 방지)
   if (isInternalPath(reqUrl.pathname)) {

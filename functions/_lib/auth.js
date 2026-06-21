@@ -2,7 +2,7 @@
  * v2.2.1: 회원 세션 — 카카오 로그인용 (opaque 토큰 + DB 저장, 토큰은 해시로 저장)
  *   쿠키: ic_sess (httpOnly, Secure, SameSite=Lax)
  */
-export const SITE = 'https://insureconnect-hub.pages.dev';
+export const SITE = 'https://insureconnect.co.kr';
 const SESSION_DAYS = 30;
 
 // 회원 등급 (낮음 → 높음)

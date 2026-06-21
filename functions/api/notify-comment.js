@@ -20,7 +20,7 @@ export async function onRequestPost(context) {
       access_key: WEB3FORMS_KEY,
       subject: `[InsureConnect] 새 댓글 알림 — ${post_title}`,
       from_name: 'InsureConnect 알림',
-      message: `📬 보험지식 포스트에 새 댓글이 달렸습니다.\n\n포스트: ${post_title}\n작성자: ${author_name}\n\n댓글 내용:\n${comment}\n\n사이트: https://insureconnect-hub.pages.dev`
+      message: `📬 보험지식 포스트에 새 댓글이 달렸습니다.\n\n포스트: ${post_title}\n작성자: ${author_name}\n\n댓글 내용:\n${comment}\n\n사이트: https://insureconnect.co.kr`
     })
   });
 

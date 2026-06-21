@@ -11,7 +11,7 @@
  *   npx wrangler pages secret put VAPID_PUBLIC_KEY  --project-name=insureconnect-hub
  *   npx wrangler pages secret put VAPID_PRIVATE_KEY --project-name=insureconnect-hub
  *   npx wrangler pages secret put VAPID_SUBJECT     --project-name=insureconnect-hub
- *     (예: mailto:admin@insureconnect-hub.pages.dev)
+ *     (예: mailto:admin@insureconnect.co.kr)
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
@@ -25,7 +25,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const vapid = {
     publicKey:  env.VAPID_PUBLIC_KEY,
     privateKey: env.VAPID_PRIVATE_KEY,
-    subject:    env.VAPID_SUBJECT || 'mailto:admin@insureconnect-hub.pages.dev',
+    subject:    env.VAPID_SUBJECT || 'mailto:admin@insureconnect.co.kr',
   };
   if (!vapid.publicKey || !vapid.privateKey) {
     return error('VAPID 키 미설정 — `wrangler pages secret put VAPID_PUBLIC_KEY / VAPID_PRIVATE_KEY` 등록 필요', 500);

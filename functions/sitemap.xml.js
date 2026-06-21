@@ -6,7 +6,7 @@
 import { INSURERS } from './_lib/insurers.js';
 import { GA_LIST } from './_lib/ga-companies.js';
 
-const BASE = 'https://insureconnect-hub.pages.dev';
+const BASE = 'https://insureconnect.co.kr';
 
 function fmtDate(iso) {
   return iso ? String(iso).slice(0, 10) : new Date().toISOString().slice(0, 10);

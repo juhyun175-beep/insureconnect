@@ -55,7 +55,7 @@ async function fetchChannel(ch) {
   try {
     const r = await fetch(FEED(ch.id), {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; InsureConnectBot/1.0; +https://insureconnect-hub.pages.dev)',
+        'User-Agent': 'Mozilla/5.0 (compatible; InsureConnectBot/1.0; +https://insureconnect.co.kr)',
         'Accept': 'application/atom+xml, application/xml, text/xml;q=0.9, */*;q=0.8',
         'Accept-Language': 'ko-KR,ko;q=0.9',
       },
