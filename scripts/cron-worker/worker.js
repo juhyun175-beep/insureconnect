@@ -12,7 +12,7 @@
  *   2) npx wrangler secret put CRON_SECRET   (Pages와 동일한 값 입력)
  * 수동 테스트: 배포 후 워커 URL 호출 — `?job=weekly`면 주간, 없으면 일간.
  */
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 
 async function trigger(env, path) {
   const r = await fetch(SITE + path, {

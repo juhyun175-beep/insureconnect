@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.97.0] - 2026-06-22
+### Changed (커스텀 도메인 insureconnect.co.kr 정착 — 전 도메인 참조 이전 + pages.dev 301 통합)
+- 구매·연결한 **`insureconnect.co.kr`를 사이트 표준(canonical) 도메인으로 확정.** 코드 전반의 `insureconnect-hub.pages.dev` 참조를 **49개 파일 일괄 이전** → canonical·og·JSON-LD·sitemap(BASE)·robots(Sitemap/LLM-Content)·SSR `SITE` 상수·카카오 메시지 링크·VAPID·cron 예시·llms.txt 전부 co.kr.
+- **`_middleware.js`: 프로덕션 `insureconnect-hub.pages.dev` → `insureconnect.co.kr` 301 영구 리디렉션** 추가 → 중복 도메인 색인/AdSense 혼선 제거, SEO 신호를 co.kr로 일원화. 배포 프리뷰(`<hash>.pages.dev`)·co.kr·로컬은 통과.
+- **로그인 무중단 설계**: `_lib/auth.js`의 `SITE`만 의도적으로 pages.dev 유지(카카오 OAuth `redirect_uri`가 콘솔 등록값과 정확히 일치해야 하므로). 콜백이 위 301로 co.kr에 funnel되고 세션 쿠키가 host-only(Domain 미지정)라 **co.kr에 안착 → 카카오 콘솔 변경 없이 co.kr 로그인 정상.**
+### Verified
+- 서빙 파일(functions·*.html·robots·llms) 구 도메인 잔존 **0**(auth.js 의도적 1 제외) · co.kr 200·SSL유효·sitemap/SEO글/ads.txt 200 · 직접 편집 `_middleware.js`·`_lib/auth.js`·카카오 login/callback `node --check` OK · 워크트리 origin/main(2.96.3)로 동기화 후 작업(stale 방지) · 보안 HIGH 0 · release.mjs
+
 ## [2.96.3] - 2026-06-21
 ### Performance (홈 스크롤 잔여 버벅임 — 이미지 디코드 + 쇼케이스 카드 컬링)
 - v2.96.2(box-shadow 펄스 제거)로 사용자 "확실히 부드러워짐" 확인. 남은 잔여 = 순수 콘텐츠 페인트(카드·이미지).

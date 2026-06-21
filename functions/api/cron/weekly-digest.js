@@ -10,7 +10,7 @@
  *
  *   ※ Cloudflare Pages엔 네이티브 cron이 없음 → 외부 트리거가 주 1회 이 엔드포인트를 POST.
  *      예) Cloudflare Worker(cron) / GitHub Actions / cron-job.org 에서:
- *          curl -X POST -H "x-cron-secret: $CRON_SECRET" https://insureconnect-hub.pages.dev/api/cron/weekly-digest
+ *          curl -X POST -H "x-cron-secret: $CRON_SECRET" https://insureconnect.co.kr/api/cron/weekly-digest
  *      활성화 절차: (1) wrangler pages secret put CRON_SECRET  (2) 외부 cron 등록
  *                   (3) 미리보기로 검증  (4) DIGEST_SEND_ENABLED=1 설정 시 실제 발송 시작.
  */
@@ -105,7 +105,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
 
   // 웹푸시 발송 (active 구독)
   let pushSent = 0;
-  const vapid = { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT || 'mailto:admin@insureconnect-hub.pages.dev' };
+  const vapid = { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT || 'mailto:admin@insureconnect.co.kr' };
   if (vapid.publicKey && vapid.privateKey) {
     const payload = { title: digest.title, body: digest.body, url: digest.url, tag: 'ic-weekly-digest', type: 'digest', icon: '/logo.png', badge: '/logo.png' };
     for (const s of pushSubs) {

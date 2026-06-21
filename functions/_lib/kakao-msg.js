@@ -3,7 +3,7 @@
  *   - 회원의 refresh_token으로 access_token 자동 갱신 후 발송
  *   - 토큰은 서버(D1)에만 저장, 클라이언트 노출 없음
  */
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 
 async function refreshToken(env, member) {
   if (!member.kakao_refresh_token || !env.KAKAO_REST_KEY) return null;

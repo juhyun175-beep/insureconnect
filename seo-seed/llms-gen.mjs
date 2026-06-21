@@ -8,7 +8,7 @@ import { pathToFileURL, fileURLToPath } from 'node:url';
 import { resolve, dirname } from 'node:path';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 const CAT = {
   claim: '보험금청구', 'actual-loss': '실손보험', 'whole-life': '종신보험', cancer: '암보험',
   car: '자동차보험', practice: '설계사실무', 'recruit-tips': '리쿠르팅', notice: '보험사공지',

@@ -9,7 +9,7 @@ export const onRequestGet = () =>
   new Response(null, {
     status: 301,
     headers: {
-      Location: 'https://insureconnect-hub.pages.dev/sitemap.xml',
+      Location: 'https://insureconnect.co.kr/sitemap.xml',
       'cache-control': 'public, max-age=86400',
     },
   });

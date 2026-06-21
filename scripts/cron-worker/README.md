@@ -21,7 +21,7 @@ npx wrangler secret put CRON_SECRET   # Pages의 CRON_SECRET과 "동일한 값" 
 npx wrangler pages secret put CRON_SECRET --project-name insureconnect-hub
 
 # 2) DRY로 미리보기 검증 (발송 안 함 — 대상/만기 건수만 확인)
-curl -X POST -H "x-cron-secret: <같은_값>" https://insureconnect-hub.pages.dev/api/cron/daily-brief
+curl -X POST -H "x-cron-secret: <같은_값>" https://insureconnect.co.kr/api/cron/daily-brief
 
 # 3) 검증 끝나면 실제 발송 ON (Pages 환경변수)
 #    DAILY_BRIEF_ENABLED = 1   (일간 브리핑)

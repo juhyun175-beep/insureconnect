@@ -156,7 +156,7 @@ function svgCard({ type, title, subtitle, dateStr }) {
   <!-- 하단 브랜드 -->
   <line x1="80" y1="555" x2="1120" y2="555" stroke="rgba(255,255,255,0.2)" stroke-width="1"/>
   <text x="80" y="595" font-size="26" font-weight="900" fill="#fff" letter-spacing="-0.5">InsureConnect</text>
-  <text x="80" y="617" font-size="14" font-weight="600" fill="rgba(255,255,255,0.7)">보험설계사를 위한 통합 허브 · insureconnect-hub.pages.dev</text>
+  <text x="80" y="617" font-size="14" font-weight="600" fill="rgba(255,255,255,0.7)">보험설계사를 위한 통합 허브 · insureconnect.co.kr</text>
 
   <!-- 우측 하단 화살표 -->
   <circle cx="1100" cy="585" r="36" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>

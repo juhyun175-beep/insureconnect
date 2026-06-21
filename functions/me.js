@@ -4,7 +4,7 @@
  */
 import { getUserFromRequest } from './_lib/auth.js';
 
-const SITE = 'https://insureconnect-hub.pages.dev';
+const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const fmt = (iso) => { const d = new Date(iso); if (isNaN(d)) return ''; const k = new Date(d.getTime() + 9 * 3600000); return `${k.getUTCFullYear()}.${String(k.getUTCMonth() + 1).padStart(2, '0')}.${String(k.getUTCDate()).padStart(2, '0')}`; };
@@ -205,7 +205,7 @@ export const onRequestGet = async ({ env, request }) => {
         try{
           if(window.Kakao&&window.Kakao.Share&&window.Kakao.isInitialized&&window.Kakao.isInitialized()){
             window.Kakao.Share.sendDefault({objectType:'feed',
-              content:{title:'InsureConnect 초대',description:'가입하면 30P 즉시 적립! 사례 기반 삼따AI·보험사 전산·채용까지 — 설계사 통합 허브.',imageUrl:'https://insureconnect-hub.pages.dev/logo-full.png',link:{mobileWebUrl:link,webUrl:link}},
+              content:{title:'InsureConnect 초대',description:'가입하면 30P 즉시 적립! 사례 기반 삼따AI·보험사 전산·채용까지 — 설계사 통합 허브.',imageUrl:'https://insureconnect.co.kr/logo-full.png',link:{mobileWebUrl:link,webUrl:link}},
               buttons:[{title:'초대 수락하고 시작',link:{mobileWebUrl:link,webUrl:link}}]});
             return;
           }

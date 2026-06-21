@@ -86,7 +86,7 @@ log('deployed', url);
 // 4) 배포URL 마커 검증 (옵션)
 if (verifyArg) {
   const markers = verifyArg.split(',').map((s) => s.trim()).filter(Boolean);
-  const html = runSafe(`curl -sL "https://insureconnect-hub.pages.dev/"`);
+  const html = runSafe(`curl -sL "https://insureconnect.co.kr/"`);
   const missing = markers.filter((mk) => !html.includes(mk));
   if (missing.length) console.error('[release] WARN: markers missing on prod:', missing.join(', '));
   else log('verify ok:', markers.join(', '));

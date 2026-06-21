@@ -8,7 +8,7 @@ const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
 const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
 
 const TRUSTED_IMAGE_PREFIX = `${SB_URL}/storage/`;
-const DEFAULT_OG_IMAGE     = 'https://insureconnect-hub.pages.dev/logo-full.png';
+const DEFAULT_OG_IMAGE     = 'https://insureconnect.co.kr/logo-full.png';
 
 const SB_HEADERS = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
 
@@ -63,6 +63,14 @@ function isInternalPath(p) {
 export async function onRequest(context) {
   const { request, next } = context;
   const reqUrl = new URL(request.url);
+
+  // v2.97.0: 커스텀 도메인 통합 — 프로덕션 pages.dev 표준 호스트 → insureconnect.co.kr 301(영구).
+  //   중복 도메인 색인/AdSense 혼선 방지. 배포 프리뷰(<hash>.insureconnect-hub.pages.dev)·co.kr·로컬은 통과.
+  //   카카오 OAuth 콜백(redirect_uri=pages.dev; _lib/auth.js)도 이 301로 co.kr에 funnel → 세션 쿠키(host-only)가
+  //   co.kr에 안착해 로그인 정상. (카카오 콘솔 변경 불필요)
+  if (reqUrl.hostname === 'insureconnect-hub.pages.dev') {
+    return Response.redirect(`https://insureconnect.co.kr${reqUrl.pathname}${reqUrl.search}`, 301);
+  }
 
   // 내부 파일 직접 접근 차단 (정보노출 방지)
   if (isInternalPath(reqUrl.pathname)) {

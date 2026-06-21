@@ -5,7 +5,7 @@ export function sourceFromReferrer(ref) {
   let host = '';
   try { host = ref ? new URL(ref).hostname.toLowerCase() : ''; } catch (_) { host = String(ref || '').toLowerCase(); }
   if (!host) return { source: '직접/앱', host: '' };
-  if (host.includes('insureconnect-hub.pages.dev')) return { source: '내부 이동', host };
+  if (host.includes('insureconnect.co.kr')) return { source: '내부 이동', host };
   // AI 답변 엔진(AEO) — google 계열보다 먼저 검사 (gemini.google.com 등)
   if (host.includes('chatgpt') || host.includes('openai'))   return { source: 'ChatGPT', host };
   if (host.includes('perplexity'))                            return { source: 'Perplexity', host };

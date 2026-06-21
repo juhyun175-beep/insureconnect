@@ -11,7 +11,7 @@
  *   ── 수신자: 카톡=alert_optin=1 & refresh_token / 푸시=active 구독(member_id 매핑). revoked/만료 자동 비활성.
  *
  *   ※ Cloudflare Pages엔 네이티브 cron 없음 → 외부 트리거가 매일 1회 POST.
- *      예) curl -X POST -H "x-cron-secret: $CRON_SECRET" https://insureconnect-hub.pages.dev/api/cron/daily-brief
+ *      예) curl -X POST -H "x-cron-secret: $CRON_SECRET" https://insureconnect.co.kr/api/cron/daily-brief
  *      활성화: (1) wrangler pages secret put CRON_SECRET (2) 매일 cron 등록(Worker/GitHub Actions/cron-job.org)
  *             (3) DRY로 미리보기 검증 (4) DAILY_BRIEF_ENABLED=1 설정 시 실제 발송.
  */
@@ -127,7 +127,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
 
   // 웹푸시 — 구독별(member_id) 개인화
   let pushSent = 0;
-  const vapid = { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT || 'mailto:admin@insureconnect-hub.pages.dev' };
+  const vapid = { publicKey: env.VAPID_PUBLIC_KEY, privateKey: env.VAPID_PRIVATE_KEY, subject: env.VAPID_SUBJECT || 'mailto:admin@insureconnect.co.kr' };
   if (vapid.publicKey && vapid.privateKey) {
     for (const s of pushSubs) {
       const ren = s.member_id ? await memberRenewals(env, s.member_id) : [];

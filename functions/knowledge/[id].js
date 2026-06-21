@@ -167,7 +167,7 @@ function renderPage(post, canonicalUrl, related) {
   const date  = fmtDate(post.created_at);
   const plain = (post.content || '').replace(/\[img:[^\]]+\]/g,'').replace(/\s+/g,' ').trim().slice(0, 160);
   const desc  = esc(plain || '보험 설계사를 위한 보험지식 콘텐츠를 인슈어커넥트에서 확인하세요.');
-  const img   = esc(post.image_url || 'https://insureconnect-hub.pages.dev/logo-full.png');
+  const img   = esc(post.image_url || 'https://insureconnect.co.kr/logo-full.png');
   const body  = parseContent(post.content);
   // v2.26.0: 콘텐츠 상호 내부링크(소프트 SEO #14) — 다른 보험지식으로 크롤 경로 + 체류 유도
   const relatedHtml = (related && related.length) ? `
@@ -317,7 +317,7 @@ export async function onRequestGet(context) {
       return new Response('Not Found', { status: 404 });
     }
 
-    const canonicalUrl = `https://insureconnect-hub.pages.dev/knowledge/${id}`;
+    const canonicalUrl = `https://insureconnect.co.kr/knowledge/${id}`;
     // v2.26.0: 다른 보험지식 6개(현재 글 제외) — 콘텐츠 상호 내부링크용
     let related = [];
     try {

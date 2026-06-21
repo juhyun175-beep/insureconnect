@@ -7,7 +7,7 @@
 
 /* ── Kakao JavaScript 앱키 ──────────────────────────────────────
  * developers.kakao.com → 내 애플리케이션 → 앱 키 → JavaScript 키
- * 플랫폼 → Web → 사이트 도메인에 https://insureconnect-hub.pages.dev 등록 필요
+ * 플랫폼 → Web → 사이트 도메인에 https://insureconnect.co.kr 등록 필요
  * 키가 비어있으면 SDK 미로드 → 기존 Web Share/복사로 자동 폴백 (안전) */
 const KAKAO_JS_KEY = 'ca87154629fc282e5202c66822514bd4'; // Kakao JavaScript 키 (클라이언트 공개키)
 
