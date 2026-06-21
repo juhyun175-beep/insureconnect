@@ -3,3 +3,7 @@
 #   기존 302 규칙은 함수에 가려 죽어 있었고, 함수 배포 이전 시점엔 Google 사이트맵 패치를
 #   /api/sitemap 으로 302시켜 "가져올 수 없음"을 유발할 수 있던 랜드마인이라 제거함.
 #   (현재 sitemap 단일 권위본 = /sitemap.xml = functions/sitemap.xml.js)
+
+# v2.93.0: 렌트카·통신 완전 철수 — 기존 인바운드/북마크 링크는 홈으로 (SSR 페이지 삭제)
+/rental    /  301
+/telecom   /  301

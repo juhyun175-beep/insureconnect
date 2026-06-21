@@ -3330,7 +3330,7 @@
           <button class="ssn-nav-btn" id="ss-prev" onclick="ssSlide(-1)" disabled>◀</button>
           <div class="ssn-tabs" id="ss-tabs">
             <button class="ssn-tab active" onclick="ssGo(0)">📈 방문 개요</button>
-            <button class="ssn-tab" onclick="ssGo(1)">🤝 파트너사 통계</button>
+            <button class="ssn-tab" onclick="ssGo(1)">🖱 클릭 통계</button>
             <button class="ssn-tab" onclick="ssGo(2)">⏱ 체류 시간</button>
             <button class="ssn-tab" onclick="ssGo(3)">🔥 인기 콘텐츠</button>
             <button class="ssn-tab" onclick="ssGo(4)">📈 유입 경로</button>
@@ -3470,126 +3470,6 @@
               </div>
             </div>
 
-            <!-- ── Slide 4: 렌트카 카드 통계 (v2.1.24 — 페이지 진입까지 funnel) ── -->
-            <div class="stats-slide">
-              <p class="slide-title">🚗 리스/렌트카 통계 (진입 → 카드 클릭 → 신청 완료)</p>
-
-              <!-- KPI funnel -->
-              <div class="kpi-grid">
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ef4444,#dc2626)">
-                  <span class="kpi-icon">🚗</span>
-                  <div class="kpi-n" id="rs-kpi-total-entries">—</div>
-                  <div class="kpi-l">누적 페이지 진입 (좌측 PILL)</div>
-                </div>
-                <div class="kpi-card">
-                  <span class="kpi-icon">👁</span>
-                  <div class="kpi-n" id="rs-kpi-total-clicks">—</div>
-                  <div class="kpi-l">누적 카드 클릭</div>
-                </div>
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#fff200,#ff006e)">
-                  <span class="kpi-icon">📨</span>
-                  <div class="kpi-n" id="rs-kpi-total-submits">—</div>
-                  <div class="kpi-l">누적 신청 완료</div>
-                </div>
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#b026ff,#00f0ff)">
-                  <span class="kpi-icon">⚡</span>
-                  <div class="kpi-n" id="rs-kpi-conversion">—</div>
-                  <div class="kpi-l">클릭 → 신청 전환률</div>
-                </div>
-              </div>
-
-              <!-- 오늘치 + 진입→클릭 (작은 보조 행) -->
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0;">
-                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
-                  <div style="font-size:18px;font-weight:800;color:var(--neon-pink);font-variant-numeric:tabular-nums;" id="rs-kpi-today-entries">—</div>
-                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 페이지 진입</div>
-                </div>
-                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
-                  <div style="font-size:18px;font-weight:800;color:var(--neon-cyan);font-variant-numeric:tabular-nums;" id="rs-kpi-today-clicks">—</div>
-                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 카드 클릭</div>
-                </div>
-                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
-                  <div style="font-size:18px;font-weight:800;color:#10b981;font-variant-numeric:tabular-nums;" id="rs-kpi-today-submits">—</div>
-                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 신청 완료</div>
-                </div>
-              </div>
-
-              <!-- 차트 — 3단계 funnel -->
-              <div class="chart-row" style="margin:14px 0;">
-                <div class="chart-card">
-                  <div class="chart-title">최근 14일 — 페이지 진입 (좌측 PILL)</div>
-                  <div class="line-chart" id="rs-chart-entries"><canvas></canvas></div>
-                </div>
-                <div class="chart-card">
-                  <div class="chart-title">최근 14일 — 카드 클릭</div>
-                  <div class="line-chart" id="rs-chart-clicks"><canvas></canvas></div>
-                </div>
-                <div class="chart-card">
-                  <div class="chart-title">최근 14일 — 신청 완료</div>
-                  <div class="line-chart" id="rs-chart-submits"><canvas></canvas></div>
-                </div>
-              </div>
-
-              <!-- 차량별 표 -->
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 차량별 Top 클릭 (전환률)</span>
-                <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
-              </div>
-              <div id="rs-by-vehicle">
-                <p class="empty-msg">로딩 중…</p>
-              </div>
-            </div>
-
-            <!-- ── Slide 5: 통신·휴대폰 카드 통계 (v2.15.2 — 렌트카 미러) ── -->
-            <div class="stats-slide">
-              <p class="slide-title">📱 통신·휴대폰 통계 (진입 → 카드 클릭 → 신청 완료)</p>
-              <div class="kpi-grid">
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#ef4444,#dc2626)">
-                  <span class="kpi-icon">📱</span>
-                  <div class="kpi-n" id="ts-kpi-total-entries">—</div>
-                  <div class="kpi-l">누적 페이지 진입</div>
-                </div>
-                <div class="kpi-card">
-                  <span class="kpi-icon">👁</span>
-                  <div class="kpi-n" id="ts-kpi-total-clicks">—</div>
-                  <div class="kpi-l">누적 카드 클릭</div>
-                </div>
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#fff200,#ff006e)">
-                  <span class="kpi-icon">📨</span>
-                  <div class="kpi-n" id="ts-kpi-total-submits">—</div>
-                  <div class="kpi-l">누적 신청 완료</div>
-                </div>
-                <div class="kpi-card" style="--accent: linear-gradient(90deg,#b026ff,#00f0ff)">
-                  <span class="kpi-icon">⚡</span>
-                  <div class="kpi-n" id="ts-kpi-conversion">—</div>
-                  <div class="kpi-l">클릭 → 신청 전환률</div>
-                </div>
-              </div>
-              <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0 0;">
-                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
-                  <div style="font-size:18px;font-weight:800;color:var(--neon-pink);font-variant-numeric:tabular-nums;" id="ts-kpi-today-entries">—</div>
-                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 페이지 진입</div>
-                </div>
-                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
-                  <div style="font-size:18px;font-weight:800;color:var(--neon-cyan);font-variant-numeric:tabular-nums;" id="ts-kpi-today-clicks">—</div>
-                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 카드 클릭</div>
-                </div>
-                <div style="text-align:center;padding:9px;border:1px solid var(--border);border-radius:8px;background:var(--bg);">
-                  <div style="font-size:18px;font-weight:800;color:#10b981;font-variant-numeric:tabular-nums;" id="ts-kpi-today-submits">—</div>
-                  <div style="font-size:10px;color:var(--txt-lo);letter-spacing:0.06em;margin-top:2px;">오늘 신청 완료</div>
-                </div>
-              </div>
-              <div class="chart-row" style="margin:14px 0;">
-                <div class="chart-card"><div class="chart-title">최근 14일 — 페이지 진입</div><div class="line-chart" id="ts-chart-entries"><canvas></canvas></div></div>
-                <div class="chart-card"><div class="chart-title">최근 14일 — 카드 클릭</div><div class="line-chart" id="ts-chart-clicks"><canvas></canvas></div></div>
-                <div class="chart-card"><div class="chart-title">최근 14일 — 신청 완료</div><div class="line-chart" id="ts-chart-submits"><canvas></canvas></div></div>
-              </div>
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-                <span style="font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--neon-pink);text-shadow:0 0 6px rgba(255,0,110,0.4)">▶ 단말기별 Top 클릭 (전환률)</span>
-                <div style="flex:1;height:1px;background:linear-gradient(90deg,rgba(255,0,110,0.4),transparent)"></div>
-              </div>
-              <div id="ts-by-device"><p class="empty-msg">로딩 중…</p></div>
-            </div>
 
           </div><!-- /.stats-slides -->
         </div><!-- /.stats-slides-outer -->
@@ -3601,7 +3481,7 @@
       <!-- 업로드 탭 (v2.1.11: 그룹별 재정렬 + 사용자신청 통합) -->
       <p class="dash-section-title">콘텐츠 업로드 & 관리</p>
       <div class="upload-tabs">
-        <!-- 🔴 우선 응대 — 사용자 신청 통합 (채용/강의 승인대기 + 렌트카 신청) -->
+        <!-- 🔴 우선 응대 — 채용/강의 승인대기 -->
         <button class="upload-tab active" data-panel="up-requests" id="up-requests-tab" style="position:relative;border-color:#ff3355;color:#ff3355;">
           📥 사용자 신청
           <span class="pending-badge" id="requests-badge" style="display:none">0</span>
@@ -3642,8 +3522,6 @@
         <button class="upload-tab" data-panel="up-meetup">🤝 모임</button>
         <button class="upload-tab" data-panel="up-cases" style="border-color:#a855f7;color:#a855f7;">🗂 보험 사례</button>
         <button class="upload-tab" data-panel="up-coverages" style="border-color:#0ea5e9;color:#0ea5e9;">📑 담보분석(PDF)</button>
-        <button class="upload-tab" data-panel="up-rental-vehicles">🚗 차량 라인업</button>
-        <button class="upload-tab" data-panel="up-telecom-devices">📱 단말기 라인업</button>
 
         <span class="tab-group-sep" aria-hidden="true"></span>
 
@@ -3651,19 +3529,14 @@
         <button class="upload-tab" data-panel="up-seo" style="border-color:#10b981;color:#10b981;">📝 SEO 게시판</button>
       </div>
 
-      <!-- v2.1.11: 📥 사용자 신청 통합 (승인대기 + 렌트카 신청 sub-tabs) -->
+      <!-- 📥 사용자 신청 — 채용·강의 승인대기 -->
       <div class="upload-panel active" id="up-requests">
         <div class="reqs-subtabs">
           <button type="button" class="reqs-subtab active" data-sub="pending" onclick="reqsSwitchSub('pending')">
             ✋ 채용·강의 승인대기
             <span class="reqs-subbadge" id="pending-badge" style="display:none">0</span>
           </button>
-          <button type="button" class="reqs-subtab" data-sub="rental" onclick="reqsSwitchSub('rental')">
-            🚗 렌트카 신청
-            <span class="reqs-subbadge" id="rental-inquiry-badge" style="display:none">0</span>
-          </button>
-          <button type="button" class="reqs-refresh"
-                  onclick="(reqsCurrentSub()==='pending'?loadPending:loadRentalInquiriesAdmin)()">
+          <button type="button" class="reqs-refresh" onclick="loadPending()">
             🔄 새로고침
           </button>
         </div>
@@ -3676,22 +3549,6 @@
           </div>
         </div>
 
-        <!-- (B) 렌트카 신청 -->
-        <div class="reqs-sub-pane" data-sub-pane="rental" style="display:none;">
-          <div style="display:flex;align-items:center;justify-content:flex-end;margin-bottom:12px;">
-            <select id="ri-filter" onchange="loadRentalInquiriesAdmin()"
-                    style="padding:6px 10px;background:var(--bg-card,#222);color:var(--txt-hi,#fff);border:1px solid var(--border,#444);border-radius:6px;font-size:11px;">
-              <option value="all">전체</option>
-              <option value="new" selected>신규</option>
-              <option value="contacted">연락 완료</option>
-              <option value="closed">완료</option>
-              <option value="canceled">취소</option>
-            </select>
-          </div>
-          <div id="ri-list">
-            <p class="empty-msg">신청 내역 로딩 중…</p>
-          </div>
-        </div>
       </div>
 
       <!-- 소식지 관리 패널 -->
@@ -4444,192 +4301,6 @@
         </div>
       </div><!-- /#up-homead -->
 
-      <!-- v2.1.4: 렌트카 차량 라인업 관리 패널 -->
-      <div class="upload-panel" id="up-rental-vehicles">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <p class="dash-section-title" style="margin:0">🚗 추천 차량 라인업 관리</p>
-          <button type="button" onclick="loadRentalVehiclesAdmin()"
-                  style="padding:6px 12px;background:transparent;border:1px solid var(--neon-cyan,#10b981);color:var(--neon-cyan,#10b981);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
-            🔄 새로고침
-          </button>
-        </div>
-
-        <div style="background:rgba(0,255,200,0.04);border:1px solid rgba(0,255,200,0.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid,#9aa);line-height:1.6;">
-          <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px;letter-spacing:0.03em;">🚗 차량 라인업 안내</div>
-          <ul style="margin:0;padding-left:18px;">
-            <li>여기서 등록한 차량이 홈 대시보드 "추천 차량 라인업" 섹션에 카드로 표시됩니다</li>
-            <li>이용자가 카드를 누르면 신청 모달이 열리고, 신청 내역은 옆 <strong>📋 렌트카 신청</strong> 탭으로 들어옵니다</li>
-            <li>차종 이미지는 16:10 비율 권장 (자동으로 cover crop)</li>
-            <li>표시 순서는 sort_order 오름차순 → 등록 최신순</li>
-          </ul>
-        </div>
-
-        <!-- 등록 폼 -->
-        <div class="nl-upload-box">
-          <div class="nl-form">
-            <div class="nl-field">
-              <label>차종명 <span style="color:#ff3355">*</span></label>
-              <input type="text" id="rv-name" maxlength="200" placeholder="예: 현대 아반떼 CN7 G1.6 모던 2WD AT" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field">
-              <label>옵션 설명</label>
-              <input type="text" id="rv-options" maxlength="300" placeholder="예: A/T, 컨비니언스, 하이패스, 인포터" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div style="flex:1;min-width:160px;">
-                <label>프로모션 배지</label>
-                <input type="text" id="rv-promo" maxlength="60" placeholder="예: 1.0% 추가" style="width:100%;padding:8px 10px;font-size:13px;">
-              </div>
-              <div style="flex:1;min-width:140px;">
-                <label>구분</label>
-                <select id="rv-category" style="width:100%;padding:8px 10px;font-size:13px;">
-                  <option value="">없음</option>
-                  <option value="전략">전략</option>
-                  <option value="일반">일반</option>
-                </select>
-              </div>
-              <div style="width:120px;">
-                <label>정렬 (낮을수록 앞)</label>
-                <input type="number" id="rv-sort" value="100" style="width:100%;padding:8px 10px;font-size:13px;">
-              </div>
-            </div>
-            <!-- v2.1.8: 출고 구분 -->
-            <div class="nl-field">
-              <label>출고 구분 <span style="color:#9aa;font-weight:500;font-size:11px;">— 홈 카드에 ⚡ 즉시출고 배지 노출됨</span></label>
-              <div style="display:flex;gap:8px;flex-wrap:wrap;">
-                <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
-                  <input type="radio" name="rv-delivery" value="" checked style="margin:0;"> 미지정
-                </label>
-                <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
-                  <input type="radio" name="rv-delivery" value="즉시출고" style="margin:0;"> ⚡ 즉시출고
-                </label>
-                <label style="display:flex;align-items:center;gap:6px;padding:8px 14px;border:1.5px solid var(--border);border-radius:8px;cursor:pointer;font-size:13px;">
-                  <input type="radio" name="rv-delivery" value="일반출고" style="margin:0;"> 일반출고
-                </label>
-              </div>
-            </div>
-            <!-- v2.1.7: 견적 시스템 필드 -->
-            <div class="nl-field">
-              <label>태그 (콤마로 구분, 예: 시승가능차량,페이스리프트,7일내즉시출고)</label>
-              <input type="text" id="rv-tags" maxlength="300" placeholder="시승가능차량,페이스리프트" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div style="flex:1;min-width:160px;">
-                <label>월 기본 대여료 (KRW) <span style="color:#9aa;font-weight:500;font-size:11px;">— 견적 계산 베이스</span></label>
-                <input type="number" id="rv-baseprice" min="0" step="10000" placeholder="예: 700000" style="width:100%;padding:8px 10px;font-size:13px;">
-              </div>
-              <div style="flex:1;min-width:140px;">
-                <label>연료</label>
-                <select id="rv-fuel" style="width:100%;padding:8px 10px;font-size:13px;">
-                  <option value="">선택</option>
-                  <option value="가솔린">가솔린</option>
-                  <option value="하이브리드">하이브리드</option>
-                  <option value="디젤">디젤</option>
-                  <option value="전기">전기</option>
-                  <option value="LPG">LPG</option>
-                </select>
-              </div>
-            </div>
-            <div class="nl-field">
-              <label>선택 가능 색상 (콤마로 구분, 예: 화이트,블랙,그레이)</label>
-              <input type="text" id="rv-colors" maxlength="200" placeholder="화이트,블랙,그레이" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field">
-              <label>차량 이미지 (jpg/png/webp)</label>
-              <label class="nl-file-label">
-                📎 이미지 선택
-                <input type="file" id="rv-file" accept="image/*">
-                <span class="nl-file-name" id="rv-file-name">없음</span>
-              </label>
-              <div id="rv-image-preview" style="margin-top:8px;display:none;">
-                <img id="rv-image-preview-img" style="max-width:240px;max-height:160px;border-radius:8px;border:1px solid var(--border,#333);" alt="미리보기">
-              </div>
-            </div>
-            <button class="nl-upload-btn" id="rv-upload-btn" onclick="uploadRentalVehicle()">등록</button>
-          </div>
-          <p class="nl-status" id="rv-status"></p>
-        </div>
-
-        <div class="nl-list" id="rv-list">
-          <p class="empty-msg">차량 로딩 중…</p>
-        </div>
-      </div><!-- /#up-rental-vehicles -->
-
-      <!-- v2.8.18: 통신 단말기 라인업 관리 패널 (렌트카 구조 미러링) -->
-      <div class="upload-panel" id="up-telecom-devices">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
-          <p class="dash-section-title" style="margin:0">📱 추천 단말기 라인업 관리</p>
-          <button type="button" onclick="loadTelecomDevicesAdmin()"
-                  style="padding:6px 12px;background:transparent;border:1px solid #10b981;color:#10b981;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
-            🔄 새로고침
-          </button>
-        </div>
-        <div style="background:rgba(0,255,200,0.04);border:1px solid rgba(0,255,200,0.15);border-radius:10px;padding:12px 14px;margin-bottom:14px;font-size:12px;color:var(--txt-mid,#9aa);line-height:1.6;">
-          <div style="font-size:12px;font-weight:700;color:#10b981;margin-bottom:6px;">📱 단말기 라인업 안내</div>
-          <ul style="margin:0;padding-left:18px;">
-            <li>여기서 등록한 단말기가 <strong>통신/휴대폰 페이지</strong>(좌측 빨간 탭)에 카드로 표시됩니다</li>
-            <li>이용자가 카드를 누르면 견적 모달이 열리고, 신청 내역은 아래 <strong>견적 신청 내역</strong>에 들어옵니다</li>
-            <li>이미지는 1:1 비율 권장 (자동 cover crop) · 표시 순서는 정렬 오름차순</li>
-          </ul>
-        </div>
-        <!-- 등록 폼 -->
-        <div class="nl-upload-box">
-          <div class="nl-form">
-            <div class="nl-field">
-              <label>기종명 <span style="color:#ff3355">*</span></label>
-              <input type="text" id="td-name" maxlength="200" placeholder="예: 갤럭시 S24 256GB" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field" style="display:flex;gap:10px;flex-wrap:wrap;">
-              <div style="flex:1;min-width:140px;">
-                <label>통신사</label>
-                <select id="td-carrier" style="width:100%;padding:8px 10px;font-size:13px;">
-                  <option value="">선택</option>
-                  <option value="SKT">SKT</option>
-                  <option value="KT">KT</option>
-                  <option value="LGU+">LGU+</option>
-                  <option value="알뜰폰">알뜰폰</option>
-                </select>
-              </div>
-              <div style="flex:1;min-width:140px;">
-                <label>프로모션 배지</label>
-                <input type="text" id="td-promo" maxlength="60" placeholder="예: 공시+추가지원" style="width:100%;padding:8px 10px;font-size:13px;">
-              </div>
-              <div style="width:120px;">
-                <label>정렬 (낮을수록 앞)</label>
-                <input type="number" id="td-sort" value="100" style="width:100%;padding:8px 10px;font-size:13px;">
-              </div>
-            </div>
-            <div class="nl-field">
-              <label>월 납부 안내 <span style="color:#9aa;font-weight:500;font-size:11px;">— 카드에 강조 표시</span></label>
-              <input type="text" id="td-monthly" maxlength="100" placeholder="예: 월 39,000원~" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field">
-              <label>옵션/요금제 설명</label>
-              <input type="text" id="td-options" maxlength="300" placeholder="예: 자급제, 5G, 데이터 무제한" style="width:100%;padding:8px 10px;font-size:13px;">
-            </div>
-            <div class="nl-field">
-              <label>단말기 이미지 (jpg/png/webp)</label>
-              <label class="nl-file-label">
-                📎 이미지 선택
-                <input type="file" id="td-file" accept="image/*">
-                <span class="nl-file-name" id="td-file-name">없음</span>
-              </label>
-              <div id="td-image-preview" style="margin-top:8px;display:none;">
-                <img id="td-image-preview-img" style="max-width:160px;max-height:160px;border-radius:8px;border:1px solid var(--border,#333);" alt="미리보기">
-              </div>
-            </div>
-            <button class="nl-upload-btn" id="td-upload-btn" onclick="uploadTelecomDevice()">등록</button>
-          </div>
-          <p class="nl-status" id="td-status"></p>
-        </div>
-        <div class="nl-list" id="td-list">
-          <p class="empty-msg">단말기 로딩 중…</p>
-        </div>
-        <p class="dash-section-title" style="margin:22px 0 10px;font-size:14px;">📨 견적 신청 내역</p>
-        <div class="nl-list" id="ti-list">
-          <p class="empty-msg">신청 로딩 중…</p>
-        </div>
-      </div><!-- /#up-telecom-devices -->
 
       <!-- v2.9.0: 보험 사례 데이터센터 -->
       <div class="upload-panel" id="up-cases">
@@ -4846,8 +4517,6 @@
       </div><!-- /#up-seo -->
       </div><!-- /#av-uploads (슬라이드 2) -->
 
-      <!-- v2.1.11: 기존 #up-rental-inquiries 패널은 #up-requests 안의 sub-pane 으로 흡수됨 -->
-
       <!-- v2.1.26: 배너 미리보기 모달 제거 -->
 
 
@@ -4986,10 +4655,6 @@
         }
         if (target === 'up-reports' && typeof loadBoardReports === 'function') {
           loadBoardReports();
-        }
-        if (target === 'up-telecom-devices' && typeof loadTelecomDevicesAdmin === 'function') {
-          loadTelecomDevicesAdmin();
-          if (typeof loadTelecomInquiriesAdmin === 'function') loadTelecomInquiriesAdmin();
         }
         if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
         if (target === 'up-coverages' && typeof loadCoverages === 'function') { loadCoverages(); }
@@ -5257,105 +4922,6 @@
     async function patchCov(id, b) { await fetch('/api/coverages/' + id, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(b) }); loadCoverages(); }
     async function deleteCov(id) { if (!confirm('이 담보를 삭제할까요?')) return; await fetch('/api/coverages/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCoverages(); }
 
-    /* v2.8.18: 통신 단말기 라인업 관리 */
-    (function(){
-      const fileEl = document.getElementById('td-file');
-      if (fileEl) fileEl.addEventListener('change', function(){
-        const f = this.files[0];
-        const nm = document.getElementById('td-file-name'); if (nm) nm.textContent = f ? f.name : '없음';
-        const prev = document.getElementById('td-image-preview');
-        const img = document.getElementById('td-image-preview-img');
-        if (f && img) { img.src = URL.createObjectURL(f); prev.style.display = ''; }
-        else if (prev) prev.style.display = 'none';
-      });
-    })();
-    async function uploadTelecomDevice() {
-      const name = document.getElementById('td-name').value.trim();
-      const carrier = document.getElementById('td-carrier').value;
-      const promo = document.getElementById('td-promo').value.trim();
-      const monthly = document.getElementById('td-monthly').value.trim();
-      const options = document.getElementById('td-options').value.trim();
-      const sortRaw = document.getElementById('td-sort').value;
-      const sort = Number.isFinite(+sortRaw) ? +sortRaw : 100;
-      const fileEl = document.getElementById('td-file');
-      const status = document.getElementById('td-status');
-      const btn = document.getElementById('td-upload-btn');
-      if (!name) { alert('기종명을 입력해주세요.'); return; }
-      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; status.textContent = '';
-      try {
-        let image_url = null;
-        const f = fileEl.files[0];
-        if (f) {
-          const ext = (f.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
-          const path = `device_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-          const up = await fetch(`/api/files/telecom/${path}`, { method:'POST', headers: adminHeaders({ 'Content-Type': f.type || 'image/jpeg' }), body: f });
-          if (!up.ok) throw new Error('이미지 업로드 실패');
-          image_url = `/api/files/telecom/${path}`;
-        }
-        const res = await fetch('/api/telecom-devices', {
-          method:'POST', headers: adminHeaders({ 'Content-Type':'application/json' }),
-          body: JSON.stringify({ name, carrier: carrier||null, promo_text: promo||null, monthly_text: monthly||null, options: options||null, sort_order: sort, image_url, is_active: 1 })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
-        ['td-name','td-promo','td-monthly','td-options'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-        document.getElementById('td-carrier').value=''; document.getElementById('td-sort').value='100';
-        document.getElementById('td-file').value=''; document.getElementById('td-file-name').textContent='없음';
-        document.getElementById('td-image-preview').style.display='none';
-        loadTelecomDevicesAdmin();
-      } catch(e){ status.textContent = '❌ '+e.message; status.style.color='#ef4444'; }
-      finally { btn.disabled=false; btn.textContent='등록'; }
-    }
-    async function loadTelecomDevicesAdmin() {
-      const el = document.getElementById('td-list'); if(!el) return;
-      try {
-        const res = await fetch('/api/telecom-devices?status=all', { headers: adminHeaders() });
-        const items = await res.json();
-        if(!Array.isArray(items)||!items.length){ el.innerHTML='<p class="empty-msg">등록된 단말기가 없습니다.</p>'; return; }
-        el.innerHTML = items.map(it=>`
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;${it.is_active?'':'opacity:0.55;'}">
-            <div style="width:48px;height:48px;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              ${it.image_url?`<img src="${esc(it.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='📱'">`:'📱'}
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)}</div>
-              <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">
-                ${it.carrier?`<span style="background:rgba(16,185,129,0.16);color:#10b981;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.carrier)}</span>`:''}
-                ${it.promo_text?`<span style="background:rgba(219,39,119,0.16);color:#db2777;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.promo_text)}</span>`:''}
-                ${it.monthly_text?`<span style="color:#0ea5e9;font-weight:700;margin-right:4px;">${esc(it.monthly_text)}</span>`:''}
-                ${esc(it.options||'')}
-              </div>
-              <div style="font-size:10.5px;color:var(--txt-lo);margin-top:2px;opacity:0.85;">정렬 ${it.sort_order}</div>
-            </div>
-            <button onclick="toggleTelecomDevice(${it.id}, ${it.is_active?0:1})" style="font-size:11px;padding:5px 10px;background:${it.is_active?'rgba(245,158,11,0.16)':'rgba(16,185,129,0.16)'};color:${it.is_active?'#f59e0b':'#10b981'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active?'비활성':'활성'}</button>
-            <button onclick="deleteTelecomDevice(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
-      } catch(e){ el.innerHTML='<p class="empty-msg">로드 실패: '+esc(e.message)+'</p>'; }
-    }
-    async function toggleTelecomDevice(id, active) {
-      await fetch(`/api/telecom-devices/${id}`, { method:'PATCH', headers: adminHeaders({'Content-Type':'application/json'}), body: JSON.stringify({ is_active: active }) });
-      loadTelecomDevicesAdmin();
-    }
-    async function deleteTelecomDevice(id) {
-      if(!confirm('이 단말기를 삭제할까요?')) return;
-      await fetch(`/api/telecom-devices/${id}`, { method:'DELETE', headers: adminHeaders() });
-      loadTelecomDevicesAdmin();
-    }
-    async function loadTelecomInquiriesAdmin() {
-      const el = document.getElementById('ti-list'); if(!el) return;
-      try {
-        const res = await fetch('/api/telecom-inquiries', { headers: adminHeaders() });
-        const items = await res.json();
-        if(!Array.isArray(items)||!items.length){ el.innerHTML='<p class="empty-msg">아직 견적 신청이 없습니다.</p>'; return; }
-        el.innerHTML = items.map(it=>`
-          <div style="padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
-            <div style="font-size:13px;font-weight:700;color:var(--txt-hi);">${esc(it.customer_name)} · <a href="tel:${esc(it.customer_phone)}" style="color:#0ea5e9;">${esc(it.customer_phone)}</a></div>
-            <div style="font-size:11.5px;color:var(--txt-mid);margin-top:3px;">📱 ${esc(it.device_name_snapshot||'미지정')}${it.carrier_pref?` · 희망 ${esc(it.carrier_pref)}`:''}</div>
-            ${it.memo?`<div style="font-size:11.5px;color:var(--txt-lo);margin-top:3px;">📝 ${esc(it.memo)}</div>`:''}
-            <div style="font-size:10.5px;color:var(--txt-lo);margin-top:3px;opacity:0.8;">${esc(String(it.created_at||'').slice(0,16))}</div>
-          </div>`).join('');
-      } catch(e){ el.innerHTML='<p class="empty-msg">로드 실패: '+esc(e.message)+'</p>'; }
-    }
 
     /* v2.7.2: 자유게시판 신고 처리 */
     async function loadBoardReports() {
@@ -6158,152 +5724,6 @@
     }
     */
 
-    /* ══════════════════════════════
-       v2.1.13: 렌트카 카드 통계 (Slide 4)
-    ══════════════════════════════ */
-    async function loadRentalStats() {
-      try {
-        const res = await fetch('/api/rental-stats?days=14', { headers: adminHeaders() });
-        if (!res.ok) return;
-        const d = await res.json();
-        _cachedRentalStats = d;
-        renderRentalStats();
-      } catch (_) {}
-    }
-
-    function renderRentalStats() {
-      const d = _cachedRentalStats;
-      if (!d) return;
-      const k = d.kpi || {};
-      const $ = id => document.getElementById(id);
-      const fmt = n => (n || 0).toLocaleString('ko-KR');
-      // v2.1.24: 페이지 진입 KPI (좌측 PILL 클릭)
-      if ($('rs-kpi-today-entries'))  $('rs-kpi-today-entries').textContent  = fmt(k.today_entries);
-      if ($('rs-kpi-total-entries'))  $('rs-kpi-total-entries').textContent  = fmt(k.total_entries);
-      if ($('rs-kpi-today-clicks'))   $('rs-kpi-today-clicks').textContent   = fmt(k.today_clicks);
-      if ($('rs-kpi-total-clicks'))   $('rs-kpi-total-clicks').textContent   = fmt(k.total_clicks);
-      if ($('rs-kpi-today-submits'))  $('rs-kpi-today-submits').textContent  = fmt(k.today_submits);
-      if ($('rs-kpi-total-submits'))  $('rs-kpi-total-submits').textContent  = fmt(k.total_submits);
-      if ($('rs-kpi-conversion'))     $('rs-kpi-conversion').textContent     = (k.total_conversion || 0).toFixed(1) + '%';
-
-      // 차량별 표
-      const wrap = $('rs-by-vehicle');
-      if (wrap) {
-        const rows = d.by_vehicle || [];
-        if (!rows.length) {
-          wrap.innerHTML = '<p class="empty-msg">아직 카드 클릭 기록이 없습니다.</p>';
-        } else {
-          wrap.innerHTML = `
-            <div style="overflow-x:auto;">
-              <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
-                <thead>
-                  <tr style="background:rgba(0,240,255,0.06);border-bottom:1px solid var(--neon-cyan);">
-                    <th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">#</th>
-                    <th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">차종</th>
-                    <th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">👁 클릭</th>
-                    <th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">📨 신청</th>
-                    <th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">⚡ 전환</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${rows.map((r, i) => {
-                    const maxClicks = Math.max(...rows.map(x => x.clicks || 0), 1);
-                    const barW = Math.max(2, Math.round((r.clicks || 0) / maxClicks * 100));
-                    const inactiveStyle = r.is_active ? '' : 'opacity:0.55;';
-                    return `<tr style="border-bottom:1px solid var(--border);${inactiveStyle}">
-                      <td style="padding:10px 10px;font-weight:700;color:var(--txt-mid);">${i+1}</td>
-                      <td style="padding:10px 10px;">
-                        <div style="display:flex;align-items:center;gap:10px;">
-                          <div style="width:48px;height:32px;border-radius:5px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                            ${r.image_url ? `<img src="${esc(r.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='🚗'">` : '🚗'}
-                          </div>
-                          <div style="min-width:0;flex:1;">
-                            <div style="font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(r.name)}${r.delivery_type === '즉시출고' ? ' <span style="font-size:9.5px;background:linear-gradient(135deg,#10b981,#34d399);color:#fff;padding:1px 6px;border-radius:3px;font-weight:800;">⚡</span>' : ''}</div>
-                            ${!r.is_active ? '<div style="font-size:10px;color:var(--txt-lo);">비활성</div>' : ''}
-                          </div>
-                        </div>
-                      </td>
-                      <td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;">
-                        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
-                          <strong style="color:var(--txt-hi);">${(r.clicks || 0).toLocaleString('ko-KR')}</strong>
-                          <div style="width:60px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;">
-                            <div style="width:${barW}%;height:100%;background:linear-gradient(90deg,#00f0ff,#b026ff);"></div>
-                          </div>
-                        </div>
-                      </td>
-                      <td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;color:#ff006e;font-weight:700;">${(r.submits || 0).toLocaleString('ko-KR')}</td>
-                      <td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;">
-                        <span style="font-weight:800;color:${(r.conversion||0) >= 10 ? '#10b981' : (r.conversion||0) >= 3 ? '#fbbf24' : 'var(--txt-mid)'};">${(r.conversion || 0).toFixed(1)}%</span>
-                      </td>
-                    </tr>`;
-                  }).join('')}
-                </tbody>
-              </table>
-            </div>`;
-        }
-      }
-
-      // 차트 (현재 슬라이드가 1=파트너사 통계 일 때만 즉시 그리기 — 아니면 ssGo 가 처리)
-      if (typeof _ssIdx !== 'undefined' && _ssIdx === 1) {
-        renderLineChart('rs-chart-entries', d.timeline, 'entries');
-        renderLineChart('rs-chart-clicks',  d.timeline, 'clicks');
-        renderLineChart('rs-chart-submits', d.timeline, 'submits');
-      }
-      if (typeof ssUpdateHeight === 'function') requestAnimationFrame(ssUpdateHeight);
-    }
-
-    /* v2.15.2: 통신·휴대폰 카드 통계 (렌트카 미러) */
-    let _cachedTelecomStats = null;
-    async function loadTelecomStats() {
-      try {
-        const res = await fetch('/api/telecom-stats?days=14', { headers: adminHeaders() });
-        if (!res.ok) return;
-        _cachedTelecomStats = await res.json();
-        renderTelecomStats();
-      } catch (_) {}
-    }
-    function renderTelecomStats() {
-      const d = _cachedTelecomStats; if (!d) return;
-      const k = d.kpi || {}; const $ = id => document.getElementById(id);
-      const fmt = n => (n || 0).toLocaleString('ko-KR');
-      if ($('ts-kpi-today-entries')) $('ts-kpi-today-entries').textContent = fmt(k.today_entries);
-      if ($('ts-kpi-total-entries')) $('ts-kpi-total-entries').textContent = fmt(k.total_entries);
-      if ($('ts-kpi-today-clicks'))  $('ts-kpi-today-clicks').textContent  = fmt(k.today_clicks);
-      if ($('ts-kpi-total-clicks'))  $('ts-kpi-total-clicks').textContent  = fmt(k.total_clicks);
-      if ($('ts-kpi-today-submits')) $('ts-kpi-today-submits').textContent = fmt(k.today_submits);
-      if ($('ts-kpi-total-submits')) $('ts-kpi-total-submits').textContent = fmt(k.total_submits);
-      if ($('ts-kpi-conversion'))    $('ts-kpi-conversion').textContent    = (k.total_conversion || 0).toFixed(1) + '%';
-      const wrap = $('ts-by-device');
-      if (wrap) {
-        const rows = d.by_device || [];
-        if (!rows.length) { wrap.innerHTML = '<p class="empty-msg">아직 카드 클릭 기록이 없습니다. (단말기 카드를 누르면 집계됩니다)</p>'; }
-        else {
-          const maxClicks = Math.max(...rows.map(x => x.clicks || 0), 1);
-          wrap.innerHTML = '<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12.5px;"><thead><tr style="background:rgba(0,240,255,0.06);border-bottom:1px solid var(--neon-cyan);">'
-            + '<th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">#</th>'
-            + '<th style="text-align:left;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">단말기</th>'
-            + '<th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">👁 클릭</th>'
-            + '<th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">📨 신청</th>'
-            + '<th style="text-align:right;padding:9px 10px;font-size:10.5px;letter-spacing:0.1em;color:var(--neon-cyan);font-family:JetBrains Mono,monospace;">⚡ 전환</th></tr></thead><tbody>'
-            + rows.map((r, i) => {
-              const barW = Math.max(2, Math.round((r.clicks || 0) / maxClicks * 100));
-              const inact = r.is_active ? '' : 'opacity:0.55;';
-              return '<tr style="border-bottom:1px solid var(--border);' + inact + '">'
-                + '<td style="padding:10px 10px;font-weight:700;color:var(--txt-mid);">' + (i + 1) + '</td>'
-                + '<td style="padding:10px 10px;"><div style="display:flex;align-items:center;gap:10px;"><div style="width:48px;height:32px;border-radius:5px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (r.image_url ? '<img src="' + esc(r.image_url) + '" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML=\'📱\'">' : '📱') + '</div><div style="min-width:0;flex:1;"><div style="font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">' + esc(r.name) + (r.carrier ? ' <span style="font-size:9.5px;color:var(--txt-lo);">' + esc(r.carrier) + '</span>' : '') + '</div>' + (!r.is_active ? '<div style="font-size:10px;color:var(--txt-lo);">비활성</div>' : '') + '</div></div></td>'
-                + '<td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;"><div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px;"><strong style="color:var(--txt-hi);">' + (r.clicks || 0).toLocaleString('ko-KR') + '</strong><div style="width:60px;height:3px;background:rgba(255,255,255,0.06);border-radius:2px;overflow:hidden;"><div style="width:' + barW + '%;height:100%;background:linear-gradient(90deg,#00f0ff,#b026ff);"></div></div></div></td>'
-                + '<td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;color:#ff006e;font-weight:700;">' + (r.submits || 0).toLocaleString('ko-KR') + '</td>'
-                + '<td style="padding:10px 10px;text-align:right;font-variant-numeric:tabular-nums;"><span style="font-weight:800;color:' + ((r.conversion || 0) >= 10 ? '#10b981' : (r.conversion || 0) >= 3 ? '#fbbf24' : 'var(--txt-mid)') + ';">' + (r.conversion || 0).toFixed(1) + '%</span></td></tr>';
-            }).join('') + '</tbody></table></div>';
-        }
-      }
-      if (typeof _ssIdx !== 'undefined' && _ssIdx === 1) {
-        renderLineChart('ts-chart-entries', d.timeline, 'entries');
-        renderLineChart('ts-chart-clicks', d.timeline, 'clicks');
-        renderLineChart('ts-chart-submits', d.timeline, 'submits');
-      }
-      if (typeof ssUpdateHeight === 'function') requestAnimationFrame(ssUpdateHeight);
-    }
 
     /* ══════════════════════════════
        인기 콘텐츠 — 조회/공유유입/복사 (Slide 3)
@@ -6441,15 +5861,6 @@
     let _ssIdx = 0;
     /* v2.15.1: 유입경로·회원/지표 패널을 슬라이더로 완전 이동 (관리 탭에서 제거됨) */
     (function(){ var sl=document.getElementById('ss-slides'); if(!sl) return; ['up-traffic','up-members'].forEach(function(id){ var el=document.getElementById(id); if(el){ el.classList.remove('upload-panel'); el.classList.add('stats-slide'); sl.appendChild(el); } }); })();
-    /* v2.35.0: 파트너사 통계 — 렌트카(slide4)·통신(slide5) 콘텐츠를 클릭통계(slide1)로 통합 + 제목 변경.
-       (탭/슬라이드 8→6개로 축소. 유입경로·회원지표는 id기준 지연로드라 재번호 안전) */
-    (function(){
-      var slides = document.querySelectorAll('#ss-slides > .stats-slide');
-      var s1 = slides[1], rental = slides[4], telecom = slides[5];
-      if (s1) { var tt = s1.querySelector('.slide-title'); if (tt) tt.textContent = '파트너사 통계'; }
-      function moveInto(src){ if(!s1||!src) return; while(src.firstChild) s1.appendChild(src.firstChild); src.remove(); }
-      moveInto(rental); moveInto(telecom);
-    })();
     function ssCount(){ return document.querySelectorAll('#ss-slides > .stats-slide').length || 1; }
     var _uirTrafficLoaded=false, _uirMembersLoaded=false;
 
@@ -6495,16 +5906,6 @@
               const id = `cs-chart-${menu.replace(/\s/g,'')}-${card.replace(/\s/g,'')}`;
               renderLineChart(id, data, 'clicks');
             });
-          }
-          if (_cachedRentalStats) {
-            renderLineChart('rs-chart-entries', _cachedRentalStats.timeline, 'entries');
-            renderLineChart('rs-chart-clicks',  _cachedRentalStats.timeline, 'clicks');
-            renderLineChart('rs-chart-submits', _cachedRentalStats.timeline, 'submits');
-          }
-          if (_cachedTelecomStats) {
-            renderLineChart('ts-chart-entries', _cachedTelecomStats.timeline, 'entries');
-            renderLineChart('ts-chart-clicks',  _cachedTelecomStats.timeline, 'clicks');
-            renderLineChart('ts-chart-submits', _cachedTelecomStats.timeline, 'submits');
           }
         }
         ssUpdateHeight();
@@ -6646,7 +6047,6 @@
       }catch(e){ if(anb) anb.textContent='보고서 생성 중 오류가 발생했습니다.'; }
     }
 
-    let _cachedRentalStats = null;
     let _cachedMainStats  = null;
     let _cachedCardCharts = null;
 
@@ -6741,9 +6141,6 @@
         /* 인기 콘텐츠 (조회/공유유입/복사) */
         loadPopularContent();
 
-        /* v2.1.13: 렌트카 카드 통계 */
-        loadRentalStats();
-      loadTelecomStats();
 
         /* 차트 (현재 슬라이드 0에 표시) */
         renderLineChart('chart-visits', d.daily_visits_7d, 'visits');
@@ -6780,15 +6177,6 @@
         if (!window._pendingPollStarted) {
           window._pendingPollStarted = true;
           setInterval(loadPending, 60 * 1000);
-        }
-      }
-      /* v2.1.4: 렌트카 라인업 + 신청 + 신청 폴링 */
-      if (typeof loadRentalVehiclesAdmin === 'function') loadRentalVehiclesAdmin();
-      if (typeof loadRentalInquiriesAdmin === 'function') {
-        loadRentalInquiriesAdmin();
-        if (!window._rentalInqPollStarted) {
-          window._rentalInqPollStarted = true;
-          setInterval(loadRentalInquiriesAdmin, 60 * 1000);
         }
       }
     }
@@ -7240,10 +6628,7 @@
     /* v2.1.11: 통합 「📥 사용자 신청」 탭 — 외부 합산 배지 + sub-tab 전환 */
     function _updateRequestsBadge() {
       const pBadge = document.getElementById('pending-badge');
-      const rBadge = document.getElementById('rental-inquiry-badge');
-      const p = (pBadge && pBadge.style.display !== 'none') ? (parseInt(pBadge.textContent, 10) || 0) : 0;
-      const r = (rBadge && rBadge.style.display !== 'none') ? (parseInt(rBadge.textContent, 10) || 0) : 0;
-      const total = p + r;
+      const total = (pBadge && pBadge.style.display !== 'none') ? (parseInt(pBadge.textContent, 10) || 0) : 0;
       const outer = document.getElementById('requests-badge');
       if (outer) {
         outer.textContent = total > 99 ? '99+' : String(total);
@@ -9231,94 +8616,6 @@
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
-    /* ══════════════════════════════
-       v2.1.4: 렌트카 차량 라인업 관리
-    ══════════════════════════════ */
-    // 파일 선택 시 이름 표시 + 미리보기
-    (function() {
-      const fileInput = document.getElementById('rv-file');
-      if (!fileInput) return;
-      fileInput.addEventListener('change', function() {
-        const f = this.files[0];
-        document.getElementById('rv-file-name').textContent = f ? `${f.name} (${(f.size/1024/1024).toFixed(2)}MB)` : '없음';
-        const prev = document.getElementById('rv-image-preview');
-        const img  = document.getElementById('rv-image-preview-img');
-        if (f && img && prev) {
-          const reader = new FileReader();
-          reader.onload = (e) => { img.src = e.target.result; prev.style.display = 'block'; };
-          reader.readAsDataURL(f);
-        } else if (prev) {
-          prev.style.display = 'none';
-        }
-      });
-    })();
-
-    async function uploadRentalVehicle() {
-      const name     = document.getElementById('rv-name').value.trim();
-      const options  = document.getElementById('rv-options').value.trim();
-      const promo    = document.getElementById('rv-promo').value.trim();
-      const category = document.getElementById('rv-category').value;
-      const sortRaw  = document.getElementById('rv-sort').value;
-      const sort     = Number.isFinite(+sortRaw) ? +sortRaw : 100;
-      const tags     = (document.getElementById('rv-tags')||{}).value?.trim() || '';
-      const baseRaw  = (document.getElementById('rv-baseprice')||{}).value || '';
-      const basePrice = baseRaw === '' ? null : (Number.isFinite(+baseRaw) ? +baseRaw : null);
-      const fuel     = (document.getElementById('rv-fuel')||{}).value || '';
-      const colors   = (document.getElementById('rv-colors')||{}).value?.trim() || '';
-      const deliverySel = document.querySelector('input[name="rv-delivery"]:checked');
-      const delivery = deliverySel ? deliverySel.value : '';
-      const fileEl   = document.getElementById('rv-file');
-      const status   = document.getElementById('rv-status');
-      const btn      = document.getElementById('rv-upload-btn');
-
-      if (!name) { alert('차종명을 입력해주세요.'); return; }
-      btn.disabled = true; btn.textContent = '⏳ 등록 중…'; status.textContent = '';
-
-      try {
-        let image_url = null;
-        const f = fileEl.files[0];
-        if (f) {
-          const ext = (f.name.split('.').pop() || 'jpg').toLowerCase().replace(/[^a-z0-9]/g,'');
-          const path = `vehicle_${Date.now()}_${Math.random().toString(36).slice(2,8)}.${ext}`;
-          const up = await fetch(`/api/files/rental/${path}`, {
-            method: 'POST',
-            headers: adminHeaders({ 'Content-Type': f.type || 'image/jpeg' }),
-            body: f
-          });
-          if (!up.ok) throw new Error('이미지 업로드 실패');
-          image_url = `/api/files/rental/${path}`;
-        }
-        const res = await fetch('/api/rental-vehicles', {
-          method: 'POST',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({
-            name, options: options || null, promo_text: promo || null,
-            category: category || null, sort_order: sort, image_url, is_active: 1,
-            tags: tags || null,
-            base_monthly_price: basePrice,
-            fuel_type: fuel || null,
-            colors: colors || null,
-            delivery_type: delivery || null
-          })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
-        ['rv-name','rv-options','rv-promo','rv-category','rv-tags','rv-baseprice','rv-fuel','rv-colors']
-          .forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
-        document.getElementById('rv-sort').value = '100';
-        document.getElementById('rv-file').value = '';
-        document.getElementById('rv-file-name').textContent = '없음';
-        document.getElementById('rv-image-preview').style.display = 'none';
-        // 출고 구분 라디오 초기화
-        const r0 = document.querySelector('input[name="rv-delivery"][value=""]');
-        if (r0) r0.checked = true;
-        loadRentalVehiclesAdmin();
-      } catch (e) {
-        status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
-      } finally {
-        btn.disabled = false; btn.textContent = '등록';
-      }
-    }
 
     /* ══════════════ v2.0.0 (master): SEO 게시판 관리 ══════════════ */
     const SEO_CAT_LABELS = {
@@ -9472,184 +8769,6 @@
     }
     window.deleteSeoPost = deleteSeoPost;
 
-    async function loadRentalVehiclesAdmin() {
-      const el = document.getElementById('rv-list');
-      if (!el) return;
-      try {
-        const res = await fetch('/api/rental-vehicles?status=all', { headers: adminHeaders() });
-        const items = await res.json();
-        if (!Array.isArray(items) || !items.length) {
-          el.innerHTML = '<p class="empty-msg">등록된 차량이 없습니다.</p>';
-          return;
-        }
-        el.innerHTML = items.map(it => `
-          <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;${it.is_active?'':'opacity:0.55;'}">
-            <div style="width:72px;height:48px;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              ${it.image_url ? `<img src="${esc(it.image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='🚗'">` : '🚗'}
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)}</div>
-              <div style="font-size:11px;color:var(--txt-lo);margin-top:2px;">
-                ${it.delivery_type === '즉시출고' ? `<span style="background:linear-gradient(135deg,#10b981,#34d399);color:#fff;padding:1px 7px;border-radius:4px;margin-right:4px;font-weight:800;">⚡ 즉시출고</span>` : ''}
-                ${it.delivery_type === '일반출고' ? `<span style="background:rgba(120,120,120,0.16);color:#999;padding:1px 6px;border-radius:4px;margin-right:4px;">일반출고</span>` : ''}
-                ${it.category ? `<span style="background:rgba(79,109,240,0.16);color:#4f6df0;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.category)}</span>` : ''}
-                ${it.promo_text ? `<span style="background:rgba(219,39,119,0.16);color:#db2777;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.promo_text)}</span>` : ''}
-                ${it.fuel_type ? `<span style="background:rgba(16,185,129,0.16);color:#10b981;padding:1px 6px;border-radius:4px;margin-right:4px;">${esc(it.fuel_type)}</span>` : ''}
-                ${esc(it.options || '')}
-              </div>
-              ${it.tags ? `<div style="font-size:10.5px;color:#db2777;margin-top:2px;">${(it.tags||'').split(',').map(t=>t.trim()).filter(Boolean).map(t=>`#${esc(t)}`).join(' ')}</div>` : ''}
-              <div style="font-size:10.5px;color:var(--txt-lo);margin-top:2px;opacity:0.85;">
-                ${Number.isFinite(+it.base_monthly_price) ? `월기본 <strong style="color:var(--txt-mid)">${(+it.base_monthly_price).toLocaleString('ko-KR')}원</strong> · ` : ''}
-                ${it.colors ? `색상 ${esc(it.colors)} · ` : ''}
-                정렬 ${it.sort_order}
-              </div>
-            </div>
-            <button onclick="toggleRentalVehicle(${it.id}, ${it.is_active ? 0 : 1})"
-                    style="font-size:11px;padding:5px 10px;background:${it.is_active?'rgba(245,158,11,0.16)':'rgba(16,185,129,0.16)'};color:${it.is_active?'#f59e0b':'#10b981'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">
-              ${it.is_active ? '비활성' : '활성'}
-            </button>
-            <button onclick="deleteRentalVehicle(${it.id})"
-                    style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
-      } catch (e) {
-        el.innerHTML = '<p class="empty-msg">차량 로드 실패: ' + esc(e.message) + '</p>';
-      }
-    }
-
-    async function toggleRentalVehicle(id, newState) {
-      try {
-        const res = await fetch(`/api/rental-vehicles/${id}`, {
-          method: 'PATCH',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ is_active: newState })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        loadRentalVehiclesAdmin();
-      } catch (e) { alert('변경 실패: ' + e.message); }
-    }
-
-    async function deleteRentalVehicle(id) {
-      if (!confirm('이 차량을 삭제하시겠습니까?\n(연관 신청 내역은 보존됩니다.)')) return;
-      try {
-        const res = await fetch(`/api/rental-vehicles/${id}`, { method: 'DELETE', headers: adminHeaders() });
-        if (!res.ok) throw new Error(await res.text());
-        loadRentalVehiclesAdmin();
-      } catch (e) { alert('삭제 실패: ' + e.message); }
-    }
-
-    /* ══════════════════════════════
-       v2.1.4: 렌트카 신청 내역 관리
-    ══════════════════════════════ */
-    async function loadRentalInquiriesAdmin() {
-      const el = document.getElementById('ri-list');
-      const badge = document.getElementById('rental-inquiry-badge');
-      if (!el) return;
-      const filter = (document.getElementById('ri-filter') || {}).value || 'new';
-      try {
-        // badge용: 항상 status=new 카운트
-        const newRes = await fetch('/api/rental-inquiries?status=new&limit=500', { headers: adminHeaders() });
-        if (newRes.ok) {
-          const newRows = await newRes.json();
-          const n = Array.isArray(newRows) ? newRows.length : 0;
-          if (badge) {
-            badge.style.display = n > 0 ? 'inline-flex' : 'none';
-            badge.textContent = String(n);
-          }
-          if (typeof _updateRequestsBadge === 'function') _updateRequestsBadge();
-        }
-        const res = await fetch(`/api/rental-inquiries?status=${encodeURIComponent(filter)}&limit=300`, { headers: adminHeaders() });
-        const items = await res.json();
-        if (!Array.isArray(items) || !items.length) {
-          el.innerHTML = '<p class="empty-msg">해당 상태의 신청 내역이 없습니다.</p>';
-          return;
-        }
-        const fmtDt = (s) => { const d = new Date(s+'Z'); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
-        const statusColor = (st) => ({
-          'new':       { bg:'rgba(239,68,68,0.16)',   fg:'#ef4444', label:'신규' },
-          'contacted': { bg:'rgba(79,109,240,0.16)',  fg:'#4f6df0', label:'연락완료' },
-          'closed':    { bg:'rgba(16,185,129,0.16)',  fg:'#10b981', label:'완료' },
-          'canceled':  { bg:'rgba(120,120,120,0.16)', fg:'#999',    label:'취소' }
-        }[st] || { bg:'rgba(120,120,120,0.16)', fg:'#999', label: st });
-
-        el.innerHTML = items.map(it => {
-          const sc = statusColor(it.status);
-          return `
-          <div style="padding:12px 14px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:10px;">
-            <div style="display:flex;align-items:flex-start;gap:12px;">
-              <div style="width:64px;height:48px;border-radius:6px;overflow:hidden;background:linear-gradient(135deg,#1e2530,#252d3a);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                ${it.vehicle_image_url ? `<img src="${esc(it.vehicle_image_url)}" alt="" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='🚗'">` : '🚗'}
-              </div>
-              <div style="flex:1;min-width:0;">
-                <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
-                  <span style="font-size:10.5px;font-weight:800;padding:2px 7px;border-radius:5px;background:${sc.bg};color:${sc.fg};">${sc.label}</span>
-                  <span style="font-size:11px;color:var(--txt-lo);">${fmtDt(it.created_at)}</span>
-                  <span style="font-size:11px;color:var(--txt-lo);">#${it.id}</span>
-                </div>
-                <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:2px;">${esc(it.vehicle_name_snapshot)}</div>
-                <div style="font-size:12.5px;color:var(--txt-hi);">
-                  <strong>${esc(it.customer_name)}</strong>
-                  <a href="tel:${esc((it.customer_phone||'').replace(/\D/g,''))}" style="color:#4f6df0;margin-left:6px;text-decoration:none;font-weight:700;">${esc(it.customer_phone)}</a>
-                </div>
-                <div style="font-size:11.5px;color:var(--txt-lo);margin-top:3px;">
-                  ${it.preferred_time ? `시간: <strong style="color:var(--txt-mid)">${esc(it.preferred_time)}</strong>` : ''}
-                  ${it.organization ? ` &nbsp;·&nbsp; 소속: <strong style="color:var(--txt-mid)">${esc(it.organization)}</strong>` : ''}
-                </div>
-                ${(it.contract_months || it.annual_km || it.business_type || it.insurance_age || it.deposit_prepay || it.estimated_monthly || it.selected_color || it.insurance_opts || it.deposit_pct != null || it.prepay_pct != null) ? `
-                <div style="font-size:11.5px;color:var(--txt-mid);margin-top:6px;padding:7px 9px;background:linear-gradient(135deg,rgba(26,61,232,0.06),rgba(219,39,119,0.04));border:1px solid rgba(26,61,232,0.16);border-radius:6px;line-height:1.7;">
-                  <strong style="color:#4f6df0;font-size:10.5px;letter-spacing:0.05em;">📐 견적 옵션</strong><br>
-                  ${it.business_type ? `<strong style="color:var(--txt-hi)">${esc(it.business_type)}</strong>` : ''}
-                  ${it.contract_months ? ` &nbsp;·&nbsp; 계약 <strong style="color:var(--txt-hi)">${it.contract_months}개월</strong>` : ''}
-                  ${it.annual_km ? ` &nbsp;·&nbsp; 주행 <strong style="color:var(--txt-hi)">${it.annual_km >= 999999 ? '무제한' : (it.annual_km/10000).toLocaleString('ko-KR')+'만 km'}</strong>` : ''}
-                  ${it.insurance_age ? ` &nbsp;·&nbsp; 보험연령 <strong style="color:var(--txt-hi)">${esc(it.insurance_age)}</strong>` : ''}
-                  ${(it.deposit_pct != null || it.prepay_pct != null) ? `<br>보증 <strong style="color:var(--txt-hi)">${it.deposit_pct ?? 0}%</strong> &nbsp;·&nbsp; 선납 <strong style="color:#db2777">${it.prepay_pct ?? 0}%</strong>` : (it.deposit_prepay ? `<br>보증/선납: <strong style="color:var(--txt-hi)">${esc(it.deposit_prepay)}</strong>` : '')}
-                  ${(it.selected_color || it.insurance_opts) ? `<br><span style="opacity:0.6;font-size:10.5px;">(구) ${it.selected_color ? '색상 '+esc(it.selected_color) : ''}${it.insurance_opts ? (it.selected_color?' · ':'')+'보험 '+esc(it.insurance_opts) : ''}</span>` : ''}
-                  ${Number.isFinite(+it.estimated_monthly) ? `<br>예상 월 대여료: <strong style="color:#db2777;font-size:13.5px;">${(+it.estimated_monthly).toLocaleString('ko-KR')}원</strong>` : ''}
-                </div>` : ''}
-                ${it.memo ? `<div style="font-size:12px;color:var(--txt-mid);margin-top:6px;padding:6px 8px;background:rgba(255,255,255,0.03);border-left:2px solid rgba(79,109,240,0.5);border-radius:0 6px 6px 0;white-space:pre-wrap;line-height:1.5;">${esc(it.memo)}</div>` : ''}
-                ${it.business_card_url ? `
-                <div style="margin-top:8px;display:flex;align-items:center;gap:10px;padding:8px 10px;background:linear-gradient(135deg,rgba(16,185,129,0.06),rgba(79,109,240,0.04));border:1px solid rgba(16,185,129,0.20);border-radius:8px;">
-                  <span style="font-size:11px;font-weight:800;color:#10b981;letter-spacing:0.05em;">📇 명함</span>
-                  <a href="${esc(it.business_card_url)}" target="_blank" rel="noopener" style="display:inline-block;">
-                    <img src="${esc(it.business_card_url)}" alt="명함" style="max-width:140px;max-height:90px;border-radius:6px;border:1px solid var(--border);display:block;" onerror="this.outerHTML='<span style=\\'color:#999;font-size:11px;\\'>이미지 불러오기 실패</span>'">
-                  </a>
-                  <a href="${esc(it.business_card_url)}" target="_blank" rel="noopener" style="font-size:11px;color:#4f6df0;text-decoration:underline;margin-left:auto;font-weight:700;">원본 열기 ↗</a>
-                </div>` : ''}
-              </div>
-            </div>
-            <div style="display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;">
-              ${it.status !== 'contacted' ? `<button onclick="setInquiryStatus(${it.id}, 'contacted')" style="font-size:11px;padding:5px 10px;background:rgba(79,109,240,0.16);color:#4f6df0;border:none;border-radius:6px;cursor:pointer;font-weight:600;">연락완료</button>` : ''}
-              ${it.status !== 'closed' ? `<button onclick="setInquiryStatus(${it.id}, 'closed')" style="font-size:11px;padding:5px 10px;background:rgba(16,185,129,0.16);color:#10b981;border:none;border-radius:6px;cursor:pointer;font-weight:600;">완료</button>` : ''}
-              ${it.status !== 'canceled' ? `<button onclick="setInquiryStatus(${it.id}, 'canceled')" style="font-size:11px;padding:5px 10px;background:rgba(120,120,120,0.16);color:#999;border:none;border-radius:6px;cursor:pointer;font-weight:600;">취소</button>` : ''}
-              ${it.status !== 'new' ? `<button onclick="setInquiryStatus(${it.id}, 'new')" style="font-size:11px;padding:5px 10px;background:rgba(239,68,68,0.10);color:#ef4444;border:none;border-radius:6px;cursor:pointer;font-weight:600;">신규로 되돌리기</button>` : ''}
-              <button onclick="deleteInquiry(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.10);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;margin-left:auto;">삭제</button>
-            </div>
-          </div>`;
-        }).join('');
-      } catch (e) {
-        el.innerHTML = '<p class="empty-msg">신청 내역 로드 실패: ' + esc(e.message) + '</p>';
-      }
-    }
-
-    async function setInquiryStatus(id, status) {
-      try {
-        const res = await fetch(`/api/rental-inquiries/${id}`, {
-          method: 'PATCH',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ status })
-        });
-        if (!res.ok) throw new Error(await res.text());
-        loadRentalInquiriesAdmin();
-      } catch (e) { alert('변경 실패: ' + e.message); }
-    }
-
-    async function deleteInquiry(id) {
-      if (!confirm('이 신청 내역을 삭제하시겠습니까?')) return;
-      try {
-        const res = await fetch(`/api/rental-inquiries/${id}`, { method: 'DELETE', headers: adminHeaders() });
-        if (!res.ok) throw new Error(await res.text());
-        loadRentalInquiriesAdmin();
-      } catch (e) { alert('삭제 실패: ' + e.message); }
-    }
 
     // v2.1.26: 사이드바 배너 미리보기 모달 ESC 키 핸들러 제거 (배너 기능 폐지)
   </script>

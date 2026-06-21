@@ -1,5 +1,15 @@
 # Changelog
 
+## [2.93.0] - 2026-06-21
+### Removed (렌트카·통신 제휴 완전 철수 — 안 쓰는 메뉴/페이지 정리)
+- **관리자(admin.html)**: 「통합 기록지표」의 렌트카(Slide4)·통신(Slide5) 카드통계 슬라이드 + 「🤝 파트너사 통계」 탭을 「🖱 클릭 통계」로 환원(렌트카·통신 병합 로직 v2.35.0 제거), 「콘텐츠 업로드」의 🚗 차량 라인업·📱 단말기 라인업 탭/패널, 「📥 사용자 신청」의 🚗 렌트카 신청 하위탭/패널, 관련 JS(loadRentalStats·renderRentalStats·loadTelecomStats·렌트카/단말기 라인업·신청 CRUD) 전부 제거. SEO 게시판 함수는 보존. (9717→8841줄)
+- **홈(index.html)**: 파트너사 진입 허브(`#page-partner`)·리스/렌트카(`#page-rental`)·통신/휴대폰(`#page-telecom`) 페이지, 렌트카/통신 견적 모달 2종, 추천차량/단말기 라인업 렌더 JS(loadRentalLineup·loadTelecomLineup·견적 모달 핸들러), 모바일 코어카드·빠른메뉴 「파트너사」 진입, PAGE_NAMES 3항목, 관련 CSS(`.ic-rental-*`·모바일 히어로) 전부 제거. **보험 사례 공유 모달 핸들러(openCaseSubmit·submitMemberCase)는 같은 스크립트 블록에서 정밀 보존**. (18439→17285줄)
+- **SSR/SEO 노출**: `/rental`·`/telecom` SSR 페이지(`functions/rental`·`functions/telecom`) 삭제 + 사이트맵 2개 URL 제거 + 보험글 하단 SEO CTA 링크(120편 공통, `seo-cta.js`) 제거. `/rental`·`/telecom` → 홈 **301 리다이렉트**(`_redirects`)로 기존 인바운드/북마크 graceful 처리.
+### Preserved (데이터·롤백 여지 — 사용자 선택 「API 보존」)
+- 데이터 API(`rental-vehicles`·`telecom-devices`·`rental-inquiries`·`telecom-inquiries`·`rental-stats`·`telecom-stats`)·D1 테이블·정적 이미지(rental-promo 등)는 **보존**(요청 시 추가 정리 가능). 관리자 AI분석·지표(`analyze.js`·`metrics.js`)는 렌트카·통신 채널을 0으로 표시.
+### Verified
+- index/admin 인라인 `<script>` 문법 **0 errors**(JSON-LD 제외, `new Function` 검증) · rental/telecom/partner 식별자·`goToPage`/`showPage`/`data-page` 내비게이션 잔존 **0** · `sitemap.xml.js`·`seo-cta.js` `node --check` OK · 보안스캔 HIGH 0 · release.mjs
+
 ## [2.92.0] - 2026-06-21
 ### Fixed (GSC 색인 위생 — canonical 정정/보강으로 "리디렉션·대체 표준태그" 색인 제외 해소)
 - **`guide.html` canonical `/guide.html` → `/guide`**: 기존값이 Cloudflare Pages 클린URL 정책상 308 리디렉션되는 URL이라, Google이 "리디렉션이 포함된 페이지"·"적절한 표준 태그가 포함된 대체 페이지"로 색인 제외하는 신호를 유발 → 최종 클린 URL 자기참조로 정정.
