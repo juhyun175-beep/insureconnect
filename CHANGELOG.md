@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.97.0] - 2026-06-21
+### Changed (정규 도메인 insureconnect.co.kr 이전 — 사이트맵 "가져올 수 없음" 근본 해결)
+- **원인 확정**: GSC 제출 `/sitemap.xml`의 "마지막으로 읽은 날" **공란** = Google이 단 한 번도 성공적으로 못 읽은 **"가져올 수 없음" 박제 상태**(6/11 제출). 사이트맵 함수 자체는 정상(200·유효 XML·함수 가림 0·robots 정상·Googlebot UA 게이트 0·배포 success)이고 과거 코드 원인(302 지뢰·외부 Supabase fetch)은 v2.38.0에서 제거 완료 → 남은 건 코드 버그가 아니라 **저신뢰 `.pages.dev` 운영 + GSC 박제**.
+- **도메인 일괄 이전**: 서빙 파일 전역 하드코딩 `insureconnect-hub.pages.dev` → **`insureconnect.co.kr`**(46파일 — `index.html`·정적페이지·`robots.txt` Sitemap/LLM-Content·`functions/sitemap.xml.js` BASE·각 SSR 함수 canonical/og·`_middleware.js` OG 이미지·`llms.txt` 등).
+- **301 정규화**: `_middleware.js` — `insureconnect-hub.pages.dev` 운영호스트 접근을 `insureconnect.co.kr`로 **301 영구이동**(중복 색인 .pages.dev↔.co.kr 방지·SEO 신호 통합·브랜딩). API(비멱등) 및 프리뷰 배포(`<hash>.insureconnect-hub.pages.dev`)는 안 깨지게 **정확히 운영 호스트 + 비 `/api` 경로**만 리다이렉트(크롤러는 HTML·sitemap만 타므로 충분).
+- `/api/sitemap` 레거시 301 타깃도 `co.kr/sitemap.xml`로 갱신. `wrangler.toml` 프로젝트명(URL 아님)·CI는 불변.
+### Note (배포 후 GSC 수동 작업 필요)
+- ① CF Pages `insureconnect.co.kr` 커스텀 도메인 Active 확인 → ② main 배포 → ③ GSC `insureconnect.co.kr` 신규 속성(도메인 속성·DNS TXT 인증) → ④ `https://insureconnect.co.kr/sitemap.xml` 제출(기존 pages.dev 옛 사이트맵 삭제) → ⑤ (선택) CF Bot Fight Mode가 Googlebot 막지 않는지 확인.
+### Verified
+- 변경 `.js` 전부 `node --check` OK · 서빙 파일 잔여 `pages.dev` 0(미들웨어 호스트 판별 1건은 의도) · 사이트맵 BASE·robots·canonical 모두 co.kr 반영 · 보안스캔 HIGH 0(REVIEW 48 기존)
+
 ## [2.96.3] - 2026-06-21
 ### Performance (홈 스크롤 잔여 버벅임 — 이미지 디코드 + 쇼케이스 카드 컬링)
 - v2.96.2(box-shadow 펄스 제거)로 사용자 "확실히 부드러워짐" 확인. 남은 잔여 = 순수 콘텐츠 페인트(카드·이미지).
