@@ -119,17 +119,20 @@ export const onRequestGet = async ({ params, env, request }) => {
           '@type': 'JobPosting',
           title: r.title,
           description: fullDesc || r.title,
+          url: target,
           datePosted: (r.created_at || new Date().toISOString()).slice(0, 10),
           validThrough: new Date(Date.now() + 90 * 86400e3).toISOString().slice(0, 10),
           employmentType: 'CONTRACTOR',
+          jobLocationType: 'TELECOMMUTE',
           hiringOrganization: {
             '@type': 'Organization',
             name: r.company_name || 'InsureConnect 등록 채용',
-            sameAs: SITE
+            sameAs: SITE,
+            url: SITE
           },
           jobLocation: {
             '@type': 'Place',
-            address: { '@type': 'PostalAddress', addressCountry: 'KR' }
+            address: { '@type': 'PostalAddress', addressCountry: 'KR', addressLocality: '전국', addressRegion: '전국' }
           },
           directApply: false,
           industry: '보험',
