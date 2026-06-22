@@ -119,17 +119,20 @@ export const onRequestGet = async ({ params, env, request }) => {
           '@type': 'JobPosting',
           title: r.title,
           description: fullDesc || r.title,
+          url: target,
           datePosted: (r.created_at || new Date().toISOString()).slice(0, 10),
           validThrough: new Date(Date.now() + 90 * 86400e3).toISOString().slice(0, 10),
           employmentType: 'CONTRACTOR',
+          jobLocationType: 'TELECOMMUTE',
           hiringOrganization: {
             '@type': 'Organization',
             name: r.company_name || 'InsureConnect 등록 채용',
-            sameAs: SITE
+            sameAs: SITE,
+            url: SITE
           },
           jobLocation: {
             '@type': 'Place',
-            address: { '@type': 'PostalAddress', addressCountry: 'KR' }
+            address: { '@type': 'PostalAddress', addressCountry: 'KR', addressLocality: '전국', addressRegion: '전국' }
           },
           directApply: false,
           industry: '보험',
@@ -200,7 +203,8 @@ export const onRequestGet = async ({ params, env, request }) => {
           description: desc,
           articleBody: fullContent,
           image: image,
-          datePublished: (r.created_at || new Date().toISOString()).slice(0, 10),
+          url: target,
+          datePublished: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
           publisher: { '@type': 'Organization', name: 'InsureConnect', logo: { '@type': 'ImageObject', url: FALLBACK_IMG } },
           mainEntityOfPage: { '@type': 'WebPage', '@id': target }
         };
@@ -223,8 +227,9 @@ export const onRequestGet = async ({ params, env, request }) => {
           '@type': 'DiscussionForumPosting',
           headline: r.title,
           text: clean.slice(0, 500),
-          author: { '@type': 'Person', name: r.nickname || '회원' },
-          datePublished: (r.created_at || new Date().toISOString()).slice(0, 10),
+          url: target,
+          author: { '@type': 'Person', name: r.nickname || '회원', url: SITE },
+          datePublished: r.created_at ? new Date(r.created_at).toISOString() : new Date().toISOString(),
           image: image,
           mainEntityOfPage: { '@type': 'WebPage', '@id': target }
         };
