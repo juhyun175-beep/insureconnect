@@ -8953,6 +8953,9 @@
         .aii-chip:hover{background:rgba(26,61,232,0.16);}
         .aii-err{font-size:12px;color:#dc2626;margin-top:8px;line-height:1.5;}
         .aii-out{margin-top:10px;border-top:1px solid rgba(26,61,232,0.16);padding-top:10px;max-height:220px;overflow-y:auto;flex:1;}
+        /* v2.98.3: 답변 표시 시 — 예시칩 하단고정 해제 + 답변(out)이 질문창 아래 빈 공간을 flex로 채움 */
+        .home-aii.aii-answered .aii-chips{margin-top:0;}
+        .home-aii.aii-answered .aii-out{flex:1 1 auto;min-height:0;max-height:none;}
         .aii-answer{font-size:13px;line-height:1.65;color:var(--txt-hi,#0f172a);white-space:pre-wrap;word-break:break-word;}
         [data-theme="dark"] .aii-answer{color:#e6edf3;}
         .aii-ev{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
@@ -8994,6 +8997,12 @@
         .ibh-rt{font-size:13.5px;font-weight:700;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
         .ibh-cc{font-size:12px;font-weight:800;color:#1a3de8;}
         .ibh-rm{font-size:11px;color:#94a3b8;white-space:nowrap;}
+        /* v2.98.3: 인기글(조회·댓글 최다) 상단 강조 */
+        .ibh-row-hot{background:linear-gradient(135deg,rgba(245,158,11,0.13),rgba(249,115,22,0.08));border:1px solid rgba(245,158,11,0.4);}
+        [data-theme="dark"] .ibh-row-hot{background:linear-gradient(135deg,rgba(245,158,11,0.18),rgba(249,115,22,0.12));border-color:rgba(245,158,11,0.45);}
+        .ibh-row-hot:hover{background:linear-gradient(135deg,rgba(245,158,11,0.2),rgba(249,115,22,0.14));}
+        [data-theme="dark"] .ibh-row-hot:hover{background:linear-gradient(135deg,rgba(245,158,11,0.24),rgba(249,115,22,0.16));}
+        .ibh-hot{flex-shrink:0;font-size:10px;font-weight:800;color:#fff;background:linear-gradient(135deg,#f59e0b,#f97316);padding:2px 7px;border-radius:999px;white-space:nowrap;}
         .ibh-empty{padding:14px;text-align:center;color:#94a3b8;font-size:13px;}
         .ibh-foot{margin-top:12px;font-size:11.5px;color:#94a3b8;}
         .ibh-foot a{color:#94a3b8;text-decoration:none;}
@@ -9025,12 +9034,7 @@
           <input class="aii-input" id="home-aii-q" type="text" maxlength="200" autocomplete="off" placeholder="예: 갑상선 결절 고지 후 인수 사례 있나요?">
           <button class="aii-btn" id="home-aii-btn" type="submit">물어보기</button>
         </form>
-        <div class="aii-chips" id="home-aii-chips">
-          <button type="button" class="aii-chip" onclick="homeAiChip('고혈압 약 복용 중 보험 가입 가능한가요?')">고혈압 가입</button>
-          <button type="button" class="aii-chip" onclick="homeAiChip('갑상선 결절 고지 후 인수 사례')">갑상선 결절</button>
-          <button type="button" class="aii-chip" onclick="homeAiChip('뇌출혈 진단비 지급 거절 사례')">뇌출혈 보상</button>
-        </div>
-        <a class="aii-share-cta" href="/ai#share">💬 단톡방 대화 붙여넣기 한 번 → AI가 사례 자동등록 <b>+10P</b> →</a>
+        <!-- v2.98.3: 답변(out)을 질문창 바로 아래로 이동 — 입력창 하단 여백 제거 -->
         <div class="aii-err" id="home-aii-err"></div>
         <div class="aii-out" id="home-aii-out" style="display:none;">
           <div class="aii-answer" id="home-aii-answer"></div>
@@ -9039,6 +9043,12 @@
           <div class="aii-hint" id="home-aii-hint"></div>
           <div class="aii-share-act" id="home-aii-share" style="display:none;margin-top:10px;"></div>
         </div>
+        <div class="aii-chips" id="home-aii-chips">
+          <button type="button" class="aii-chip" onclick="homeAiChip('고혈압 약 복용 중 보험 가입 가능한가요?')">고혈압 가입</button>
+          <button type="button" class="aii-chip" onclick="homeAiChip('갑상선 결절 고지 후 인수 사례')">갑상선 결절</button>
+          <button type="button" class="aii-chip" onclick="homeAiChip('뇌출혈 진단비 지급 거절 사례')">뇌출혈 보상</button>
+        </div>
+        <a class="aii-share-cta" href="/ai#share">💬 단톡방 대화 붙여넣기 한 번 → AI가 사례 자동등록 <b>+10P</b> →</a>
       </section>
       <!-- v2.98.0: 오픈채팅방 대화순위 — 자유게시판 우측(삼따AI 높이에 맞춰 전체 높이 채움). 기존 .ic-top-row(뉴스 옆)에서 이동 -->
       <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
@@ -9199,7 +9209,7 @@
       function homeAiChip(q){ var i=document.getElementById('home-aii-q'); if(i) i.value=q; homeAiRun(); }
       function homeAiAsk(e){ if(e&&e.preventDefault)e.preventDefault(); homeAiRun(); return false; }
       var _homeAiHist=[];
-      function homeAiReset(){ _homeAiHist=[]; var o=document.getElementById('home-aii-out'); if(o)o.style.display='none'; var h=document.getElementById('home-aii-hint'); if(h)h.textContent=''; var sh=document.getElementById('home-aii-share'); if(sh)sh.style.display='none'; var i=document.getElementById('home-aii-q'); if(i){i.value='';i.focus();} }
+      function homeAiReset(){ _homeAiHist=[]; var o=document.getElementById('home-aii-out'); if(o)o.style.display='none'; var _ar=document.querySelector('.home-aii'); if(_ar)_ar.classList.remove('aii-answered'); var h=document.getElementById('home-aii-hint'); if(h)h.textContent=''; var sh=document.getElementById('home-aii-share'); if(sh)sh.style.display='none'; var i=document.getElementById('home-aii-q'); if(i){i.value='';i.focus();} }
       // v2.14.1: 이 답변을 공개 카드로 공유 → 카톡방/카페 유입(제품=미끼)
       async function shareAnswer(btn, question, answer, caseCount){
         if(!question||!answer) return;
@@ -9224,7 +9234,7 @@
         if(!inp||!btn) return;
         var q=(inp.value||'').trim(); if(err) err.innerHTML='';
         if(!q){ if(err) err.textContent='질문을 입력해주세요.'; return; }
-        btn.disabled=true; var ot=btn.textContent; btn.textContent='검색 중…';
+        btn.disabled=true; var ot=btn.textContent; btn.textContent='검색 중…'; var _aiSec=document.querySelector('.home-aii'); if(_aiSec)_aiSec.classList.remove('aii-answered');
         try{
           var res=await fetch('/api/cases/ask',{method:'POST',headers:{'Content-Type':'application/json'},credentials:'same-origin',body:JSON.stringify({question:q, history:_homeAiHist.slice(-3)})});
           var d=await res.json();
@@ -9240,7 +9250,7 @@
             if(ev) ev.innerHTML=chips.join('');
             if(src){ var ss=d.sources||[]; if(ss.length){ var CAT={underwrite:'인수',disclosure:'고지',claim:'보상'}; var escS=function(s){return String(s==null?'':s).replace(/[&<>"]/g,function(x){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[x]);});}; src.innerHTML='<button type="button" class="aii-src-toggle" onclick="var n=this.nextElementSibling;n.style.display=(n.style.display===\'none\'?\'flex\':\'none\');">📚 근거 사례 '+ss.length+'건 ▾</button><div class="aii-src-list" style="display:none">'+ss.map(function(c,ix){return '<div class="aii-src-card"><div class="aii-src-head"><span style="font-size:10px;font-weight:800;color:#64748b;margin-right:4px;">사례 '+(ix+1)+'</span><span class="aii-src-cat">'+(CAT[c.category]||'사례')+'</span> <b>'+escS(c.disease||'')+'</b>'+(c.insurer?' · '+escS(c.insurer):'')+(c.age?' · '+c.age+'세':'')+'</div>'+(c.result?'<div class="aii-src-result">→ '+escS(c.result)+'</div>':'')+(c.summary?'<div class="aii-src-sum">'+escS(c.summary)+'</div>':'')+'</div>';}).join('')+'</div>'; } else { src.innerHTML=''; } }
             if(hint) hint.textContent=d.points_used?('⭐ 포인트 '+d.points_used+'P 사용'):(typeof d.remaining==='number'?('오늘 '+d.remaining+'회 남음'):'');
-            if(out){ out.style.display='block'; out.scrollTop=0; }
+            if(out){ out.style.display='block'; out.scrollTop=0; } if(_aiSec)_aiSec.classList.add('aii-answered');
             _homeAiHist.push({q:q, a:d.answer||''}); if(_homeAiHist.length>5)_homeAiHist=_homeAiHist.slice(-5);
             if(inp) inp.value='';
             if(hint && _homeAiHist.length>1) hint.innerHTML+=' · 💬 이어지는 대화('+_homeAiHist.length+') <a href="#" onclick="homeAiReset();return false;" style="color:#1a3de8;font-weight:700;">새 대화</a>';
@@ -9258,8 +9268,15 @@
       fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
         var posts=(d.posts||[]).slice(0,15);
         if(!posts.length){ el.innerHTML='<div class="ibh-empty">아직 글이 없어요. <a href="/board" style="color:#f97316;font-weight:700;">첫 글 남기기 →</a></div>'; return; }
-        el.innerHTML=posts.map(function(p){
-          return '<a class="ibh-row" href="/board/'+p.id+'"><span class="ibh-rt">'+e(p.title)+'</span>'
+        // v2.98.3: 가장 인기글(조회수+댓글 가중)을 상단으로 올리고 강조
+        var hi=0, hv=-1;
+        posts.forEach(function(p,i){ var v=(p.view_count||0)+(p.comment_count||0)*3; if(v>hv){hv=v;hi=i;} });
+        if(hv>0 && hi>0){ posts.unshift(posts.splice(hi,1)[0]); }
+        el.innerHTML=posts.map(function(p,i){
+          var hot=(i===0 && hv>0);
+          return '<a class="ibh-row'+(hot?' ibh-row-hot':'')+'" href="/board/'+p.id+'">'
+            +(hot?'<span class="ibh-hot">🔥 인기</span>':'')
+            +'<span class="ibh-rt">'+e(p.title)+'</span>'
             +(p.comment_count?'<span class="ibh-cc">['+p.comment_count+']</span>':'')
             +'<span class="ibh-rm">'+e(p.nickname||'회원')+'</span></a>';
         }).join('');
