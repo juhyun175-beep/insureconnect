@@ -8927,6 +8927,8 @@
         /* v2.98.0: 자유게시판 단독 컬럼 — 삼따AI 높이에 맞춰 stretch(하단 정렬), 바로가기 푸터는 카드 하단 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh{margin:0;flex:1;display:flex;flex-direction:column;}
+        /* v2.98.1: 늘어난 카드 높이를 글 목록이 채우도록 — 남는 높이 차지 + 넘치면 내부 스크롤(대화순위 패널과 동일 패턴) */
+        .ibh-aii-row .ibh-col > .ibh > .ibh-list{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;}
         .ibh-aii-row .ibh-col > .ibh > .ibh-foot{margin-top:auto;}
         .home-aii{display:flex;flex-direction:column;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:260px;box-shadow:var(--sh-sm);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
@@ -9254,7 +9256,7 @@
       var el=document.getElementById('home-board-list'); if(!el) return;
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
       fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
-        var posts=(d.posts||[]).slice(0,3);
+        var posts=(d.posts||[]).slice(0,7);
         if(!posts.length){ el.innerHTML='<div class="ibh-empty">아직 글이 없어요. <a href="/board" style="color:#f97316;font-weight:700;">첫 글 남기기 →</a></div>'; return; }
         el.innerHTML=posts.map(function(p){
           return '<a class="ibh-row" href="/board/'+p.id+'"><span class="ibh-rt">'+e(p.title)+'</span>'
@@ -15275,7 +15277,7 @@
         }
         const sets = (typeof cardNewsState !== 'undefined' && cardNewsState.sets) || [];
         if (!sets.length) { grid.innerHTML = '<div class="nl-empty" style="grid-column:1/-1;padding:20px 0;text-align:center;color:var(--txt-lo)">등록된 뉴스가 없습니다.</div>'; return; }
-        grid.innerHTML = sets.slice(0, 8).map((s, i) => {
+        grid.innerHTML = sets.slice(0, 10).map((s, i) => {
           const d = new Date(s.created_at);
           const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
           const cover = s.items && s.items[0];
