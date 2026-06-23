@@ -6137,30 +6137,6 @@
     }
     .ic-kakao-updated > span { display: block; }
 
-    /* AdSense 슬롯 — 광고가 실제로 채워졌을 때만 시각화 (빈 박스 방지) */
-    .ic-ad-slot {
-      margin: 0;
-      padding: 0;
-      background: transparent;
-      border: none;
-      min-height: 0;
-      display: block;
-    }
-    /* 광고 로드 성공 시(AdSense가 data-ad-status="filled"를 자동 설정) 자연스러운 카드 형태 표시 */
-    .ic-ad-slot ins.adsbygoogle[data-ad-status="filled"] {
-      display: block !important;
-      margin: 0 0 22px;
-      padding: 10px;
-      background: var(--bg-card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--sh-sm);
-    }
-    /* 광고 미로드 / unfilled 시 슬롯 자체 숨김 */
-    .ic-ad-slot ins.adsbygoogle:not([data-ad-status="filled"]) {
-      display: none !important;
-    }
-
     /* 신뢰 카드 */
     .ic-trust {
       display: grid;
@@ -9316,15 +9292,7 @@
     <!-- v2.6.5: (자유게시판 → 상단 실시간 방문기록 섹션 바로 아래로 이동) -->
 
 
-    <!-- ══ AdSense 광고 슬롯 (자연스러운 위치) ══ -->
-    <aside class="ic-ad-slot" aria-label="광고">
-      <ins class="adsbygoogle"
-           style="display:block"
-           data-ad-client="ca-pub-7787620251169899"
-           data-ad-slot="auto"
-           data-ad-format="auto"
-           data-full-width-responsive="true"></ins>
-    </aside>
+    <!-- ══ AdSense — 자동 광고(Auto ads) 사용. 수동 슬롯 없음(loader 스크립트 + 대시보드 자동광고가 배치). ══ -->
 
   </div>
 
@@ -10875,16 +10843,7 @@
       if (page === 'chat')      { if (typeof chatEnter === 'function') chatEnter(); } // v2.55.0 실시간 채팅
       else if (typeof chatStop === 'function') { chatStop(); } // 채팅 떠나면 폴링 정지
 
-      // AdSense: 홈에서만 광고 푸시 (광고 단위 1회만)
-      if (page === 'home' && !window._adsPushed) {
-        window._adsPushed = true;
-        // v2.12.2 fix: requestIdleCallback 의 2번째 인자는 옵션객체여야 함(숫자 전달 시 Chrome 에서 throw) → setTimeout 폴백을 함수로 분리
-        (window.requestIdleCallback || function(fn){ return setTimeout(fn, 500); })(() => {
-          try {
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          } catch (_) {}
-        });
-      }
+      // AdSense: 자동 광고(Auto ads) 사용 → 수동 push({}) 불필요(대시보드에서 자동 배치).
 
       // 홈 진입 시 자동 공지 팝업 (초기 load의 자동 호출이 끝난 뒤 이후 진입에만)
       if (page === 'home' && window._homePopupInitDone && typeof showHomePopupIfNeeded === 'function') {
