@@ -124,6 +124,9 @@ export const onRequestGet = async ({ params, env, request }) => {
           validThrough: new Date(Date.now() + 90 * 86400e3).toISOString().slice(0, 10),
           employmentType: 'CONTRACTOR',
           jobLocationType: 'TELECOMMUTE',
+          // v2.91.1: jobLocationType=TELECOMMUTE(원격)인 공고는 Google이 applicantLocationRequirements를
+          //   필수로 요구함(누락 시 리치결과 미노출). 전국 단위 채용이므로 지원 가능 지역 = 대한민국(KR).
+          applicantLocationRequirements: { '@type': 'Country', name: 'KR' },
           hiringOrganization: {
             '@type': 'Organization',
             name: r.company_name || 'InsureConnect 등록 채용',
