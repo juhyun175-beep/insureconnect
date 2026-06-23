@@ -19,6 +19,7 @@ import { verifyAdmin } from '../../_lib/admin.js';
 import { sendMemoToMember } from '../../_lib/kakao-msg.js';
 import { sendWebPush } from '../../_lib/webpush.js';
 import { SITE } from '../../_lib/auth.js';
+import { BOARD_SEO_WHERE } from '../../_lib/board-seo.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -37,7 +38,7 @@ async function buildDigest(env) {
   const lecturesN = (await first(`SELECT COUNT(*) AS n FROM ic_lectures WHERE status='approved' AND created_at >= ${SINCE}`))?.n || 0;
   const casesN = (await first(`SELECT COUNT(*) AS n FROM ic_insurance_cases WHERE verify_status='approved' AND created_at >= ${SINCE}`))?.n || 0;
   const recruits = await all(`SELECT title FROM ic_recruitments WHERE status='approved' AND created_at >= ${SINCE} ORDER BY created_at DESC LIMIT 3`);
-  const popular = await all(`SELECT title FROM ic_board_posts WHERE deleted=0 AND view_count>=20 AND LENGTH(content)>=150 ORDER BY view_count DESC LIMIT 3`);
+  const popular = await all(`SELECT title FROM ic_board_posts WHERE deleted=0 AND ${BOARD_SEO_WHERE} ORDER BY view_count DESC LIMIT 3`);
 
   const head = [];
   if (recruitsN) head.push(`📢 새 채용공고 ${recruitsN}건`);

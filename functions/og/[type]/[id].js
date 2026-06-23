@@ -9,6 +9,8 @@
  * 응답 = 빈 HTML + OG meta + 메타 refresh로 실제 페이지로 즉시 이동.
  * 카카오톡 봇은 OG meta만 읽고, 실제 사용자는 즉시 redirect됨.
  */
+import { isBoardIndexable } from '../../_lib/board-seo.js';
+
 const SITE = 'https://insureconnect.co.kr';
 const FALLBACK_IMG = `${SITE}/logo-full.png`;
 
@@ -223,7 +225,7 @@ export const onRequestGet = async ({ params, env, request }) => {
         image = dynamicOgImage('board', id); // 글 내용이 보이는 카드 이미지
         target = `${SITE}/board/${encodeURIComponent(id)}`;
         // UGC 전수 색인은 리스크 → 인기·충실 글만 선별 색인 (그 외 noindex 유지)
-        indexable = ((r.view_count || 0) >= 20 && clean.length >= 150);
+        indexable = isBoardIndexable({ content: clean, view_count: r.view_count, comment_count: r.comment_count });
         bodyContent = `<h1>${esc(r.title)}</h1><div style="white-space:pre-line">${esc(clean.slice(0, 1500))}</div>`;
         jsonLd = {
           '@context': 'https://schema.org',
