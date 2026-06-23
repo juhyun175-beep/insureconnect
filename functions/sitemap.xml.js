@@ -5,6 +5,7 @@
  */
 import { INSURERS } from './_lib/insurers.js';
 import { GA_LIST } from './_lib/ga-companies.js';
+import { BOARD_SEO_WHERE } from './_lib/board-seo.js';
 
 const BASE = 'https://insureconnect.co.kr';
 
@@ -111,7 +112,7 @@ export async function onRequestGet({ env }) {
   try {
     const rs = await env.DB.prepare(
       `SELECT id, created_at FROM ic_board_posts
-       WHERE deleted = 0 AND view_count >= 20 AND LENGTH(content) >= 150
+       WHERE deleted = 0 AND ${BOARD_SEO_WHERE}
        ORDER BY created_at DESC LIMIT 500`
     ).all();
     boardPosts = rs.results || [];

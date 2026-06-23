@@ -5,6 +5,7 @@
  *   타깃: "보험설계사 커뮤니티", "보험영업 노하우", "설계사 후기" 롱테일
  */
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { BOARD_SEO_WHERE } from '../_lib/board-seo.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
@@ -12,9 +13,7 @@ const esc = (s) => String(s == null ? '' : s)
 const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
 const fmt = (iso) => (iso ? String(iso).slice(0, 10) : '');
 
-// 색인 품질 게이트 (og/board 와 동일 기준 유지)
-const MIN_VIEWS = 20;
-const MIN_LEN = 150;
+// 색인 품질 게이트는 _lib/board-seo.js(BOARD_SEO_WHERE)로 일원화 — og/board·sitemap과 동일 기준
 
 export const onRequestGet = async ({ env }) => {
   const url = `${SITE}/community`;
@@ -24,10 +23,10 @@ export const onRequestGet = async ({ env }) => {
     const rs = await env.DB.prepare(
       `SELECT id, nickname, title, content, view_count, comment_count, created_at
        FROM ic_board_posts
-       WHERE deleted = 0 AND view_count >= ? AND LENGTH(content) >= ?
+       WHERE deleted = 0 AND ${BOARD_SEO_WHERE}
        ORDER BY (view_count + comment_count * 5) DESC, created_at DESC
        LIMIT 50`
-    ).bind(MIN_VIEWS, MIN_LEN).all();
+    ).all();
     posts = rs.results || [];
   } catch (_) {}
 
