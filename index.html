@@ -9256,7 +9256,7 @@
       var el=document.getElementById('home-board-list'); if(!el) return;
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
       fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
-        var posts=(d.posts||[]).slice(0,7);
+        var posts=(d.posts||[]).slice(0,15);
         if(!posts.length){ el.innerHTML='<div class="ibh-empty">아직 글이 없어요. <a href="/board" style="color:#f97316;font-weight:700;">첫 글 남기기 →</a></div>'; return; }
         el.innerHTML=posts.map(function(p){
           return '<a class="ibh-row" href="/board/'+p.id+'"><span class="ibh-rt">'+e(p.title)+'</span>'
