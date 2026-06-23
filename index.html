@@ -8955,7 +8955,8 @@
         .aii-out{margin-top:10px;border-top:1px solid rgba(26,61,232,0.16);padding-top:10px;max-height:220px;overflow-y:auto;flex:1;}
         /* v2.98.3: 답변 표시 시 — 예시칩 하단고정 해제 + 답변(out)이 질문창 아래 빈 공간을 flex로 채움 */
         .home-aii.aii-answered .aii-chips{margin-top:0;}
-        .home-aii.aii-answered .aii-out{flex:1 1 auto;min-height:0;max-height:none;}
+        /* v2.98.4: 답변 영역 높이 고정(320px) — 근거사례 펼침 시 섹션이 늘어나 옆 칼럼까지 커지던 버그 방지. 내용 넘치면 내부 스크롤(overflow-y:auto) */
+        .home-aii.aii-answered .aii-out{flex:1 1 auto;min-height:0;max-height:320px;}
         .aii-answer{font-size:13px;line-height:1.65;color:var(--txt-hi,#0f172a);white-space:pre-wrap;word-break:break-word;}
         [data-theme="dark"] .aii-answer{color:#e6edf3;}
         .aii-ev{display:flex;flex-wrap:wrap;gap:6px;margin-top:9px;}
