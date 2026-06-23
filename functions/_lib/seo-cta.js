@@ -9,7 +9,7 @@
  * developers.kakao.com → 내 애플리케이션 → 앱 키 → JavaScript 키
  * 플랫폼 → Web → 사이트 도메인에 https://insureconnect.co.kr 등록 필요
  * 키가 비어있으면 SDK 미로드 → 기존 Web Share/복사로 자동 폴백 (안전) */
-import { coupangWidget } from './coupang.js';
+import { coupangModal } from './coupang.js';
 
 const KAKAO_JS_KEY = 'ca87154629fc282e5202c66822514bd4'; // Kakao JavaScript 키 (클라이언트 공개키)
 
@@ -70,7 +70,7 @@ export function seoCtaFooter(SITE) {
     </div>
   </div>
 </footer>
-${coupangWidget({ variant: 'ssr' })}
+${coupangModal()}
 <nav class="seo-hubnav" aria-label="InsureConnect 서비스 바로가기">
   <a href="/company">🖥 보험사 전산</a>
   <a href="/insurance">📚 보험 정보</a>
