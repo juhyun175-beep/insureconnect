@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.98.0] - 2026-06-23
+### Changed (홈 대시보드 레이아웃 — 친구초대 섹션 제거 + 대화순위 재배치 + 뉴스 5열)
+- **친구초대(둘 다 포인트받기) 섹션 삭제**: 자유게시판 하단 `#home-ref` 배너 + 전용 `.home-ref`/`.rlb-*` CSS·`loadReferralCTA` 로더 제거. (로그인 후 추천 넛지 1회 팝업 `refnudge`는 유지 — 대시보드 섹션이 아닌 모달이라 범위 제외)
+- **삼따AI·자유게시판·대화순위 3열 정렬**: `.ibh-aii-row`를 `삼따AI(좌) · 자유게시판(중) · 오픈채팅방 대화순위(우)` 3열로. 자유게시판은 삼따AI 높이에 맞춰 `flex:1` stretch(하단 정렬), 바로가기 푸터는 카드 하단 고정.
+- **오픈채팅방 대화순위 이동**: 기존 뉴스 옆(`.ic-top-row` 우측 280px)에서 자유게시판 우측으로 이동. 전체 높이 채움(stretch) + 순위 리스트 내부 스크롤 유지.
+- **인슈어커넥트 뉴스 전체너비 5열**: 대화순위가 빠진 만큼 뉴스가 단독 전체너비 → 4열에서 5열로 확장(`≤1180px` 4열·`≤920px` 3열). 로딩 스켈레톤도 5개로 맞춤.
+### Verified
+- index.html 인라인 `<script>` 29블록 `node --check` 0 errors · `<div>/<section>/<style>/<script>` open-close 밸런스 유지 · 보안스캔 HIGH 0(REVIEW 48, 전부 기존 `functions/api/*`)
+
 ## [2.97.0] - 2026-06-22
 ### Changed (커스텀 도메인 insureconnect.co.kr 정착 — 전 도메인 참조 이전 + pages.dev 301 통합)
 - 구매·연결한 **`insureconnect.co.kr`를 사이트 표준(canonical) 도메인으로 확정.** 코드 전반의 `insureconnect-hub.pages.dev` 참조를 **49개 파일 일괄 이전** → canonical·og·JSON-LD·sitemap(BASE)·robots(Sitemap/LLM-Content)·SSR `SITE` 상수·카카오 메시지 링크·VAPID·cron 예시·llms.txt 전부 co.kr.
