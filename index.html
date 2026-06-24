@@ -10343,14 +10343,15 @@
         });
       } catch (_) {}
     }
-    /* v2.94.0: /api/files 이미지 썸네일 헬퍼 — ?w= 부여 시 서버(api/files)에서 Cloudflare Image
-       Resizing 으로 축소·webp/avif 변환. 무거운 원본 PNG 디코딩 부담 제거 → 스크롤 버벅임 완화.
-       전송: png/jpg/webp 만(svg/gif·외부URL 제외). 변환 미지원(존 설정 OFF) 시 서버가 원본 반환 → 안전. */
+    /* v2.94.1: /api/files 이미지 썸네일 헬퍼 — Cloudflare Image Transformations(/cdn-cgi/image)로
+       축소·webp/avif 변환. 무거운 원본 PNG 디코딩 부담 제거 → 스크롤 버벅임 완화.
+       엣지에서 가로채 변환(대시보드 변환 카운트 집계). onerror=redirect 로 변환 실패 시 원본으로 폴백.
+       대상: png/jpg/webp 만(svg/gif·외부URL 제외). 존 Transformations OFF 면 적용 안 됨. */
     function icImg(u, w) {
       if (!u || typeof u !== 'string') return u || '';
-      if (u.indexOf('/api/files/') === -1) return u;          // 우리 R2 서빙 이미지에만 적용
-      if (!/\.(png|jpe?g|webp)$/i.test(u.split('?')[0])) return u; // svg/gif/pdf 제외
-      return u + (u.indexOf('?') === -1 ? '?' : '&') + 'w=' + (w || 400);
+      if (u.charAt(0) !== '/' || u.indexOf('/api/files/') !== 0) return u; // 같은 존 절대경로만
+      if (!/\.(png|jpe?g|webp)$/i.test(u.split('?')[0])) return u;         // svg/gif/pdf 제외
+      return '/cdn-cgi/image/width=' + (w || 400) + ',quality=72,format=auto,fit=scale-down,onerror=redirect' + u;
     }
 
     /* ── 카드 클릭 기록 (메뉴+카드 카운터) ──
@@ -11913,7 +11914,7 @@
         const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
         const cover = s.items[0];
         const thumb = cover && cover.file_type === 'image'
-          ? `<img src="${icImg(cover.file_url, 400)}" alt="${s.title}" width="300" height="300" loading="lazy" decoding="async">`
+          ? `<img src="${icImg(cover.file_url, 400)}" alt="${s.title}" width="400" height="300" loading="lazy" decoding="async">`
           : `<span class="cn-tile-fallback">📰</span>`;
         return `
           <button class="cn-tile" data-i="${i}" type="button">
@@ -15297,7 +15298,7 @@
           const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
           const cover = s.items && s.items[0];
           const thumb = (cover && cover.file_type === 'image')
-            ? `<img src="${esc(icImg(cover.file_url, 400))}" alt="${esc(s.title||'')}" width="300" height="300" loading="lazy" decoding="async">`
+            ? `<img src="${esc(icImg(cover.file_url, 400))}" alt="${esc(s.title||'')}" width="400" height="300" loading="lazy" decoding="async">`
             : `<span class="cn-tile-fallback">📰</span>`;
           return `<button class="cn-tile" type="button" onclick="openCardNewsModal(${i})">
             <div class="cn-tile-thumb">${thumb}<span class="cn-tile-count">${(s.items && s.items.length) || 0}장</span></div>
