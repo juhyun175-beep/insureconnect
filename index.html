@@ -10343,6 +10343,16 @@
         });
       } catch (_) {}
     }
+    /* v2.94.0: /api/files 이미지 썸네일 헬퍼 — ?w= 부여 시 서버(api/files)에서 Cloudflare Image
+       Resizing 으로 축소·webp/avif 변환. 무거운 원본 PNG 디코딩 부담 제거 → 스크롤 버벅임 완화.
+       전송: png/jpg/webp 만(svg/gif·외부URL 제외). 변환 미지원(존 설정 OFF) 시 서버가 원본 반환 → 안전. */
+    function icImg(u, w) {
+      if (!u || typeof u !== 'string') return u || '';
+      if (u.indexOf('/api/files/') === -1) return u;          // 우리 R2 서빙 이미지에만 적용
+      if (!/\.(png|jpe?g|webp)$/i.test(u.split('?')[0])) return u; // svg/gif/pdf 제외
+      return u + (u.indexOf('?') === -1 ? '?' : '&') + 'w=' + (w || 400);
+    }
+
     /* ── 카드 클릭 기록 (메뉴+카드 카운터) ──
        v2.1.46: 봇 UA 차단 (의도적 액션이므로 dedupe 없음 — 같은 카드 N번 클릭하면 N회 카운트) */
     async function trackCardClick(menu, card) {
@@ -11083,7 +11093,7 @@
           let thumb;
           let typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
+            thumb = `<img src="${icImg(it.file_url, 480)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
             thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
@@ -11140,7 +11150,7 @@
           const instr = it.instructor ? esc(it.instructor) : '';
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
+            thumb = `<img src="${icImg(it.file_url, 480)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
             thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
@@ -11314,7 +11324,7 @@
           const host = it.host ? esc(it.host) : '';
           let thumb, typeBadge = '';
           if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${it.file_url}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
+            thumb = `<img src="${icImg(it.file_url, 480)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
             typeBadge = '<span class="rc-card-type-badge">🖼️ 이미지</span>';
           } else if (it.file_url && it.file_type === 'pdf') {
             thumb = `<iframe src="${it.file_url}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
@@ -11903,7 +11913,7 @@
         const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
         const cover = s.items[0];
         const thumb = cover && cover.file_type === 'image'
-          ? `<img src="${cover.file_url}" alt="${s.title}" loading="lazy" decoding="async">`
+          ? `<img src="${icImg(cover.file_url, 400)}" alt="${s.title}" width="300" height="300" loading="lazy" decoding="async">`
           : `<span class="cn-tile-fallback">📰</span>`;
         return `
           <button class="cn-tile" data-i="${i}" type="button">
@@ -11956,7 +11966,7 @@
         if (it.file_type === 'pdf') {
           return `<div class="cn-slide"><iframe src="${it.file_url}"></iframe><div class="cn-guard"></div></div>`;
         }
-        return `<div class="cn-slide"><img src="${it.file_url}" alt="${set.title}" draggable="false" oncontextmenu="return false"><div class="cn-guard"></div></div>`;
+        return `<div class="cn-slide"><img src="${it.file_url}" alt="${set.title}" draggable="false" decoding="async" oncontextmenu="return false"><div class="cn-guard"></div></div>`;
       }).join('');
 
       const dots = document.getElementById('cn-dots');
@@ -15287,7 +15297,7 @@
           const dateStr = `${d.getFullYear()}.${String(d.getMonth()+1).padStart(2,'0')}.${String(d.getDate()).padStart(2,'0')}`;
           const cover = s.items && s.items[0];
           const thumb = (cover && cover.file_type === 'image')
-            ? `<img src="${esc(cover.file_url)}" alt="${esc(s.title||'')}" loading="lazy" decoding="async">`
+            ? `<img src="${esc(icImg(cover.file_url, 400))}" alt="${esc(s.title||'')}" width="300" height="300" loading="lazy" decoding="async">`
             : `<span class="cn-tile-fallback">📰</span>`;
           return `<button class="cn-tile" type="button" onclick="openCardNewsModal(${i})">
             <div class="cn-tile-thumb">${thumb}<span class="cn-tile-count">${(s.items && s.items.length) || 0}장</span></div>
