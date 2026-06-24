@@ -9354,7 +9354,7 @@
         </div>
       </div>
       <!-- v2.93.1: 추천 아이템(쿠팡파트너스) — 뉴스 뷰어 하단. 정면 노출 없이 콘텐츠 소비 중에만 노출 -->
-      <div class="cnx" aria-label="현장 설계사 추천 아이템">
+      <div class="cnx" id="cnx-box" aria-label="현장 설계사 추천 아이템" style="display:none">
         <style>
           .cnx{border-top:1px solid var(--border,#eef2f7);margin-top:4px;padding:11px 4px 2px}
           [data-theme="dark"] .cnx{border-color:#30363d}
@@ -9372,13 +9372,7 @@
           .cnx-disc{margin:8px 2px 0;font-size:10px;color:#a0aab8;line-height:1.45}
         </style>
         <div class="cnx-head"><span class="cnx-t">🛍️ 현장 설계사 추천 아이템</span><span class="cnx-tag">광고 · 쿠팡파트너스</span></div>
-        <div class="cnx-row" onclick="(function(t){var a=t&&t.closest&&t.closest('.cnx-card');if(a&&typeof trackCardClick==='function'){try{trackCardClick('쿠팡추천',a.getAttribute('data-cp')||'');}catch(_){}}})(event.target)">
-          <a class="cnx-card" href="https://link.coupang.com/a/eOTTmWtHhI" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="차량용 거치대"><span class="cnx-imgw"><img src="https://image14.coupangcdn.com/image/affiliate/banner/c708da1a180df16dd06b78c48c8ec17d@2x.jpg" alt="차량용 거치대" loading="lazy" decoding="async"></span><span class="cnx-lb">차량용 거치대</span></a>
-          <a class="cnx-card" href="https://link.coupang.com/a/eOT86GHbpI" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="보조배터리"><span class="cnx-imgw"><img src="https://img5a.coupangcdn.com/image/affiliate/banner/cba23db3650847ccf6ce310c4c035ab5@2x.jpg" alt="보조배터리" loading="lazy" decoding="async"></span><span class="cnx-lb">보조배터리</span></a>
-          <a class="cnx-card" href="https://link.coupang.com/a/eOUc4c9XJk" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="명함 케이스"><span class="cnx-imgw"><img src="https://image12.coupangcdn.com/image/affiliate/banner/22f2b3425d627289da0754c4ba27e378@2x.jpg" alt="명함 케이스" loading="lazy" decoding="async"></span><span class="cnx-lb">명함 케이스</span></a>
-          <a class="cnx-card" href="https://link.coupang.com/a/eOUgCN2p1U" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="다이어리·플래너"><span class="cnx-imgw"><img src="https://image6.coupangcdn.com/image/affiliate/banner/e8975d8da8bab0de97db972c9513ed8f@2x.jpg" alt="다이어리" loading="lazy" decoding="async"></span><span class="cnx-lb">다이어리·플래너</span></a>
-          <a class="cnx-card" href="https://link.coupang.com/a/eOUjyMY2zk" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="디퓨저"><span class="cnx-imgw"><img src="https://img3c.coupangcdn.com/image/affiliate/banner/f9d7bf152de998312b6283ec855ebaf8@2x.jpg" alt="디퓨저" loading="lazy" decoding="async"></span><span class="cnx-lb">디퓨저</span></a>
-        </div>
+        <div class="cnx-row" id="cnx-row" onclick="(function(t){var a=t&&t.closest&&t.closest('.cnx-card');if(a&&typeof trackCardClick==='function'){try{trackCardClick('쿠팡추천',a.getAttribute('data-cp')||'');}catch(_){}}})(event.target)"></div>
         <p class="cnx-disc">이 영역은 쿠팡 파트너스 활동의 일환으로, 이에 따라 일정액의 수수료를 제공받습니다.</p>
       </div>
     </div>
@@ -10354,6 +10348,24 @@
       if (u.charAt(0) !== '/' || u.indexOf('/api/files/') !== 0) return u; // 같은 존 절대경로만
       if (!/\.(png|jpe?g|webp)$/i.test(u.split('?')[0])) return u;         // svg/gif/pdf 제외
       return '/cdn-cgi/image/width=' + (w || 400) + ',quality=72,format=auto,fit=scale-down,onerror=redirect' + u;
+    }
+
+    /* v2.95.0: 뉴스 뷰어 하단 쿠팡 추천 스트립 — 관리자 DB(/api/coupang)에서 활성 아이템 로드.
+       활성 0개면 스트립 숨김. 최초 뉴스 뷰어 오픈 시 1회만 로드(lazy). */
+    function loadCoupangStrip() {
+      var box = document.getElementById('cnx-box');
+      var row = document.getElementById('cnx-row');
+      if (!box || !row) return;
+      var e = function (s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]); }); };
+      fetch('/api/coupang?active=1').then(function (r) { return r.json(); }).then(function (items) {
+        if (!Array.isArray(items) || !items.length) { box.style.display = 'none'; return; }
+        row.innerHTML = items.map(function (it) {
+          return '<a class="cnx-card" href="' + e(it.href) + '" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="' + e(it.label) + '">'
+            + '<span class="cnx-imgw"><img src="' + e(it.img) + '" alt="' + e(it.label) + '" loading="lazy" decoding="async"></span>'
+            + '<span class="cnx-lb">' + e(it.label) + '</span></a>';
+        }).join('');
+        box.style.display = '';
+      }).catch(function () { box.style.display = 'none'; });
     }
 
     /* ── 카드 클릭 기록 (메뉴+카드 카운터) ──
@@ -11939,6 +11951,7 @@
       showCardNewsSet(idx);
       document.getElementById('cn-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
+      if (!window._cnxLoaded) { window._cnxLoaded = 1; try { loadCoupangStrip(); } catch (_) {} }
       // 클릭 추적 (source: 'shared' = 외부 공유 링크 진입, 그 외 = 내부 클릭)
       try {
         const set = cardNewsState.sets[idx];

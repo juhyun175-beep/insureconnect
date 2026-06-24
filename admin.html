@@ -3492,6 +3492,7 @@
         <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
         <button class="upload-tab" data-panel="up-homead" style="border-color:#0ea5e9;color:#0ea5e9;">🖼 홈 광고배너</button>
+        <button class="upload-tab" data-panel="up-coupang" style="border-color:#ff5a5f;color:#ff5a5f;">🛍 쿠팡파트너스</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
         <!-- v2.15.1: 유입 경로·회원/지표는 「통합 기록지표」 슬라이더로 이동 -->
 
@@ -3868,6 +3869,55 @@
           <p class="empty-msg">알림 로딩 중…</p>
         </div>
       </div><!-- /#up-alert -->
+
+      <!-- ══════════════════ 쿠팡 파트너스 추천 아이템 관리 ══════════════════ -->
+      <div class="upload-panel" id="up-coupang">
+        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(255,90,95,0.30);border-left:3px solid #ff5a5f;border-radius:8px;background:linear-gradient(90deg,rgba(255,90,95,0.08),rgba(255,90,95,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#ff5a5f;margin-bottom:6px;letter-spacing:0.03em;">🛍 쿠팡 파트너스 추천 아이템 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>여기 등록한 아이템이 <strong>인슈어커넥트 뉴스 뷰어 하단</strong>과 <strong>SEO 페이지 추천 뷰어</strong>에 노출됩니다</li>
+            <li>쿠팡 파트너스에서 받은 <strong>배너 HTML</strong>을 붙여넣으면 링크·이미지가 자동 입력됩니다</li>
+            <li><strong>활성/비활성</strong>으로 노출을 즉시 켜고 끌 수 있고, <strong>삭제</strong>도 가능합니다</li>
+            <li>활성 아이템이 0개면 추천 영역 자체가 표시되지 않습니다 · 필수 고지문구는 항상 자동 포함됩니다</li>
+          </ul>
+        </div>
+
+        <div class="nl-upload-box">
+          <h4 style="margin:0 0 14px;font-size:14px;color:var(--blue-mid);font-weight:700;letter-spacing:0.04em;">🛍 아이템 등록</h4>
+          <div class="nl-form" id="cp-form">
+            <div class="nl-field" style="width:100%;">
+              <label>쿠팡 배너 HTML 붙여넣기 (선택 · 붙여넣으면 링크·이미지 자동 입력)</label>
+              <textarea id="cp-snippet" rows="2" placeholder='<a href="https://link.coupang.com/a/..."><img src="https://...coupangcdn.com/...jpg"></a>' style="width:100%;resize:vertical;" oninput="cpParseSnippet()"></textarea>
+            </div>
+            <div class="nl-field" style="flex:1;min-width:160px;">
+              <label>상품명 *</label>
+              <input type="text" id="cp-label" placeholder="예: 차량용 거치대" maxlength="40">
+            </div>
+            <div class="nl-field" style="flex:1;min-width:160px;">
+              <label>짧은 설명 (선택)</label>
+              <input type="text" id="cp-sub" placeholder="예: 외근 운전 필수 · 계기판 거치대" maxlength="60">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>쿠팡 링크 (href) *</label>
+              <input type="text" id="cp-href" placeholder="https://link.coupang.com/a/..." maxlength="500">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>이미지 URL (img) *</label>
+              <input type="text" id="cp-img" placeholder="https://...coupangcdn.com/...jpg" maxlength="500">
+            </div>
+            <div class="nl-field" style="min-width:110px;">
+              <label>정렬순서</label>
+              <input type="number" id="cp-sort" value="0" style="width:90px;">
+            </div>
+            <button class="nl-upload-btn" id="cp-save-btn" onclick="saveCoupang()">등록 (즉시 반영)</button>
+          </div>
+          <p class="nl-status" id="cp-status"></p>
+        </div>
+
+        <div class="nl-list" id="cp-list">
+          <p class="empty-msg">아이템 로딩 중…</p>
+        </div>
+      </div><!-- /#up-coupang -->
 
       <!-- ══════════════════ 카카오톡 대화 순위 관리 ══════════════════ -->
       <div class="upload-panel" id="up-kakao">
@@ -4677,6 +4727,9 @@
         }
         if (target === 'up-reports' && typeof loadBoardReports === 'function') {
           loadBoardReports();
+        }
+        if (target === 'up-coupang' && typeof loadCoupang === 'function') {
+          loadCoupang();
         }
         if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
         if (target === 'up-coverages' && typeof loadCoverages === 'function') { loadCoverages(); }
@@ -8216,6 +8269,94 @@
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
+    }
+
+
+    /* ── 쿠팡 파트너스 추천 아이템 (v2.95.0) ── */
+    function cpParseSnippet() {
+      const raw = document.getElementById('cp-snippet').value;
+      if (!raw) return;
+      const hrefM = raw.match(/href=["']([^"']+)["']/i);
+      const imgM  = raw.match(/<img[^>]+src=["']([^"']+)["']/i);
+      const altM  = raw.match(/alt=["']([^"']*)["']/i);
+      if (hrefM && !document.getElementById('cp-href').value) document.getElementById('cp-href').value = hrefM[1];
+      if (imgM  && !document.getElementById('cp-img').value)  document.getElementById('cp-img').value  = imgM[1];
+      if (altM && altM[1] && !document.getElementById('cp-label').value) {
+        document.getElementById('cp-label').value = altM[1].replace(/,.*$/, '').slice(0, 40).trim();
+      }
+    }
+
+    async function saveCoupang() {
+      const label = document.getElementById('cp-label').value.trim();
+      const sub   = document.getElementById('cp-sub').value.trim();
+      const href  = document.getElementById('cp-href').value.trim();
+      const img   = document.getElementById('cp-img').value.trim();
+      const sort  = parseInt(document.getElementById('cp-sort').value, 10) || 0;
+      const status = document.getElementById('cp-status');
+      const btn = document.getElementById('cp-save-btn');
+      if (!label || !href || !img) { status.textContent = '⚠ 상품명·링크·이미지는 필수입니다.'; return; }
+      if (!/^https?:\/\//i.test(href) || !/^https?:\/\//i.test(img)) { status.textContent = '⚠ 링크·이미지는 http(s) URL이어야 합니다.'; return; }
+      btn.disabled = true; status.textContent = '등록 중…';
+      try {
+        const res = await fetch('/api/coupang', {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ label, sub, href, img, sort_order: sort, is_active: true }),
+        });
+        if (!res.ok) throw new Error('등록 실패 (' + res.status + ')');
+        status.textContent = '✅ 등록 완료! (즉시 반영)';
+        ['cp-snippet','cp-label','cp-sub','cp-href','cp-img'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('cp-sort').value = '0';
+        loadCoupang();
+      } catch (e) {
+        status.textContent = '❌ ' + e.message;
+      } finally { btn.disabled = false; }
+    }
+
+    async function loadCoupang() {
+      const el = document.getElementById('cp-list');
+      if (!el) return;
+      try {
+        const res = await fetch('/api/coupang');
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 아이템이 없습니다.</p>';
+          return;
+        }
+        el.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;opacity:${it.is_active ? '1' : '0.5'};">
+            <img src="${esc(it.img)}" alt="" style="width:46px;height:46px;object-fit:cover;border-radius:8px;background:#fff;flex-shrink:0;" loading="lazy">
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.label)} <span style="font-size:10.5px;color:var(--txt-lo);font-weight:500;">#${it.sort_order}</span></div>
+              ${it.sub ? `<div style="font-size:11px;color:var(--txt-lo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.sub)}</div>` : ''}
+              <a href="${esc(it.href)}" target="_blank" rel="noopener" style="font-size:10.5px;color:#1a3de8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">${esc(it.href)}</a>
+            </div>
+            <span style="font-size:10.5px;color:${it.is_active ? '#059669' : 'var(--txt-lo)'};white-space:nowrap;">${it.is_active ? '🟢 활성' : '⚫ 비활성'}</span>
+            <button onclick="toggleCoupang(${it.id}, ${it.is_active ? 'false' : 'true'})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
+            <button onclick="deleteCoupang(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">아이템 로드 실패</p>';
+      }
+    }
+
+    async function toggleCoupang(id, newState) {
+      try {
+        await fetch(`/api/coupang/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ is_active: newState }),
+        });
+        loadCoupang();
+      } catch (e) { alert('변경 실패: ' + e.message); }
+    }
+
+    async function deleteCoupang(id) {
+      if (!confirm('이 추천 아이템을 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`/api/coupang/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        loadCoupang();
+      } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
 
