@@ -81,10 +81,50 @@ function placeholderSvgResponse(key, isHead) {
 }
 
 const IMAGE_EXT_RE = /\.(png|jpe?g|webp|gif|svg)$/i;
+const RESIZABLE_RE = /\.(png|jpe?g|webp)$/i; // svg/gif 는 리사이즈 제외
+
+/** v2.94.0: 온더플라이 썸네일 — /api/files/...png?w=400 요청 시 Cloudflare Image Resizing 으로
+ *  축소·webp/avif 변환해 반환(무거운 원본 PNG 디코딩 부담 제거 → 스크롤 버벅임 완화).
+ *  ※ 존에 Image Transformations 가 꺼져 있으면 cf.image 가 무시돼 "원본"이 반환됨(깨지지 않음).
+ *    켜지면 자동으로 최적화 적용. 재귀 방지: 서브요청은 ?w 없는 원본 경로를 호출. */
+async function tryResizedResponse(request) {
+  const reqUrl = new URL(request.url);
+  const w = parseInt(reqUrl.searchParams.get('w') || '0', 10);
+  if (!w || w < 16) return null;
+  const key = reqUrl.pathname;
+  if (!RESIZABLE_RE.test(key)) return null;
+  try {
+    const srcUrl = reqUrl.origin + reqUrl.pathname; // ?w 제거된 원본 → 재귀 회피
+    const accept = request.headers.get('Accept') || 'image/avif,image/webp,image/*,*/*';
+    const resized = await fetch(srcUrl, {
+      cf: { image: { width: Math.min(w, 1600), quality: 72, fit: 'scale-down', format: 'auto' } },
+      headers: { Accept: accept },
+    });
+    const ct = resized.headers.get('content-type') || '';
+    if (!resized.ok || !ct.startsWith('image/')) return null;
+    const headers = new Headers();
+    headers.set('Content-Type', ct);
+    headers.set('Cache-Control', 'public, max-age=31536000, immutable');
+    headers.set('Access-Control-Allow-Origin', '*');
+    headers.set('X-Content-Type-Options', 'nosniff');
+    const cl = resized.headers.get('content-length'); if (cl) headers.set('Content-Length', cl);
+    headers.set('Vary', 'Accept');
+    return new Response(resized.body, { status: 200, headers });
+  } catch (_) {
+    return null; // 실패 시 원본 서빙으로 폴백
+  }
+}
 
 async function serveFile({ params, request, env }, isHead) {
   const key = pathFromParams(params);
   if (!key) return new Response('Bad key', { status: 400 });
+
+  // v2.94.0: GET ?w= 썸네일 요청은 리사이즈 시도(실패/미지원 시 아래 원본 서빙으로 폴백)
+  if (!isHead) {
+    const resized = await tryResizedResponse(request);
+    if (resized) return resized;
+  }
+
   try {
     const obj = isHead
       ? await env.STORAGE.head(key)
