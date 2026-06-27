@@ -8908,8 +8908,8 @@
         .ibh-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh{margin:0;flex:1;display:flex;flex-direction:column;}
         /* v2.98.1: 늘어난 카드 높이를 글 목록이 채우도록 — 남는 높이 차지 + 넘치면 내부 스크롤(대화순위 패널과 동일 패턴) */
-        /* v2.96.0: 글 목록 max-height 로 행 전체 높이를 압축(주변 섹션·AI/대화순위와 높이 매치, 과도한 세로 늘어남 방지) */
-        .ibh-aii-row .ibh-col > .ibh > .ibh-list{flex:1 1 auto;min-height:0;max-height:240px;overflow-y:auto;scrollbar-width:thin;}
+        /* v2.96.0: 행 높이는 형제 컬럼(AI·대화순위)이 결정. 글목록은 JS가 그 가용 높이에 딱 맞는 개수만 렌더(스크롤 제거). */
+        .ibh-aii-row .ibh-col > .ibh > .ibh-list{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;}
         .ibh-aii-row .ibh-col > .ibh > .ibh-foot{margin-top:auto;}
         .home-aii{display:flex;flex-direction:column;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:260px;box-shadow:var(--sh-sm);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
@@ -9248,22 +9248,46 @@
     (function(){
       var el=document.getElementById('home-board-list'); if(!el) return;
       function e(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]);});}
-      fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
-        var posts=(d.posts||[]).slice(0,12);
-        if(!posts.length){ el.innerHTML='<div class="ibh-empty">아직 글이 없어요. <a href="/board" style="color:#f97316;font-weight:700;">첫 글 남기기 →</a></div>'; return; }
-        // v2.98.3: 가장 인기글(조회수+댓글 가중)을 상단으로 올리고 강조
-        var hi=0, hv=-1;
-        posts.forEach(function(p,i){ var v=(p.view_count||0)+(p.comment_count||0)*3; if(v>hv){hv=v;hi=i;} });
-        if(hv>0 && hi>0){ posts.unshift(posts.splice(hi,1)[0]); }
-        el.innerHTML=posts.map(function(p,i){
-          var hot=(i===0 && hv>0);
+      var ORDERED=[], HV=-1;
+      function rowsHtml(){
+        return ORDERED.map(function(p,i){
+          var hot=(i===0 && HV>0);
           return '<a class="ibh-row'+(hot?' ibh-row-hot':'')+'" href="/board/'+p.id+'">'
             +(hot?'<span class="ibh-hot">🔥 인기</span>':'')
             +'<span class="ibh-rt">'+e(p.title)+'</span>'
             +(p.comment_count?'<span class="ibh-cc">['+p.comment_count+']</span>':'')
             +'<span class="ibh-rm">'+e(p.nickname||'회원')+'</span></a>';
         }).join('');
+      }
+      function render(){
+        if(!ORDERED.length) return;
+        // PC 3열: 형제 컬럼(AI·대화순위)이 정한 행 높이에 딱 맞는 개수만. 스택/모바일은 전체.
+        if(window.innerWidth>1024){
+          el.style.maxHeight='none'; el.innerHTML='';          // 비워서 형제가 행 높이를 결정하게
+          var avail=el.clientHeight;                           // 그때의 가용 높이(= 행높이-헤더-푸터)
+          if(avail>40){ el.style.maxHeight=avail+'px'; el.style.overflowY='hidden'; }
+          el.innerHTML=rowsHtml();
+          if(avail>40){
+            var guard=0;
+            while(el.scrollHeight>el.clientHeight+1 && el.children.length>1 && guard++<60){
+              el.removeChild(el.lastElementChild);            // 넘치는 행 제거 → 스크롤 없이 딱 맞게
+            }
+          }
+        } else {
+          el.style.maxHeight='none'; el.style.overflowY=''; el.innerHTML=rowsHtml();
+        }
+      }
+      fetch('/api/board/posts?page=1').then(function(r){return r.json();}).then(function(d){
+        var posts=(d.posts||[]);
+        if(!posts.length){ el.innerHTML='<div class="ibh-empty">아직 글이 없어요. <a href="/board" style="color:#f97316;font-weight:700;">첫 글 남기기 →</a></div>'; return; }
+        // v2.98.3: 가장 인기글(조회수+댓글 가중)을 상단으로 올리고 강조
+        var hi=0, hv=-1;
+        posts.forEach(function(p,i){ var v=(p.view_count||0)+(p.comment_count||0)*3; if(v>hv){hv=v;hi=i;} });
+        if(hv>0 && hi>0){ posts.unshift(posts.splice(hi,1)[0]); }
+        ORDERED=posts; HV=hv;
+        render(); setTimeout(render, 1000);                    // 형제 비동기(대화순위 등) 로드 후 재정렬
       }).catch(function(){ el.innerHTML='<div class="ibh-empty">불러오지 못했습니다.</div>'; });
+      var _rt; window.addEventListener('resize', function(){ clearTimeout(_rt); _rt=setTimeout(render, 200); });
     })();
     </script>
 
