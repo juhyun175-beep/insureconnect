@@ -8908,7 +8908,8 @@
         .ibh-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh{margin:0;flex:1;display:flex;flex-direction:column;}
         /* v2.98.1: 늘어난 카드 높이를 글 목록이 채우도록 — 남는 높이 차지 + 넘치면 내부 스크롤(대화순위 패널과 동일 패턴) */
-        .ibh-aii-row .ibh-col > .ibh > .ibh-list{flex:1 1 auto;min-height:0;overflow-y:auto;scrollbar-width:thin;}
+        /* v2.96.0: 글 목록 max-height 로 행 전체 높이를 압축(주변 섹션·AI/대화순위와 높이 매치, 과도한 세로 늘어남 방지) */
+        .ibh-aii-row .ibh-col > .ibh > .ibh-list{flex:1 1 auto;min-height:0;max-height:240px;overflow-y:auto;scrollbar-width:thin;}
         .ibh-aii-row .ibh-col > .ibh > .ibh-foot{margin-top:auto;}
         .home-aii{display:flex;flex-direction:column;padding:16px 18px;border-radius:16px;background:linear-gradient(135deg,rgba(26,61,232,0.07),rgba(124,58,237,0.06));border:1px solid var(--border);min-height:260px;box-shadow:var(--sh-sm);}
         [data-theme="dark"] .home-aii{background:linear-gradient(135deg,rgba(26,61,232,0.14),rgba(124,58,237,0.10));border-color:rgba(99,102,241,0.28);}
