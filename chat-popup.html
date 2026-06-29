@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>💬 실시간 채팅 — InsureConnect</title>
+<link rel="icon" href="/logo.png">
+<style>
+  :root{
+    --bg:#ffffff; --bg-card:#f8fafc; --border:#e2e8f0;
+    --txt-hi:#0f172a; --txt-mid:#475569; --txt-lo:#94a3b8;
+    --blue-mid:#0d9488; --bot:#0f766e;
+  }
+  html[data-theme="dark"]{
+    --bg:#0b1220; --bg-card:#0f172a; --border:#1e2a44;
+    --txt-hi:#e2e8f0; --txt-mid:#94a3b8; --txt-lo:#64748b;
+    --blue-mid:#14b8a6; --bot:#2dd4bf;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;margin:0;}
+  body{display:flex;flex-direction:column;background:var(--bg);color:var(--txt-hi);
+    font-family:'Pretendard',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+    font-size:14px;-webkit-font-smoothing:antialiased;}
+  header{flex-shrink:0;display:flex;align-items:center;gap:8px;padding:10px 12px;
+    background:linear-gradient(135deg,#0d9488,#0ea5e9);color:#fff;}
+  header .ttl{font-weight:800;font-size:14px;flex:1;min-width:0;display:flex;align-items:center;gap:6px;}
+  header .dot{width:8px;height:8px;border-radius:50%;background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.3);}
+  header a.main-link{color:#fff;text-decoration:none;font-size:11.5px;font-weight:700;opacity:.92;border:1px solid rgba(255,255,255,.45);border-radius:8px;padding:4px 8px;white-space:nowrap;}
+  header button.snd{background:rgba(255,255,255,.18);border:none;color:#fff;border-radius:8px;padding:4px 8px;font-size:13px;cursor:pointer;}
+  #log{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:10px;}
+  .empty{color:var(--txt-lo);text-align:center;font-size:13px;margin:auto;padding:24px;line-height:1.6;}
+  .gate{margin:auto;text-align:center;padding:24px;}
+  .gate p{color:var(--txt-mid);font-size:13.5px;margin:0 0 14px;line-height:1.6;}
+  .gate a{display:inline-block;background:#FEE500;color:#191600;font-weight:800;padding:10px 18px;border-radius:10px;text-decoration:none;}
+  .msg{display:flex;gap:8px;align-items:flex-start;max-width:90%;}
+  .msg.mine{align-self:flex-end;flex-direction:row-reverse;}
+  .ava{width:28px;height:28px;border-radius:50%;background:var(--blue-mid);color:#fff;font-weight:800;font-size:12px;
+    display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .nick{font-size:11px;font-weight:800;color:var(--blue-mid);margin-bottom:2px;}
+  .msg.mine .nick{display:none;}
+  .bubble{background:var(--bg-card);border:1px solid var(--border);border-radius:12px;padding:7px 11px;}
+  .msg.mine .bubble{background:var(--blue-mid);border-color:var(--blue-mid);}
+  .body{font-size:13.5px;color:var(--txt-hi);line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+  .msg.mine .body{color:#fff;}
+  .body a{color:var(--blue-mid);text-decoration:underline;word-break:break-all;}
+  .msg.mine .body a{color:#fff;}
+  .time{font-size:10px;color:var(--txt-lo);margin-top:3px;}
+  .msg.bot .ava{background:var(--bot);}
+  .msg.bot .nick{color:var(--bot);}
+  .msg.bot .bubble{background:rgba(13,148,136,.10);border-color:rgba(13,148,136,.3);}
+  footer{flex-shrink:0;display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border);background:var(--bg);}
+  footer input{flex:1;min-width:0;font-family:inherit;font-size:14px;color:var(--txt-hi);background:var(--bg-card);
+    border:1.5px solid var(--border);border-radius:12px;padding:11px 13px;outline:none;}
+  footer input:focus{border-color:var(--blue-mid);}
+  footer button{background:var(--blue-mid);color:#fff;border:none;border-radius:12px;padding:0 18px;font-size:14px;font-weight:800;cursor:pointer;flex-shrink:0;}
+  .tip{flex-shrink:0;font-size:11px;color:var(--txt-lo);text-align:center;padding:0 12px 8px;}
+</style>
+</head>
+<body>
+  <header>
+    <span class="ttl"><span class="dot"></span>실시간 채팅</span>
+    <button class="snd" id="snd-btn" type="button" title="알림음 켜기/끄기">🔊</button>
+    <a class="main-link" href="/" target="_blank" rel="noopener">↗ 메인</a>
+  </header>
+  <div id="log"><div class="empty">불러오는 중…</div></div>
+  <footer id="bar">
+    <input id="inp" maxlength="500" placeholder="메시지 입력하기…" autocomplete="off">
+    <button id="send" type="button">전송</button>
+  </footer>
+  <div class="tip">전산창을 내려도 이 창에서 실시간으로 대화할 수 있어요 💬</div>
+
+<script>
+(function(){
+  'use strict';
+  // 테마 동기화(메인 앱과 동일 localStorage 'ic-theme')
+  try{
+    var th=localStorage.getItem('ic-theme')||'system';
+    var dark = th==='dark' || (th==='system' && window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches);
+    if(dark) document.documentElement.setAttribute('data-theme','dark');
+  }catch(_){}
+
+  var log=document.getElementById('log');
+  var inp=document.getElementById('inp');
+  var sendBtn=document.getElementById('send');
+  var sndBtn=document.getElementById('snd-btn');
+  var last=0, me=null, init=false, unread=0;
+
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]);}); }
+  function linkify(e){ return String(e).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'); }
+  function fmtTime(s){ try{ var d=new Date(String(s).replace(' ','T')+'Z'); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }catch(_){ return ''; } }
+
+  // ── 알림음 (메인 앱 'ic-chat-sound' 설정 공유) ──
+  var ac=null;
+  function unlock(){ try{ if(!ac){ var AC=window.AudioContext||window.webkitAudioContext; if(!AC)return; ac=new AC(); } if(ac.state==='suspended') ac.resume(); }catch(_){} }
+  ['pointerdown','keydown','touchstart'].forEach(function(ev){ window.addEventListener(ev,unlock,{passive:true}); });
+  function soundOn(){ try{ return localStorage.getItem('ic-chat-sound')!=='0'; }catch(_){ return true; } }
+  function refreshSndBtn(){ sndBtn.textContent = soundOn()?'🔊':'🔇'; }
+  function beep(){
+    if(!soundOn()) return; unlock(); if(!ac||ac.state!=='running') return;
+    try{
+      var t=ac.currentTime+0.01;
+      [[880,0.12],[1175,0.16]].forEach(function(p,i){
+        var g=ac.createGain(); g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.5,t+0.01); g.gain.exponentialRampToValueAtTime(0.0001,t+p[1]); g.connect(ac.destination);
+        var o=ac.createOscillator(); o.type='triangle'; o.frequency.value=p[0]; o.connect(g); o.start(t); o.stop(t+p[1]+0.02); t+=p[1]+0.02;
+      });
+    }catch(_){}
+  }
+  sndBtn.addEventListener('click',function(){ try{ localStorage.setItem('ic-chat-sound', soundOn()?'0':'1'); }catch(_){} refreshSndBtn(); if(soundOn()){ unlock(); beep(); } });
+  refreshSndBtn();
+
+  function showGate(){
+    log.innerHTML='<div class="gate"><p>로그인하면 실시간 채팅에<br>참여할 수 있어요.</p><a href="/api/auth/kakao/login">💬 카카오로 시작</a></div>';
+    document.getElementById('bar').style.display='none';
+  }
+
+  function append(msgs){
+    var atBottom = log.scrollHeight-log.scrollTop-log.clientHeight < 90;
+    var gotOther=false;
+    msgs.forEach(function(m){
+      if(m.id<=last) return; last=m.id;
+      var mine = me!=null && m.member_id===me;
+      var isBot = m.member_id===0;
+      if(!mine && init) gotOther=true;
+      var ini = isBot ? '🤖' : String(m.nickname||'회').slice(0,1);
+      var el=document.createElement('div'); el.className='msg'+(mine?' mine':'')+(isBot?' bot':'');
+      el.innerHTML=(mine?'':'<span class="ava">'+esc(ini)+'</span>')+'<div><div class="nick">'+esc(m.nickname||'회원')+'</div><div class="bubble"><div class="body">'+linkify(esc(m.body))+'</div></div><div class="time">'+fmtTime(m.created_at)+'</div></div>';
+      log.appendChild(el);
+    });
+    if(atBottom) log.scrollTop=log.scrollHeight;
+    if(gotOther){
+      beep();
+      if(document.hidden){ unread++; document.title='('+unread+') 💬 실시간 채팅'; }
+    }
+  }
+
+  async function fetchMsgs(){
+    try{
+      var r=await fetch('/api/chat'+(last?('?since='+last):''),{credentials:'same-origin'});
+      if(r.status===401){ showGate(); return; }
+      var d=await r.json(); if(!d||!d.ok) return;
+      me=d.me;
+      if(!init && (!d.messages||!d.messages.length)){ log.innerHTML='<div class="empty">아직 메시지가 없어요.<br>첫 인사를 남겨보세요 👋</div>'; }
+      if(d.messages&&d.messages.length){ var em=log.querySelector('.empty'); if(em) em.remove(); append(d.messages); }
+      init=true;
+    }catch(_){}
+  }
+
+  async function send(){
+    var body=inp.value.trim(); if(!body) return;
+    inp.value='';
+    try{
+      var r=await fetch('/api/chat',{method:'POST',credentials:'same-origin',headers:{'Content-Type':'application/json'},body:JSON.stringify({body:body})});
+      if(r.status===401){ inp.value=body; showGate(); return; }
+      if(r.status===429){ inp.value=body; return; }
+      fetchMsgs();
+    }catch(_){ inp.value=body; }
+  }
+
+  sendBtn.addEventListener('click',send);
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); send(); } });
+  window.addEventListener('focus',function(){ unread=0; document.title='💬 실시간 채팅 — InsureConnect'; });
+
+  fetchMsgs();
+  setInterval(fetchMsgs, 2500); // 팝업은 항상 폴링(전산창 내려도 실시간 유지)
+})();
+</script>
+</body>
+</html>
