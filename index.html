@@ -13023,15 +13023,20 @@
       }catch(_){}
 
       /* ── 포그라운드 경량 폴링: 신규 1:1문의/라운지 감지 → 큰 소리 + 토스트 ──
+         라운지(공개)는 "전산창을 열고 있는 모두"에게(비로그인 방문자 포함) → 홍보·유입.
+         1:1 문의(사적)는 로그인 수신자 본인에게만.
          _baselined: 첫 폴(또는 탭 복귀 silent 재동기)에서는 현재 최신 id만 기준선으로 잡고 알림 안 함.
          그 이후 id 증가분만 알림 → 세션 시작 전/백그라운드 중 메시지(웹푸시가 이미 알림)는 중복 소리 방지. */
       var _dmSeen=0, _loungeSeen=0, _me=null, _timer=null, _started=false, _baselined=false;
+      var _loungeLastAlertAt=0, _loungeLanded=false;
+      function _isRecent(ts, ms){ try{ var d=new Date(String(ts).replace(' ','T')+'Z'); return !isNaN(d) && (Date.now()-d.getTime() < (ms||600000)); }catch(_){ return false; } }
       async function _poll(silent){
         try{
           var r=await fetch('/api/chat/notify',{credentials:'same-origin'});
-          if(r.status===401){ _stop(); return; }
+          if(!r.ok) return; // 비로그인도 200(공개 라운지) — 401 정지 없음
           var d=await r.json(); if(!d||!d.ok) return; _me=d.me;
           var baseMode = !_baselined || silent;
+          // 1:1 문의 (로그인 시에만 d.dm 존재)
           if(d.dm&&d.dm.id){
             if(baseMode){ if(d.dm.id>_dmSeen) _dmSeen=d.dm.id; }
             else if(d.dm.id>_dmSeen){ _dmSeen=d.dm.id;
@@ -13041,12 +13046,24 @@
               }
             }
           }
+          // 라운지 (전체 방문자)
           if(d.lounge&&d.lounge.id){
-            if(baseMode){ if(d.lounge.id>_loungeSeen) _loungeSeen=d.lounge.id; }
-            else if(d.lounge.id>_loungeSeen){ _loungeSeen=d.lounge.id;
+            if(baseMode){
+              if(d.lounge.id>_loungeSeen) _loungeSeen=d.lounge.id;
+              // 진입 시 '지금 대화 중'이면 1회 유입 토스트(소리 없이 — 자동재생 정책/방해 최소화)
+              if(!_loungeLanded && d.lounge.member_id!==_me && !window._icOnChatPage && _isRecent(d.lounge.created_at)){
+                _loungeLanded=true;
+                _toast('🔴','지금 실시간 채팅 중!', (d.lounge.nickname?d.lounge.nickname+'님: ':'')+(d.lounge.body||''), function(){ if(window.goToPage) goToPage('chat'); });
+              }
+            } else if(d.lounge.id>_loungeSeen){
+              _loungeSeen=d.lounge.id;
               if(d.lounge.member_id!==_me && !window._icOnChatPage){
-                playAlertSound();
-                _toast('💬','실시간 채팅', (d.lounge.nickname?d.lounge.nickname+'님: ':'')+(d.lounge.body||''), function(){ if(window.goToPage) goToPage('chat'); });
+                // 소리는 최대 60초 1회로 제한(활성 대화 시 도배 방지), 토스트도 함께
+                var now=Date.now();
+                if(now-_loungeLastAlertAt > 60000){ _loungeLastAlertAt=now;
+                  playAlertSound();
+                  _toast('💬','실시간 채팅', (d.lounge.nickname?d.lounge.nickname+'님: ':'')+(d.lounge.body||''), function(){ if(window.goToPage) goToPage('chat'); });
+                }
               }
             }
           }
