@@ -84,7 +84,7 @@
   var inp=document.getElementById('inp');
   var sendBtn=document.getElementById('send');
   var sndBtn=document.getElementById('snd-btn');
-  var last=0, me=null, init=false, unread=0;
+  var last=0, me=null, init=false, unread=0, timer=null, stopped=false;
 
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(m){return({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]);}); }
   function linkify(e){ return String(e).replace(/(https?:\/\/[^\s<]+)/g,'<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'); }
@@ -113,6 +113,11 @@
     log.innerHTML='<div class="gate"><p>로그인하면 실시간 채팅에<br>참여할 수 있어요.</p><a href="/api/auth/kakao/login">💬 카카오로 시작</a></div>';
     document.getElementById('bar').style.display='none';
   }
+  function showComingSoon(){
+    stopped=true; if(timer){ clearInterval(timer); timer=null; }
+    log.innerHTML='<div class="empty">🚧 <b style="font-size:15px;">실시간 채팅 오픈 예정</b><br><br>더 나은 실시간 소통을 위해 준비 중이에요.<br>조금만 기다려 주세요 — 곧 만나요! 🙌</div>';
+    document.getElementById('bar').style.display='none';
+  }
 
   function append(msgs){
     var atBottom = log.scrollHeight-log.scrollTop-log.clientHeight < 90;
@@ -135,10 +140,13 @@
   }
 
   async function fetchMsgs(){
+    if(stopped) return;
     try{
       var r=await fetch('/api/chat'+(last?('?since='+last):''),{credentials:'same-origin'});
       if(r.status===401){ showGate(); return; }
-      var d=await r.json(); if(!d||!d.ok) return;
+      var d=await r.json();
+      if(d&&d.coming_soon){ showComingSoon(); return; } // v2.102.0: 오픈 예정 — 차단
+      if(!d||!d.ok) return;
       me=d.me;
       if(!init && (!d.messages||!d.messages.length)){ log.innerHTML='<div class="empty">아직 메시지가 없어요.<br>첫 인사를 남겨보세요 👋</div>'; }
       if(d.messages&&d.messages.length){ var em=log.querySelector('.empty'); if(em) em.remove(); append(d.messages); }
@@ -162,7 +170,7 @@
   window.addEventListener('focus',function(){ unread=0; document.title='💬 실시간 채팅 — InsureConnect'; });
 
   fetchMsgs();
-  setInterval(fetchMsgs, 2500); // 팝업은 항상 폴링(전산창 내려도 실시간 유지)
+  timer=setInterval(fetchMsgs, 2500); // 팝업은 항상 폴링(전산창 내려도 실시간 유지)
 })();
 </script>
 </body>

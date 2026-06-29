@@ -7986,7 +7986,7 @@
     <div class="side-account" data-tour="account">
       <div id="ic-auth"></div>
       <div class="side-quick2">
-        <button type="button" class="menu-pill" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat');">실시간 채팅</button>
+        <button type="button" class="menu-pill" data-chat-pill="1" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat');">실시간 채팅</button>
         <button type="button" class="menu-pill" data-tour="clients" onclick="trackCardClick('로그인정보','내고객'); goToPage('clients');">내 고객 · 만기관리</button>
         <button type="button" class="menu-pill" onclick="window._covClient=null; trackCardClick('로그인정보','보장분석'); goToPage('coverage');">보장 분석 · 리모델링</button>
         <button type="button" class="menu-pill is-cta" onclick="openSubmitModal()">내 공고 직접 등록</button>
@@ -8084,7 +8084,7 @@
         🔊 채팅 알림음 켜짐
       </button>
       <!-- v2.101.0: 실시간채팅 팝업 — 전산창을 내려도 별도 창에서 실시간 이용 -->
-      <button class="side-footer-link" type="button" onclick="openChatPopup()">
+      <button class="side-footer-link" id="chat-popup-btn-side" type="button" onclick="openChatPopup()">
         ⧉ 실시간채팅 팝업
       </button>
       <a class="side-footer-link"
@@ -8691,7 +8691,7 @@
     <!-- v2.8.27: 모바일 로그인 계정 카드 (PC 사이드바 계정 카드 이식 — 로그인 시에만 표시) -->
     <div class="m-account-card" id="m-account-card" style="display:none;" data-tour="account">
       <div id="ic-auth-m"></div>
-      <button type="button" class="menu-pill" style="width:100%;margin:0 0 9px;" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat')">실시간 채팅</button>
+      <button type="button" class="menu-pill" data-chat-pill="1" style="width:100%;margin:0 0 9px;" onclick="trackCardClick('로그인정보','실시간채팅'); goToPage('chat')">실시간 채팅</button>
       <!-- v2.12.2: 앱공유 · 운영자문의 · 파트너전용 (3열) — 내공고등록은 로그인정보 버튼줄로 이동 -->
       <div class="m-acc-util3">
         <button type="button" class="m-acc-util" onclick="shareApp()"><span>🔗</span>앱 공유</button>
@@ -9559,7 +9559,7 @@
       <div class="chat-title">💬 실시간 채팅 <span class="chat-on">●</span></div>
       <div class="chat-sub">설계사 동료들과 실시간으로 소통하세요 (전체 라운지). 매너를 지켜주세요 🙏</div>
       <button type="button" class="chat-dm-btn" onclick="openDmRooms()">📩 내 문의함</button>
-      <button type="button" class="chat-dm-btn" onclick="openChatPopup()" title="별도 작은 창으로 띄워 전산창을 내려도 실시간으로 이용하세요">⧉ 팝업으로 열기</button>
+      <button type="button" class="chat-dm-btn" id="chat-popup-btn-head" onclick="openChatPopup()" title="별도 작은 창으로 띄워 전산창을 내려도 실시간으로 이용하세요">⧉ 팝업으로 열기</button>
     </div>
     <div class="chat-gate" id="chat-gate" style="display:none">
       <p>로그인하면 실시간 채팅에 참여할 수 있어요.</p>
@@ -12841,11 +12841,22 @@
         _chatInit=true;
       }catch(_){}
     }
+    /* v2.102.0: 실시간 채팅(전체 라운지) 오픈 여부. 오픈 시 true 로 변경(+서버 functions/_lib/flags.js). */
+    var LOUNGE_OPEN = false;
     function chatEnter(){
       window._icOnChatPage=true; // v2.99.0: 라운지 보는 중 → 글로벌 알림음 억제
       var g=document.getElementById('chat-gate'); if(g)g.style.display='none';
-      var log=document.getElementById('chat-log'); if(log){ log.style.display=''; if(!_chatInit) log.innerHTML='<div class="chat-empty">불러오는 중…</div>'; }
-      var bb=document.getElementById('chat-input-bar'); if(bb)bb.style.display='';
+      var bb=document.getElementById('chat-input-bar');
+      var log=document.getElementById('chat-log');
+      var hb=document.getElementById('chat-popup-btn-head'); if(hb) hb.style.display = LOUNGE_OPEN ? '' : 'none';
+      if(!LOUNGE_OPEN){ // 오픈 예정 — 안내만 표시하고 차단
+        if(bb) bb.style.display='none';
+        if(log){ log.style.display=''; log.innerHTML='<div class="chat-empty" style="padding:48px 18px;line-height:1.7;">🚧 <b style="font-size:15px;">실시간 채팅 오픈 예정</b><br><br>더 나은 실시간 소통을 위해 준비 중이에요.<br>조금만 기다려 주세요 — 곧 만나요! 🙌</div>'; }
+        chatStop();
+        return;
+      }
+      if(log){ log.style.display=''; if(!_chatInit) log.innerHTML='<div class="chat-empty">불러오는 중…</div>'; }
+      if(bb)bb.style.display='';
       _chatFetch();
       chatStop(); _chatTimer=setInterval(function(){ if(document.visibilityState!=='hidden') _chatFetch(); }, 2500);
     }
@@ -12864,6 +12875,7 @@
 
     /* v2.101.0: 실시간채팅 팝업창 — 전산창을 내려도 별도 작은 창에서 실시간 이용 */
     function openChatPopup(){
+      if(!LOUNGE_OPEN){ alert('실시간 채팅은 오픈 예정입니다. 조금만 기다려 주세요 🙌'); return; }
       var w=420, h=640;
       var sw=window.screen&&window.screen.width||1280, sh=window.screen&&window.screen.height||800;
       var left=Math.max(20, sw-w-40), top=Math.max(20, Math.round((sh-h)/3));
@@ -12873,6 +12885,18 @@
       else { alert('팝업이 차단되었어요. 주소창의 팝업 차단을 허용한 뒤 다시 시도해주세요.'); }
     }
     window.openChatPopup=openChatPopup;
+    /* v2.102.0: 오픈 예정이면 '실시간 채팅' 메뉴칩에 배지 + 팝업 버튼 숨김 */
+    document.addEventListener('DOMContentLoaded', function(){
+      if(LOUNGE_OPEN) return;
+      document.querySelectorAll('[data-chat-pill]').forEach(function(b){
+        if(b.querySelector('.pill-soon')) return;
+        var s=document.createElement('span'); s.className='pill-soon'; s.textContent='오픈예정';
+        s.style.cssText='margin-left:6px;font-size:9.5px;font-weight:800;background:#f59e0b;color:#fff;border-radius:6px;padding:1px 5px;vertical-align:middle;';
+        b.appendChild(s);
+      });
+      var sb=document.getElementById('chat-popup-btn-side'); if(sb) sb.style.display='none';
+      var hb=document.getElementById('chat-popup-btn-head'); if(hb) hb.style.display='none';
+    });
 
     /* ── v2.61.0: 1:1 공고 문의 채팅방 (폴링 · 접근통제는 서버) ── */
     var _dmTimer=null, _dmLast=0, _dmMe=null, _dmCtx=null, _dmFromList=false, _dmRooms=[];
