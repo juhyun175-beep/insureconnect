@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.99.0] - 2026-06-29
+### Added (실시간 채팅·1:1 문의 알림 — 앱 창이 내려가 있어도 큰 소리로 알림)
+- **배경**: 실시간 채팅(전체 라운지)·공고 1:1 문의는 직접 열어보지 않으면 새 대화가 왔는지 알 수 없었음. 누군가 대화를 시작하면 **자동 알림**이 가도록(앱 창이 최소화/종료 상태여도) + **굉장히 큰 알림음**으로 인지하도록 추가.
+- **백그라운드(창 내림/종료) — 웹푸시**: 기존 PWA 웹푸시 인프라 재사용(신규 의존성 0).
+  - `functions/api/chat/dm.js` POST → 메시지 수신자(상대방)에게 `sendPushToMember` 발송. 문의자→주최자는 「📩 새 1:1 문의」, 주최자→문의자는 「💬 문의 답변」. `requireInteraction`+강한 진동, 클릭 시 `/?dm=<room_id>`로 해당 방 자동 오픈.
+  - `functions/api/chat/index.js` POST(라운지) → **대화 시작 시에만**(직전 10분간 메시지 없을 때) 구독자 전원에게 브로드캐스트(보낸 사람 제외). 진행 중 대화는 재발송 안 함(도배 방지). 클릭 시 `/?chat=lounge`.
+  - `functions/_lib/push.js`: `sendPushToAllMembers(env, payload, {excludeMemberId})` 신설.
+- **포그라운드(앱 떠 있음) — 큰 소리 + 토스트**: `functions/api/chat/notify.js` 경량 폴링 엔드포인트(내게 온 마지막 수신 문의·마지막 라운지 메시지의 id/요약). index.html에서 15초 폴링으로 신규 감지 → **WebAudio 3회 상승 차임(최대 음량)** + 우상단 토스트 + 진동. 지금 보고 있는 대화(열린 문의방·라운지 페이지)는 중복 알림 억제, 탭 복귀 시엔 기준선만 재동기(웹푸시와 중복 소리 방지).
+- **알림음 토글**: 사이드바에 「🔊 채팅 알림음」 on/off 버튼(`localStorage 'ic-chat-sound'`, 기본 켜짐). 구독 없이도 앱이 떠 있으면 동작.
+- **sw.js**: 채팅/문의 알림은 진동 강화·`requireInteraction` 적용, 푸시 수신 시 열린 탭에 `postMessage('ic-push')` 전달 → 탭이 떠 있으면 시스템 알림음과 별개로 자체 알람음까지 재생.
+- 추가형 — 기존 채팅/문의 송수신 로직 무수정(발송 경로만 비차단 `waitUntil`로 부가).
+### Verified
+- 변경 `functions/*.js` 5종 + `sw.js` `node --check` 0 errors · index.html 인라인 `<script>` 29블록 `node --check` 0 errors · 보안스캔 HIGH 0(REVIEW 50, 전부 기존 화이트리스트 식별자 보간)
+
 ## [2.98.4] - 2026-06-23
 ### Fixed (삼따AI 근거사례 펼침 시 옆 칼럼까지 늘어나던 버그)
 - v2.98.3에서 답변 영역(`.aii-out`) 높이 제한을 풀어(`max-height:none`) 빈 공간을 채우게 했더니, 근거사례를 펼치면 답변 영역이 커지고 grid `align-items:stretch` 탓에 **옆 칼럼(자유게시판·대화순위)까지 함께 늘어나는 버그** 발생.

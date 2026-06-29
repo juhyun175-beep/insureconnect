@@ -1,7 +1,7 @@
-/* v2.1.43: PWA Push 알림 전용 Service Worker
+/* v2.99.0: PWA Push 알림 전용 Service Worker
    - 캐시·fetch 가로채기 일절 없음 (옛 PWA 사고 방지)
    - install / activate: 즉시 활성화
-   - push: 서버에서 보낸 알림 표시
+   - push: 서버에서 보낸 알림 표시 (+채팅/문의는 진동 강화·열린 탭에 큰소리 신호 전달)
    - notificationclick: 지정 URL 열거나 기존 탭 포커스 */
 
 self.addEventListener('install', () => self.skipWaiting());
@@ -25,6 +25,8 @@ self.addEventListener('push', (event) => {
   }
 
   const title = data.title || 'InsureConnect';
+  // v2.99.0: 채팅(라운지)·1:1문의는 더 강한 진동 + 사용자 확인까지 유지
+  const isChat = data.type === 'dm' || data.type === 'lounge';
   const options = {
     body: data.body || '새 콘텐츠가 등록되었습니다',
     icon: data.icon || '/logo.png',
@@ -37,15 +39,24 @@ self.addEventListener('push', (event) => {
     },
     tag: data.tag || 'ic-general',
     renotify: data.renotify !== false,
-    requireInteraction: data.requireInteraction || false,
+    requireInteraction: data.requireInteraction || isChat,
     silent: false,
-    vibrate: data.vibrate || [120, 60, 120],
+    vibrate: data.vibrate || (isChat ? [220, 100, 220, 100, 280] : [120, 60, 120]),
     actions: data.actions || [
       { action: 'open', title: '확인하기' }
     ],
   };
 
-  event.waitUntil(self.registration.showNotification(title, options));
+  event.waitUntil((async () => {
+    await self.registration.showNotification(title, options);
+    // v2.99.0: 열려있는 탭이 있으면 알림을 전달 → 페이지에서 '굉장히 큰 소리'로 재생(시스템 알림음 + 자체 알람음)
+    try {
+      const cs = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const c of cs) {
+        c.postMessage({ type: 'ic-push', payload: { title, body: options.body, url: options.data.url, kind: options.data.type } });
+      }
+    } catch (_) {}
+  })());
 });
 
 /* 알림 클릭 — 지정 URL 열거나 기존 탭 포커스 */
