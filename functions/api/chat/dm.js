@@ -10,6 +10,7 @@
  */
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
+import { sendPushToMember } from '../../_lib/push.js';
 
 const POST_TABLES = { recruit: 'ic_recruitments', lecture: 'ic_lectures', meetup: 'ic_meetings' };
 
@@ -137,7 +138,8 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   });
 });
 
-export const onRequestPost = async ({ request, env }) => handle(async () => {
+export const onRequestPost = async (context) => handle(async () => {
+  const { request, env } = context;
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
   await ensureTable(env);
@@ -156,5 +158,23 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     `INSERT INTO ic_dm_messages (room_id, ad_type, ad_id, inquirer_id, owner_id, sender_id, sender_nick, ad_title, body)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(r.room_id, r.ad_type, r.ad_id, r.inquirer_id, r.owner_id, user.id, String(nick).slice(0, 40), String(r.title).slice(0, 120), body).run();
+
+  // v2.99.0: 상대방(수신자)에게 웹푸시 — 앱 창이 내려가 있어도 알림. 응답 지연 없이 백그라운드.
+  const recipientId = user.id === r.owner_id ? r.inquirer_id : r.owner_id;
+  const senderIsInquirer = user.id === r.inquirer_id;
+  const preview = body.slice(0, 60);
+  const titleClip = String(r.title || '공고').slice(0, 30);
+  const notifyRecipient = () => sendPushToMember(env, recipientId, {
+    title: senderIsInquirer ? '📩 새 1:1 문의가 도착했어요' : '💬 문의 답변이 도착했어요',
+    body: `${String(nick).slice(0, 20)}님: ${preview}` + (senderIsInquirer ? `\n「${titleClip}」 공고` : ''),
+    url: `/?dm=${encodeURIComponent(r.room_id)}`,
+    tag: 'ic-dm-' + r.room_id,
+    type: 'dm',
+    requireInteraction: true,
+    renotify: true,
+    vibrate: [220, 100, 220, 100, 280],
+  }).catch(() => {});
+  if (context.waitUntil) context.waitUntil(notifyRecipient()); else await notifyRecipient();
+
   return json({ ok: true, id: ins.meta?.last_row_id, room_id: r.room_id });
 });

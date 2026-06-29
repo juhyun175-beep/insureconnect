@@ -8071,6 +8071,11 @@
               style="display:none" onclick="togglePushSubscription()">
         🔔 새 공고 알림 받기
       </button>
+      <!-- v2.99.0: 채팅·1:1문의 알림음 토글 (구독 없이도 앱이 떠 있으면 큰소리 알림) -->
+      <button class="side-footer-link" id="chat-sound-btn" type="button"
+              onclick="toggleChatSound()">
+        🔊 채팅 알림음 켜짐
+      </button>
       <a class="side-footer-link"
          href="admin.html"
          onclick="trackClick('파트너 전용페이지','sidebar-footer')"
@@ -10312,12 +10317,31 @@
       }
     }
     window.togglePushSubscription = togglePushSubscription;
+
+    // v2.99.0: 채팅·1:1문의 알림음 on/off (localStorage 'ic-chat-sound', 기본 켜짐)
+    function _refreshChatSoundBtn() {
+      const b = document.getElementById('chat-sound-btn');
+      if (!b) return;
+      const on = localStorage.getItem('ic-chat-sound') !== '0';
+      b.textContent = on ? '🔊 채팅 알림음 켜짐' : '🔇 채팅 알림음 꺼짐';
+    }
+    function toggleChatSound() {
+      const on = localStorage.getItem('ic-chat-sound') !== '0';
+      localStorage.setItem('ic-chat-sound', on ? '0' : '1');
+      _refreshChatSoundBtn();
+      if (on === false) { // 방금 켰으면 테스트 재생
+        try { if (typeof window.playAlertSound === 'function') window.playAlertSound(true); } catch (_) {}
+      }
+    }
+    window.toggleChatSound = toggleChatSound;
+
     // sw.js 등록 + 버튼 초기화
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', () => {
         setTimeout(() => _initPushToggle().catch(() => {}), 1500);
       });
     }
+    document.addEventListener('DOMContentLoaded', _refreshChatSoundBtn);
 
     function setTheme(val) {
       localStorage.setItem('ic-theme', val);
@@ -11528,13 +11552,23 @@
       };
       setTimeout(() => tryOpen(20), 300);
     }
+    /* v2.99.0: 알림 클릭 진입 — ?chat=lounge → 실시간채팅, ?dm=<room_id|rooms> → 1:1 문의 */
+    function openChatFromURL() {
+      const qs = new URLSearchParams(location.search);
+      if (qs.get('chat') === 'lounge') { if (typeof goToPage === 'function') goToPage('chat'); return; }
+      const dm = qs.get('dm');
+      if (!dm) return;
+      if (dm === 'rooms' || dm === '1') { if (typeof openDmRooms === 'function') setTimeout(openDmRooms, 500); }
+      else if (typeof openDMRoom === 'function') { setTimeout(() => openDMRoom(dm, '1:1 문의'), 500); }
+    }
     // 페이지 로드 시 실행
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); openMeetupFromURL(); });
+      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); openMeetupFromURL(); openChatFromURL(); });
     } else {
       openRecruitFromURL();
       openLectureFromURL();
       openMeetupFromURL();
+      openChatFromURL();
     }
 
     function openRecruitViewer(idx) {
@@ -12793,13 +12827,14 @@
       }catch(_){}
     }
     function chatEnter(){
+      window._icOnChatPage=true; // v2.99.0: 라운지 보는 중 → 글로벌 알림음 억제
       var g=document.getElementById('chat-gate'); if(g)g.style.display='none';
       var log=document.getElementById('chat-log'); if(log){ log.style.display=''; if(!_chatInit) log.innerHTML='<div class="chat-empty">불러오는 중…</div>'; }
       var bb=document.getElementById('chat-input-bar'); if(bb)bb.style.display='';
       _chatFetch();
       chatStop(); _chatTimer=setInterval(function(){ if(document.visibilityState!=='hidden') _chatFetch(); }, 2500);
     }
-    function chatStop(){ if(_chatTimer){ clearInterval(_chatTimer); _chatTimer=null; } }
+    function chatStop(){ window._icOnChatPage=false; if(_chatTimer){ clearInterval(_chatTimer); _chatTimer=null; } }
     async function chatSend(){
       var inp=document.getElementById('chat-input'); if(!inp) return; var body=inp.value.trim(); if(!body) return;
       inp.value='';
@@ -12817,12 +12852,13 @@
     function _dmTime(s){ return _chatTime(s); }
     function _dmStop(){ if(_dmTimer){ clearInterval(_dmTimer); _dmTimer=null; } }
     function _dmShowModal(){ var m=document.getElementById('dm-modal'); if(m)m.style.display=''; document.body.style.overflow='hidden'; }
-    function closeDM(){ _dmStop(); var m=document.getElementById('dm-modal'); if(m)m.style.display='none'; document.body.style.overflow=''; _dmCtx=null; }
+    function closeDM(){ _dmStop(); var m=document.getElementById('dm-modal'); if(m)m.style.display='none'; document.body.style.overflow=''; _dmCtx=null; window._icActiveDmRoom=null; }
     function dmBack(){ if(_dmFromList) openDmRooms(); else closeDM(); }
 
     /* 방 목록 렌더(공용) — 전체 내 문의함 / 주최자의 공고별 받은문의 둘 다 사용 */
     function _dmShowRoomList(rooms, headTitle, emptyHtml){
       _dmStop();
+      window._icActiveDmRoom=null; // v2.99.0: 목록 화면 — 특정 방 보는 중 아님
       document.getElementById('dm-thread').style.display='none';
       document.getElementById('dm-list').style.display='';
       document.getElementById('dm-head-title').textContent=headTitle;
@@ -12859,6 +12895,7 @@
 
     function _dmOpenThread(ctx, title, fromList){
       _dmShowModal(); _dmStop(); _dmLast=0; _dmCtx=ctx; _dmFromList=fromList;
+      window._icActiveDmRoom=(ctx&&ctx.room_id)||null; // v2.99.0: 이 방 보는 중 → 해당 방 알림음 억제(방번호 미정이면 _dmFetch에서 세팅)
       document.getElementById('dm-list').style.display='none';
       document.getElementById('dm-thread').style.display='';
       document.getElementById('dm-back').style.display = fromList ? '' : 'none';
@@ -12881,6 +12918,7 @@
         // v2.66.0: 내가 그 공고의 주최자 → 이 공고에 들어온 문의 목록을 보여줌(답변 대상 선택)
         if(first && d.is_owner){ _dmFromList=false; document.getElementById('dm-back').style.display='none';
           _dmShowRoomList(d.rooms||[], '📩 받은 문의'+(d.title?' · '+d.title:''), '아직 이 공고에 들어온 문의가 없어요.<br>문의가 오면 여기에서 답장할 수 있어요.'); return; }
+        if(d.room_id) window._icActiveDmRoom=d.room_id; // v2.99.0: 실제 열린 방 확정 → 이 방 알림음 억제
         if(first && d.title){ document.getElementById('dm-head-title').textContent='💬 '+d.title; }
         if(first){ log.innerHTML=''; if(!d.messages||!d.messages.length){ log.innerHTML='<div class="dm-empty">첫 메시지를 보내보세요 👋</div>'; } }
         if(d.messages&&d.messages.length){ if(log.querySelector('.dm-empty')) log.innerHTML=''; _dmAppend(d.messages); }
@@ -12913,6 +12951,132 @@
       }catch(_){ inp.value=body; }
     }
     window.openDM=openDM; window.openDMRoom=openDMRoom; window.openDmRooms=openDmRooms; window.openDmRoomIdx=openDmRoomIdx; window.closeDM=closeDM; window.dmSend=dmSend; window.dmBack=dmBack;
+
+    /* ══════════ v2.99.0: 채팅·1:1문의 실시간 알림 (큰 소리 + 토스트 + 백그라운드 웹푸시) ══════════
+       - 백그라운드(앱 창 내림/종료): 서버 웹푸시 → sw.js 가 시스템 알림 표시(+진동).
+       - 포그라운드(앱 떠 있음): 경량 폴링(/api/chat/notify)으로 신규 감지 → 굉장히 큰 알림음 + 토스트.
+       - 지금 보고 있는 대화(라운지 페이지/열린 문의방)는 중복 알림 억제. */
+    (function(){
+      /* ── 알림음 엔진 (WebAudio · 외부 음원 0) ── */
+      var _ac=null, _acOK=false;
+      function _unlock(){ try{ if(!_ac){ var AC=window.AudioContext||window.webkitAudioContext; if(!AC) return; _ac=new AC(); } if(_ac.state==='suspended') _ac.resume(); _acOK=true; }catch(_){} }
+      ['pointerdown','keydown','touchstart','click'].forEach(function(ev){ window.addEventListener(ev,_unlock,{passive:true}); });
+      function _soundOn(){ return localStorage.getItem('ic-chat-sound')!=='0'; }
+      function _beep(t0,freq,dur,peak){
+        var g=_ac.createGain();
+        g.gain.setValueAtTime(0.0001,t0);
+        g.gain.exponentialRampToValueAtTime(peak,t0+0.012);
+        g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+        g.connect(_ac.destination);
+        [0,4].forEach(function(dt){ var o=_ac.createOscillator(); o.type='triangle'; o.frequency.value=freq; o.detune.value=dt; o.connect(g); o.start(t0); o.stop(t0+dur+0.03); });
+      }
+      // force=true → 토글 테스트용(음소거여도 1회 재생)
+      function playAlertSound(force){
+        if(!force && !_soundOn()) return;
+        try{ if(navigator.vibrate) navigator.vibrate([220,90,220,90,280]); }catch(_){}
+        _unlock();
+        var ctx=_ac; if(!ctx||ctx.state!=='running') return;
+        var t=ctx.currentTime+0.02;
+        for(var i=0;i<3;i++){ _beep(t,988,0.16,0.72); t+=0.17; _beep(t,1319,0.20,0.78); t+=0.27; } // 3회 상승 차임 — 크고 분명하게
+      }
+      window.playAlertSound=playAlertSound;
+
+      /* ── 인앱 토스트 ── */
+      function _toastCSS(){
+        if(document.getElementById('ic-toast-css')) return;
+        var s=document.createElement('style'); s.id='ic-toast-css';
+        s.textContent='#ic-toast-wrap{position:fixed;z-index:99999;top:16px;right:16px;display:flex;flex-direction:column;gap:10px;max-width:340px;pointer-events:none}'
+          +'.ic-toast{pointer-events:auto;display:flex;gap:10px;align-items:flex-start;background:#0f172a;color:#fff;border:1px solid #134e4a;border-left:4px solid #14b8a6;border-radius:12px;padding:12px 12px 12px 14px;box-shadow:0 12px 30px rgba(0,0,0,.35);cursor:pointer;transform:translateX(120%);opacity:0;transition:transform .32s cubic-bezier(.2,.9,.3,1),opacity .32s}'
+          +'.ic-toast.show{transform:translateX(0);opacity:1}'
+          +'.ic-toast-emoji{font-size:22px;line-height:1.2}'
+          +'.ic-toast-tx{flex:1;min-width:0}'
+          +'.ic-toast-title{font-weight:800;font-size:14px;margin-bottom:2px}'
+          +'.ic-toast-body{font-size:13px;color:#cbd5e1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}'
+          +'.ic-toast-x{background:none;border:none;color:#94a3b8;font-size:18px;line-height:1;cursor:pointer;padding:0 2px}'
+          +'@media(max-width:560px){#ic-toast-wrap{left:12px;right:12px;top:12px;max-width:none}}';
+        document.head.appendChild(s);
+      }
+      function _toast(emoji,title,body,onClick){
+        _toastCSS();
+        var wrap=document.getElementById('ic-toast-wrap');
+        if(!wrap){ wrap=document.createElement('div'); wrap.id='ic-toast-wrap'; document.body.appendChild(wrap); }
+        var el=document.createElement('div'); el.className='ic-toast';
+        el.innerHTML='<div class="ic-toast-emoji">'+emoji+'</div><div class="ic-toast-tx"><div class="ic-toast-title">'+_chatEsc(title)+'</div><div class="ic-toast-body">'+_chatEsc(body)+'</div></div><button class="ic-toast-x" type="button" aria-label="닫기">×</button>';
+        function close(){ el.classList.remove('show'); setTimeout(function(){ if(el.parentNode) el.remove(); },350); }
+        el.querySelector('.ic-toast-x').addEventListener('click',function(e){ e.stopPropagation(); close(); });
+        el.addEventListener('click',function(){ try{ if(onClick) onClick(); }catch(_){} close(); });
+        wrap.appendChild(el);
+        requestAnimationFrame(function(){ el.classList.add('show'); });
+        setTimeout(close,8000);
+      }
+
+      /* ── 서비스워커 푸시 → 탭이 떠 있으면 큰 소리도 함께 ── */
+      try{
+        if('serviceWorker' in navigator){
+          navigator.serviceWorker.addEventListener('message',function(e){
+            var d=e.data||{}; if(d.type!=='ic-push') return;
+            var p=d.payload||{};
+            playAlertSound();
+            _toast(p.kind==='dm'?'📩':'💬', p.title||'InsureConnect', p.body||'', function(){ if(p.url) location.href=p.url; });
+          });
+        }
+      }catch(_){}
+
+      /* ── 포그라운드 경량 폴링: 신규 1:1문의/라운지 감지 → 큰 소리 + 토스트 ──
+         라운지(공개)는 "전산창을 열고 있는 모두"에게(비로그인 방문자 포함) → 홍보·유입.
+         1:1 문의(사적)는 로그인 수신자 본인에게만.
+         _baselined: 첫 폴(또는 탭 복귀 silent 재동기)에서는 현재 최신 id만 기준선으로 잡고 알림 안 함.
+         그 이후 id 증가분만 알림 → 세션 시작 전/백그라운드 중 메시지(웹푸시가 이미 알림)는 중복 소리 방지. */
+      var _dmSeen=0, _loungeSeen=0, _me=null, _timer=null, _started=false, _baselined=false;
+      var _loungeLastAlertAt=0, _loungeLanded=false;
+      function _isRecent(ts, ms){ try{ var d=new Date(String(ts).replace(' ','T')+'Z'); return !isNaN(d) && (Date.now()-d.getTime() < (ms||600000)); }catch(_){ return false; } }
+      async function _poll(silent){
+        try{
+          var r=await fetch('/api/chat/notify',{credentials:'same-origin'});
+          if(!r.ok) return; // 비로그인도 200(공개 라운지) — 401 정지 없음
+          var d=await r.json(); if(!d||!d.ok) return; _me=d.me;
+          var baseMode = !_baselined || silent;
+          // 1:1 문의 (로그인 시에만 d.dm 존재)
+          if(d.dm&&d.dm.id){
+            if(baseMode){ if(d.dm.id>_dmSeen) _dmSeen=d.dm.id; }
+            else if(d.dm.id>_dmSeen){ _dmSeen=d.dm.id;
+              if(d.dm.sender_id!==_me && d.dm.room_id!==window._icActiveDmRoom){
+                playAlertSound();
+                _toast('📩','새 1:1 문의', (d.dm.sender_nick?d.dm.sender_nick+'님: ':'')+(d.dm.body||''), (function(rid,t){ return function(){ if(window.openDMRoom) openDMRoom(rid, t||'1:1 문의'); }; })(d.dm.room_id, d.dm.ad_title));
+              }
+            }
+          }
+          // 라운지 (전체 방문자)
+          if(d.lounge&&d.lounge.id){
+            if(baseMode){
+              if(d.lounge.id>_loungeSeen) _loungeSeen=d.lounge.id;
+              // 진입 시 '지금 대화 중'이면 1회 유입 토스트(소리 없이 — 자동재생 정책/방해 최소화)
+              if(!_loungeLanded && d.lounge.member_id!==_me && !window._icOnChatPage && _isRecent(d.lounge.created_at)){
+                _loungeLanded=true;
+                _toast('🔴','지금 실시간 채팅 중!', (d.lounge.nickname?d.lounge.nickname+'님: ':'')+(d.lounge.body||''), function(){ if(window.goToPage) goToPage('chat'); });
+              }
+            } else if(d.lounge.id>_loungeSeen){
+              _loungeSeen=d.lounge.id;
+              if(d.lounge.member_id!==_me && !window._icOnChatPage){
+                // 소리는 최대 60초 1회로 제한(활성 대화 시 도배 방지), 토스트도 함께
+                var now=Date.now();
+                if(now-_loungeLastAlertAt > 60000){ _loungeLastAlertAt=now;
+                  playAlertSound();
+                  _toast('💬','실시간 채팅', (d.lounge.nickname?d.lounge.nickname+'님: ':'')+(d.lounge.body||''), function(){ if(window.goToPage) goToPage('chat'); });
+                }
+              }
+            }
+          }
+          _baselined=true;
+        }catch(_){}
+      }
+      function _stop(){ if(_timer){ clearInterval(_timer); _timer=null; } }
+      function _start(){ if(_started) return; _started=true; _poll(true); _timer=setInterval(function(){ if(document.visibilityState!=='hidden') _poll(false); }, 15000); }
+      // 탭 복귀 시 그동안 쌓인 건 baseline만 갱신(웹푸시가 이미 알렸으므로 중복 소리 방지)
+      document.addEventListener('visibilitychange',function(){ if(_timer && document.visibilityState!=='hidden') _poll(true); });
+      // 비로그인은 첫 폴이 401 → 자동 정지. 로그인 여부 별도 확인 불필요.
+      window.addEventListener('load',function(){ setTimeout(_start,3000); });
+    })();
 
     /* v2.65.0: 접속 하트비트 — 로그인 회원의 last_seen 갱신(관리자 실시간 접속 표시). 1회만 핑하고, 로그인일 때만 90초 반복 */
     (function(){
