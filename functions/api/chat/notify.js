@@ -8,6 +8,7 @@
  */
 import { json, corsPreflight, handle } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
+import { LOUNGE_OPEN } from '../../_lib/flags.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -15,10 +16,10 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   // 비로그인도 허용 — 라운지 알림은 전체 방문자 대상(홍보). 로그인 여부만 확인.
   const user = await getUserFromRequest(env, request).catch(() => null);
 
-  // 마지막 라운지 메시지 (공개)
-  const lounge = await env.DB.prepare(
+  // 마지막 라운지 메시지 (공개) — 오픈 예정이면 신호 숨김(v2.102.0)
+  const lounge = LOUNGE_OPEN ? await env.DB.prepare(
     `SELECT id, member_id, nickname, body, created_at FROM ic_chat_messages ORDER BY id DESC LIMIT 1`
-  ).first().catch(() => null);
+  ).first().catch(() => null) : null;
 
   // 내게 온 마지막 수신 1:1 문의 (로그인 사용자 본인 수신분만)
   let dm = null;

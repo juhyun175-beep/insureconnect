@@ -9,6 +9,7 @@ import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 import { sendPushToAllMembers } from '../../_lib/push.js';
 import { getBotReply, BOT_NICK, BOT_MEMBER_ID } from '../../_lib/chatbot.js';
+import { LOUNGE_OPEN } from '../../_lib/flags.js';
 
 async function ensureTable(env) {
   await env.DB.prepare(
@@ -26,6 +27,7 @@ async function ensureTable(env) {
 export const onRequestOptions = () => corsPreflight();
 
 export const onRequestGet = async ({ request, env }) => handle(async () => {
+  if (!LOUNGE_OPEN) return json({ ok: false, coming_soon: true }); // v2.102.0: 오픈 예정 — 차단
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
   await ensureTable(env);
@@ -47,6 +49,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
 
 export const onRequestPost = async (context) => handle(async () => {
   const { request, env } = context;
+  if (!LOUNGE_OPEN) return json({ ok: false, coming_soon: true, error: '실시간 채팅은 오픈 예정입니다.' }); // v2.102.0
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
   await ensureTable(env);

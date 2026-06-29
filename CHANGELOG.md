@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.102.0] - 2026-06-29
+### Changed (실시간 채팅 라운지 — 오픈 예정 처리 · 차단)
+- **실시간 채팅(전체 라운지)을 아직 오픈 전이므로 '오픈 예정'으로 표시하고 차단**. (1:1 문의는 별개 기능이라 그대로 유지)
+- `functions/_lib/flags.js`(신설): `LOUNGE_OPEN` 플래그(기본 `false`). 오픈 시 `true`로 변경 후 배포.
+- `functions/api/chat/index.js`: 라운지 GET·POST가 닫혀 있으면 `{ ok:false, coming_soon:true }` 반환(차단). 봇 응답도 POST가 막혀 동작 안 함.
+- `functions/api/chat/notify.js`: 닫혀 있으면 라운지 신호(`lounge`)를 숨겨 '지금 실시간 채팅 중' 알림이 뜨지 않도록 함.
+- `index.html`: 프론트 `LOUNGE_OPEN=false` 상수. 채팅 페이지는 「🚧 실시간 채팅 오픈 예정」 안내만 표시(입력창·폴링 차단), '실시간 채팅' 메뉴칩에 **오픈예정 배지**, 팝업 버튼 숨김 + `openChatPopup()` 차단(안내 알림).
+- `chat-popup.html`: 서버 `coming_soon` 감지 시 '오픈 예정' 안내 표시(입력 숨김·폴링 중지) — 직접 접근도 차단.
+- **오픈 방법**: `functions/_lib/flags.js`의 `LOUNGE_OPEN`과 `index.html`의 `LOUNGE_OPEN`을 `true`로 바꿔 배포.
+### Verified
+- `flags.js`·`chat/index.js`·`chat/notify.js` `node --check` 0 · index.html 29블록 0 · chat-popup.html 1블록 0 · 보안스캔 HIGH 0
+
 ## [2.101.0] - 2026-06-29
 ### Added (실시간채팅 팝업창 — 전산창을 내려도 별도 창에서 실시간 이용)
 - **실시간 채팅(전체 라운지)을 독립 팝업창으로 분리**. 메인 전산창을 최소화/내려도 작은 팝업창에서 계속 실시간으로 대화 가능.
