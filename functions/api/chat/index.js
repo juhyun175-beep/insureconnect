@@ -8,6 +8,7 @@
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 import { sendPushToAllMembers } from '../../_lib/push.js';
+import { getBotReply, BOT_NICK, BOT_MEMBER_ID } from '../../_lib/chatbot.js';
 
 async function ensureTable(env) {
   await env.DB.prepare(
@@ -81,6 +82,21 @@ export const onRequestPost = async (context) => handle(async () => {
     } catch (_) {}
   };
   if (newId) { if (context.waitUntil) context.waitUntil(notifyLounge()); else await notifyLounge(); }
+
+  // v2.100.0: 자동응답 봇 — 본문이 키워드와 맞으면 '삼따봇'으로 라운지에 응답(전체 공개).
+  //   사용자 메시지 뒤(=더 큰 id)로 들어가 모든 접속자의 폴링에 순서대로 표시. 비차단(waitUntil).
+  const bot = getBotReply(body);
+  const runBot = async () => {
+    try {
+      if (!bot || !bot.chunks || !bot.chunks.length) return;
+      const stmts = bot.chunks.slice(0, 60).map((c) =>
+        env.DB.prepare(`INSERT INTO ic_chat_messages (member_id, nickname, body) VALUES (?, ?, ?)`)
+          .bind(BOT_MEMBER_ID, BOT_NICK, String(c == null ? '' : c).slice(0, 6000))
+      );
+      if (stmts.length) await env.DB.batch(stmts);
+    } catch (_) {}
+  };
+  if (bot) { if (context.waitUntil) context.waitUntil(runBot()); else await runBot(); }
 
   return json({ ok: true, id: newId });
 });

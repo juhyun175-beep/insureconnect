@@ -2919,6 +2919,13 @@
     .chat-msg.mine .chat-nick { display:none; }
     .chat-body { font-size:13.5px; color:var(--txt-hi); line-height:1.45; white-space:pre-wrap; word-break:break-word; }
     .chat-msg.mine .chat-body { color:#fff; }
+    .chat-body a { color:var(--blue-mid); text-decoration:underline; word-break:break-all; }
+    .chat-msg.mine .chat-body a { color:#fff; }
+    /* v2.100.0: 자동응답 봇 말풍선 */
+    .chat-msg.bot .chat-ava { background:#0f766e; }
+    .chat-msg.bot .chat-nick { color:#0f766e; }
+    .chat-msg.bot .chat-bubble { background:#ecfdf5; border-color:#99f6e4; }
+    [data-theme="dark"] .chat-msg.bot .chat-bubble { background:rgba(13,148,136,.14); border-color:#134e4a; }
     .chat-time { font-size:10px; color:var(--txt-lo); margin-top:3px; }
     .chat-input-bar { display:flex; gap:8px; margin-top:12px; }
     .chat-input-bar input { flex:1; min-width:0; font-family:inherit; font-size:14px; color:var(--txt-hi); background:var(--bg-card); border:1.5px solid var(--border); border-radius:12px; padding:12px 14px; outline:none; }
@@ -8076,6 +8083,10 @@
               onclick="toggleChatSound()">
         🔊 채팅 알림음 켜짐
       </button>
+      <!-- v2.101.0: 실시간채팅 팝업 — 전산창을 내려도 별도 창에서 실시간 이용 -->
+      <button class="side-footer-link" type="button" onclick="openChatPopup()">
+        ⧉ 실시간채팅 팝업
+      </button>
       <a class="side-footer-link"
          href="admin.html"
          onclick="trackClick('파트너 전용페이지','sidebar-footer')"
@@ -9548,6 +9559,7 @@
       <div class="chat-title">💬 실시간 채팅 <span class="chat-on">●</span></div>
       <div class="chat-sub">설계사 동료들과 실시간으로 소통하세요 (전체 라운지). 매너를 지켜주세요 🙏</div>
       <button type="button" class="chat-dm-btn" onclick="openDmRooms()">📩 내 문의함</button>
+      <button type="button" class="chat-dm-btn" onclick="openChatPopup()" title="별도 작은 창으로 띄워 전산창을 내려도 실시간으로 이용하세요">⧉ 팝업으로 열기</button>
     </div>
     <div class="chat-gate" id="chat-gate" style="display:none">
       <p>로그인하면 실시간 채팅에 참여할 수 있어요.</p>
@@ -12801,6 +12813,8 @@
     /* ── v2.55.0: 실시간 채팅(전체 라운지) — 폴링 MVP ── */
     let _chatLast=0, _chatTimer=null, _chatMe=null, _chatInit=false;
     function _chatEsc(s){ return String(s==null?'':s).replace(/[&<>"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m])); }
+    /* v2.100.0: 이미 HTML-escape 된 문자열에서 URL만 클릭 가능한 링크로 변환(봇 응답 링크 등) */
+    function _chatLinkify(escaped){ return String(escaped).replace(/(https?:\/\/[^\s<]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>'); }
     function _chatTime(s){ try{ var d=new Date(String(s).replace(' ','T')+'Z'); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }catch(_){ return ''; } }
     function _chatAppend(msgs){
       var log=document.getElementById('chat-log'); if(!log) return;
@@ -12808,9 +12822,10 @@
       msgs.forEach(function(m){
         if(m.id<=_chatLast) return; _chatLast=m.id;
         var mine = _chatMe!=null && m.member_id===_chatMe;
-        var ini=String(m.nickname||'회').slice(0,1);
-        var el=document.createElement('div'); el.className='chat-msg'+(mine?' mine':'');
-        el.innerHTML=(mine?'':'<span class="chat-ava">'+_chatEsc(ini)+'</span>')+'<div><div class="chat-nick">'+_chatEsc(m.nickname||'회원')+'</div><div class="chat-bubble"><div class="chat-body">'+_chatEsc(m.body)+'</div></div><div class="chat-time">'+_chatTime(m.created_at)+'</div></div>';
+        var isBot = m.member_id===0; // v2.100.0: 삼따봇
+        var ini= isBot ? '🤖' : String(m.nickname||'회').slice(0,1);
+        var el=document.createElement('div'); el.className='chat-msg'+(mine?' mine':'')+(isBot?' bot':'');
+        el.innerHTML=(mine?'':'<span class="chat-ava">'+_chatEsc(ini)+'</span>')+'<div><div class="chat-nick">'+_chatEsc(m.nickname||'회원')+'</div><div class="chat-bubble"><div class="chat-body">'+_chatLinkify(_chatEsc(m.body))+'</div></div><div class="chat-time">'+_chatTime(m.created_at)+'</div></div>';
         log.appendChild(el);
       });
       if(atBottom) log.scrollTop=log.scrollHeight;
@@ -12846,6 +12861,18 @@
       }catch(_){ inp.value=body; }
     }
     window.chatEnter=chatEnter; window.chatStop=chatStop; window.chatSend=chatSend;
+
+    /* v2.101.0: 실시간채팅 팝업창 — 전산창을 내려도 별도 작은 창에서 실시간 이용 */
+    function openChatPopup(){
+      var w=420, h=640;
+      var sw=window.screen&&window.screen.width||1280, sh=window.screen&&window.screen.height||800;
+      var left=Math.max(20, sw-w-40), top=Math.max(20, Math.round((sh-h)/3));
+      var feat='popup=yes,noopener=no,width='+w+',height='+h+',left='+left+',top='+top+',resizable=yes,scrollbars=yes';
+      var win=window.open('/chat-popup.html','ic_chat_popup',feat);
+      if(win){ try{ win.focus(); }catch(_){} try{ trackClick('chat_popup_open','chat'); }catch(_){} }
+      else { alert('팝업이 차단되었어요. 주소창의 팝업 차단을 허용한 뒤 다시 시도해주세요.'); }
+    }
+    window.openChatPopup=openChatPopup;
 
     /* ── v2.61.0: 1:1 공고 문의 채팅방 (폴링 · 접근통제는 서버) ── */
     var _dmTimer=null, _dmLast=0, _dmMe=null, _dmCtx=null, _dmFromList=false, _dmRooms=[];
@@ -12932,7 +12959,7 @@
         var mine=_dmMe!=null && m.sender_id===_dmMe;
         var ini=String(m.sender_nick||'회').slice(0,1);
         var el=document.createElement('div'); el.className='chat-msg'+(mine?' mine':'');
-        el.innerHTML=(mine?'':'<span class="chat-ava">'+_chatEsc(ini)+'</span>')+'<div><div class="chat-nick">'+_chatEsc(m.sender_nick||'회원')+'</div><div class="chat-bubble"><div class="chat-body">'+_chatEsc(m.body)+'</div></div><div class="chat-time">'+_dmTime(m.created_at)+'</div></div>';
+        el.innerHTML=(mine?'':'<span class="chat-ava">'+_chatEsc(ini)+'</span>')+'<div><div class="chat-nick">'+_chatEsc(m.sender_nick||'회원')+'</div><div class="chat-bubble"><div class="chat-body">'+_chatLinkify(_chatEsc(m.body))+'</div></div><div class="chat-time">'+_dmTime(m.created_at)+'</div></div>';
         log.appendChild(el);
       });
       if(atBottom) log.scrollTop=log.scrollHeight;
