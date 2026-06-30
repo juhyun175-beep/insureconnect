@@ -4641,6 +4641,38 @@
     [data-theme="dark"] .lg2-explore { border-color:#1e2a44; }
     .lg2-explore-lbl { font-size:11.5px; color:#94a3b8; font-weight:700; }
     .lg2-explore a { font-size:12px; font-weight:700; color:#1a3de8; text-decoration:none; background:rgba(26,61,232,.07); padding:6px 11px; border-radius:999px; }
+    /* v2.99.0: 비로그인 공개 보험 콘텐츠(홈에서 본문·내부링크 노출 — AdSense 콘텐츠 요건/탐색성) */
+    .lg2-pub { margin:2px 0 0; }
+    .lg2-pub-h { font-size:16px; font-weight:800; color:#0b1530; margin:0 0 8px; letter-spacing:-0.01em; }
+    [data-theme="dark"] .lg2-pub-h { color:#eef2ff; }
+    .lg2-pub-lead { font-size:13px; line-height:1.7; color:#475569; margin:0 0 14px; }
+    [data-theme="dark"] .lg2-pub-lead { color:#94a3b8; }
+    .lg2-pub-lead b { color:#1e293b; font-weight:800; }
+    [data-theme="dark"] .lg2-pub-lead b { color:#cbd5e1; }
+    .lg2-posts { list-style:none; padding:0; margin:0 0 13px; background:#fff; border:1px solid #e8eefb; border-radius:14px; overflow:hidden; box-shadow:0 4px 14px rgba(12,31,184,.05); }
+    [data-theme="dark"] .lg2-posts { background:#0c1424; border-color:#1e2a44; }
+    .lg2-posts li { border-bottom:1px solid #f1f5f9; }
+    [data-theme="dark"] .lg2-posts li { border-color:#1a2336; }
+    .lg2-posts li:last-child { border-bottom:none; }
+    .lg2-posts a { display:block; padding:11px 14px; font-size:13px; font-weight:600; color:#1e293b; text-decoration:none; line-height:1.45; }
+    [data-theme="dark"] .lg2-posts a { color:#cbd5e1; }
+    .lg2-posts a:hover { background:#f6f9ff; color:#1a3de8; }
+    [data-theme="dark"] .lg2-posts a:hover { background:#0f1a30; }
+    .lg2-cats { display:flex; flex-wrap:wrap; gap:7px; margin:0 0 12px; }
+    .lg2-cats a { font-size:12px; font-weight:700; color:#1a3de8; text-decoration:none; background:rgba(26,61,232,.07); padding:6px 11px; border-radius:999px; }
+    [data-theme="dark"] .lg2-cats a { background:rgba(26,61,232,.16); color:#9db4ff; }
+    .lg2-cats-all { display:inline-block; font-size:13px; font-weight:800; color:#1a3de8; text-decoration:none; }
+    .lg2-cats-all:hover { text-decoration:underline; }
+    .lg2-faq { display:flex; flex-direction:column; gap:8px; }
+    .lg2-faq details { background:#fff; border:1px solid #e8eefb; border-radius:12px; padding:11px 14px; box-shadow:0 4px 14px rgba(12,31,184,.04); }
+    [data-theme="dark"] .lg2-faq details { background:#0c1424; border-color:#1e2a44; }
+    .lg2-faq summary { font-size:13px; font-weight:800; color:#0f172a; cursor:pointer; list-style:none; }
+    [data-theme="dark"] .lg2-faq summary { color:#e6edf3; }
+    .lg2-faq summary::-webkit-details-marker { display:none; }
+    .lg2-faq summary::before { content:'Q '; color:#1a3de8; font-weight:900; }
+    .lg2-faq p { font-size:12.5px; line-height:1.65; color:#475569; margin:9px 0 0; }
+    [data-theme="dark"] .lg2-faq p { color:#94a3b8; }
+    .lg2-faq a { color:#1a3de8; font-weight:700; text-decoration:none; }
     .lg2-rlogo { text-align:center; margin-bottom:28px; }
     .lg2-rlogo .mlg-inf { width:80px; margin:0 auto 8px; filter:drop-shadow(0 6px 14px rgba(26,61,232,0.28)); }
     .lg2-rtitle { font-size:26px; font-weight:900; color:#0b1530; text-align:center; margin:0 0 12px; letter-spacing:-0.02em; }
@@ -8600,29 +8632,59 @@
           <li>신뢰할 수 있는 정보와 인사이트</li>
           <li>함께 성장하는 보험업계 네트워크</li>
         </ul>
-        <div class="lg2-chat" aria-hidden="true">
-          <div class="lg2-chat-head"><b>전체 채팅</b><span class="lg2-chat-on"><i></i>온라인 128명</span></div>
-          <div class="lg2-chat-msg"><span class="lg2-chat-ava" style="background:#6366f1">G</span><div><b>GA업무지원팀</b><p>이번 달 신상품 교육 자료 공유합니다.</p></div></div>
-          <div class="lg2-chat-msg"><span class="lg2-chat-ava" style="background:#22c55e">베</span><div><b>베테랑 설계사</b><p>고객 컨설팅 노하우 공유해요! 👍 35</p></div></div>
-          <div class="lg2-chat-msg"><span class="lg2-chat-ava" style="background:#f59e0b">신</span><div><b>신입 설계사</b><p>입사 3개월차, 궁금한 점 질문 드려요 :) 👍 10</p></div></div>
-          <div class="lg2-chat-input">메시지 입력하기…</div>
-        </div>
-        <div class="lg2-sectitle">설계사를 위한 <b>4가지 핵심 서비스</b></div>
-        <div class="lg2-svc">
-          <div class="lg2-svc-card"><span>👥</span><b>보험설계사 커뮤니티</b><span class="d">동료와 소통하고 노하우를 나누세요</span></div>
-          <div class="lg2-svc-card"><span>💼</span><b>채용정보</b><span class="d">내게 맞는 기회를 빠르게 확인하세요</span></div>
-          <div class="lg2-svc-card"><span>🎓</span><b>강의정보</b><span class="d">전문성 강화를 위한 다양한 강의</span></div>
-          <div class="lg2-svc-card"><span>📅</span><b>오프라인 모임</b><span class="d">지역별 모임·행사로 인맥을 넓히세요</span></div>
-        </div>
-        <div class="lg2-quote">
-          <p>InsureConnect 덕분에 동료들과 소통도 쉬워지고, 업무 효율이 눈에 띄게 높아졌어요!</p>
-          <div class="lg2-quote-by"><span class="lg2-ava">김</span><div><b>김OO 설계사</b><span>보험 경력 8년</span></div></div>
-        </div>
-        <div class="lg2-explore">
-          <span class="lg2-explore-lbl">로그인 없이 둘러보기</span>
-          <a href="/insurance" onclick="if(typeof trackClick==='function')trackClick('보험지식 둘러보기','login-gate')">📚 보험지식 120편</a>
-          <a href="/recruit" onclick="if(typeof trackClick==='function')trackClick('채용공고 둘러보기','login-gate')">💼 채용공고</a>
-        </div>
+        <!-- v2.99.0: 비로그인 공개 보험 콘텐츠 — 회원가입 없이 홈에서 바로 읽는 본문·내부링크 -->
+        <section class="lg2-pub" aria-label="무료 공개 보험 정보">
+          <h2 class="lg2-pub-h">로그인 없이 보는 보험 정보</h2>
+          <p class="lg2-pub-lead">InsureConnect는 보험금 청구 방법, 실손·암·자동차·종신보험의 보장 구조, 약관·수술·질병코드 해설까지 <b>설계사와 소비자 모두에게 도움이 되는 보험 정보</b>를 직접 작성해 무료로 공개합니다. 아래 글은 회원가입 없이 바로 읽을 수 있어요.</p>
+          <ul class="lg2-posts">
+            <li><a href="/insurance/claim/insurance-claim-process-steps">보험금 청구 절차 — 접수부터 지급까지 단계별 가이드</a></li>
+            <li><a href="/insurance/claim/claim-deadline-3-years">보험금 청구 소멸시효 3년 — 놓치면 못 받는 기한</a></li>
+            <li><a href="/insurance/actual-loss/silbi-claim-documents">실손보험 청구 서류 총정리 — 무엇을 어떻게 준비할까</a></li>
+            <li><a href="/insurance/actual-loss/silbi-generations-compare">1~4세대 실손보험 차이 비교 — 내 실손은 어느 세대일까</a></li>
+            <li><a href="/insurance/cancer/cancer-diagnosis-benefit-criteria">암 진단비 지급 기준 — 언제 어떻게 인정될까</a></li>
+            <li><a href="/insurance/car/car-fault-ratio-basics">자동차보험 과실비율 — 어떻게 정해질까</a></li>
+            <li><a href="/insurance/terms/how-to-read-policy">보험약관 보는 법 — 처음 보는 사람을 위한 기초</a></li>
+            <li><a href="/insurance/underwrite/disclosure-duty-basics">고지의무와 인수심사 — 가입 전 꼭 알아야 할 기본</a></li>
+          </ul>
+          <div class="lg2-cats" aria-label="보험 정보 카테고리">
+            <a href="/insurance/claim">보험금청구</a>
+            <a href="/insurance/actual-loss">실손보험</a>
+            <a href="/insurance/cancer">암보험</a>
+            <a href="/insurance/car">자동차보험</a>
+            <a href="/insurance/whole-life">종신보험</a>
+            <a href="/insurance/terms">약관해설</a>
+            <a href="/insurance/practice">설계사실무</a>
+            <a href="/insurance/underwrite">인수사례</a>
+          </div>
+          <a class="lg2-cats-all" href="/insurance">📚 보험 정보 게시판 전체 보기 →</a>
+
+          <h2 class="lg2-pub-h" style="margin-top:24px">자주 묻는 보험 질문</h2>
+          <div class="lg2-faq">
+            <details>
+              <summary>실손보험 청구에 꼭 필요한 서류는 무엇인가요?</summary>
+              <p>외래(통원)는 진료비 영수증과 진료비 세부내역서가 기본이고, 입원은 입·퇴원확인서 또는 진단서가 추가됩니다. 약제비는 약제비 영수증과 처방전이 필요합니다. 금액이 큰 경우 질병명이 적힌 진단서를 요구할 수 있으니 미리 챙기면 심사가 빨라집니다. <a href="/insurance/actual-loss/silbi-claim-documents">자세히 보기 →</a></p>
+            </details>
+            <details>
+              <summary>보험금 청구는 언제까지 해야 하나요?</summary>
+              <p>보험금청구권의 소멸시효는 원칙적으로 3년입니다. 진료일(또는 보험사고 발생일)로부터 3년이 지나면 청구가 어려울 수 있으므로, 오래된 진료라도 서류가 남아 있다면 서둘러 청구하는 것이 좋습니다. <a href="/insurance/claim/claim-deadline-3-years">자세히 보기 →</a></p>
+            </details>
+            <details>
+              <summary>1~4세대 실손보험은 무엇이 다른가요?</summary>
+              <p>세대에 따라 자기부담금 비율, 보장 범위, 갱신·인상 구조가 다릅니다. 보통 구세대일수록 자기부담이 적지만 보험료 인상폭이 크고, 최신 4세대는 보험료가 낮은 대신 비급여 이용량에 따라 할인·할증이 적용됩니다. 내 증권의 가입 시점으로 세대를 확인할 수 있습니다. <a href="/insurance/actual-loss/silbi-generations-compare">자세히 보기 →</a></p>
+            </details>
+          </div>
+        </section>
+        <nav class="lg2-explore" aria-label="로그인 없이 둘러보기">
+          <span class="lg2-explore-lbl">바로가기</span>
+          <a href="/insurance" onclick="if(typeof trackClick==='function')trackClick('보험정보','login-gate')">📚 보험정보</a>
+          <a href="/company" onclick="if(typeof trackClick==='function')trackClick('보험사전산','login-gate')">🖥 보험사 전산·청구</a>
+          <a href="/ga" onclick="if(typeof trackClick==='function')trackClick('GA전산','login-gate')">🏢 GA 전산</a>
+          <a href="/recruit" onclick="if(typeof trackClick==='function')trackClick('채용공고','login-gate')">💼 채용공고</a>
+          <a href="/lecture" onclick="if(typeof trackClick==='function')trackClick('교육강의','login-gate')">🎓 교육·강의</a>
+          <a href="/community" onclick="if(typeof trackClick==='function')trackClick('커뮤니티','login-gate')">💬 커뮤니티</a>
+          <a href="/about" onclick="if(typeof trackClick==='function')trackClick('서비스소개','login-gate')">ℹ️ 서비스 소개</a>
+          <a href="/contact" onclick="if(typeof trackClick==='function')trackClick('문의','login-gate')">✉️ 문의</a>
+        </nav>
       </div>
 
       <!-- ══ RIGHT: 로그인 ══ -->
