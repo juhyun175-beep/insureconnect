@@ -3688,17 +3688,23 @@
       <div id="coupon-admin-box" style="margin:0 0 16px;padding:14px 16px;border-radius:12px;background:rgba(13,148,136,0.07);border:1px solid rgba(13,148,136,0.25);">
         <div style="font-size:13px;font-weight:800;color:#0f766e;margin-bottom:10px;display:flex;align-items:center;gap:8px;">🎟️ 할인권 수동 지급·회수 <button type="button" onclick="loadCouponAdmin()" style="font-size:11px;background:none;border:1px solid rgba(13,148,136,0.4);color:#0f766e;border-radius:6px;padding:2px 8px;cursor:pointer;">새로고침</button></div>
         <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px;">
-          <div style="display:flex;flex-direction:column;gap:3px;">
-            <label style="font-size:11px;color:var(--txt-lo);">회원 #ID</label>
-            <input type="number" id="cpn-grant-member" placeholder="예: 45" style="width:90px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;">
+          <!-- v2.104.0: 회원번호 대신 닉네임 검색으로 대상 선택 -->
+          <input type="hidden" id="cpn-grant-member">
+          <div style="display:flex;flex-direction:column;gap:3px;position:relative;">
+            <label style="font-size:11px;color:var(--txt-lo);">회원 검색 (닉네임/#ID)</label>
+            <input type="text" id="cpn-grant-search" placeholder="닉네임 입력 후 선택" autocomplete="off"
+              oninput="cpnMemberSearch()" onkeydown="if(event.key==='Escape')cpnHideResults();"
+              style="width:190px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;">
+            <div id="cpn-grant-results" style="display:none;position:absolute;top:100%;left:0;z-index:40;min-width:230px;max-height:230px;overflow-y:auto;background:var(--card-bg,#141b2e);border:1px solid var(--border,#2a3550);border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.35);margin-top:3px;"></div>
           </div>
           <div style="display:flex;flex-direction:column;gap:3px;">
             <label style="font-size:11px;color:var(--txt-lo);">할인권 종류</label>
             <select id="cpn-grant-type" style="padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:var(--bg);color:var(--txt-hi);font-size:12.5px;"></select>
           </div>
           <button type="button" onclick="cpnGrant()" style="padding:7px 14px;background:#0d9488;color:#fff;border:none;border-radius:7px;font-weight:800;font-size:12.5px;cursor:pointer;">지급</button>
-          <span style="font-size:11px;color:var(--txt-lo);flex:1;min-width:140px;">무상 발급(포인트 미차감)·14일 유효. <b>회원 목록의 파란 #ID</b>(순번 아님!)를 입력 — 지급 전 닉네임이 표시됩니다.</span>
+          <span style="font-size:11px;color:var(--txt-lo);flex:1;min-width:140px;">무상 발급(포인트 미차감)·14일 유효. <b>닉네임으로 검색</b> 후 목록에서 회원을 선택하세요. (#ID 숫자로도 검색 가능)</span>
         </div>
+        <div id="cpn-grant-chosen" style="display:none;font-size:12px;color:var(--txt-mid);margin-bottom:6px;"></div>
         <div id="cpn-grant-status" style="font-size:12px;margin-bottom:8px;"></div>
         <div id="coupon-admin-list" style="font-size:12.5px;color:var(--txt-mid);">불러오는 중…</div>
       </div>
@@ -7227,7 +7233,7 @@
       var type=(typeSel||{}).value;
       var typeLabel=((typeSel&&typeSel.options&&typeSel.options[typeSel.selectedIndex])||{}).text||type;
       var st=document.getElementById('cpn-grant-status'); if(st){ st.style.color='var(--txt-lo)'; st.textContent=''; }
-      if(!mid){ if(st){ st.style.color='#dc2626'; st.textContent='회원 ID를 입력하세요. (회원 목록의 파란 #ID)'; } return; }
+      if(!mid){ if(st){ st.style.color='#dc2626'; st.textContent='회원을 검색해서 선택하세요. (닉네임 또는 #ID)'; } return; }
       if(!type){ if(st){ st.style.color='#dc2626'; st.textContent='할인권 종류를 선택하세요.'; } return; }
       // v2.79.0: 지급 전 닉네임으로 대상 검증 (순번≠DB ID 혼동으로 엉뚱한 회원에게 지급되던 문제 방지)
       var nick=(window._adminMemberNick||{})[mid];
@@ -7239,9 +7245,63 @@
         if(!r.ok||!d.ok){ throw new Error(d.error||('HTTP '+r.status)); }
         if(st){ st.style.color='#0f766e'; st.textContent='✅ 지급 완료: #'+d.member_id+(d.member?(' '+d.member):'')+' · '+(CPN_AD[d.ad_type]||d.ad_type)+' '+d.rate+'%'; }
         if(mEl) mEl.value='';
+        var sInp=document.getElementById('cpn-grant-search'); if(sInp) sInp.value='';
+        var chosen=document.getElementById('cpn-grant-chosen'); if(chosen) chosen.style.display='none';
         loadCouponAdmin(); loadCouponStats();
       }catch(e){ if(st){ st.style.color='#dc2626'; st.textContent='지급 실패: '+e.message; } }
     }
+    /* v2.104.0: 할인권 지급 대상 — 닉네임/#ID 검색·선택 (회원번호 암기 불필요) */
+    var _cpnSearchTimer=null, _cpnSearchSeq=0, _cpnResults={};
+    function cpnMemberSearch(){
+      clearTimeout(_cpnSearchTimer);
+      var inp=document.getElementById('cpn-grant-search');
+      var q=inp?inp.value.trim():'';
+      // 검색어를 바꾸면 기존 선택 해제(엉뚱한 회원에게 지급 방지)
+      var hid=document.getElementById('cpn-grant-member'); if(hid) hid.value='';
+      var chosen=document.getElementById('cpn-grant-chosen'); if(chosen) chosen.style.display='none';
+      if(!q){ cpnHideResults(); return; }
+      _cpnSearchTimer=setTimeout(function(){ cpnRunMemberSearch(q); }, 300);
+    }
+    async function cpnRunMemberSearch(q){
+      var box=document.getElementById('cpn-grant-results'); if(!box) return;
+      var seq=++_cpnSearchSeq;
+      box.style.display='block';
+      box.innerHTML='<div style="padding:8px 10px;color:var(--txt-lo);font-size:12px;">검색 중…</div>';
+      try{
+        var r=await fetch('/api/admin/members?per=20&q='+encodeURIComponent(q),{headers:adminHeaders()});
+        var d=await r.json();
+        if(seq!==_cpnSearchSeq) return; // 늦게 도착한 이전 검색 응답 무시
+        var members=(d&&d.members)||[];
+        _cpnResults={};
+        if(!members.length){ box.innerHTML='<div style="padding:8px 10px;color:var(--txt-lo);font-size:12px;">일치하는 회원이 없습니다.</div>'; return; }
+        box.innerHTML=members.map(function(u){
+          _cpnResults[u.id]=u.nickname||('회원#'+u.id);
+          var role=ROLE_LABELS[u.role]||u.role||'';
+          return '<div onclick="cpnPickMember('+u.id+')" style="padding:8px 10px;cursor:pointer;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;" onmouseover="this.style.background=\'rgba(13,148,136,0.12)\'" onmouseout="this.style.background=\'transparent\'">'
+            +'<b style="color:var(--neon-cyan,#00c8ee);font-size:12px;white-space:nowrap;">#'+u.id+'</b>'
+            +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12.5px;color:var(--txt-hi);">'+esc(u.nickname||('회원#'+u.id))+(u.banned?' <span style="color:#dc2626;font-size:10px;font-weight:700;">차단</span>':'')+'</span>'
+            +'<span style="font-size:10.5px;color:var(--txt-lo);white-space:nowrap;">'+esc(role)+'</span></div>';
+        }).join('');
+      }catch(e){ if(seq===_cpnSearchSeq) box.innerHTML='<div style="padding:8px 10px;color:#dc2626;font-size:12px;">검색 실패</div>'; }
+    }
+    function cpnPickMember(id){
+      var nick=_cpnResults[id]||('회원#'+id);
+      var hid=document.getElementById('cpn-grant-member'); if(hid) hid.value=id;
+      window._adminMemberNick=window._adminMemberNick||{}; window._adminMemberNick[id]=nick; // 지급 확인창 닉네임 표시용
+      var inp=document.getElementById('cpn-grant-search'); if(inp) inp.value=nick;
+      var chosen=document.getElementById('cpn-grant-chosen');
+      if(chosen){ chosen.style.display=''; chosen.innerHTML='선택됨 → <b style="color:var(--neon-cyan,#00c8ee)">#'+id+'</b> «'+esc(nick)+'»'; }
+      cpnHideResults();
+    }
+    function cpnHideResults(){ var box=document.getElementById('cpn-grant-results'); if(box) box.style.display='none'; }
+    window.cpnMemberSearch=cpnMemberSearch; window.cpnPickMember=cpnPickMember; window.cpnHideResults=cpnHideResults;
+    // 바깥 클릭 시 검색 결과 닫기
+    document.addEventListener('click', function(e){
+      var box=document.getElementById('cpn-grant-results');
+      if(!box || box.style.display==='none') return;
+      var wrap=document.getElementById('coupon-admin-box');
+      if(wrap && !wrap.contains(e.target)) cpnHideResults();
+    });
     async function cpnRevoke(id){
       if(!confirm('이 할인권을 회수할까요? (보유 상태만 가능, 되돌릴 수 없음)')) return;
       try{
