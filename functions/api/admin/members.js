@@ -31,19 +31,34 @@ export const onRequestGet = async ({ env, request }) => handle(async () => {
   const page = Math.max(1, parseInt(url.searchParams.get('page') || '1', 10));
   // v2.78.0: 페이지당 인원 선택(관리자 UI 10/20/50/100). 안전 범위 5~200, 기본 50.
   const per = Math.min(200, Math.max(5, parseInt(url.searchParams.get('per') || '50', 10)));
+  // v2.103.0: 닉네임/#ID 검색 — 오픈채팅방순위 상위 회원 찾기용. q 있으면 WHERE 필터(SELECT·COUNT 동일 적용).
+  const q = (url.searchParams.get('q') || '').trim().slice(0, 60);
+  let where = '';
+  const filterBinds = [];
+  if (q) {
+    const like = '%' + q.replace(/[\\%_]/g, '\\$&') + '%';
+    if (/^#?\d+$/.test(q)) {
+      where = `WHERE (m.nickname LIKE ? ESCAPE '\\' OR m.id = ?)`;
+      filterBinds.push(like, parseInt(q.replace(/^#/, ''), 10));
+    } else {
+      where = `WHERE m.nickname LIKE ? ESCAPE '\\'`;
+      filterBinds.push(like);
+    }
+  }
   const rs = await env.DB.prepare(
     `SELECT m.id, m.nickname, m.role, m.created_at, m.last_login, m.last_seen,
             CASE WHEN b.member_id IS NOT NULL THEN 1 ELSE 0 END AS banned,
             CASE WHEN m.last_seen IS NOT NULL AND m.last_seen > datetime('now','-5 minutes') THEN 1 ELSE 0 END AS online
        FROM ic_members m
        LEFT JOIN ic_banned_members b ON b.member_id = m.id
+      ${where}
       ORDER BY m.id DESC LIMIT ? OFFSET ?`
-  ).bind(per, (page - 1) * per).all();
-  const c = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_members`).first();
+  ).bind(...filterBinds, per, (page - 1) * per).all();
+  const c = await env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_members m ${where}`).bind(...filterBinds).first();
   const online = await env.DB.prepare(
     `SELECT COUNT(*) AS n FROM ic_members WHERE last_seen IS NOT NULL AND last_seen > datetime('now','-5 minutes')`
   ).first().catch(() => null);
-  return json({ members: rs.results || [], total: c?.n || 0, page, per, online_count: online?.n || 0 });
+  return json({ members: rs.results || [], total: c?.n || 0, page, per, q, online_count: online?.n || 0 });
 });
 
 export const onRequestPost = async ({ env, request }) => handle(async () => {

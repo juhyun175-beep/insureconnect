@@ -4164,6 +4164,18 @@
         <div id="mt-chart" style="margin:14px 0 18px;"></div>
         <div id="mt-referrals" style="margin:0 0 18px;"></div>
         <div style="font-size:12px;font-weight:700;color:var(--txt-hi);margin:6px 0 8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">회원 목록 · 등급/차단/삭제 <span id="mt-online" style="font-size:11.5px;font-weight:800;color:#22c55e;"></span><label style="margin-left:auto;font-size:11.5px;font-weight:700;color:var(--txt-mid,#9fb0c8);display:flex;align-items:center;gap:5px;">표시 <select id="mt-per" class="role-sel" onchange="setMemberPer(this.value)"><option value="10">10명씩</option><option value="20">20명씩</option><option value="50">50명씩</option><option value="100">100명씩</option></select></label></div>
+        <!-- v2.103.0: 회원 검색 — 닉네임 또는 #ID (오픈채팅방순위 상위 회원 찾기) -->
+        <div style="display:flex;gap:8px;align-items:center;margin:0 0 8px;flex-wrap:wrap;">
+          <div style="position:relative;flex:1;min-width:200px;">
+            <span style="position:absolute;left:11px;top:50%;transform:translateY(-50%);font-size:13px;color:var(--txt-lo,#5b6b85);pointer-events:none;">🔎</span>
+            <input type="text" id="mt-search" placeholder="닉네임 또는 #ID 검색 · 오픈채팅방순위 상위 회원 찾기" autocomplete="off"
+              onkeydown="if(event.key==='Enter'){event.preventDefault();runMemberSearch();}" oninput="onMemberSearchInput()"
+              style="width:100%;box-sizing:border-box;background:#0f1626;color:#e6edf3;border:1px solid var(--border,#2a3550);border-radius:8px;padding:9px 12px 9px 32px;font-size:12.5px;font-family:inherit;">
+          </div>
+          <button type="button" onclick="runMemberSearch()" style="background:var(--blue-mid,#4a70f5);color:#fff;border:none;border-radius:8px;padding:9px 15px;font-size:12.5px;font-weight:700;cursor:pointer;">검색</button>
+          <button type="button" id="mt-search-clear" onclick="clearMemberSearch()" style="display:none;background:transparent;color:var(--txt-mid,#9fb0c8);border:1px solid var(--border,#2a3550);border-radius:8px;padding:9px 13px;font-size:12.5px;font-weight:700;cursor:pointer;">✕ 초기화</button>
+        </div>
+        <div id="mt-search-info" style="display:none;font-size:11.5px;color:var(--txt-mid,#9fb0c8);margin:0 0 10px;"></div>
         <table class="mlist"><thead><tr><th>회원ID</th><th>닉네임</th><th>등급</th><th>가입</th><th>최근접속</th><th>상태</th><th>관리</th></tr></thead><tbody id="mt-members"><tr><td colspan="7">불러오는 중…</td></tr></tbody></table>
         <div id="mt-pager" style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:12px;font-size:12.5px;color:var(--txt-mid,#9fb0c8);"></div>
       </div><!-- /#up-members -->
@@ -5041,6 +5053,8 @@
     /* ── v2.4.0: 회원/지표 대시보드 ── */
     const ROLE_LABELS = { member: '일반회원', certified: '인증설계사', premium: '프리미엄', admin: '관리자' };
     var MEMBER_PAGE = 1;
+    /* v2.103.0: 회원 검색어(닉네임/#ID) — 오픈채팅방순위 상위 회원 찾기 */
+    var MEMBER_Q = '';
     /* v2.78.0: 페이지당 표시 인원 선택(10/20/50/100) — localStorage 기억, 기본 20 */
     var MEMBER_PER = (function(){ var v = parseInt(localStorage.getItem('adm_member_per') || '20', 10); return [10,20,50,100].indexOf(v) >= 0 ? v : 20; })();
     function setMemberPer(n) {
@@ -5050,6 +5064,30 @@
       gotoMemberPage(1);
     }
     window.setMemberPer = setMemberPer;
+    /* v2.103.0: 회원 검색(닉네임/#ID) — 서버 필터. 입력 시 350ms 디바운스 + Enter/버튼 즉시 */
+    var _memberSearchTimer = null;
+    function onMemberSearchInput() {
+      clearTimeout(_memberSearchTimer);
+      _memberSearchTimer = setTimeout(runMemberSearch, 350);
+    }
+    function runMemberSearch() {
+      clearTimeout(_memberSearchTimer);
+      var inp = document.getElementById('mt-search');
+      var q = inp ? inp.value.trim() : '';
+      if (q === MEMBER_Q) { if (MEMBER_PAGE !== 1) gotoMemberPage(1); return; }
+      MEMBER_Q = q;
+      gotoMemberPage(1);
+    }
+    function clearMemberSearch() {
+      clearTimeout(_memberSearchTimer);
+      var inp = document.getElementById('mt-search'); if (inp) inp.value = '';
+      if (!MEMBER_Q) return;
+      MEMBER_Q = '';
+      gotoMemberPage(1);
+    }
+    window.onMemberSearchInput = onMemberSearchInput;
+    window.runMemberSearch = runMemberSearch;
+    window.clearMemberSearch = clearMemberSearch;
     function gotoMemberPage(p) {
       if (p < 1) p = 1;
       MEMBER_PAGE = p;
@@ -5060,13 +5098,23 @@
       try {
         const [mRes, lRes, rRes] = await Promise.all([
           fetch('/api/admin/metrics', { headers: adminHeaders() }),
-          fetch('/api/admin/members?page=' + MEMBER_PAGE + '&per=' + MEMBER_PER, { headers: adminHeaders() }),
+          fetch('/api/admin/members?page=' + MEMBER_PAGE + '&per=' + MEMBER_PER + (MEMBER_Q ? '&q=' + encodeURIComponent(MEMBER_Q) : ''), { headers: adminHeaders() }),
           fetch('/api/admin/referrals', { headers: adminHeaders() }),
         ]);
         const m = await mRes.json();
         const l = await lRes.json();
         renderMetrics(m);
         renderMemberList(l.members || [], l.total || 0, l.page || MEMBER_PAGE);
+        // v2.103.0: 검색 상태 표시(결과 수 · 초기화 버튼)
+        var _si = document.getElementById('mt-search-info');
+        var _sc = document.getElementById('mt-search-clear');
+        if (MEMBER_Q) {
+          if (_si) { _si.style.display = ''; _si.innerHTML = '🔎 "' + esc(MEMBER_Q) + '" 검색결과 <b style="color:var(--txt-hi,#e6edf3)">' + (l.total || 0).toLocaleString() + '명</b>'; }
+          if (_sc) _sc.style.display = '';
+        } else {
+          if (_si) _si.style.display = 'none';
+          if (_sc) _sc.style.display = 'none';
+        }
         const onEl = document.getElementById('mt-online');
         if (onEl) onEl.innerHTML = '🟢 현재 접속 ' + (l.online_count || 0) + '명 <span style="color:var(--txt-lo,#5b6b85);font-weight:600">(최근 5분)</span>';
         try { renderReferrals(await rRes.json()); } catch (_) {}
@@ -5156,8 +5204,11 @@
       page = Math.max(1, parseInt(page || 1, 10));
       const pager = document.getElementById('mt-pager');
       if (!members.length) {
-        tb.innerHTML = '<tr><td colspan="7">' + (page > 1 ? '이 페이지에는 회원이 없습니다.' : '아직 가입 회원이 없습니다.') + '</td></tr>';
-        if (pager && page > 1) { pager.innerHTML = ''; gotoMemberPage(page - 1); }
+        // v2.103.0: 검색 중이면 결과없음 안내(페이지 되감기 루프 금지)
+        var emptyMsg = MEMBER_Q ? '🔎 "' + esc(MEMBER_Q) + '" 검색 결과가 없습니다.' : (page > 1 ? '이 페이지에는 회원이 없습니다.' : '아직 가입 회원이 없습니다.');
+        tb.innerHTML = '<tr><td colspan="7">' + emptyMsg + '</td></tr>';
+        if (pager) pager.innerHTML = '';
+        if (!MEMBER_Q && page > 1) { gotoMemberPage(page - 1); }
         return;
       }
       // 표시는 순번(1…N) — id DESC 정렬이라 첫 행(최신)이 가장 큰 번호. 페이지 오프셋 반영.
