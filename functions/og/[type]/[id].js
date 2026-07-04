@@ -258,7 +258,13 @@ export const onRequestGet = async ({ params, env, request }) => {
   //   → 쿼리형이면 og 페이지 자신(self)을 canonical로(사이트맵 URL과 일치), 경로형(/knowledge/·/board/)은
   //     전용 SSR 페이지를 canonical로 유지.
   const selfUrl = `${SITE}/og/${encodeURIComponent(type)}/${encodeURIComponent(id)}`;
-  const canonicalUrl = target.includes('?') ? selfUrl : target.split('?')[0];
+  // v2.105.0: 색인 자격(board 품질 게이트 통과) 글도 canonical을 self로 —
+  //   기존엔 /og/board/N(index,follow·sitemap 등재)이 canonical을 /board/N으로 가리켰는데
+  //   /board/N은 전수 noindex라 "색인해도 되는 글"이 구조적으로 색인 불가(모순).
+  //   GSC 실측: og/board/16·22가 "적절한 canonical이 있는 대체 페이지"로 색인 제외됨.
+  const canonicalUrl = (target.includes('?') || (type === 'board' && indexable))
+    ? selfUrl
+    : target.split('?')[0];
 
   const html = `<!DOCTYPE html>
 <html lang="ko">

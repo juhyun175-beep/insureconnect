@@ -21,42 +21,48 @@ function urlEntry(loc, lastmod, changefreq = 'weekly', priority = 0.6) {
   </url>`;
 }
 
+// v2.105.0: lastmod 신뢰 복원 — 기존엔 정적/회사/카테고리 URL의 lastmod가 '요청 시점 오늘'로
+//   매 크롤마다 바뀌어 Google이 사이트 전체 lastmod 신호를 불신(부정확한 lastmod는 무시됨).
+//   GSC 실측 '발견됨-크롤 안 됨' 63페이지의 재크롤 우선순위에 악영향 → 고정 날짜로 전환.
+//   해당 페이지들의 내용이 실제로 크게 바뀐 릴리즈에서만 수동으로 올린다.
+const STATIC_LASTMOD = '2026-07-04';
+
 export async function onRequestGet({ env }) {
   const today = new Date().toISOString().slice(0, 10);
 
   // 정적 페이지
   const staticUrls = [
-    urlEntry(`${BASE}/`, today, 'daily', 1.0),
-    urlEntry(`${BASE}/about`, today, 'monthly', 0.7),
-    urlEntry(`${BASE}/contact`, today, 'monthly', 0.5),
-    urlEntry(`${BASE}/guide`, today, 'monthly', 0.6),
-    urlEntry(`${BASE}/privacy`, today, 'yearly', 0.3),
-    urlEntry(`${BASE}/terms`, today, 'yearly', 0.3),
-    urlEntry(`${BASE}/disclaimer`, today, 'yearly', 0.3),
-    urlEntry(`${BASE}/insurance`, today, 'daily', 0.9),
-    urlEntry(`${BASE}/company`, today, 'weekly', 0.8),
-    urlEntry(`${BASE}/recruit`, today, 'daily', 0.85),
-    urlEntry(`${BASE}/lecture`, today, 'daily', 0.85),
-    urlEntry(`${BASE}/meeting`, today, 'daily', 0.85),
-    urlEntry(`${BASE}/newsletter`, today, 'weekly', 0.7),
-    urlEntry(`${BASE}/community`, today, 'daily', 0.7),
+    urlEntry(`${BASE}/`, STATIC_LASTMOD, 'daily', 1.0),
+    urlEntry(`${BASE}/about`, STATIC_LASTMOD, 'monthly', 0.7),
+    urlEntry(`${BASE}/contact`, STATIC_LASTMOD, 'monthly', 0.5),
+    urlEntry(`${BASE}/guide`, STATIC_LASTMOD, 'monthly', 0.6),
+    urlEntry(`${BASE}/privacy`, STATIC_LASTMOD, 'yearly', 0.3),
+    urlEntry(`${BASE}/terms`, STATIC_LASTMOD, 'yearly', 0.3),
+    urlEntry(`${BASE}/disclaimer`, STATIC_LASTMOD, 'yearly', 0.3),
+    urlEntry(`${BASE}/insurance`, STATIC_LASTMOD, 'daily', 0.9),
+    urlEntry(`${BASE}/company`, STATIC_LASTMOD, 'weekly', 0.8),
+    urlEntry(`${BASE}/recruit`, STATIC_LASTMOD, 'daily', 0.85),
+    urlEntry(`${BASE}/lecture`, STATIC_LASTMOD, 'daily', 0.85),
+    urlEntry(`${BASE}/meeting`, STATIC_LASTMOD, 'daily', 0.85),
+    urlEntry(`${BASE}/newsletter`, STATIC_LASTMOD, 'weekly', 0.7),
+    urlEntry(`${BASE}/community`, STATIC_LASTMOD, 'daily', 0.7),
   ];
 
   // v2.39.1: 보험사·GA 전산 랜딩(SSR 콘텐츠·자기 canonical·index,follow) — 메인 사이트맵 통합.
   //          "○○생명 전산 바로가기" 등 고의도 검색 유입 자산. 잘못된 슬러그는 [slug].js가 404 처리.
   //          (기존 functions/api/sitemap.js에만 있던 페이지를 권위본 /sitemap.xml로 일원화)
   const companyUrls = [
-    urlEntry(`${BASE}/company/customer-center`, today, 'weekly', 0.85),
-    urlEntry(`${BASE}/company/claim-fax`, today, 'weekly', 0.85),
-    urlEntry(`${BASE}/company/claim-forms`, today, 'weekly', 0.85),
-    ...INSURERS.map(i => urlEntry(`${BASE}/company/${i.slug}`, today, 'weekly', 0.8)),
-    urlEntry(`${BASE}/ga`, today, 'weekly', 0.8),
-    ...GA_LIST.map(g => urlEntry(`${BASE}/ga/${g.slug}`, today, 'weekly', 0.75)),
+    urlEntry(`${BASE}/company/customer-center`, STATIC_LASTMOD, 'weekly', 0.85),
+    urlEntry(`${BASE}/company/claim-fax`, STATIC_LASTMOD, 'weekly', 0.85),
+    urlEntry(`${BASE}/company/claim-forms`, STATIC_LASTMOD, 'weekly', 0.85),
+    ...INSURERS.map(i => urlEntry(`${BASE}/company/${i.slug}`, STATIC_LASTMOD, 'weekly', 0.8)),
+    urlEntry(`${BASE}/ga`, STATIC_LASTMOD, 'weekly', 0.8),
+    ...GA_LIST.map(g => urlEntry(`${BASE}/ga/${g.slug}`, STATIC_LASTMOD, 'weekly', 0.75)),
   ];
 
   // v2.0.0 (master): SEO 게시판 카테고리 + 게시글
   const SEO_SLUGS = ['claim','actual-loss','whole-life','cancer','car','practice','recruit-tips','notice','surgery-code','disease-code','terms','underwrite'];
-  const seoCategoryUrls = SEO_SLUGS.map(s => urlEntry(`${BASE}/insurance/${s}`, today, 'daily', 0.8));
+  const seoCategoryUrls = SEO_SLUGS.map(s => urlEntry(`${BASE}/insurance/${s}`, STATIC_LASTMOD, 'daily', 0.8));
   let seoPosts = [];
   try {
     const rs = await env.DB.prepare(

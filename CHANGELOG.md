@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.105.0] - 2026-07-04
+### Fixed (GSC 색인 실측 대응 — 색인 생성 촉진 + AdSense 승인 준비)
+- **배경**: 2026-06-30 기준 GSC Coverage Drilldown 9종 실측 — 미색인 138 URL 분석. 핵심 콘텐츠 95페이지(발견됨-미크롤 63 + 크롤됨-미색인 32)가 색인 안 되는 동안 크롤 예산이 /api/·/og-image/ 잡 URL에 낭비되고 있었음.
+- `robots.txt`: **/api/·/cdn-cgi/ 크롤 차단** — Googlebot이 /api/track/hit, /api/board/posts/, /api/coupang 등 JSON 엔드포인트를 크롤하던 낭비 제거(색인 대상은 전부 SSR 페이지라 무해). /og-image/는 카카오·페북 미리보기 스크레이퍼가 robots를 존중해 이미지를 못 가져올 수 있어 robots 대신 X-Robots-Tag로만 처리.
+- `functions/_middleware.js`: **/api/·/og-image/ 응답에 X-Robots-Tag: noindex 헤더** — 핵심은 /og-image/(GSC "중복(canonical 미지정)" 버킷 15건): 크롤은 허용하되 색인만 차단, SVG엔 meta 태그를 못 넣으므로 헤더가 유일 수단. /api/ 쪽 헤더는 robots 차단으로 준수 크롤러가 볼 수 없어 안전망 성격(기존 /api/ 항목은 noindex가 아니라 'robots 차단' 버킷으로 이동하며 정리됨).
+- `functions/sitemap.xml.js`: **lastmod 신뢰 복원** — 정적/회사/카테고리 URL lastmod가 매 요청 '오늘'로 바뀌어 Google이 lastmod 신호를 불신 → 고정 날짜(STATIC_LASTMOD)로 전환. 발견됨-미크롤 63페이지 재크롤 우선순위 개선 목적. 게시글·공고는 기존대로 실제 날짜 유지.
+- `functions/og/[type]/[id].js`: **board 색인자격 글 canonical 모순 해소** — /og/board/N(index,follow·sitemap 등재)이 canonical을 전수 noindex인 /board/N으로 가리켜 품질 게이트 통과 글도 구조적으로 색인 불가였음(GSC: og/board/16·22 "대체 페이지" 제외 실측). 색인 자격 글은 canonical=self.
+- `functions/insurance/[category]/[slug].js`: /insurance/practice/fp-income-structure → /insurance/recruit-tips/fp-income-structure 301(MOVED_SLUGS) — 카테고리 이동 흔적 404(GSC 실측)를 신호 승계 301로. _redirects가 아닌 함수 내 처리(함수 라우트가 _redirects보다 우선).
+### Verified
+- `_middleware.js`·`sitemap.xml.js`·`og/[type]/[id].js`·`insurance/[category]/[slug].js` `node --check` 0 · 보안스캔 HIGH 0
+
 ## [2.104.0] - 2026-07-02
 ### Changed (할인권 수동 지급 — 회원번호 대신 닉네임 검색)
 - **할인권 수동 지급 대상을 회원 #ID 암기 없이 닉네임 검색으로 선택**. 기존엔 회원 목록에서 파란 #ID를 찾아 숫자로 입력해야 했음 → 이제 닉네임 일부만 입력하면 후보가 뜨고 클릭해 선택. (#ID 숫자로도 검색 가능. 회수는 기존처럼 발급목록의 「회수」 버튼)

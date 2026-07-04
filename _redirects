@@ -7,3 +7,6 @@
 # v2.93.0: 렌트카·통신 완전 철수 — 기존 인바운드/북마크 링크는 홈으로 (SSR 페이지 삭제)
 /rental    /  301
 /telecom   /  301
+
+# v2.105.0: fp-income-structure 옛 주소 301은 여기가 아니라 functions/insurance/[category]/[slug].js
+#   (MOVED_SLUGS)에서 처리 — 함수 라우트가 _redirects보다 우선이라 여기 두면 죽은 규칙이 된다.

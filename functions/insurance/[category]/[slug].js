@@ -15,6 +15,13 @@ import { seoCtaFooter, seoShareBar } from '../../_lib/seo-cta.js';
 
 const SITE = 'https://insureconnect.co.kr';
 
+// v2.105.0: 카테고리 이동으로 주소가 바뀐 글 — 옛 주소는 301로 신호 승계.
+//   (_redirects로는 불가 — 함수 라우트가 _redirects보다 우선이라 이 함수가 먼저 잡는다)
+//   GSC 실측: Googlebot이 /insurance/practice/fp-income-structure 크롤 → 404.
+const MOVED_SLUGS = {
+  'practice/fp-income-structure': '/insurance/recruit-tips/fp-income-structure',
+};
+
 const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
@@ -25,6 +32,10 @@ function jsonLdScript(obj) {
 
 export const onRequestGet = async ({ params, env, request }) => {
   const { category, slug } = params;
+
+  const moved = MOVED_SLUGS[`${category}/${slug}`];
+  if (moved) return Response.redirect(`${SITE}${moved}`, 301);
+
   const cat = SEO_CATEGORY_MAP[category];
   if (!cat) return new Response('Not found', { status: 404 });
 

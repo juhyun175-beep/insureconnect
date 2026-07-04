@@ -1,51 +1,73 @@
 User-agent: *
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
+Disallow: /cdn-cgi/
 
 User-agent: Yeti
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
+Disallow: /cdn-cgi/
 
-# AI 검색/답변 엔진 크롤러 명시 허용 (AEO) — 인용·노출 허용, 관리자만 차단
+# AI 검색/답변 엔진 크롤러 명시 허용 (AEO) — 인용·노출 허용, 관리자·API만 차단
+# v2.105.0: /api/ 크롤 차단(전 그룹) — GSC 실측서 Googlebot이 /api/track/hit,
+#   /api/board/posts/, /api/coupang 등 JSON 엔드포인트를 크롤(크롤 예산 낭비 + 색인 잡음).
+#   색인 대상 페이지는 전부 SSR(/insurance/·/company/·/ga/·/og/)이라 API 차단 무해.
+#   /cdn-cgi/(Cloudflare 내부 경로) 차단은 *·Yeti 그룹 한정 — RFC 9309상 크롤러는 자기 UA에
+#   매칭되는 그룹 '하나만' 따르므로 아래 AI 그룹들에는 적용되지 않음(링크가 거의 없어 무해).
+#   /og-image/는 카카오·페북 미리보기 스크레이퍼가 robots를 존중해 이미지를 못 가져올 수
+#   있으므로 여기서 차단하지 않고 X-Robots-Tag: noindex 헤더로만 색인 제외(_middleware.js).
+
 User-agent: GPTBot
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: OAI-SearchBot
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: ChatGPT-User
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: ClaudeBot
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: Claude-Web
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: anthropic-ai
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: PerplexityBot
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: Google-Extended
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: Applebot-Extended
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 User-agent: CCBot
 Allow: /
 Disallow: /admin.html
+Disallow: /api/
 
 Sitemap: https://insureconnect.co.kr/sitemap.xml
 LLM-Content: https://insureconnect.co.kr/llms.txt

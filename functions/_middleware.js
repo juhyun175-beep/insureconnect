@@ -80,6 +80,18 @@ export async function onRequest(context) {
     });
   }
 
+  // v2.105.0: /api/(JSON)·/og-image/(OG용 SVG)는 검색 색인 대상이 아님 — X-Robots-Tag로 명시.
+  //   GSC 실측: /og-image/news/* 15건이 "중복(canonical 미지정)"·"크롤됨-색인안됨" 버킷에,
+  //   /api/* 다수가 색인 후보로 잡혀 크롤 예산·품질 신호를 갉아먹음.
+  //   /og-image/는 robots.txt로 막으면 카카오/페북 미리보기 스크레이퍼가 이미지를 못 가져올
+  //   수 있어 헤더로만 색인 제외(크롤은 허용). SVG엔 meta 태그를 못 넣으므로 헤더가 유일 수단.
+  if (/^\/(api|og-image)\//.test(reqUrl.pathname)) {
+    const res = await next();
+    const headers = new Headers(res.headers);
+    headers.set('x-robots-tag', 'noindex');
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  }
+
   // 루트 HTML 요청만 처리
   const isRoot = (reqUrl.pathname === '/' || reqUrl.pathname === '/index.html')
     && request.method === 'GET';
