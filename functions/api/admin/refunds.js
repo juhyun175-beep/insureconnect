@@ -9,7 +9,8 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
-import { ensureOrderTables } from '../../_lib/orders.js';
+import { ensureOrderTables, ensureOrderTossCols } from '../../_lib/orders.js';
+import { cancelPayment } from '../../_lib/tosspayments.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -18,12 +19,14 @@ const POSTING_TABLE = { recruit: 'ic_recruitments', lecture: 'ic_lectures', meet
 export const onRequestGet = async ({ request, env }) => handle(async () => {
   if (!verifyAdmin(request, env)) return unauthorized();
   await ensureOrderTables(env);
+  await ensureOrderTossCols(env);
   const all = (sql) => env.DB.prepare(sql).all().then((r) => r.results || []).catch(() => []);
   const first = (sql) => env.DB.prepare(sql).first().catch(() => null);
 
   const orders = await all(
     `SELECT o.id, o.ad_type, o.ad_id, o.member_id, o.submitter_name, o.submitter_contact,
             o.base_price, o.coupon_id, o.coupon_rate, o.final_price, o.status,
+            o.toss_method, o.toss_receipt_url, o.paid_at,
             o.consent_refund, o.consent_points, o.consent_fail, o.created_at, o.refunded_at,
             (CASE o.ad_type
                WHEN 'recruit' THEN (SELECT status FROM ic_recruitments WHERE id = o.ad_id)
@@ -59,6 +62,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const action = String(b.action || '');
   if (!orderId) return error('order_id required');
 
+  await ensureOrderTossCols(env);
   const o = await env.DB.prepare(`SELECT * FROM ad_orders WHERE id = ?`).bind(orderId).first().catch(() => null);
   if (!o) return error('주문을 찾을 수 없습니다.', 404);
   const reason = String(b.reason || '').slice(0, 300);
@@ -76,6 +80,21 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     let amount = 0;
     if (type === 'partial90') amount = Math.round((o.final_price || 0) * 0.9);
     else amount = o.final_price || 0; // full / operator_full
+    // v2.106.0: 토스 온라인 결제 건이면 카드 취소 자동 실행 — 실패 시 환불 기록 없이 중단(돈-기록 불일치 방지)
+    let tossCanceled = 0;
+    if (o.status === 'paid' && o.toss_payment_key && amount > 0) {
+      try {
+        await cancelPayment({
+          paymentKey: o.toss_payment_key,
+          cancelReason: (type === 'partial90' ? '운영자 재량 부분환불(90%)' : '공고 등록비 환불') + (reason ? ' — ' + reason : ''),
+          cancelAmount: amount < (o.final_price || 0) ? amount : undefined,
+          env,
+        });
+        tossCanceled = 1;
+      } catch (e) {
+        return error('토스 결제취소 실패 — 환불이 처리되지 않았습니다: ' + e.message, 502);
+      }
+    }
     const restoreCoupon = (b.restore_coupon === true || type === 'full' || type === 'operator_full') && o.coupon_id;
     let couponRestored = 0;
     if (restoreCoupon) {
@@ -92,7 +111,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'admin', 'approved')`
     ).bind(o.id, o.ad_type, o.ad_id, o.member_id, type, amount, couponRestored, reason).run();
     await env.DB.prepare(`UPDATE ad_orders SET status='refunded', refunded_at=datetime('now') WHERE id=?`).bind(o.id).run();
-    return json({ ok: true, action: 'approve', order_id: o.id, refund_type: type, amount, coupon_restored: couponRestored });
+    return json({ ok: true, action: 'approve', order_id: o.id, refund_type: type, amount, coupon_restored: couponRestored, toss_canceled: tossCanceled });
   }
 
   return error('action must be approve or reject');

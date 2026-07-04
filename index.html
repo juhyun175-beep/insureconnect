@@ -8318,9 +8318,10 @@
               <span class="sm-pay-val sm-pay-amount"><span id="sm-final-price">59,000</span>원</span>
             </div>
             <div id="sm-coupon-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(26,61,232,0.06);border:1px dashed rgba(26,61,232,0.32);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">🎟️ 할인권으로 등록비를 할인받을 수 있어요.</div>
+            <div id="sm-cardpay-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(22,163,74,0.08);border:1px dashed rgba(22,163,74,0.4);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">💳 <b>카드·간편결제를 원하시면</b> 입금 없이 바로 제출하세요 — 제출 완료 화면에서 카드로 결제할 수 있어요.</div>
             <div class="sm-pay-warn">
-              ⚠ <strong>입금자명을 신청자명과 동일</strong>하게 입력해 주세요.<br>
-              관리자가 입금 확인 + 승인 후 공고가 업로드됩니다 (영업일 기준 1~2일 소요).<br>
+              ⚠ 계좌이체 시 <strong>입금자명을 신청자명과 동일</strong>하게 입력해 주세요.<br>
+              관리자가 결제(입금) 확인 + 승인 후 공고가 업로드됩니다 (영업일 기준 1~2일 소요).<br>
               🔝 <strong>승인 시 3일간 무료 상단노출</strong> 제공 · 이후 마이페이지에서 포인트(50P)로 7일씩 연장할 수 있어요.
             </div>
           </div>
@@ -8333,7 +8334,7 @@
           </div>
           <div class="sm-actions">
             <button type="button" class="sm-btn sm-btn-secondary" onclick="submitStepBack()">← 뒤로</button>
-            <button type="button" class="sm-btn sm-btn-primary" id="sm-submit-btn" onclick="submitFinal()" disabled>입금완료·신청제출</button>
+            <button type="button" class="sm-btn sm-btn-primary" id="sm-submit-btn" onclick="submitFinal()" disabled>신청 제출 →</button>
           </div>
           <div class="sm-status" id="sm-status-2"></div>
         </div>
@@ -8342,16 +8343,22 @@
         <div class="sm-step" id="sm-step-3">
           <div class="sm-done-icon">✅</div>
           <div class="sm-done-title">승인요청이 접수되었습니다</div>
+          <!-- v2.106.0: 토스 카드·간편결제 (GROWTH_PLAN 1-1 — 결제 마찰 제거) -->
+          <div id="sm-pay-online" style="display:none;margin:14px 0 6px;padding:14px 15px;border:1.5px solid rgba(26,61,232,0.35);border-radius:12px;background:rgba(26,61,232,0.06);text-align:left;">
+            <div style="font-size:13px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:6px;">💳 등록비 바로 결제</div>
+            <div style="font-size:12px;line-height:1.55;color:var(--txt-mid,#475569);margin-bottom:11px;">아직 입금 전이라면 카드·간편결제로 지금 바로 완료하세요.<br>결제가 확인되면 승인 절차가 더 빨라집니다. <b>이미 계좌이체를 하셨다면 추가 결제는 필요 없습니다.</b></div>
+            <button type="button" class="sm-btn sm-btn-primary" id="sm-pay-online-btn" onclick="smPayWithToss()" style="width:100%;">카드·간편결제 <span id="sm-pay-online-amt"></span></button>
+          </div>
           <p class="sm-done-msg">
-            관리자 입금 확인 + 승인 후 공고가 업로드되며,<br>
+            관리자 결제(입금) 확인 + 승인 후 공고가 업로드되며,<br>
             등록하신 연락처로 결과를 안내드립니다.<br>
             🔝 승인되면 <strong>3일간 무료로 상단 노출</strong>됩니다.
           </p>
           <p class="sm-done-msg" style="font-size:12px;color:var(--txt-lo)">
-            영업일 기준 1~2일 소요됩니다. 입금 누락 시 반려될 수 있습니다.
+            영업일 기준 1~2일 소요됩니다. 결제(입금) 누락 시 반려될 수 있습니다.
           </p>
           <div class="sm-actions">
-            <button type="button" class="sm-btn sm-btn-primary" onclick="closeSubmitModal()">확인</button>
+            <button type="button" class="sm-btn sm-btn-secondary" onclick="closeSubmitModal()">확인</button>
           </div>
         </div>
 
@@ -11762,6 +11769,9 @@
         try { mode = localStorage.getItem('ic_submit_last_mode') || 'recruit'; } catch (_) { mode = 'recruit'; }
       }
       submitState.step = 1;
+      submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
+      const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
+      const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
       ['sm-input-title','sm-input-company','sm-input-instructor','sm-input-host','sm-input-location','sm-input-eventat','sm-input-desc','sm-input-name','sm-input-contact','sm-input-form'].forEach(id => {
         const el = document.getElementById(id); if (el) el.value = '';
       });
@@ -11968,14 +11978,100 @@
           const errText = await insRes.text();
           throw new Error('신청 접수 실패: ' + errText.slice(0, 200));
         }
+        // v2.106.0: 토스 카드결제 연결 — 응답의 order_id·최종가 보관 후 완료 화면에 결제 버튼 노출
+        const insJson = await insRes.json().catch(() => ({}));
+        submitState.orderId = insJson.order_id || null;
+        submitState.payPrice = (insJson.price && typeof insJson.price.price === 'number') ? insJson.price.price : null;
+        smSetupPayStep();
         // v2.1.30: 쿨다운 폐지 → localStorage 저장 불필요
         smShowStep(3);
       } catch (e) {
         status.textContent = '❌ ' + (e.message || '제출 중 오류');
         status.classList.add('error');
-        btn.disabled = false; btn.textContent = '입금완료·신청제출';
+        btn.disabled = false; btn.textContent = '신청 제출 →';
       }
     }
+    /* v2.106.0: 토스페이먼츠 카드·간편결제 (GROWTH_PLAN 1-1) — 무통장은 백업 유지 */
+    async function smSetupPayStep(){
+      const box = document.getElementById('sm-pay-online');
+      if (!box) return;
+      box.style.display = 'none';
+      if (!submitState.orderId || !(submitState.payPrice >= 100)) return;
+      try {
+        const cfg = await fetch('/api/payments/config').then(r => r.json());
+        if (!cfg || !cfg.enabled) return;
+        const amt = document.getElementById('sm-pay-online-amt');
+        if (amt) amt.textContent = submitState.payPrice.toLocaleString('ko-KR') + '원';
+        box.style.display = '';
+      } catch (_) {}
+    }
+    function smLoadTossSdk(){
+      return new Promise(function(resolve, reject){
+        if (window.TossPayments) return resolve(window.TossPayments);
+        const s = document.createElement('script');
+        s.src = 'https://js.tosspayments.com/v1/payment';
+        s.onload = function(){ resolve(window.TossPayments); };
+        s.onerror = function(){ reject(new Error('결제 모듈을 불러오지 못했습니다.')); };
+        document.head.appendChild(s);
+      });
+    }
+    async function smPayWithToss(){
+      const btn = document.getElementById('sm-pay-online-btn');
+      const orig = btn ? btn.innerHTML : '';
+      try {
+        if (btn) { btn.disabled = true; btn.textContent = '결제창 여는 중…'; }
+        const TossPayments = await smLoadTossSdk();
+        const r = await fetch('/api/payments/ad-checkout', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ order_id: submitState.orderId })
+        });
+        const d = await r.json().catch(() => ({}));
+        if (!r.ok || !d.ok) throw new Error(d.error || '결제 준비에 실패했습니다.');
+        const toss = TossPayments(d.clientKey);
+        await toss.requestPayment('카드', {
+          amount: d.amount, orderId: d.orderId, orderName: d.orderName,
+          successUrl: d.successUrl, failUrl: d.failUrl
+        });
+      } catch (e) {
+        if (!(e && (e.code === 'USER_CANCEL' || e.code === 'PAY_PROCESS_CANCELED'))) {
+          alert('결제를 시작할 수 없습니다: ' + (e && e.message ? e.message : '알 수 없는 오류'));
+        }
+      } finally {
+        if (btn) { btn.disabled = false; btn.innerHTML = orig; }
+      }
+    }
+    window.smPayWithToss = smPayWithToss;
+    /* v2.106.0: 토스 결제 리다이렉트 복귀 처리 — /?adpay=success|fail */
+    (function(){
+      try {
+        const qs = new URLSearchParams(location.search);
+        const st = qs.get('adpay');
+        if (!st) return;
+        const cleanUrl = function(){ try { history.replaceState(null, '', location.pathname); } catch(_) {} };
+        if (st === 'fail') {
+          const msg = qs.get('message') || '';
+          cleanUrl();
+          if (qs.get('code') !== 'PAY_PROCESS_CANCELED') {
+            alert('결제가 완료되지 않았습니다.' + (msg ? '\n' + msg : '') + '\n무통장 입금(카카오뱅크 3333-36-8293199 인슈어커넥트)으로도 결제하실 수 있습니다.');
+          }
+          return;
+        }
+        if (st === 'success') {
+          const paymentKey = qs.get('paymentKey'), orderId = qs.get('orderId'), amount = parseInt(qs.get('amount'), 10);
+          cleanUrl();
+          if (!paymentKey || !orderId || !Number.isFinite(amount)) return;
+          fetch('/api/payments/ad-confirm', {
+            method: 'POST', headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paymentKey: paymentKey, orderId: orderId, amount: amount })
+          }).then(function(r){ return r.json().catch(function(){ return {}; }); })
+            .then(function(d){
+              if (d && d.ok) alert('✅ 결제가 완료되었습니다!\n관리자 승인 후 공고가 게시됩니다 (영업일 1~2일).');
+              else alert('결제 승인에 실패했습니다: ' + ((d && d.error) || '잠시 후 다시 시도해 주세요.') + '\n결제가 완료되지 않았다면 금액은 자동 취소됩니다.');
+            })
+            .catch(function(){ alert('결제 승인 확인 중 오류가 발생했습니다. 관리자에게 문의해 주세요.'); });
+        }
+      } catch (_) {}
+    })();
     document.addEventListener('DOMContentLoaded', () => {
       const fileEl = document.getElementById('sm-input-file');
       if (fileEl) fileEl.addEventListener('change', function() {

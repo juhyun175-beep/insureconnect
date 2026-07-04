@@ -49,12 +49,12 @@ export async function confirmPayment({ paymentKey, orderId, amount, env }) {
   });
 }
 
-/** 결제 취소 (관리자 환불용) */
-export async function cancelPayment({ paymentKey, cancelReason, env }) {
+/** 결제 취소 (관리자 환불용) — cancelAmount 지정 시 부분취소 (v2.106.0) */
+export async function cancelPayment({ paymentKey, cancelReason, cancelAmount, env }) {
   if (!paymentKey) throw new Error('paymentKey 필수');
-  return tossFetch(`/v1/payments/${paymentKey}/cancel`, env, {
-    body: { cancelReason: cancelReason || '사용자 요청 환불' },
-  });
+  const body = { cancelReason: cancelReason || '사용자 요청 환불' };
+  if (Number.isFinite(cancelAmount) && cancelAmount > 0) body.cancelAmount = cancelAmount;
+  return tossFetch(`/v1/payments/${paymentKey}/cancel`, env, { body });
 }
 
 /** 결제 조회 */

@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.106.0] - 2026-07-04
+### Added (토스페이먼츠 공고 등록비 결제 ON — GROWTH_PLAN_2026H2 Phase 1-1 🔥)
+- **배경**: ad_orders 5건 745,000원 전부 입금대기(무통장 수기 입금 마찰). 기획서 우선순위 1번 "결제 마찰 제거 > 신규 상품" — 기존 `payments/checkout·confirm`(ic_products용)을 공고 주문에도 연결.
+- `functions/api/payments/ad-checkout.js` **신설**: `POST {order_id}` → ad_orders(status='pending_payment'만) 조회 → 토스 orderId(`icad_…`) 발급·저장 → `{clientKey, orderId, amount, orderName, successUrl, failUrl}` 응답. 금액은 서버 `final_price`만 사용(클라 전달값 무시), 응답에 개인정보 없음. 결제 시도마다 orderId 재발급(재시도 충돌 방지). `TOSS_CLIENT_KEY` 미등록 시 503.
+- `functions/api/payments/ad-confirm.js` **신설**: `POST {paymentKey, orderId, amount}` → toss_order_id 역조회 → 금액 일치 검증(변조 방지) → 토스 confirm → `status='paid'` + paid_at + 결제수단/영수증 기록. 이미 paid면 멱등 응답, confirm 실패 시 pending_payment 유지(무통장 백업 생존).
+- `functions/_lib/orders.js`: `ensureOrderTossCols` — ad_orders에 `toss_order_id/toss_payment_key/toss_method/toss_receipt_url/paid_at` 컬럼 추가(ALTER best-effort).
+- `functions/api/{meetings,lectures,recruitments}/index.js`: POST 응답에 `order_id` 포함(프론트 결제창 연결 고리).
+- `index.html`: ② 결제 안내 스텝에 "카드·간편결제는 입금 없이 제출" 힌트 + 버튼명 「입금완료·신청제출」→「신청 제출 →」(카드 결제자 혼란 제거). ③ 완료 스텝에 **「💳 등록비 바로 결제」 박스**(`/api/payments/config` enabled일 때만 노출, 전액할인 0원 주문 제외) — 토스 SDK(v1) 동적 로드 → `requestPayment('카드')`. `/?adpay=success` 복귀 시 ad-confirm 자동 호출+결과 안내, `/?adpay=fail`은 무통장 백업 안내(사용자 취소는 무음). 모달 재오픈 시 이전 주문 결제정보·버튼 라벨 초기화.
+- `functions/api/admin/refunds.js` + `admin.html`: 주문 테이블에 **결제 상태 표시**(💳결제완료·결제수단·영수증 링크 / 미결제) — 기획서 KPI "주문→결제완료 전환율" 실측 기반. **환불 승인 시 토스 결제 건은 카드 취소 자동 실행**(partial90은 `cancelAmount` 부분취소, `_lib/tosspayments.js` cancelPayment 확장) — 토스 취소 실패 시 환불 기록 없이 중단(돈-기록 불일치 방지). 무통장 건은 기존대로 수기 반환.
+- `_headers`: Permissions-Policy `payment=()` 전면차단 → `payment=(self "https://js.tosspayments.com" "https://pay.tosspayments.com")` (결제창 차단 방지).
+- **활성화 조건(운영 액션 남음)**: `npx wrangler pages secret put TOSS_CLIENT_KEY·TOSS_SECRET_KEY --project-name=insureconnect-hub` 등록 즉시 결제 버튼 자동 노출(현재 미등록 → 버튼 숨김, 기존 무통장 플로우 무변경으로 안전 배포).
+### Verified
+- 백엔드 8파일 `node --check` 0 · index.html 29블록/admin.html 3블록 인라인 스크립트 구문 0 · 보안스캔 HIGH 0
+
 ## [2.105.0] - 2026-07-04
 ### Fixed (GSC 색인 실측 대응 — 색인 생성 촉진 + AdSense 승인 준비)
 - **배경**: 2026-06-30 기준 GSC Coverage Drilldown 9종 실측 — 미색인 138 URL 분석. 핵심 콘텐츠 95페이지(발견됨-미크롤 63 + 크롤됨-미색인 32)가 색인 안 되는 동안 크롤 예산이 /api/·/og-image/ 잡 URL에 낭비되고 있었음.

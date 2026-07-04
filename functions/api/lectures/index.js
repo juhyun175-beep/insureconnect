@@ -98,7 +98,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const newId = r.id;
 
   // v2.53.0: 등록가·할인권 — 비관리자(유저) 등록에만. 쿠폰 없으면 등록가(base) 그대로. 기존 흐름 무변경.
-  let priceInfo = null;
+  let priceInfo = null, orderId = null;
   if (!isAdmin) {
     try {
       await ensurePostingCouponCols(env);
@@ -114,8 +114,9 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
       priceInfo = { base: AD_BASE.lecture, rate, price };
       // v2.67.0: 주문/동의 기록(환불 정책)
       const cs = body.consent || {};
-      await createAdOrder(env, { ad_type: 'lecture', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.lecture, coupon_id: usedId, coupon_rate: rate, final_price: price, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
+      orderId = await createAdOrder(env, { ad_type: 'lecture', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.lecture, coupon_id: usedId, coupon_rate: rate, final_price: price, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
     } catch (_) {}
   }
-  return json({ id: newId, status, price: priceInfo });
+  // v2.106.0: order_id — 프론트 토스 결제창(ad-checkout) 연결용
+  return json({ id: newId, status, price: priceInfo, order_id: orderId });
 });

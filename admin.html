@@ -6510,7 +6510,7 @@
     /* v2.67.0: 공고 주문/환불 관리 + 동의 기록 */
     var _refundOrders=[];
     var _RF_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
-    var _RF_ST={pending_payment:'입금대기',published:'게시',refunded:'환불완료'};
+    var _RF_ST={pending_payment:'입금대기',paid:'결제완료',published:'게시',refunded:'환불완료'};
     async function loadRefunds(){
       var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
       if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">불러오는 중…</td></tr>';
@@ -6540,7 +6540,9 @@
               +'<td style="padding:8px;">'+esc(o.submitter_name||o.member_nick||'-')+'</td>'
               +'<td style="padding:8px;white-space:nowrap;">'+Number(o.base_price||0).toLocaleString()+(o.coupon_rate?(' <span style="color:#16a34a">-'+o.coupon_rate+'%</span>'):'')+' → <b>'+Number(o.final_price||0).toLocaleString()+'</b></td>'
               +'<td style="padding:8px;"><span title="환불제한·포인트·모집실패 동의" style="font-family:monospace;color:'+(consentOk?'#16a34a':'#dc2626')+';font-weight:800;">'+consent+'</span></td>'
-              +'<td style="padding:8px;">'+(_RF_ST[ps]||ps)+'</td>'
+              +'<td style="padding:8px;white-space:nowrap;">'+(_RF_ST[ps]||ps)
+                +(o.status==='paid'?' · <span style="color:#16a34a;font-weight:800;" title="'+esc(o.toss_method||'토스')+(o.paid_at?(' · '+String(o.paid_at).slice(0,16)):'')+'">💳결제완료</span>'+(o.toss_receipt_url?' <a href="'+esc(o.toss_receipt_url)+'" target="_blank" rel="noopener" style="font-size:11px;">영수증</a>':''):'')
+                +(o.status==='pending_payment'?' · <span style="color:#dc2626;font-weight:700;">미결제</span>':'')+'</td>'
               +'<td style="padding:8px;white-space:nowrap;">'+act+'</td></tr>';
           }).join('');
         }
@@ -6560,11 +6562,11 @@
       var label=type==='partial90'?'재량 부분환불(90%)':'전액 환불';
       var reason=prompt(label+' 사유(선택, 기록됨):','');
       if(reason===null) return;
-      if(!confirm(label+'을 승인할까요?\n'+(type!=='partial90'?'· 사용한 할인권이 있으면 원복됩니다.\n':'')+'· 실제 입금 반환은 운영자가 수기로 처리하세요.')) return;
+      if(!confirm(label+'을 승인할까요?\n'+(type!=='partial90'?'· 사용한 할인권이 있으면 원복됩니다.\n':'')+'· 토스 카드결제 건은 카드 취소가 자동 실행됩니다.\n· 무통장 입금 건은 반환을 수기로 처리하세요.')) return;
       try{
         var r=await fetch('/api/admin/refunds',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({order_id:orderId,action:'approve',refund_type:type,reason:reason||''})});
         var d=await r.json(); if(!r.ok||!d.ok) throw new Error((d&&d.error)||'실패');
-        alert('✅ 환불 처리: '+Number(d.amount||0).toLocaleString()+'원'+(d.coupon_restored?' · 할인권 원복':''));
+        alert('✅ 환불 처리: '+Number(d.amount||0).toLocaleString()+'원'+(d.coupon_restored?' · 할인권 원복':'')+(d.toss_canceled?' · 💳카드취소 완료':' · 입금 반환은 수기 처리'));
         loadRefunds();
       }catch(e){ alert('환불 실패: '+e.message); }
     }

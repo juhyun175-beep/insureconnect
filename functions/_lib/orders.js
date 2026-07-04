@@ -49,6 +49,18 @@ export async function ensureOrderTables(env) {
   ).run();
 }
 
+/** v2.106.0: 토스페이먼츠 온라인 결제 컬럼 — 무통장(수기)과 병행. 결제 확정 시 status='paid'. */
+export async function ensureOrderTossCols(env) {
+  const alters = [
+    `ALTER TABLE ad_orders ADD COLUMN toss_order_id TEXT`,
+    `ALTER TABLE ad_orders ADD COLUMN toss_payment_key TEXT`,
+    `ALTER TABLE ad_orders ADD COLUMN toss_method TEXT`,
+    `ALTER TABLE ad_orders ADD COLUMN toss_receipt_url TEXT`,
+    `ALTER TABLE ad_orders ADD COLUMN paid_at TEXT`,
+  ];
+  for (const s of alters) await env.DB.prepare(s).run().catch(() => {});
+}
+
 /** 공고 등록 시 주문 1건 생성(+동의 기록). 실패해도 공고 생성은 막지 않음(best-effort). */
 export async function createAdOrder(env, o) {
   try {
