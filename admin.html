@@ -6511,6 +6511,13 @@
     var _refundOrders=[];
     var _RF_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
     var _RF_ST={pending_payment:'입금대기',paid:'결제완료',published:'게시',refunded:'환불완료'};
+    /* v2.107.0: 유료 애드온 옵션 라벨 — 이행(수동) 안내용 */
+    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일'};
+    function _rfOptBadges(o){
+      var keys=[]; try{ keys=o.options_json?JSON.parse(o.options_json):[]; }catch(_){ keys=[]; }
+      if(!Array.isArray(keys)||!keys.length) return '';
+      return ' '+keys.map(function(k){ return '<span style="display:inline-block;background:rgba(124,58,237,0.14);color:#7c3aed;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="유료 옵션 — 승인 시 이행 필요">📣'+(_RF_OPT[k]||k)+'</span>'; }).join(' ');
+    }
     async function loadRefunds(){
       var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
       if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">불러오는 중…</td></tr>';
@@ -6536,9 +6543,9 @@
             }
             return '<tr'+(refunded?' style="opacity:0.6"':'')+'>'
               +'<td style="padding:8px;">'+o.id+'</td>'
-              +'<td style="padding:8px;">'+(_RF_AD[o.ad_type]||o.ad_type)+' · '+esc(String(o.title||'(삭제됨)').slice(0,22))+'</td>'
+              +'<td style="padding:8px;">'+(_RF_AD[o.ad_type]||o.ad_type)+' · '+esc(String(o.title||'(삭제됨)').slice(0,22))+_rfOptBadges(o)+'</td>'
               +'<td style="padding:8px;">'+esc(o.submitter_name||o.member_nick||'-')+'</td>'
-              +'<td style="padding:8px;white-space:nowrap;">'+Number(o.base_price||0).toLocaleString()+(o.coupon_rate?(' <span style="color:#16a34a">-'+o.coupon_rate+'%</span>'):'')+' → <b>'+Number(o.final_price||0).toLocaleString()+'</b></td>'
+              +'<td style="padding:8px;white-space:nowrap;">'+Number(o.base_price||0).toLocaleString()+(o.coupon_rate?(' <span style="color:#16a34a">-'+o.coupon_rate+'%</span>'):'')+((o.options_price||0)>0?(' <span style="color:#7c3aed">+'+Number(o.options_price).toLocaleString()+'</span>'):'')+' → <b>'+Number(o.final_price||0).toLocaleString()+'</b></td>'
               +'<td style="padding:8px;"><span title="환불제한·포인트·모집실패 동의" style="font-family:monospace;color:'+(consentOk?'#16a34a':'#dc2626')+';font-weight:800;">'+consent+'</span></td>'
               +'<td style="padding:8px;white-space:nowrap;">'+(_RF_ST[ps]||ps)
                 +(o.status==='paid'?' · <span style="color:#16a34a;font-weight:800;" title="'+esc(o.toss_method||'토스')+(o.paid_at?(' · '+String(o.paid_at).slice(0,16)):'')+'">💳결제완료</span>'+(o.toss_receipt_url?' <a href="'+esc(o.toss_receipt_url)+'" target="_blank" rel="noopener" style="font-size:11px;">영수증</a>':''):'')
@@ -6581,8 +6588,8 @@
     }
     function exportOrders(){
       if(!_refundOrders.length){ alert('내보낼 주문이 없습니다.'); return; }
-      var head=['주문ID','공고타입','공고ID','제목','신청자','연락처','등록가','할인율','최종가','상태','동의_환불제한','동의_포인트','동의_모집실패','주문일시'].join('\t');
-      var rows=_refundOrders.map(function(o){ return [o.id,o.ad_type,o.ad_id||'',String(o.title||'').replace(/\t/g,' '),String(o.submitter_name||o.member_nick||'').replace(/\t/g,' '),String(o.submitter_contact||'').replace(/\t/g,' '),o.base_price||0,o.coupon_rate||0,o.final_price||0,o.status,o.consent_refund?'Y':'N',o.consent_points?'Y':'N',o.consent_fail?'Y':'N',o.created_at||''].join('\t'); });
+      var head=['주문ID','공고타입','공고ID','제목','신청자','연락처','등록가','할인율','옵션','옵션가','최종가','상태','동의_환불제한','동의_포인트','동의_모집실패','주문일시'].join('\t');
+      var rows=_refundOrders.map(function(o){ var ok=[]; try{ ok=o.options_json?JSON.parse(o.options_json):[]; }catch(_){ ok=[]; } var oLabel=(Array.isArray(ok)?ok:[]).map(function(k){ return _RF_OPT[k]||k; }).join(','); return [o.id,o.ad_type,o.ad_id||'',String(o.title||'').replace(/\t/g,' '),String(o.submitter_name||o.member_nick||'').replace(/\t/g,' '),String(o.submitter_contact||'').replace(/\t/g,' '),o.base_price||0,o.coupon_rate||0,oLabel,o.options_price||0,o.final_price||0,o.status,o.consent_refund?'Y':'N',o.consent_points?'Y':'N',o.consent_fail?'Y':'N',o.created_at||''].join('\t'); });
       var tsv=head+'\n'+rows.join('\n');
       if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tsv).then(function(){ alert('📋 '+_refundOrders.length+'건의 주문·동의 기록을 복사했습니다.\n엑셀/시트에 붙여넣으세요.'); },function(){ _exportFallback(tsv); }); }
       else _exportFallback(tsv);

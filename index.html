@@ -8313,6 +8313,24 @@
               <span class="sm-pay-label">할인</span>
               <span class="sm-pay-val" style="color:#16a34a;font-weight:800">− <span id="sm-discount-amt">0</span>원</span>
             </div>
+            <!-- v2.107.0: 유료 애드온 옵션 — 도달 보장형(노출량 아님). 서버 카탈로그(_lib/options.js) 가격 권위 -->
+            <div id="sm-options-box" style="margin:11px 0 4px;padding:11px 12px;border:1.5px solid rgba(124,58,237,0.35);border-radius:10px;background:rgba(124,58,237,0.06);">
+              <div style="font-size:12.5px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:8px;">📣 추가 옵션 <span style="font-weight:600;color:var(--txt-mid,#475569);font-size:11px;">(선택 — 모집 도달을 높여요)</span></div>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-kakao_blast" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>카카오톡 전 회원 알림 1회</b> <b style="color:#7c3aed;">+29,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 시 알림 수신 회원 전원에게 공고를 카톡 1회 발송 (주 2슬롯 한정 · 웹푸시 동시 발송)</span></span>
+              </label>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-home_banner7" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>홈 배너 노출 7일</b> <b style="color:#7c3aed;">+19,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">홈 화면 광고배너에 공고 이미지를 7일간 노출 · 종료 후 노출/클릭 리포트 제공</span></span>
+              </label>
+            </div>
+            <div class="sm-pay-row" id="sm-options-row" style="display:none">
+              <span class="sm-pay-label">추가 옵션</span>
+              <span class="sm-pay-val" style="color:#7c3aed;font-weight:800">+ <span id="sm-options-amt">0</span>원</span>
+            </div>
             <div class="sm-pay-row" style="border-top:1px dashed #e2e8f0;margin-top:5px;padding-top:11px">
               <span class="sm-pay-label">최종 결제(입금액)</span>
               <span class="sm-pay-val sm-pay-amount"><span id="sm-final-price">59,000</span>원</span>
@@ -11770,6 +11788,7 @@
       }
       submitState.step = 1;
       submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
+      ['sm-opt-kakao_blast','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
       ['sm-input-title','sm-input-company','sm-input-instructor','sm-input-host','sm-input-location','sm-input-eventat','sm-input-desc','sm-input-name','sm-input-contact','sm-input-form'].forEach(id => {
@@ -11843,14 +11862,24 @@
       }
       smUpdatePrice();
     }
+    /* v2.107.0: 유료 애드온 옵션 — 표시용 가격(권위는 서버 _lib/options.js OPTION_CATALOG) */
+    const SM_OPTIONS = { kakao_blast: 29000, home_banner7: 19000 };
+    function smSelectedOptions(){
+      var keys = [];
+      Object.keys(SM_OPTIONS).forEach(function(k){ var c = document.getElementById('sm-opt-'+k); if(c && c.checked) keys.push(k); });
+      return keys;
+    }
     function smUpdatePrice(){
       const adType = SM_BASE[submitState.mode] ? submitState.mode : 'recruit';
       const base = SM_BASE[adType];
       const sel = document.getElementById('sm-coupon-sel');
       var rate = 0; if(sel && sel.selectedOptions && sel.selectedOptions[0]){ rate = parseInt(sel.selectedOptions[0].getAttribute('data-rate')||'0',10)||0; }
-      const discount = Math.round(base*rate/100), final = base - discount;
+      var optTotal = 0; smSelectedOptions().forEach(function(k){ optTotal += SM_OPTIONS[k] || 0; });   // v2.107.0
+      const discount = Math.round(base*rate/100), final = base - discount + optTotal;
       const dr = document.getElementById('sm-discount-row'); if(dr) dr.style.display = rate>0 ? '' : 'none';
       const da = document.getElementById('sm-discount-amt'); if(da) da.textContent = smWon(discount);
+      const orow = document.getElementById('sm-options-row'); if(orow) orow.style.display = optTotal>0 ? '' : 'none';
+      const oamt = document.getElementById('sm-options-amt'); if(oamt) oamt.textContent = smWon(optTotal);
       const fp = document.getElementById('sm-final-price'); if(fp) fp.textContent = smWon(final);
     }
     window.smUpdatePrice = smUpdatePrice;
@@ -11963,6 +11992,7 @@
         }
         const _csel = document.getElementById('sm-coupon-sel'); // v2.54.0: 할인권 적용
         if (_csel && _csel.value) payload.coupon_id = parseInt(_csel.value, 10) || null;
+        const _opts = smSelectedOptions(); if (_opts.length) payload.options = _opts; // v2.107.0: 유료 애드온(서버가 가격 재계산)
         payload.consent = { refund: !!(_c1&&_c1.checked), points: !!(_c2&&_c2.checked), fail: !!(_c3&&_c3.checked) }; // v2.67.0
         const insRes = await fetch(apiPath, {
           method: 'POST',

@@ -3,6 +3,7 @@ import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 import { AD_BASE, finalPrice, ensurePostingCouponCols, validateCoupon } from '../../_lib/coupons.js';
 import { createAdOrder } from '../../_lib/orders.js';
+import { validateOptions } from '../../_lib/options.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -111,10 +112,13 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
         await env.DB.prepare(`UPDATE user_coupons SET status='used', used_at=datetime('now'), used_ad_type='lecture', used_ad_id=? WHERE id=? AND member_id=? AND status='active'`).bind(newId, usedId, user.id).run().catch(() => {});
         try { await env.DB.prepare(`INSERT INTO coupon_logs (member_id, coupon_id, coupon_type, ad_type, discount_rate, action, used_at) VALUES (?,?,?,?,?, 'use', datetime('now'))`).bind(user.id, usedId, usedType, 'lecture', rate).run(); } catch (_) {}
       }
-      priceInfo = { base: AD_BASE.lecture, rate, price };
+      // v2.107.0: 유료 애드온 옵션 — 서버 카탈로그 가격으로만 합산(클라 전달값은 key 배열뿐)
+      const opt = validateOptions('lecture', body.options);
+      const total = price + opt.total;
+      priceInfo = { base: AD_BASE.lecture, rate, price: total, options: opt.keys, options_price: opt.total };
       // v2.67.0: 주문/동의 기록(환불 정책)
       const cs = body.consent || {};
-      orderId = await createAdOrder(env, { ad_type: 'lecture', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.lecture, coupon_id: usedId, coupon_rate: rate, final_price: price, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
+      orderId = await createAdOrder(env, { ad_type: 'lecture', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.lecture, coupon_id: usedId, coupon_rate: rate, final_price: total, options_json: opt.keys.length ? JSON.stringify(opt.keys) : null, options_price: opt.total, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
     } catch (_) {}
   }
   // v2.106.0: order_id — 프론트 토스 결제창(ad-checkout) 연결용

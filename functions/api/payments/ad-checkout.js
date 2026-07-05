@@ -47,7 +47,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     clientKey: env.TOSS_CLIENT_KEY,      // 공개 키 (프론트 SDK 초기화용)
     orderId: tossOrderId,
     amount,
-    orderName: AD_NAMES[order.ad_type] || '인슈어커넥트 공고 등록비',
+    orderName: (AD_NAMES[order.ad_type] || '인슈어커넥트 공고 등록비') + ((order.options_price || 0) > 0 ? ' + 추가옵션' : ''),   // v2.107.0
     successUrl: `${origin}/?adpay=success`,   // 토스가 paymentKey·orderId·amount 쿼리 자동 부착
     failUrl: `${origin}/?adpay=fail`,
   });

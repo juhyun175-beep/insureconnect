@@ -61,18 +61,24 @@ export async function ensureOrderTossCols(env) {
   for (const s of alters) await env.DB.prepare(s).run().catch(() => {});
 }
 
-/** 공고 등록 시 주문 1건 생성(+동의 기록). 실패해도 공고 생성은 막지 않음(best-effort). */
+/** 공고 등록 시 주문 1건 생성(+동의 기록). 실패해도 공고 생성은 막지 않음(best-effort).
+ *  v2.107.0: 유료 애드온 옵션(options_json/options_price) — final_price 는 옵션 포함 총액. */
 export async function createAdOrder(env, o) {
   try {
     await ensureOrderTables(env);
+    for (const s of [
+      `ALTER TABLE ad_orders ADD COLUMN options_json TEXT`,
+      `ALTER TABLE ad_orders ADD COLUMN options_price INTEGER NOT NULL DEFAULT 0`,
+    ]) await env.DB.prepare(s).run().catch(() => {});
     const r = await env.DB.prepare(
       `INSERT INTO ad_orders
-         (ad_type, ad_id, member_id, submitter_name, submitter_contact, base_price, coupon_id, coupon_rate, final_price, consent_refund, consent_points, consent_fail)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
+         (ad_type, ad_id, member_id, submitter_name, submitter_contact, base_price, coupon_id, coupon_rate, final_price, options_json, options_price, consent_refund, consent_points, consent_fail)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
     ).bind(
       String(o.ad_type || ''), o.ad_id || null, o.member_id || null,
       (o.submitter_name || '').slice(0, 60), (o.submitter_contact || '').slice(0, 100),
       o.base_price || 0, o.coupon_id || null, o.coupon_rate || 0, o.final_price || 0,
+      o.options_json || null, o.options_price || 0,
       o.consent_refund ? 1 : 0, o.consent_points ? 1 : 0, o.consent_fail ? 1 : 0
     ).first();
     return r?.id || null;

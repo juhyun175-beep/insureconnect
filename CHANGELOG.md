@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.107.0] - 2026-07-05
+### Added (공고 등록 유료 애드온 옵션 — 매출 업셀 🔥 GROWTH: 도달 보장형)
+- **배경**: 공고 등록 시 선택 옵션이 여태 '할인권(매출을 깎는 것)'뿐이라 객단가를 올릴 레버가 없었음. 29후보→8심사→회의검증 워크플로로 리스트업한 결과, 소규모 커뮤니티에선 '노출량 판매(상단고정·끌올·마감부스트)'는 트래픽 부재로 기각되고 **'회원에게 직접 도달시켜 모집 성공률을 올리는 상품'만 생존** → 등록 결제 스텝에 체크박스 애드온 2종 신설.
+- `functions/_lib/options.js` **신설**: `OPTION_CATALOG` — ① `kakao_blast` **카카오톡 전 회원 알림 1회 29,000원**(승인 시 admin/kakao-broadcast 발송), ② `home_banner7` **홈 배너 노출 7일 19,000원**(up-homead 캠페인 편성). 가격은 **코드 고정(서버 권위)** — 클라는 key 배열만 전달, 서버가 `validateOptions(adType, keys)`로 유효성·타입·중복 검증 후 카탈로그 가격으로만 합산. 도입가로 시작해 실측 후 조정(리스트업 검증 권고).
+- `functions/_lib/orders.js`: `createAdOrder`에 `options_json`(선택 key 배열 JSON)·`options_price` 컬럼 저장(추가형 ALTER). `final_price`는 **등록가−할인+옵션가 총액**.
+- `functions/api/{recruitments,lectures,meetings}/index.js`: POST에서 `body.options` → `validateOptions` → `final_price`에 합산, 응답 `price.options/options_price` 포함. **비관리자(유료 대상) 등록에만** 적용(기존 흐름 무변경).
+- `functions/api/payments/ad-checkout.js`: 옵션 포함 주문은 orderName에 '+ 추가옵션' 표기(토스 결제창). 금액은 서버 `final_price`(옵션 포함)만 사용.
+- `index.html`: 결제 스텝(②)에 **「📣 추가 옵션」 박스**(체크박스 2종·가격 표기) + 실시간 합산(`smUpdatePrice` 옵션가 반영, 「추가 옵션 +N원」 행). 제출 시 `payload.options`(선택 key만) 전송·서버 재계산. 모달 재오픈 시 옵션 체크 초기화.
+- `functions/api/admin/refunds.js` + `admin.html`: 주문표에 **유료 옵션 배지(📣카톡알림·📣홈배너7일)** + 옵션가(`+N원`) 표시 → 관리자가 **승인 시 이행할 옵션을 한눈에** 확인. TSV export에 옵션/옵션가 컬럼 추가. (이행은 수동: 카톡은 브로드캐스트 발송, 홈배너는 캠페인 편성)
+- **정리**: 프로덕션 `ad_orders` 허수 8건(입금대기 테스트)·`refund_logs` 4건(사유 '테스트') 삭제 — KPI 실측 왜곡 제거.
+### Verified
+- 백엔드 7파일 `node --check` 0 · index.html/admin.html 인라인 스크립트 구문 0 · 보안스캔 HIGH 0
+
 ## [2.106.0] - 2026-07-04
 ### Added (토스페이먼츠 공고 등록비 결제 ON — GROWTH_PLAN_2026H2 Phase 1-1 🔥)
 - **배경**: ad_orders 5건 745,000원 전부 입금대기(무통장 수기 입금 마찰). 기획서 우선순위 1번 "결제 마찰 제거 > 신규 상품" — 기존 `payments/checkout·confirm`(ic_products용)을 공고 주문에도 연결.
