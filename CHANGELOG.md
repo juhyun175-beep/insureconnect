@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.109.1] - 2026-07-06
+### Changed (모바일 홈 오픈채팅 블록 숨김)
+- `index.html`: 모바일 홈에서 오픈채팅방 대화순위/명장면 섹션을 노출하지 않도록 제거. PC 홈의 오픈채팅 패널은 유지하고, 모바일 로더의 `/api/kakao-stats` 호출도 중단.
+
 ## [2.109.0] - 2026-07-06
 ### Added (오픈채팅 월간 명장면 카드)
 - `migrations/d1_v2_109_0_kakao_highlights.sql`/`schema.sql`: `ic_kakao_stats.messages` 컬럼 추가. 기존 카카오 대화순위 스냅샷에 월간 명장면 JSON을 함께 저장.
