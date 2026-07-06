@@ -8337,26 +8337,21 @@
             <div id="sm-options-box" style="margin:11px 0 4px;padding:11px 12px;border:1.5px solid rgba(124,58,237,0.35);border-radius:10px;background:rgba(124,58,237,0.06);">
               <div style="font-size:12.5px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:8px;">📣 추가 옵션 <span style="font-weight:600;color:var(--txt-mid,#475569);font-size:11px;">(선택 — 모집 도달을 높여요)</span></div>
               <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
-                <input type="checkbox" id="sm-opt-kakao_blast" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
-                <span><b>카카오톡 전 회원 알림 1회</b> <b style="color:#7c3aed;">+29,000원</b><br>
-                <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 시 알림 수신 회원 전원에게 공고를 카톡 1회 발송 (주 2슬롯 한정 · 웹푸시 동시 발송)</span></span>
-              </label>
-              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
-                <input type="checkbox" id="sm-opt-home_banner7" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
-                <span><b>홈 배너 노출 7일</b> <b style="color:#7c3aed;">+19,000원</b><br>
-                <span style="font-size:11px;color:var(--txt-mid,#475569);">홈 화면 광고배너에 공고 이미지를 7일간 노출 · 종료 후 노출/클릭 리포트 제공</span></span>
+                <input type="checkbox" id="sm-opt-featured_listing" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>추천공고 등록</b> <b style="color:#7c3aed;">+18,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 후 추천/상단 공고로 노출되도록 운영 이행 요청</span></span>
               </label>
               <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
                 <input type="checkbox" id="sm-opt-dm_inquiry" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
                 <span><b>1:1 문의 기능</b> <b style="color:#7c3aed;">+20,000원</b><br>
                 <span style="font-size:11px;color:var(--txt-mid,#475569);">공고 상세에서 등록자에게 바로 1:1 문의할 수 있게 표시</span></span>
               </label>
-              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;cursor:pointer;">
-                <input type="checkbox" id="sm-opt-featured_listing" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
-                <span><b>추천공고 등록</b> <b style="color:#7c3aed;">+18,000원</b><br>
-                <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 후 추천/상단 공고로 노출되도록 운영 이행 요청</span></span>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-kakao_blast" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>카카오톡 전 회원 알림 1회</b> <b style="color:#7c3aed;">+29,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 시 알림 수신 회원 전원에게 공고를 카톡 1회 발송 (주 2슬롯 한정 · 웹푸시 동시 발송)</span></span>
               </label>
-              <div style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-top:8px;">
+              <div style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;">
                 <input type="checkbox" id="sm-opt-open_chat_promo" onchange="smToggleDailyOption('open_chat_promo')" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
                 <div style="flex:1;min-width:0;">
                   <label for="sm-opt-open_chat_promo" style="cursor:pointer;"><b>오픈채팅방 홍보</b> <b style="color:#7c3aed;">하루당 +280,000원</b></label><br>
@@ -8367,6 +8362,11 @@
                   </div>
                 </div>
               </div>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-home_banner7" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>홈 배너 노출 7일</b> <b style="color:#7c3aed;">+300,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">홈 화면 광고배너에 공고 이미지를 7일간 노출</span></span>
+              </label>
             </div>
             <div class="sm-pay-row" id="sm-options-row" style="display:none">
               <span class="sm-pay-label">추가 옵션</span>
@@ -8377,7 +8377,6 @@
               <span class="sm-pay-val sm-pay-amount"><span id="sm-final-price">20,000</span>원</span>
             </div>
             <div id="sm-coupon-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(26,61,232,0.06);border:1px dashed rgba(26,61,232,0.32);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">🎟️ 할인권으로 등록비를 할인받을 수 있어요.</div>
-            <div id="sm-cardpay-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(22,163,74,0.08);border:1px dashed rgba(22,163,74,0.4);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">💳 <b>카드·간편결제를 원하시면</b> 입금 없이 바로 제출하세요 — 제출 완료 화면에서 카드로 결제할 수 있어요.</div>
             <div class="sm-pay-warn">
               ⚠ 계좌이체 시 <strong>입금자명을 신청자명과 동일</strong>하게 입력해 주세요.<br>
               관리자가 결제(입금) 확인 + 승인 후 공고가 업로드됩니다 (영업일 기준 1~2일 소요).<br>
@@ -8402,12 +8401,6 @@
         <div class="sm-step" id="sm-step-3">
           <div class="sm-done-icon">✅</div>
           <div class="sm-done-title">승인요청이 접수되었습니다</div>
-          <!-- v2.106.0: 토스 카드·간편결제 (GROWTH_PLAN 1-1 — 결제 마찰 제거) -->
-          <div id="sm-pay-online" style="display:none;margin:14px 0 6px;padding:14px 15px;border:1.5px solid rgba(26,61,232,0.35);border-radius:12px;background:rgba(26,61,232,0.06);text-align:left;">
-            <div style="font-size:13px;font-weight:800;color:var(--txt-hi,#0f172a);margin-bottom:6px;">💳 등록비 바로 결제</div>
-            <div style="font-size:12px;line-height:1.55;color:var(--txt-mid,#475569);margin-bottom:11px;">아직 입금 전이라면 카드·간편결제로 지금 바로 완료하세요.<br>결제가 확인되면 승인 절차가 더 빨라집니다. <b>이미 계좌이체를 하셨다면 추가 결제는 필요 없습니다.</b></div>
-            <button type="button" class="sm-btn sm-btn-primary" id="sm-pay-online-btn" onclick="smPayWithToss()" style="width:100%;">카드·간편결제 <span id="sm-pay-online-amt"></span></button>
-          </div>
           <p class="sm-done-msg">
             관리자 결제(입금) 확인 + 승인 후 공고가 업로드되며,<br>
             등록하신 연락처로 결과를 안내드립니다.<br>
@@ -11829,7 +11822,7 @@
       }
       submitState.step = 1;
       submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
-      ['sm-opt-kakao_blast','sm-opt-home_banner7','sm-opt-dm_inquiry','sm-opt-featured_listing','sm-opt-open_chat_promo'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
+      ['sm-opt-featured_listing','sm-opt-dm_inquiry','sm-opt-kakao_blast','sm-opt-open_chat_promo','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
       const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
@@ -11906,11 +11899,11 @@
     }
     /* v2.107.0: 유료 애드온 옵션 — 표시용 가격(권위는 서버 _lib/options.js OPTION_CATALOG) */
     const SM_OPTIONS = {
-      kakao_blast: { price: 29000 },
-      home_banner7: { price: 19000 },
-      dm_inquiry: { price: 20000 },
       featured_listing: { price: 18000 },
-      open_chat_promo: { price: 280000, pricing: 'daily', min: 1, max: 30 }
+      dm_inquiry: { price: 20000 },
+      kakao_blast: { price: 29000 },
+      open_chat_promo: { price: 280000, pricing: 'daily', min: 1, max: 30 },
+      home_banner7: { price: 300000 }
     };
     function smDailyOptionDays(key){
       const meta = SM_OPTIONS[key] || {};
@@ -12085,7 +12078,7 @@
           const errText = await insRes.text();
           throw new Error('신청 접수 실패: ' + errText.slice(0, 200));
         }
-        // v2.106.0: 토스 카드결제 연결 — 응답의 order_id·최종가 보관 후 완료 화면에 결제 버튼 노출
+        // 결제 주문 정보는 보관하되, 현재 사용자 화면에는 온라인 결제 UI를 노출하지 않는다.
         const insJson = await insRes.json().catch(() => ({}));
         submitState.orderId = insJson.order_id || null;
         submitState.payPrice = (insJson.price && typeof insJson.price.price === 'number') ? insJson.price.price : null;
@@ -12098,19 +12091,9 @@
         btn.disabled = false; btn.textContent = '신청 제출 →';
       }
     }
-    /* v2.106.0: 토스페이먼츠 카드·간편결제 (GROWTH_PLAN 1-1) — 무통장은 백업 유지 */
-    async function smSetupPayStep(){
+    function smSetupPayStep(){
       const box = document.getElementById('sm-pay-online');
-      if (!box) return;
-      box.style.display = 'none';
-      if (!submitState.orderId || !(submitState.payPrice >= 100)) return;
-      try {
-        const cfg = await fetch('/api/payments/config').then(r => r.json());
-        if (!cfg || !cfg.enabled) return;
-        const amt = document.getElementById('sm-pay-online-amt');
-        if (amt) amt.textContent = submitState.payPrice.toLocaleString('ko-KR') + '원';
-        box.style.display = '';
-      } catch (_) {}
+      if (box) box.style.display = 'none';
     }
     function smLoadTossSdk(){
       return new Promise(function(resolve, reject){

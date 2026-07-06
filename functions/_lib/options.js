@@ -12,14 +12,9 @@
  */
 
 export const OPTION_CATALOG = {
-  kakao_blast: {
-    label: '카카오톡 전 회원 알림 1회',
-    price: 29000,
-    types: ['recruit', 'lecture', 'meetup'],
-  },
-  home_banner7: {
-    label: '홈 배너 노출 7일',
-    price: 19000,
+  featured_listing: {
+    label: '추천공고 등록',
+    price: 18000,
     types: ['recruit', 'lecture', 'meetup'],
   },
   dm_inquiry: {
@@ -27,9 +22,9 @@ export const OPTION_CATALOG = {
     price: 20000,
     types: ['recruit', 'lecture', 'meetup'],
   },
-  featured_listing: {
-    label: '추천공고 등록',
-    price: 18000,
+  kakao_blast: {
+    label: '카카오톡 전 회원 알림 1회',
+    price: 29000,
     types: ['recruit', 'lecture', 'meetup'],
   },
   open_chat_promo: {
@@ -38,6 +33,11 @@ export const OPTION_CATALOG = {
     pricing: 'daily',
     min_days: 1,
     max_days: 30,
+    types: ['recruit', 'lecture', 'meetup'],
+  },
+  home_banner7: {
+    label: '홈 배너 노출 7일',
+    price: 300000,
     types: ['recruit', 'lecture', 'meetup'],
   },
 };
