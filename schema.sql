@@ -123,6 +123,7 @@ CREATE TABLE IF NOT EXISTS ic_kakao_stats (
   room_name         TEXT NOT NULL DEFAULT '오픈채팅방',
   period_label      TEXT,
   rankings          TEXT NOT NULL DEFAULT '[]', -- JSON array
+  messages          TEXT, -- JSON array: monthly curated highlights [{n,t,c}]
   total_messages    INTEGER NOT NULL DEFAULT 0,
   participant_count INTEGER NOT NULL DEFAULT 0,
   updated_at        TEXT NOT NULL DEFAULT (datetime('now')),

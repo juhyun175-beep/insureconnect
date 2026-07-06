@@ -5051,6 +5051,72 @@
     .ic-m-rank-medal.rn { background: rgba(0,0,0,0.04); color: var(--txt-lo); }
     .ic-m-rank-name { flex: 1; font-size: 13px; font-weight: 700; color: var(--txt-hi); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .ic-m-rank-cnt { font-size: 11.5px; color: var(--txt-lo); font-weight: 700; }
+    .ic-m-highlight {
+      margin-top: 10px;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(254,229,0,0.36);
+      background: linear-gradient(180deg, rgba(254,229,0,0.12), rgba(249,115,22,0.04));
+    }
+    .ic-m-highlight-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-size: 13px;
+      font-weight: 900;
+      color: var(--txt-hi);
+    }
+    .ic-m-highlight-month {
+      margin-left: auto;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #fee500;
+      color: #1f2937;
+      font-size: 10.5px;
+      white-space: nowrap;
+    }
+    .ic-m-highlight-list { display: flex; flex-direction: column; gap: 7px; }
+    .ic-m-highlight-msg {
+      opacity: 0;
+      transform: translateY(5px);
+      animation: khFade .28s ease forwards;
+      padding: 9px 10px;
+      border-radius: 11px 11px 11px 4px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+    }
+    .ic-m-highlight-name {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 11px;
+      font-weight: 800;
+      color: var(--txt-mid);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ic-m-highlight-text {
+      display: block;
+      font-size: 12.5px;
+      line-height: 1.45;
+      color: var(--txt-hi);
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    .ic-m-highlight-cta {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 36px;
+      margin-top: 9px;
+      border-radius: 10px;
+      background: #fee500;
+      color: #1f2937;
+      font-size: 12px;
+      font-weight: 900;
+      text-decoration: none;
+    }
 
     /* 모바일 검색 바 */
     .ic-m-search-section { margin-top: -10px; }
@@ -6220,6 +6286,11 @@
       /* v2.64.0: 10개 항목을 세로로 균등 분산 → 늘어난 패널 높이에 내용 맞춤 */
       justify-content: space-between;
     }
+    .ic-kakao-panel.has-highlight .ic-kakao-rank-list {
+      flex: 0 0 auto;
+      max-height: 255px;
+      justify-content: flex-start;
+    }
     /* 항목 자체도 살짝 키워 빈 공간 없이 채움 */
     .ic-kakao-rank-list > .ic-kakao-rank-item { padding-top: 9px; padding-bottom: 9px; }
     .ic-kakao-rank-list::-webkit-scrollbar { width: 4px; }
@@ -6292,6 +6363,92 @@
       margin-top: auto;  /* v2.1.12: 카드 하단에 고정 */
     }
     .ic-kakao-updated > span { display: block; }
+    .ic-kakao-highlight {
+      border: 1px solid rgba(254,229,0,0.34);
+      border-radius: 12px;
+      background: linear-gradient(180deg, rgba(254,229,0,0.10), rgba(249,115,22,0.035));
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .ic-kh-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--txt-hi);
+      line-height: 1.25;
+    }
+    .ic-kh-month {
+      margin-left: auto;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #fee500;
+      color: #1f2937;
+      font-size: 10px;
+      white-space: nowrap;
+    }
+    .ic-kh-list {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      max-height: 230px;
+      overflow-y: auto;
+      scrollbar-width: thin;
+    }
+    .ic-kh-msg {
+      opacity: 0;
+      transform: translateY(5px);
+      animation: khFade .28s ease forwards;
+      padding: 8px 9px;
+      border-radius: 10px 10px 10px 3px;
+      background: var(--bg-card);
+      border: 1px solid rgba(0,0,0,0.04);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+    [data-theme="dark"] .ic-kh-msg { border-color: rgba(255,255,255,0.06); }
+    .ic-kh-who {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 3px;
+      min-width: 0;
+    }
+    .ic-kh-name {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: var(--txt-mid);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .ic-kh-time {
+      font-size: 9.5px;
+      color: var(--txt-lo);
+      white-space: nowrap;
+    }
+    .ic-kh-text {
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: var(--txt-hi);
+      word-break: keep-all;
+      overflow-wrap: anywhere;
+    }
+    .ic-kh-cta {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 34px;
+      border-radius: 9px;
+      background: #fee500;
+      color: #1f2937;
+      font-size: 11.5px;
+      font-weight: 900;
+      text-decoration: none;
+    }
+    @keyframes khFade { to { opacity: 1; transform: none; } }
 
     /* 신뢰 카드 */
     .ic-trust {
@@ -9038,7 +9195,12 @@
 
     <!-- (인슈어커넥트 파트너사 혜택/렌트카 → 빠른 메뉴 '렌트카' 카드로 통합) -->
 
-    <!-- (오픈채팅방 순위 섹션 제거) -->
+    <section class="ic-m-section" id="m-kakao-section">
+      <div class="ic-m-section-head"><span>오픈채팅</span></div>
+      <div class="ic-m-list" id="m-home-kakao">
+        <div class="ic-m-list-skel"></div>
+      </div>
+    </section>
 
     <!-- (커뮤니티 참여 CREW300·MANAGER LINK → 빠른 메뉴 카드로 통합) -->
 
@@ -9284,6 +9446,14 @@
           <div class="ic-kakao-skel"></div>
           <div class="ic-kakao-skel"></div>
           <div class="ic-kakao-skel"></div>
+        </div>
+        <div class="ic-kakao-highlight" id="home-kakao-highlight" style="display:none;">
+          <div class="ic-kh-head">
+            <span>이달의 오픈채팅 명장면</span>
+            <span class="ic-kh-month" id="home-kakao-highlight-month"></span>
+          </div>
+          <div class="ic-kh-list" id="home-kakao-highlight-list"></div>
+          <a class="ic-kh-cta" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('CREW300 오픈채팅 참여','highlight')}catch(_){} try{armCommunityFallback('CREW 300')}catch(_){}">이런 대화 나누는 방 참여 →</a>
         </div>
         <div class="ic-kakao-updated" id="home-kakao-updated"></div>
       </div>
@@ -16694,6 +16864,43 @@
       }
     }
 
+    const KAKAO_HIGHLIGHT_MAX_AGE = 42 * 24 * 60 * 60 * 1000;
+    function kakaoHighlightFresh(d) {
+      const ts = new Date(d && (d.updated_at || d.created_at || '')).getTime();
+      return Number.isFinite(ts) && (Date.now() - ts) <= KAKAO_HIGHLIGHT_MAX_AGE;
+    }
+    function kakaoHighlightMonth(d) {
+      if (d && d.period_label) return d.period_label;
+      const ts = new Date(d && (d.updated_at || d.created_at || ''));
+      return Number.isFinite(ts.getTime()) ? ((ts.getMonth() + 1) + '월') : '';
+    }
+    function renderHomeKakaoHighlights(d) {
+      const box = document.getElementById('home-kakao-highlight');
+      const list = document.getElementById('home-kakao-highlight-list');
+      const month = document.getElementById('home-kakao-highlight-month');
+      const panel = box ? box.closest('.ic-kakao-panel') : null;
+      const messages = Array.isArray(d && d.messages) ? d.messages : [];
+      const show = messages.length > 0 && kakaoHighlightFresh(d);
+      if (panel) panel.classList.toggle('has-highlight', show);
+      if (!box || !list) return;
+      if (!show) {
+        box.style.display = 'none';
+        list.innerHTML = '';
+        return;
+      }
+      const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+      if (month) month.textContent = kakaoHighlightMonth(d);
+      list.innerHTML = messages.slice(0, 12).map((m, i) => `
+        <div class="ic-kh-msg" style="animation-delay:${i * 50}ms">
+          <div class="ic-kh-who">
+            <span class="ic-kh-name">${esc2(m.n || m.name || '')}</span>
+            ${m.t ? `<span class="ic-kh-time">${esc2(m.t)}</span>` : ''}
+          </div>
+          <div class="ic-kh-text">${esc2(m.c || m.content || '')}</div>
+        </div>`).join('');
+      box.style.display = 'flex';
+    }
+
     /* 홈 대시보드 모임방 대화순위 로드 */
     async function loadKakaoRank() {
       const listEl  = document.getElementById('home-kakao-list');
@@ -16710,11 +16917,13 @@
         if (!res.ok) throw new Error('fetch failed');
         const arr = await res.json();
         if (!Array.isArray(arr) || arr.length === 0) {
+          renderHomeKakaoHighlights(null);
           listEl.innerHTML = '<div class="ic-kakao-empty">아직 대화 통계가 없습니다.<br>관리자 페이지에서 카카오톡 대화 파일을 업로드해주세요.</div>';
           return;
         }
         const d = arr[0];
         const rankings = Array.isArray(d.rankings) ? d.rankings : [];
+        renderHomeKakaoHighlights(d);
 
         // 메타 표시 (2행: 방이름 / 기간)
         if (metaEl && (d.room_name || d.period_label)) {
@@ -16750,6 +16959,7 @@
           </div>`;
         }).join('');
       } catch (_) {
+        renderHomeKakaoHighlights(null);
         listEl.innerHTML = '<div class="ic-kakao-empty">대화 통계 로드 실패.</div>';
       }
     }
@@ -17048,9 +17258,8 @@
         const r = await fetch('/api/recruitments?limit=3');
         const items = await r.json();
         const el = document.getElementById('m-home-jobs');
-        if (!el) return;
-        if (!items.length) { el.innerHTML = '<div class="ic-m-list-empty">현재 등록된 채용공고가 없습니다</div>'; }
-        else {
+        if (el && !items.length) { el.innerHTML = '<div class="ic-m-list-empty">현재 등록된 채용공고가 없습니다</div>'; }
+        else if (el) {
           el.innerHTML = items.map(it => {
             const thumb = (it.file_url && it.file_type === 'image')
               ? `<img src="${escH(it.file_url)}" alt="">` : '🔥';
@@ -17073,9 +17282,8 @@
         const r = await fetch('/api/lectures?limit=3');
         const items = await r.json();
         const el = document.getElementById('m-home-lectures');
-        if (!el) return;
-        if (!items.length) { el.innerHTML = '<div class="ic-m-list-empty">현재 등록된 강의가 없습니다</div>'; }
-        else {
+        if (el && !items.length) { el.innerHTML = '<div class="ic-m-list-empty">현재 등록된 강의가 없습니다</div>'; }
+        else if (el) {
           el.innerHTML = items.map(it => {
             const thumb = (it.file_url && it.file_type === 'image')
               ? `<img src="${escH(it.file_url)}" alt="">` : '🎓';
@@ -17102,8 +17310,9 @@
         if (!arr.length || !arr[0].rankings || !arr[0].rankings.length) {
           el.innerHTML = '<div class="ic-m-list-empty">대화 통계가 아직 없습니다</div>';
         } else {
+          const d = arr[0];
           const medals = ['🥇','🥈','🥉'];
-          el.innerHTML = arr[0].rankings.slice(0,5).map((it, i) => {
+          const rankHtml = d.rankings.slice(0,5).map((it, i) => {
             const rank = i+1;
             return `<div class="ic-m-rank-row">
               <div class="ic-m-rank-medal ${rank<=3?`r${rank}`:'rn'}">${rank<=3?medals[i]:rank}</div>
@@ -17111,6 +17320,23 @@
               <div class="ic-m-rank-cnt">${(it.count||0).toLocaleString()}건</div>
             </div>`;
           }).join('');
+          const messages = Array.isArray(d.messages) ? d.messages : [];
+          const highlightHtml = (messages.length && kakaoHighlightFresh(d)) ? `
+            <div class="ic-m-highlight">
+              <div class="ic-m-highlight-head">
+                <span>이달의 오픈채팅 명장면</span>
+                <span class="ic-m-highlight-month">${escH(kakaoHighlightMonth(d))}</span>
+              </div>
+              <div class="ic-m-highlight-list">
+                ${messages.slice(0,12).map((m, i) => `
+                  <div class="ic-m-highlight-msg" style="animation-delay:${i * 50}ms">
+                    <span class="ic-m-highlight-name">${escH(m.n || m.name || '')}${m.t ? ' · ' + escH(m.t) : ''}</span>
+                    <span class="ic-m-highlight-text">${escH(m.c || m.content || '')}</span>
+                  </div>`).join('')}
+              </div>
+              <a class="ic-m-highlight-cta" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('CREW300 오픈채팅 참여','highlight')}catch(_){} try{armCommunityFallback('CREW 300')}catch(_){}">이런 대화 나누는 방 참여 →</a>
+            </div>` : '';
+          el.innerHTML = rankHtml + highlightHtml;
         }
       } catch (_) {}
     }

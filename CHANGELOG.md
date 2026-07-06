@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.109.0] - 2026-07-06
+### Added (오픈채팅 월간 명장면 카드)
+- `migrations/d1_v2_109_0_kakao_highlights.sql`/`schema.sql`: `ic_kakao_stats.messages` 컬럼 추가. 기존 카카오 대화순위 스냅샷에 월간 명장면 JSON을 함께 저장.
+- `admin.html`: 카카오 TXT 파서가 대화 순위와 함께 `{name,time,content}` 후보를 추출하고, 업로드 미리보기에서 운영자가 최대 12개 명장면을 체크해 저장할 수 있도록 확장. 닉네임 가리기 기본 ON.
+- `functions/api/kakao-stats/index.js`: 저장 전 서버에서 명장면 개인정보 마스킹, URL 포함 라인 제외, 120자 컷, 12개 상한, 닉네임 마스킹을 강제하고 GET 응답에 `messages`를 파싱해 포함.
+- `index.html`: 기존 오픈채팅 대화순위 패널 안에 `이달의 오픈채팅 명장면` 월간 카드를 추가. `messages`가 없거나 `updated_at`이 42일 초과면 자동 숨김. 참여 CTA는 `highlight` 타입으로 트래킹.
+
 ## [2.108.6] - 2026-07-06
 ### Removed (온라인 결제 실험 인프라 및 허수 테스트 주문 기록 정리)
 - `functions/api/payments/*` 결제 엔드포인트, `functions/api/webhooks/toss.js`, `_lib/tosspayments.js`, `migrations/d1_v2_1_1_toss_payments.sql` 삭제.

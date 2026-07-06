@@ -4088,7 +4088,7 @@
           <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.8;">
             <li>카카오톡 PC앱에서 <strong>대화 내보내기</strong>로 저장한 <strong>.txt 파일</strong>을 업로드하세요</li>
             <li>파일을 파싱해 대화 횟수 기준으로 자동 순위를 산출합니다</li>
-            <li>결과 미리보기 확인 후 저장하면 홈 대시보드 채용공고 옆에 실시간 표시됩니다</li>
+            <li>결과 미리보기 확인 후 저장하면 홈 대시보드에 월간 스냅샷으로 표시됩니다</li>
             <li>가장 최근에 저장된 통계 1건이 표시됩니다</li>
           </ul>
         </div>
@@ -4118,6 +4118,16 @@
           <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">📊 분석 결과 미리보기</div>
           <div id="kk-preview-meta" style="font-size:12px;color:var(--txt-mid);margin-bottom:10px;"></div>
           <div id="kk-preview-list" style="display:flex;flex-direction:column;gap:5px;margin-bottom:14px;"></div>
+          <div id="kk-highlight-box" style="margin:14px 0;padding:12px;border:1px solid var(--border);border-radius:10px;background:var(--bg);">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px;">
+              <div style="font-size:13px;font-weight:800;color:var(--txt-hi);">✨ 명장면 고르기</div>
+              <label style="display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--txt-mid);white-space:nowrap;">
+                <input type="checkbox" id="kk-mask-nick" checked> 닉네임 가리기
+              </label>
+            </div>
+            <div id="kk-highlight-meta" style="font-size:11.5px;color:var(--txt-lo);margin-bottom:8px;">체크한 대화만 홈 명장면 카드에 저장됩니다. 최대 12개.</div>
+            <div id="kk-highlight-list" style="display:flex;flex-direction:column;gap:6px;max-height:360px;overflow:auto;"></div>
+          </div>
           <button class="nl-btn" id="kk-save-btn" onclick="kkSave()" style="background:linear-gradient(135deg,#fee500,#f97316);color:#1a1a1a;">💾 홈 대시보드에 저장</button>
         </div>
 
@@ -8899,6 +8909,7 @@
     function parseKakaoTxt(text) {
       const lines = text.split(/\r?\n/);
       const counts = {};
+      const messages = [];
       const sampleUnmatched = [];
 
       // 시간 표현: '오전 9:23' / '오후 9:23' / '9:23AM' / '9:23 PM' / '9:23' 모두 지원
@@ -8934,28 +8945,30 @@
         // "이름 님과 카카오톡 대화" 형태도 스킵
         if (/님과(의)?\s*카카오톡/.test(trimmed)) continue;
 
-        let name = null, content = null;
+        let name = null, time = null, content = null;
         const m1 = trimmed.match(re1);
-        if (m1) { name = m1[1].trim(); content = m1[3]; }
+        if (m1) { name = m1[1].trim(); time = m1[2].trim(); content = m1[3]; }
         else {
           const m2 = trimmed.match(re2);
-          if (m2) { name = m2[1].trim(); content = m2[3]; }
+          if (m2) { name = m2[1].trim(); time = m2[2].trim(); content = m2[3]; }
           else {
             const m3 = trimmed.match(re3);
-            if (m3) { name = m3[2].trim(); content = m3[3]; }
+            if (m3) { name = m3[2].trim(); time = m3[1].trim(); content = m3[3]; }
             else {
               const m4 = trimmed.match(re4);
-              if (m4) { name = m4[2].trim(); content = m4[3]; }
+              if (m4) { name = m4[2].trim(); time = m4[1].trim(); content = m4[3]; }
             }
           }
         }
 
         if (name && content) {
+          content = String(content || '').trim();
           if (skip.some(s => content.includes(s))) continue;
           if (!name || name.length > 30) continue;
           // 이름이 대화방 이름 형태 ([CREW300] 같은 거)면 스킵
           if (/님과(의)?\s*카카오톡/.test(name)) continue;
           counts[name] = (counts[name] || 0) + 1;
+          messages.push({ name, time: time || null, content });
         } else if (sampleUnmatched.length < 5 && trimmed.length > 5) {
           sampleUnmatched.push(trimmed);
         }
@@ -8965,7 +8978,7 @@
         .map(([name, count]) => ({ name, count }))
         .sort((a, b) => b.count - a.count);
 
-      return { rankings, sampleUnmatched, totalLines: lines.length };
+      return { rankings, messages, sampleUnmatched, totalLines: lines.length };
     }
 
     /* ArrayBuffer → 다중 인코딩 디코드 시도 */
@@ -8985,6 +8998,49 @@
       return utf8 || '';
     }
 
+    function kkRenderHighlightPicker(messages) {
+      const list = document.getElementById('kk-highlight-list');
+      const meta = document.getElementById('kk-highlight-meta');
+      if (!list || !meta) return;
+      const esc2 = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+      const arr = Array.isArray(messages) ? messages : [];
+      meta.textContent = `명장면 후보 ${arr.length.toLocaleString()}건 · 체크한 대화만 저장 · 최대 12개`;
+      if (!arr.length) {
+        list.innerHTML = '<div style="padding:14px;text-align:center;color:var(--txt-lo);font-size:12px;">선택할 수 있는 대화 후보가 없습니다.</div>';
+        return;
+      }
+      list.innerHTML = arr.map((m, i) => `
+        <label class="kk-hi-row" style="display:grid;grid-template-columns:24px 1fr;gap:8px;align-items:start;padding:9px 10px;border:1px solid var(--border);border-radius:10px;background:var(--bg-card);cursor:pointer;">
+          <input type="checkbox" class="kk-hi-check" data-idx="${i}" style="margin-top:4px;">
+          <span style="min-width:0;">
+            <span style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
+              <b style="font-size:12px;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc2(m.name)}</b>
+              ${m.time ? `<span style="font-size:10.5px;color:var(--txt-lo);white-space:nowrap;">${esc2(m.time)}</span>` : ''}
+            </span>
+            <span style="display:block;font-size:12px;line-height:1.45;color:var(--txt-mid);word-break:keep-all;overflow-wrap:anywhere;">${esc2(m.content)}</span>
+          </span>
+        </label>`).join('');
+      list.querySelectorAll('.kk-hi-check').forEach(chk => {
+        chk.addEventListener('change', () => {
+          const selected = list.querySelectorAll('.kk-hi-check:checked').length;
+          if (selected > 12) {
+            chk.checked = false;
+            alert('명장면은 최대 12개까지만 선택할 수 있습니다.');
+          } else {
+            meta.textContent = `명장면 후보 ${arr.length.toLocaleString()}건 · 선택 ${selected}개 · 최대 12개`;
+          }
+        });
+      });
+    }
+
+    function kkSelectedHighlights() {
+      if (!_kkParsed || !Array.isArray(_kkParsed.messages)) return [];
+      return Array.from(document.querySelectorAll('#kk-highlight-list .kk-hi-check:checked'))
+        .map(chk => _kkParsed.messages[Number(chk.dataset.idx)])
+        .filter(Boolean)
+        .slice(0, 12);
+    }
+
     function kkParseFile() {
       const fileInput = document.getElementById('kk-file');
       if (!fileInput.files || !fileInput.files[0]) {
@@ -9000,7 +9056,7 @@
         try {
           const text = decodeKakaoBuffer(e.target.result);
           const parsed = parseKakaoTxt(text);
-          const { rankings, sampleUnmatched, totalLines } = parsed;
+          const { rankings, messages, sampleUnmatched, totalLines } = parsed;
 
           if (rankings.length === 0) {
             // 파싱 실패 진단
@@ -9019,7 +9075,7 @@
           }
 
           const total = rankings.reduce((s, r) => s + r.count, 0);
-          _kkParsed = { rankings, total };
+          _kkParsed = { rankings, total, messages: messages || [] };
 
           // 미리보기 표시
           const medals = ['🥇','🥈','🥉'];
@@ -9032,6 +9088,7 @@
               <span style="flex:1;font-size:13px;font-weight:700;color:var(--txt-hi);">${esc2(r.name)}</span>
               <span style="font-size:12px;color:var(--txt-lo);font-weight:600;">${r.count.toLocaleString()}건</span>
             </div>`).join('');
+          kkRenderHighlightPicker(_kkParsed.messages);
           document.getElementById('kk-preview').style.display = 'block';
         } catch (err) {
           alert('파일 파싱 오류: ' + err.message);
@@ -9060,6 +9117,8 @@
           room_name: document.getElementById('kk-room-name').value.trim() || '오픈채팅방',
           period_label: document.getElementById('kk-period').value.trim() || null,
           rankings: _kkParsed.rankings,
+          highlights: kkSelectedHighlights(),
+          mask_nick: document.getElementById('kk-mask-nick') ? document.getElementById('kk-mask-nick').checked : true,
           total_messages: _kkParsed.total,
           participant_count: _kkParsed.rankings.length,
           updated_at: new Date().toISOString()
@@ -9110,7 +9169,7 @@
             ${idx===0 ? '<span style="font-size:10px;font-weight:800;padding:2px 7px;background:#fee500;color:#1a1a1a;border-radius:8px;flex-shrink:0;">최신</span>' : ''}
             <div style="flex:1;min-width:0;">
               <div style="font-size:13px;font-weight:700;color:var(--txt-hi);">💬 ${esc2(it.room_name)}${it.period_label ? ` · ${esc2(it.period_label)}` : ''}</div>
-              <div style="font-size:11px;color:var(--txt-lo);">참여자 ${it.participant_count||0}명 · 총 ${(it.total_messages||0).toLocaleString()}건 · ${fmt(it.updated_at)}</div>
+              <div style="font-size:11px;color:var(--txt-lo);">참여자 ${it.participant_count||0}명 · 총 ${(it.total_messages||0).toLocaleString()}건 · 명장면 ${(Array.isArray(it.messages)?it.messages.length:0)}개 · ${fmt(it.updated_at)}</div>
             </div>
             <button onclick="kkDelete(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`).join('');
