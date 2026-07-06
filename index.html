@@ -8326,6 +8326,17 @@
                 <span><b>홈 배너 노출 7일</b> <b style="color:#7c3aed;">+19,000원</b><br>
                 <span style="font-size:11px;color:var(--txt-mid,#475569);">홈 화면 광고배너에 공고 이미지를 7일간 노출 · 종료 후 노출/클릭 리포트 제공</span></span>
               </label>
+              <div style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-top:8px;">
+                <input type="checkbox" id="sm-opt-open_chat_promo" onchange="smToggleDailyOption('open_chat_promo')" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <div style="flex:1;min-width:0;">
+                  <label for="sm-opt-open_chat_promo" style="cursor:pointer;"><b>오픈채팅방 홍보</b> <b style="color:#7c3aed;">하루당 +280,000원</b></label><br>
+                  <span style="font-size:11px;color:var(--txt-mid,#475569);">운영 오픈채팅방에 선택 기간 동안 공고를 홍보합니다.</span>
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap;">
+                    <input type="number" id="sm-opt-open_chat_promo-days" min="1" max="30" value="1" disabled oninput="smUpdatePrice()" onchange="smUpdatePrice()" style="width:76px;padding:5px 8px;border:1.5px solid rgba(124,58,237,0.28);border-radius:8px;font-size:12px;font-weight:800;color:#7c3aed;background:#fff;">
+                    <span style="font-size:11px;color:var(--txt-mid,#475569);">일 동안 홍보</span>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="sm-pay-row" id="sm-options-row" style="display:none">
               <span class="sm-pay-label">추가 옵션</span>
@@ -11788,7 +11799,8 @@
       }
       submitState.step = 1;
       submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
-      ['sm-opt-kakao_blast','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
+      ['sm-opt-kakao_blast','sm-opt-home_banner7','sm-opt-open_chat_promo'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
+      const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
       ['sm-input-title','sm-input-company','sm-input-instructor','sm-input-host','sm-input-location','sm-input-eventat','sm-input-desc','sm-input-name','sm-input-contact','sm-input-form'].forEach(id => {
@@ -11863,18 +11875,51 @@
       smUpdatePrice();
     }
     /* v2.107.0: 유료 애드온 옵션 — 표시용 가격(권위는 서버 _lib/options.js OPTION_CATALOG) */
-    const SM_OPTIONS = { kakao_blast: 29000, home_banner7: 19000 };
+    const SM_OPTIONS = {
+      kakao_blast: { price: 29000 },
+      home_banner7: { price: 19000 },
+      open_chat_promo: { price: 280000, pricing: 'daily', min: 1, max: 30 }
+    };
+    function smDailyOptionDays(key){
+      const meta = SM_OPTIONS[key] || {};
+      const el = document.getElementById('sm-opt-'+key+'-days');
+      const min = meta.min || 1, max = meta.max || 30;
+      let days = parseInt(el && el.value, 10);
+      if (!Number.isFinite(days)) days = min;
+      days = Math.max(min, Math.min(max, days));
+      if (el && String(el.value) !== String(days)) el.value = String(days);
+      return days;
+    }
+    function smToggleDailyOption(key){
+      const cb = document.getElementById('sm-opt-'+key);
+      const days = document.getElementById('sm-opt-'+key+'-days');
+      if (days) days.disabled = !(cb && cb.checked);
+      smUpdatePrice();
+    }
+    window.smToggleDailyOption = smToggleDailyOption;
     function smSelectedOptions(){
-      var keys = [];
-      Object.keys(SM_OPTIONS).forEach(function(k){ var c = document.getElementById('sm-opt-'+k); if(c && c.checked) keys.push(k); });
-      return keys;
+      var options = [];
+      Object.keys(SM_OPTIONS).forEach(function(k){
+        var c = document.getElementById('sm-opt-'+k);
+        if(!c || !c.checked) return;
+        var meta = SM_OPTIONS[k] || {};
+        if(meta.pricing === 'daily') options.push({ key: k, days: smDailyOptionDays(k) });
+        else options.push(k);
+      });
+      return options;
+    }
+    function smOptionAmount(opt){
+      var key = (opt && typeof opt === 'object') ? opt.key : opt;
+      var meta = SM_OPTIONS[key] || {};
+      if(meta.pricing === 'daily') return (meta.price || 0) * smDailyOptionDays(key);
+      return meta.price || 0;
     }
     function smUpdatePrice(){
       const adType = SM_BASE[submitState.mode] ? submitState.mode : 'recruit';
       const base = SM_BASE[adType];
       const sel = document.getElementById('sm-coupon-sel');
       var rate = 0; if(sel && sel.selectedOptions && sel.selectedOptions[0]){ rate = parseInt(sel.selectedOptions[0].getAttribute('data-rate')||'0',10)||0; }
-      var optTotal = 0; smSelectedOptions().forEach(function(k){ optTotal += SM_OPTIONS[k] || 0; });   // v2.107.0
+      var optTotal = 0; smSelectedOptions().forEach(function(opt){ optTotal += smOptionAmount(opt); });   // v2.107.0
       const discount = Math.round(base*rate/100), final = base - discount + optTotal;
       const dr = document.getElementById('sm-discount-row'); if(dr) dr.style.display = rate>0 ? '' : 'none';
       const da = document.getElementById('sm-discount-amt'); if(da) da.textContent = smWon(discount);
