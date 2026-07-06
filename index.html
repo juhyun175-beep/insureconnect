@@ -1844,6 +1844,26 @@
       display: flex; align-items: center; justify-content: space-between;
       gap: 12px; flex-wrap: wrap;
     }
+    .submit-cta-bar {
+      position: relative;
+      border: 1.5px solid rgba(245,158,11,0.42);
+      background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(219,39,119,0.08), rgba(26,61,232,0.06));
+      box-shadow: 0 10px 28px rgba(245,158,11,0.12);
+    }
+    .submit-cta-bar::before {
+      content: "UPLOAD";
+      position: absolute;
+      top: -9px;
+      left: 14px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: #f59e0b;
+      color: #fff;
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.08em;
+      line-height: 1.2;
+    }
     .submit-cta-text {
       display: flex; align-items: center; gap: 8px;
       color: var(--txt-hi); font-size: 13.5px; font-weight: 600;
@@ -1852,14 +1872,14 @@
     .submit-cta-btn {
       padding: 10px 18px;
       border-radius: 10px;
-      background: linear-gradient(135deg, #1a3de8, #db2777);
+      background: linear-gradient(135deg, #f59e0b, #f97316 46%, #db2777);
       color: #fff; border: none;
       font-size: 13px; font-weight: 700; cursor: pointer;
-      box-shadow: 0 4px 14px rgba(26,61,232,0.25);
+      box-shadow: 0 8px 20px rgba(249,115,22,0.28);
       transition: transform .15s, box-shadow .15s;
       white-space: nowrap;
     }
-    .submit-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 18px rgba(26,61,232,0.35); }
+    .submit-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(249,115,22,0.36); }
 
     /* v2.0.4: PC 홈 대시보드 공고 등록 CTA */
     .home-submit-cta {
@@ -7532,9 +7552,9 @@
     /* v2.84.0: 로그인정보 액션 버튼 2열 그리드 (채팅·고객·보장분석·공고등록) */
     .side-quick2 { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
     .side-quick2 .menu-pill { min-height:50px; padding:6px; line-height:1.28; word-break:keep-all; }
-    .side-quick2 .menu-pill.is-cta { color:#b45309; border-color:rgba(245,158,11,0.5); background:rgba(245,158,11,0.09); font-weight:800; }
-    .side-quick2 .menu-pill.is-cta:hover { border-color:#f59e0b; color:#92400e; background:rgba(245,158,11,0.15); }
-    [data-theme="dark"] .side-quick2 .menu-pill.is-cta { color:#fbbf24; border-color:rgba(245,158,11,0.42); }
+    .side-quick2 .menu-pill.is-cta { color:#fff; border-color:transparent; background:linear-gradient(135deg,#f59e0b,#f97316 52%,#db2777); font-weight:900; box-shadow:0 8px 20px rgba(249,115,22,0.24); }
+    .side-quick2 .menu-pill.is-cta:hover { color:#fff; filter:brightness(1.04); box-shadow:0 10px 26px rgba(249,115,22,0.34); }
+    [data-theme="dark"] .side-quick2 .menu-pill.is-cta { color:#fff; border-color:rgba(251,191,36,0.22); }
     @media (max-width: 480px) {
       .side-submit-single { margin: 4px 14px 8px; padding: 12px 14px; }
       .side-submit-single .sss-title { font-size: 13.5px; }
@@ -8303,7 +8323,7 @@
             </div>
             <div class="sm-pay-row">
               <span class="sm-pay-label">등록가</span>
-              <span class="sm-pay-val"><span id="sm-base-price">59,000</span>원</span>
+              <span class="sm-pay-val"><span id="sm-base-price">20,000</span>원</span>
             </div>
             <div class="sm-pay-row" id="sm-coupon-row" style="display:none">
               <span class="sm-pay-label">할인권</span>
@@ -8321,10 +8341,20 @@
                 <span><b>카카오톡 전 회원 알림 1회</b> <b style="color:#7c3aed;">+29,000원</b><br>
                 <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 시 알림 수신 회원 전원에게 공고를 카톡 1회 발송 (주 2슬롯 한정 · 웹푸시 동시 발송)</span></span>
               </label>
-              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;cursor:pointer;">
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
                 <input type="checkbox" id="sm-opt-home_banner7" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
                 <span><b>홈 배너 노출 7일</b> <b style="color:#7c3aed;">+19,000원</b><br>
                 <span style="font-size:11px;color:var(--txt-mid,#475569);">홈 화면 광고배너에 공고 이미지를 7일간 노출 · 종료 후 노출/클릭 리포트 제공</span></span>
+              </label>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-dm_inquiry" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>1:1 문의 기능</b> <b style="color:#7c3aed;">+20,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">공고 상세에서 등록자에게 바로 1:1 문의할 수 있게 표시</span></span>
+              </label>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-featured_listing" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>추천공고 등록</b> <b style="color:#7c3aed;">+18,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 후 추천/상단 공고로 노출되도록 운영 이행 요청</span></span>
               </label>
               <div style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-top:8px;">
                 <input type="checkbox" id="sm-opt-open_chat_promo" onchange="smToggleDailyOption('open_chat_promo')" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
@@ -8344,7 +8374,7 @@
             </div>
             <div class="sm-pay-row" style="border-top:1px dashed #e2e8f0;margin-top:5px;padding-top:11px">
               <span class="sm-pay-label">최종 결제(입금액)</span>
-              <span class="sm-pay-val sm-pay-amount"><span id="sm-final-price">59,000</span>원</span>
+              <span class="sm-pay-val sm-pay-amount"><span id="sm-final-price">20,000</span>원</span>
             </div>
             <div id="sm-coupon-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(26,61,232,0.06);border:1px dashed rgba(26,61,232,0.32);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">🎟️ 할인권으로 등록비를 할인받을 수 있어요.</div>
             <div id="sm-cardpay-hint" style="margin-top:10px;padding:9px 11px;border-radius:9px;background:rgba(22,163,74,0.08);border:1px dashed rgba(22,163,74,0.4);font-size:11.5px;line-height:1.55;color:var(--txt-hi,#0f172a);">💳 <b>카드·간편결제를 원하시면</b> 입금 없이 바로 제출하세요 — 제출 완료 화면에서 카드로 결제할 수 있어요.</div>
@@ -11799,7 +11829,7 @@
       }
       submitState.step = 1;
       submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
-      ['sm-opt-kakao_blast','sm-opt-home_banner7','sm-opt-open_chat_promo'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
+      ['sm-opt-kakao_blast','sm-opt-home_banner7','sm-opt-dm_inquiry','sm-opt-featured_listing','sm-opt-open_chat_promo'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
       const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
@@ -11846,7 +11876,7 @@
       smRenderCoupons();
     }
     /* v2.54.0: 공고 등록 — 등록가·할인권 적용(포인트→쿠폰→할인). final=등록가×(1−할인율) */
-    const SM_BASE = { recruit: 59000, lecture: 99000, meetup: 149000 };
+    const SM_BASE = { recruit: 20000, lecture: 20000, meetup: 20000 };
     const SM_MAX_RATE = { recruit: 15, lecture: 35, meetup: 49 }; // v2.69.0: 할인권 안내용 최대 할인율
     function smWon(n){ return Number(n||0).toLocaleString('ko-KR'); }
     var _smCoupons = null;
@@ -11878,6 +11908,8 @@
     const SM_OPTIONS = {
       kakao_blast: { price: 29000 },
       home_banner7: { price: 19000 },
+      dm_inquiry: { price: 20000 },
+      featured_listing: { price: 18000 },
       open_chat_promo: { price: 280000, pricing: 'daily', min: 1, max: 30 }
     };
     function smDailyOptionDays(key){

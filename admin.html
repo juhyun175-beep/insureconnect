@@ -2495,6 +2495,25 @@
       text-shadow: none !important;
       box-shadow: 0 4px 14px rgba(26,61,232,0.35) !important;
     }
+    .upload-tab.upload-tab-posting {
+      border-color: rgba(245,158,11,0.58) !important;
+      color: #b45309 !important;
+      background: linear-gradient(135deg, rgba(245,158,11,0.14), rgba(249,115,22,0.08)) !important;
+      font-weight: 800 !important;
+      box-shadow: 0 4px 14px rgba(245,158,11,0.14) !important;
+    }
+    .upload-tab.upload-tab-posting:hover {
+      color: #fff !important;
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #f59e0b, #f97316) !important;
+      box-shadow: 0 8px 22px rgba(249,115,22,0.28) !important;
+    }
+    .upload-tab.upload-tab-posting.active {
+      color: #fff !important;
+      border-color: transparent !important;
+      background: linear-gradient(135deg, #f59e0b, #f97316, #db2777) !important;
+      box-shadow: 0 10px 26px rgba(249,115,22,0.34) !important;
+    }
 
     /* ══════════════════ 통계 슬라이더 ══════════════════ */
     .stats-slider-nav {
@@ -3503,9 +3522,9 @@
         <span class="tab-group-sep" aria-hidden="true"></span>
 
         <!-- 공고·판매 등록 -->
-        <button class="upload-tab" data-panel="up-recruit">💼 채용공고</button>
-        <button class="upload-tab" data-panel="up-lecture">🎓 강의</button>
-        <button class="upload-tab" data-panel="up-meetup">🤝 모임</button>
+        <button class="upload-tab upload-tab-posting" data-panel="up-recruit">💼 채용공고</button>
+        <button class="upload-tab upload-tab-posting" data-panel="up-lecture">🎓 강의</button>
+        <button class="upload-tab upload-tab-posting" data-panel="up-meetup">🤝 모임</button>
         <button class="upload-tab" data-panel="up-cases" style="border-color:#a855f7;color:#a855f7;">🗂 보험 사례</button>
         <button class="upload-tab" data-panel="up-coverages" style="border-color:#0ea5e9;color:#0ea5e9;">📑 담보분석(PDF)</button>
 
@@ -3731,7 +3750,7 @@
             <label>채용공고 내용 (텍스트)</label>
             <textarea id="rc-description" placeholder="담당업무, 자격요건, 근무조건, 지원방법 등 채용공고 상세 내용을 입력하세요." rows="6" style="width:100%;padding:10px 12px;font-size:13px;line-height:1.6;resize:vertical;"></textarea>
           </div>
-          <button class="nl-upload-btn" id="rc-upload-btn" onclick="uploadRecruit()">업로드</button>
+          <button class="nl-upload-btn posting-upload-btn" id="rc-upload-btn" onclick="uploadRecruit()" style="background:linear-gradient(135deg,#f59e0b,#f97316,#db2777);box-shadow:0 8px 22px rgba(249,115,22,0.24);">📤 공고 업로드</button>
         </div>
         <p class="nl-status" id="rc-status"></p>
       </div>
@@ -4215,7 +4234,7 @@
                 <span class="nl-file-name" id="lec-file-name">없음</span>
               </label>
             </div>
-            <button class="nl-upload-btn" id="lec-upload-btn" onclick="uploadLecture()">강의 등록</button>
+            <button class="nl-upload-btn posting-upload-btn" id="lec-upload-btn" onclick="uploadLecture()" style="background:linear-gradient(135deg,#f59e0b,#f97316,#db2777);box-shadow:0 8px 22px rgba(249,115,22,0.24);">📤 강의 업로드</button>
             <p class="nl-status" id="lec-status"></p>
           </div>
         </div>
@@ -4260,7 +4279,7 @@
                 <span class="nl-file-name" id="mt-file-name">없음</span>
               </label>
             </div>
-            <button class="nl-upload-btn" id="mt-upload-btn" onclick="uploadMeeting()">모임 등록</button>
+            <button class="nl-upload-btn posting-upload-btn" id="mt-upload-btn" onclick="uploadMeeting()" style="background:linear-gradient(135deg,#f59e0b,#f97316,#db2777);box-shadow:0 8px 22px rgba(249,115,22,0.24);">📤 모임 업로드</button>
             <p class="nl-status" id="mt-status"></p>
           </div>
         </div>
@@ -6274,7 +6293,7 @@
       } catch (e) {
         status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
       } finally {
-        btn.disabled = false; btn.textContent = '강의 등록';
+        btn.disabled = false; btn.textContent = '📤 강의 업로드';
       }
     }
 
@@ -6320,7 +6339,7 @@
       } catch (e) {
         status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
       } finally {
-        btn.disabled = false; btn.textContent = '모임 등록';
+        btn.disabled = false; btn.textContent = '📤 모임 업로드';
       }
     }
 
@@ -6512,7 +6531,7 @@
     var _RF_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
     var _RF_ST={pending_payment:'입금대기',paid:'결제완료',published:'게시',refunded:'환불완료'};
     /* v2.107.0: 유료 애드온 옵션 라벨 — 이행(수동) 안내용 */
-    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일',open_chat_promo:'오픈채팅방 홍보'};
+    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일',dm_inquiry:'1:1문의 기능',featured_listing:'추천공고 등록',open_chat_promo:'오픈채팅방 홍보'};
     function _rfOptKey(opt){ return opt && typeof opt==='object' ? String(opt.key||opt.id||opt.option||'') : String(opt||''); }
     function _rfOptLabel(opt){
       var key=_rfOptKey(opt), label=_RF_OPT[key]||key;
@@ -6882,6 +6901,7 @@
       const fileName = `${Date.now()}_${safeCompany}.${ext}`;
 
       btn.disabled = true;
+      btn.textContent = '⏳ 등록 중…';
       status.textContent = '업로드 중…';
 
       try {
@@ -6924,6 +6944,7 @@
         status.textContent = '❌ 업로드 실패: ' + e.message;
       } finally {
         btn.disabled = false;
+        btn.textContent = '📤 공고 업로드';
       }
     }
 

@@ -22,6 +22,16 @@ export const OPTION_CATALOG = {
     price: 19000,
     types: ['recruit', 'lecture', 'meetup'],
   },
+  dm_inquiry: {
+    label: '1:1 문의 기능',
+    price: 20000,
+    types: ['recruit', 'lecture', 'meetup'],
+  },
+  featured_listing: {
+    label: '추천공고 등록',
+    price: 18000,
+    types: ['recruit', 'lecture', 'meetup'],
+  },
   open_chat_promo: {
     label: '오픈채팅방 홍보',
     price: 280000,

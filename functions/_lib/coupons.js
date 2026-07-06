@@ -9,8 +9,8 @@
 
 export const COUPON_TTL_DAYS = 14;
 
-// 공고 등록가 (원). 모임은 운영부담 최고가.
-export const AD_BASE = { recruit: 59000, lecture: 99000, meetup: 149000 };
+// 공고 등록가 (원). 채용·강의·모임 기본 등록비 동일 적용.
+export const AD_BASE = { recruit: 20000, lecture: 20000, meetup: 20000 };
 export const AD_LABEL = { recruit: '채용공고', lecture: '강의공고', meetup: '모임공고' };
 export const AD_MAX_RATE = { recruit: 15, lecture: 35, meetup: 49 };
 
