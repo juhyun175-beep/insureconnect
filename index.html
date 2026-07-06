@@ -1880,6 +1880,34 @@
       white-space: nowrap;
     }
     .submit-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 10px 26px rgba(249,115,22,0.36); }
+    body.ic-mobile .submit-cta-bar {
+      border: 2px solid rgba(249,115,22,0.64);
+      box-shadow: 0 12px 28px rgba(249,115,22,0.18);
+    }
+    body.ic-mobile .submit-cta-btn {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      min-height: 48px;
+      padding: 10px 14px;
+      font-size: 13.5px;
+      font-weight: 900;
+      letter-spacing: 0;
+      white-space: normal;
+      line-height: 1.2;
+      box-shadow: 0 12px 26px rgba(219,39,119,0.26);
+    }
+    body.ic-mobile .submit-cta-btn::before {
+      content: "7~8월 등록비 인하 이벤트";
+      display: block;
+      font-size: 10.5px;
+      font-weight: 900;
+      line-height: 1.1;
+      color: rgba(255,255,255,0.92);
+    }
 
     /* v2.0.4: PC 홈 대시보드 공고 등록 CTA */
     .home-submit-cta {
@@ -4775,6 +4803,45 @@
     /* v2.11.0 fix: body.ic-mobile .side-submit-single(특이도 0,2,1)가 위 규칙(0,2,0)을 이겨 좌우 14px 마진+width:100%로 카드 밖 이탈 → 더 높은 특이도(0,3,1)로 마진 0 강제 */
     body.ic-mobile .m-account-card .side-submit-single,
     body.ic-mobile .m-account-card .side-search-btn { width: 100%; margin: 0; }
+    body.ic-mobile .m-account-card .m-posting-cta {
+      flex: 1.45 1 0 !important;
+      min-height: 46px !important;
+      padding: 8px 7px !important;
+      border-radius: 11px !important;
+      background: linear-gradient(135deg, #f59e0b 0%, #f97316 46%, #db2777 100%) !important;
+      color: #fff !important;
+      font-weight: 900 !important;
+      font-size: 13px !important;
+      line-height: 1.15 !important;
+      letter-spacing: 0 !important;
+      white-space: normal !important;
+      box-shadow: 0 11px 24px rgba(249,115,22,0.34), 0 0 0 1px rgba(255,255,255,0.24) inset !important;
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 3px !important;
+    }
+    body.ic-mobile .m-account-card .m-posting-cta::before {
+      content: "7~8월 등록비 이벤트";
+      display: block;
+      font-size: 10px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      line-height: 1.05;
+    }
+    body.ic-mobile .m-account-card .m-posting-cta:active {
+      transform: scale(0.98);
+    }
+    @media (prefers-reduced-motion: no-preference) {
+      body.ic-mobile .m-account-card .m-posting-cta {
+        animation: mPostingCtaPulse 2.4s ease-in-out infinite;
+      }
+    }
+    @keyframes mPostingCtaPulse {
+      0%, 100% { box-shadow: 0 11px 24px rgba(249,115,22,0.34), 0 0 0 1px rgba(255,255,255,0.24) inset; }
+      50% { box-shadow: 0 14px 30px rgba(219,39,119,0.42), 0 0 0 1px rgba(255,255,255,0.34) inset; }
+    }
     /* v2.12.2: 계정카드 — 유틸 3열(앱공유·운영자문의·파트너전용) + 하단(빠른검색·방문통계) 2열 */
     .m-acc-util3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px; }
     .m-acc-util { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; padding: 9px 4px; border-radius: 9px; background: var(--bg); border: 1px solid var(--border); color: var(--txt-mid); font-size: 11px; font-weight: 700; text-decoration: none; cursor: pointer; font-family: inherit; text-align: center; }
@@ -8881,7 +8948,7 @@
             +'</div>'
             +'<div style="display:flex;gap:6px;margin-top:9px;">'
             +'<a href="/me" style="flex:1;text-align:center;background:var(--blue-mid,#1a3de8);color:#fff;text-decoration:none;font-weight:700;font-size:12.5px;padding:9px 4px;border-radius:8px;white-space:nowrap;">👤 마이페이지</a>'
-            +'<button type="button" onclick="openSubmitModal()" style="flex:1;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;padding:9px 4px;border-radius:8px;white-space:nowrap;">📤 공고 등록</button>'
+            +'<button type="button" class="m-posting-cta" onclick="openSubmitModal()" style="flex:1;background:linear-gradient(135deg,#f59e0b,#f97316);border:none;color:#fff;font-weight:700;font-size:12.5px;cursor:pointer;padding:9px 4px;border-radius:8px;white-space:nowrap;">📤 내공고 직접등록</button>'
             +'<button type="button" onclick="icLogout()" style="flex:0 0 auto;background:transparent;border:1px solid var(--border);color:var(--txt-mid);font-size:12.5px;cursor:pointer;padding:9px 12px;border-radius:8px;white-space:nowrap;">로그아웃</button>'
             +'</div>';
           if(card) card.style.display='';
