@@ -1314,6 +1314,18 @@
       font-family: inherit;
     }
     .reqs-refresh:hover { background: rgba(0,240,255,0.08); }
+    .reqs-export {
+      padding: 7px 14px;
+      background: rgba(245,158,11,0.10);
+      border: 1px solid #f59e0b;
+      color: #f59e0b;
+      border-radius: 6px;
+      font-size: 11px; font-weight: 700;
+      cursor: pointer;
+      letter-spacing: 0.06em;
+      font-family: inherit;
+    }
+    .reqs-export:hover { background: rgba(245,158,11,0.18); }
     .reqs-sub-pane[data-sub-pane] { animation: reqsFade 0.2s ease; }
     @keyframes reqsFade {
       from { opacity: 0; transform: translateY(2px); }
@@ -1349,6 +1361,13 @@
       border-radius: 12px;
       padding: 16px;
       position: relative;
+      cursor: pointer;
+      transition: border-color .15s, transform .15s, box-shadow .15s;
+    }
+    .pending-card:hover {
+      border-color: var(--neon-cyan, #00f0ff);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 26px rgba(0,240,255,0.08);
     }
     .pending-card.lecture { border-color: var(--neon-pink); }
     .pending-card-tag {
@@ -1358,6 +1377,7 @@
     }
     .pending-card.recruit .pending-card-tag { background: rgba(124,58,237,0.2); color: #b794f4; }
     .pending-card.lecture .pending-card-tag { background: rgba(255,77,166,0.2); color: var(--neon-pink); }
+    .pending-card.meetup .pending-card-tag { background: rgba(13,148,136,0.20); color: #2dd4bf; }
     .pending-card h4 { margin: 0 0 6px; font-size: 14.5px; color: var(--txt-hi); padding-right: 60px; }
     .pending-card-meta { font-size: 11px; color: var(--txt-lo); margin-bottom: 8px; }
     .pending-card-desc {
@@ -1371,6 +1391,12 @@
     }
     .pending-card-file { margin-bottom: 10px; font-size: 11px; }
     .pending-card-file a { color: var(--neon-cyan); text-decoration: underline; }
+    .pending-card-hint {
+      margin: 0 0 9px;
+      font-size: 10.5px;
+      font-weight: 700;
+      color: var(--txt-lo);
+    }
     .pending-card-actions { display: flex; gap: 8px; }
     .pending-card-actions button {
       flex: 1; padding: 8px 10px; border-radius: 6px;
@@ -1417,6 +1443,114 @@
       flex: 1; padding: 10px 14px; border-radius: 8px;
       font-size: 12px; font-weight: 700; cursor: pointer;
       letter-spacing: 0.08em;
+    }
+    .pending-detail-box {
+      background: var(--bg-card, #14161e);
+      border: 1.5px solid var(--neon-cyan, #00f0ff);
+      border-radius: 14px;
+      width: min(92vw, 760px);
+      max-height: 88vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 22px 70px rgba(0,240,255,0.20);
+    }
+    .pending-detail-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 16px 18px;
+      border-bottom: 1px solid var(--border, rgba(255,255,255,0.12));
+    }
+    .pending-detail-title {
+      margin: 0;
+      font-size: 16px;
+      font-weight: 850;
+      color: var(--txt-hi);
+      letter-spacing: 0;
+    }
+    .pending-detail-close {
+      background: transparent;
+      border: 1px solid var(--border, rgba(255,255,255,0.18));
+      color: var(--txt-mid);
+      border-radius: 7px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .pending-detail-close:hover { border-color: var(--neon-pink); color: var(--neon-pink); }
+    .pending-detail-body {
+      padding: 16px 18px;
+      overflow-y: auto;
+    }
+    .pending-detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .pending-detail-row {
+      border: 1px solid var(--border, rgba(255,255,255,0.12));
+      border-radius: 9px;
+      padding: 10px 11px;
+      background: rgba(255,255,255,0.03);
+      min-width: 0;
+    }
+    .pending-detail-label {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 10.5px;
+      color: var(--txt-lo);
+      font-weight: 800;
+      letter-spacing: 0.04em;
+    }
+    .pending-detail-value {
+      color: var(--txt-hi);
+      font-size: 12.5px;
+      font-weight: 700;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .pending-detail-section {
+      margin: 14px 0 7px;
+      font-size: 12px;
+      color: var(--neon-cyan, #00f0ff);
+      font-weight: 850;
+      letter-spacing: 0.06em;
+    }
+    .pending-detail-desc {
+      white-space: pre-wrap;
+      word-break: break-word;
+      border: 1px solid var(--border, rgba(255,255,255,0.12));
+      border-radius: 9px;
+      padding: 12px;
+      background: rgba(0,0,0,0.20);
+      color: var(--txt-mid);
+      font-size: 12.5px;
+      line-height: 1.6;
+      margin: 0;
+    }
+    .pending-detail-actions {
+      display: flex;
+      gap: 10px;
+      padding: 14px 18px 16px;
+      border-top: 1px solid var(--border, rgba(255,255,255,0.12));
+      flex-wrap: wrap;
+    }
+    .pending-detail-actions button {
+      flex: 1;
+      min-width: 130px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    @media (max-width: 640px) {
+      .pending-detail-grid { grid-template-columns: 1fr; }
+      .pending-detail-box { width: 96vw; max-height: 92vh; }
     }
     .pp-btn-now {
       background: linear-gradient(135deg, var(--neon-pink, #ff4da6), var(--neon-purple, #b794f4));
@@ -3538,11 +3672,14 @@
       <div class="upload-panel active" id="up-requests">
         <div class="reqs-subtabs">
           <button type="button" class="reqs-subtab active" data-sub="pending" onclick="reqsSwitchSub('pending')">
-            ✋ 채용·강의 승인대기
+            ✋ 채용·강의·모임 승인대기
             <span class="reqs-subbadge" id="pending-badge" style="display:none">0</span>
           </button>
           <button type="button" class="reqs-refresh" onclick="loadPending()">
             🔄 새로고침
+          </button>
+          <button type="button" class="reqs-export" onclick="exportPendingRequests()">
+            📥 엑셀 내보내기
           </button>
         </div>
 
@@ -6694,7 +6831,7 @@
     /* ══════════════════════════════
        v2.0.3: 승인대기 관리
     ══════════════════════════════ */
-    const pendingState = { lastTotal: 0, dismissed: false };
+    const pendingState = { lastTotal: 0, dismissed: false, items: [], itemMap: {}, currentKey: null };
 
     async function loadPending() {
       try {
@@ -6707,7 +6844,21 @@
         const lcs = lcRes.ok ? await lcRes.json() : [];
         const mts = mtRes.ok ? await mtRes.json() : [];
         // v2.67.0: 환불정책 동의 기록 맵(공고타입_공고id → 동의 3종)
-        try{ const _or=await fetch('/api/admin/refunds',{headers:adminHeaders()}); const _od=await _or.json(); window._consentMap={}; (_od.orders||[]).forEach(function(o){ if(o.ad_id) window._consentMap[o.ad_type+'_'+o.ad_id]={r:o.consent_refund,p:o.consent_points,f:o.consent_fail}; }); }catch(_){ if(!window._consentMap) window._consentMap={}; }
+        try{
+          const _or=await fetch('/api/admin/refunds',{headers:adminHeaders()});
+          const _od=await _or.json();
+          window._consentMap={};
+          window._pendingOrderMap={};
+          (_od.orders||[]).forEach(function(o){
+            if(!o.ad_id) return;
+            var k=o.ad_type+'_'+o.ad_id;
+            if(!window._pendingOrderMap[k]) window._pendingOrderMap[k]=o;
+            window._consentMap[k]={r:o.consent_refund,p:o.consent_points,f:o.consent_fail};
+          });
+        }catch(_){
+          if(!window._consentMap) window._consentMap={};
+          if(!window._pendingOrderMap) window._pendingOrderMap={};
+        }
         renderPendingList(rcs, lcs, mts);
         const total = (rcs.length || 0) + (lcs.length || 0) + (mts.length || 0);
         updatePendingBadge(total);
@@ -6769,6 +6920,82 @@
       (mts || []).forEach(it => html += render(it, 'meetup'));
       html += '</div>';
       wrap.innerHTML = html;
+    }
+
+    function pendingTypeLabel(type) {
+      return type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
+    }
+    function pendingDateText(s) {
+      const d = new Date(s || '');
+      if (Number.isNaN(d.getTime())) return String(s || '-');
+      return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    }
+    function pendingTableFor(type) {
+      return type === 'recruit' ? 'recruitments' : (type === 'meetup' ? 'meetings' : 'lectures');
+    }
+
+    /* v2.108.4: 승인대기 목록 상세팝업/엑셀용 확장 렌더러 */
+    function renderPendingList(rcs, lcs, mts) {
+      const wrap = document.getElementById('pending-list-container');
+      if (!wrap) return;
+      const orders = window._pendingOrderMap || {};
+      const make = (arr, type) => (arr || []).map(function(it) {
+        const key = type + '_' + it.id;
+        return Object.assign({}, it, {
+          _pendingType: type,
+          _pendingKey: key,
+          _table: pendingTableFor(type),
+          _order: orders[key] || null
+        });
+      });
+      const items = []
+        .concat(make(rcs, 'recruit'))
+        .concat(make(lcs, 'lecture'))
+        .concat(make(mts, 'meetup'))
+        .sort(function(a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); });
+      pendingState.items = items;
+      pendingState.itemMap = {};
+      items.forEach(function(it) { pendingState.itemMap[it._pendingKey] = it; });
+      if (!items.length) {
+        wrap.innerHTML = '<p class="empty-msg">현재 대기 중인 승인요청이 없습니다. ✨</p>';
+        return;
+      }
+      const render = (it) => {
+        const type = it._pendingType;
+        const tag = pendingTypeLabel(type);
+        const sub = (type === 'recruit' && it.company_name)
+          ? `<span style="color:var(--neon-cyan)">[${esc(it.company_name)}]</span> `
+          : (type === 'lecture' && it.instructor)
+          ? `<span style="color:var(--neon-pink)">[강사: ${esc(it.instructor)}]</span> `
+          : (type === 'meetup' && (it.host || it.location))
+          ? `<span style="color:#0d9488">[${esc([it.host, it.location].filter(Boolean).join(' · '))}]</span> `
+          : '';
+        const cm = (window._consentMap || {})[type + '_' + it.id];
+        const consentLine = cm
+          ? `<div style="font-size:11px;font-weight:700;margin-top:4px;color:${(cm.r&&cm.p&&cm.f)?'#16a34a':'#dc2626'}">🧾 동의: 환불 ${cm.r?'✓':'✗'} · 포인트/할인권 ${cm.p?'✓':'✗'} · 성과미달 ${cm.f?'✓':'✗'}${(cm.r&&cm.p&&cm.f)?'':' ⚠ 미동의 항목'}</div>`
+          : '';
+        const fileBlock = it.file_url
+          ? `<div class="pending-card-file">📎 <a href="${esc(it.file_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">첨부파일 보기</a></div>`
+          : '';
+        return `
+          <div class="pending-card ${type}" role="button" tabindex="0" onclick="openPendingDetail('${it._pendingKey}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPendingDetail('${it._pendingKey}')}">
+            <span class="pending-card-tag">${tag}</span>
+            <h4>${sub}${esc(it.title)}</h4>
+            <div class="pending-card-meta">
+              🕒 ${pendingDateText(it.created_at)} · 신청자 <strong>${esc(it.submitter_name || '-')}</strong>
+              · 연락처 ${esc(it.submitter_contact || '-')}
+            </div>
+            ${consentLine}
+            ${it.description ? `<div class="pending-card-desc">${esc(it.description)}</div>` : ''}
+            ${fileBlock}
+            <div class="pending-card-hint">카드를 클릭하면 신청 상세를 확인할 수 있습니다.</div>
+            <div class="pending-card-actions">
+              <button class="pending-btn-approve" type="button" onclick="event.stopPropagation();approveItem('${it._table}', ${it.id})">✅ 승인</button>
+              <button class="pending-btn-reject" type="button" onclick="event.stopPropagation();rejectItem('${it._table}', ${it.id})">❌ 반려</button>
+            </div>
+          </div>`;
+      };
+      wrap.innerHTML = '<div class="pending-list">' + items.map(render).join('') + '</div>';
     }
 
     function updatePendingBadge(n) {
@@ -6857,6 +7084,166 @@
       } catch (_) {
         return '-';
       }
+    }
+
+    function pendingMoney(n) {
+      return Number(n || 0).toLocaleString('ko-KR') + '원';
+    }
+    function pendingOrderStatus(o) {
+      if (!o) return '주문 정보 없음';
+      return ({ pending_payment:'입금대기', paid:'결제완료', published:'게시', refunded:'환불완료' })[o.status] || (o.status || '-');
+    }
+    function pendingOptionText(o) {
+      let opts = [];
+      try { opts = o && o.options_json ? JSON.parse(o.options_json) : []; } catch (_) { opts = []; }
+      if (!Array.isArray(opts) || !opts.length) return '선택 없음';
+      return opts.map(function(opt) { return _rfOptLabel(opt); }).filter(Boolean).join(', ');
+    }
+    function pendingField(label, value, html) {
+      const v = value == null || value === '' ? '-' : value;
+      return '<div class="pending-detail-row"><span class="pending-detail-label">' + esc(label) + '</span><div class="pending-detail-value">' + (html ? String(v) : esc(v)) + '</div></div>';
+    }
+    function pendingLink(url, label) {
+      if (!url) return '-';
+      return '<a href="' + esc(url) + '" target="_blank" rel="noopener" style="color:var(--neon-cyan);font-weight:800;text-decoration:underline;">' + esc(label || url) + '</a>';
+    }
+    function pendingConsentText(o) {
+      if (!o) return '주문 정보 없음';
+      return [
+        '게시 후 환불 제한 ' + (o.consent_refund ? 'Y' : 'N'),
+        '포인트·할인권 환불불가 ' + (o.consent_points ? 'Y' : 'N'),
+        '성과 미달 환불사유 제외 ' + (o.consent_fail ? 'Y' : 'N')
+      ].join(' / ');
+    }
+    function pendingSpecificFields(it) {
+      if (it._pendingType === 'recruit') return [
+        ['회사명', it.company_name || '-']
+      ];
+      if (it._pendingType === 'lecture') return [
+        ['강사명', it.instructor || '-']
+      ];
+      return [
+        ['주최 / 모임장', it.host || '-'],
+        ['장소', it.location || '-'],
+        ['모임 일시', it.event_at || '-']
+      ];
+    }
+    function openPendingDetail(key) {
+      const it = pendingState.itemMap[key];
+      if (!it) return;
+      pendingState.currentKey = key;
+      const o = it._order || (window._pendingOrderMap || {})[key] || null;
+      const modal = document.getElementById('pending-detail-modal');
+      const title = document.getElementById('pending-detail-title');
+      const body = document.getElementById('pending-detail-body');
+      if (!modal || !title || !body) return;
+      title.textContent = pendingTypeLabel(it._pendingType) + ' 승인요청 상세';
+      let top = [
+        ['구분', pendingTypeLabel(it._pendingType)],
+        ['신청 ID', it.id],
+        ['접수일시', it.created_at || '-'],
+        ['상태', it.status || 'pending']
+      ].concat(pendingSpecificFields(it));
+      let orderFields = [
+        ['주문번호', o ? ('#' + o.id) : '-'],
+        ['결제상태', pendingOrderStatus(o)],
+        ['기본 등록비', o ? pendingMoney(o.base_price) : '-'],
+        ['할인권', o ? ((o.coupon_rate || 0) + '%') : '-'],
+        ['추가 옵션', pendingOptionText(o)],
+        ['옵션 금액', o ? pendingMoney(o.options_price) : '-'],
+        ['최종 금액', o ? pendingMoney(o.final_price) : '-'],
+        ['결제/입금일', o && o.paid_at ? o.paid_at : '-']
+      ];
+      if (o && o.toss_receipt_url) orderFields.push(['영수증', pendingLink(o.toss_receipt_url, '영수증 보기'), true]);
+      body.innerHTML =
+        '<div class="pending-detail-grid">' +
+          top.map(function(r) { return pendingField(r[0], r[1], r[2]); }).join('') +
+        '</div>' +
+        '<div class="pending-detail-section">신청자</div>' +
+        '<div class="pending-detail-grid">' +
+          pendingField('신청자명', it.submitter_name || '-') +
+          pendingField('연락처', it.submitter_contact || '-') +
+          pendingField('회원', o && (o.member_nick || o.member_id) ? ((o.member_nick || '-') + (o.member_id ? ' / #' + o.member_id : '')) : '-') +
+          pendingField('신청 폼', pendingLink(it.form_url, '신청 폼 열기'), true) +
+        '</div>' +
+        '<div class="pending-detail-section">공고 내용</div>' +
+        '<div class="pending-detail-grid">' +
+          pendingField('제목', it.title || '-') +
+          pendingField('첨부파일', pendingLink(it.file_url, it.file_type ? ('첨부파일 보기 (' + it.file_type + ')') : '첨부파일 보기'), true) +
+        '</div>' +
+        '<pre class="pending-detail-desc">' + esc(it.description || '상세 내용 없음') + '</pre>' +
+        '<div class="pending-detail-section">비용 / 옵션</div>' +
+        '<div class="pending-detail-grid">' +
+          orderFields.map(function(r) { return pendingField(r[0], r[1], r[2]); }).join('') +
+        '</div>' +
+        '<div class="pending-detail-section">동의 기록</div>' +
+        '<div class="pending-detail-desc">' + esc(pendingConsentText(o)) + '</div>';
+      modal.classList.add('show');
+    }
+    function closePendingDetail() {
+      const modal = document.getElementById('pending-detail-modal');
+      if (modal) modal.classList.remove('show');
+      pendingState.currentKey = null;
+    }
+    function approvePendingFromDetail() {
+      const it = pendingState.itemMap[pendingState.currentKey];
+      if (!it) return;
+      closePendingDetail();
+      approveItem(it._table, it.id);
+    }
+    function rejectPendingFromDetail() {
+      const it = pendingState.itemMap[pendingState.currentKey];
+      if (!it) return;
+      closePendingDetail();
+      rejectItem(it._table, it.id);
+    }
+    function pendingCsvCell(v) {
+      const s = String(v == null ? '' : v).replace(/\r?\n/g, '\n');
+      return '"' + s.replace(/"/g, '""') + '"';
+    }
+    function exportPendingRequests() {
+      const items = pendingState.items || [];
+      if (!items.length) { alert('내보낼 승인요청건이 없습니다.'); return; }
+      const head = ['구분','신청ID','제목','회사/강사/주최','장소','모임일시','상세내용','신청자명','신청자연락처','신청폼','첨부파일','접수일시','주문번호','기본등록비','할인율','추가옵션','옵션금액','최종금액','결제상태','결제/입금일','회원','환불동의','포인트할인권동의','성과미달동의'];
+      const rows = items.map(function(it) {
+        const o = it._order || (window._pendingOrderMap || {})[it._pendingKey] || null;
+        const primary = it._pendingType === 'recruit' ? (it.company_name || '') : (it._pendingType === 'lecture' ? (it.instructor || '') : (it.host || ''));
+        return [
+          pendingTypeLabel(it._pendingType),
+          it.id,
+          it.title || '',
+          primary,
+          it.location || '',
+          it.event_at || '',
+          it.description || '',
+          it.submitter_name || '',
+          it.submitter_contact || '',
+          it.form_url || '',
+          it.file_url || '',
+          it.created_at || '',
+          o ? o.id : '',
+          o ? o.base_price : '',
+          o ? (o.coupon_rate || 0) : '',
+          pendingOptionText(o),
+          o ? o.options_price : '',
+          o ? o.final_price : '',
+          pendingOrderStatus(o),
+          o && o.paid_at ? o.paid_at : '',
+          o && (o.member_nick || o.member_id) ? ((o.member_nick || '') + (o.member_id ? ' #' + o.member_id : '')) : '',
+          o ? (o.consent_refund ? 'Y' : 'N') : '',
+          o ? (o.consent_points ? 'Y' : 'N') : '',
+          o ? (o.consent_fail ? 'Y' : 'N') : ''
+        ];
+      });
+      const csv = '\ufeff' + [head].concat(rows).map(function(row) { return row.map(pendingCsvCell).join(','); }).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      const stamp = new Date().toISOString().slice(0,16).replace(/[-:T]/g,'');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'approval_requests_' + stamp + '.csv';
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(function() { URL.revokeObjectURL(a.href); document.body.removeChild(a); }, 0);
     }
 
     function showPendingPopup(rcN, lcN, mtN) {
@@ -9116,6 +9503,23 @@
     <div class="ktm-footer">
       <button class="ktm-btn ktm-btn-pink"  onclick="closeTableModal()">취소</button>
       <button class="ktm-btn ktm-btn-green" onclick="insertTableToContent()">본문에 삽입</button>
+    </div>
+  </div>
+</div>
+
+<!-- v2.108.4: 승인요청 상세 확인 팝업 -->
+<div class="pending-popup" id="pending-detail-modal" onclick="if(event.target===this)closePendingDetail()">
+  <div class="pending-detail-box" role="dialog" aria-modal="true" aria-labelledby="pending-detail-title">
+    <div class="pending-detail-head">
+      <h3 class="pending-detail-title" id="pending-detail-title">승인요청 상세</h3>
+      <button class="pending-detail-close" type="button" onclick="closePendingDetail()">닫기</button>
+    </div>
+    <div class="pending-detail-body" id="pending-detail-body">
+      <p class="empty-msg">승인요청을 선택하세요.</p>
+    </div>
+    <div class="pending-detail-actions">
+      <button class="pending-btn-reject" type="button" onclick="rejectPendingFromDetail()">반려</button>
+      <button class="pending-btn-approve" type="button" onclick="approvePendingFromDetail()">승인</button>
     </div>
   </div>
 </div>
