@@ -2217,6 +2217,28 @@
     .sm-body { padding: 20px 24px 24px; }
     .sm-step { display: none; }
     .sm-step.active { display: block; }
+    .sm-event-banner {
+      margin: 0 0 12px;
+      padding: 11px 13px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, rgba(219,39,119,0.14), rgba(245,158,11,0.14));
+      border: 1px solid rgba(219,39,119,0.30);
+      color: var(--txt-hi, #0f172a);
+      line-height: 1.45;
+    }
+    .sm-event-banner strong {
+      display: block;
+      font-size: 13px;
+      font-weight: 850;
+      letter-spacing: 0;
+    }
+    .sm-event-banner span {
+      display: block;
+      margin-top: 3px;
+      font-size: 11.5px;
+      font-weight: 650;
+      color: var(--txt-mid, #475569);
+    }
     .sm-field { margin-bottom: 14px; }
     .sm-field label {
       display: block;
@@ -2302,6 +2324,10 @@
       color: var(--txt-mid); margin-bottom: 8px;
     }
     [data-theme="dark"] .sm-modal { background: #1a1d2b; }
+    [data-theme="dark"] .sm-event-banner {
+      background: linear-gradient(135deg, rgba(219,39,119,0.20), rgba(245,158,11,0.16));
+      border-color: rgba(244,114,182,0.38);
+    }
     [data-theme="dark"] .sm-field input,
     [data-theme="dark"] .sm-field textarea {
       background: #0f1119; color: #e5e7eb; border-color: rgba(255,255,255,0.12);
@@ -8230,6 +8256,11 @@
             <button type="button" class="sm-mode-btn meetup" id="sm-mode-meetup" onclick="smSetMode('meetup')">
               🤝 모임공고
             </button>
+          </div>
+
+          <div class="sm-event-banner" role="note" aria-label="등록비용 인하 이벤트 안내">
+            <strong>7~8월 등록비용 인하 이벤트 중</strong>
+            <span>채용·강의·모임 공고 기본 등록비 20,000원 적용</span>
           </div>
 
           <!-- v2.69.0: 할인권 등록비 할인 안내 -->
