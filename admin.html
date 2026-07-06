@@ -6710,7 +6710,6 @@
               +'<td style="padding:8px;white-space:nowrap;">'+Number(o.base_price||0).toLocaleString()+(o.coupon_rate?(' <span style="color:#16a34a">-'+o.coupon_rate+'%</span>'):'')+((o.options_price||0)>0?(' <span style="color:#7c3aed">+'+Number(o.options_price).toLocaleString()+'</span>'):'')+' → <b>'+Number(o.final_price||0).toLocaleString()+'</b></td>'
               +'<td style="padding:8px;"><span title="환불제한·포인트·모집실패 동의" style="font-family:monospace;color:'+(consentOk?'#16a34a':'#dc2626')+';font-weight:800;">'+consent+'</span></td>'
               +'<td style="padding:8px;white-space:nowrap;">'+(_RF_ST[ps]||ps)
-                +(o.status==='paid'?' · <span style="color:#16a34a;font-weight:800;" title="'+esc(o.toss_method||'토스')+(o.paid_at?(' · '+String(o.paid_at).slice(0,16)):'')+'">💳결제완료</span>'+(o.toss_receipt_url?' <a href="'+esc(o.toss_receipt_url)+'" target="_blank" rel="noopener" style="font-size:11px;">영수증</a>':''):'')
                 +(o.status==='pending_payment'?' · <span style="color:#dc2626;font-weight:700;">미결제</span>':'')+'</td>'
               +'<td style="padding:8px;white-space:nowrap;">'+act+'</td></tr>';
           }).join('');
@@ -6731,11 +6730,11 @@
       var label=type==='partial90'?'재량 부분환불(90%)':'전액 환불';
       var reason=prompt(label+' 사유(선택, 기록됨):','');
       if(reason===null) return;
-      if(!confirm(label+'을 승인할까요?\n'+(type!=='partial90'?'· 사용한 할인권이 있으면 원복됩니다.\n':'')+'· 토스 카드결제 건은 카드 취소가 자동 실행됩니다.\n· 무통장 입금 건은 반환을 수기로 처리하세요.')) return;
+      if(!confirm(label+'을 승인할까요?\n'+(type!=='partial90'?'· 사용한 할인권이 있으면 원복됩니다.\n':'')+'· 입금 반환은 수기로 처리하세요.')) return;
       try{
         var r=await fetch('/api/admin/refunds',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({order_id:orderId,action:'approve',refund_type:type,reason:reason||''})});
         var d=await r.json(); if(!r.ok||!d.ok) throw new Error((d&&d.error)||'실패');
-        alert('✅ 환불 처리: '+Number(d.amount||0).toLocaleString()+'원'+(d.coupon_restored?' · 할인권 원복':'')+(d.toss_canceled?' · 💳카드취소 완료':' · 입금 반환은 수기 처리'));
+        alert('✅ 환불 처리: '+Number(d.amount||0).toLocaleString()+'원'+(d.coupon_restored?' · 할인권 원복':'')+' · 입금 반환은 수기 처리');
         loadRefunds();
       }catch(e){ alert('환불 실패: '+e.message); }
     }
@@ -7152,9 +7151,8 @@
         ['추가 옵션', pendingOptionText(o)],
         ['옵션 금액', o ? pendingMoney(o.options_price) : '-'],
         ['최종 금액', o ? pendingMoney(o.final_price) : '-'],
-        ['결제/입금일', o && o.paid_at ? o.paid_at : '-']
+        ['주문일시', o && o.created_at ? o.created_at : '-']
       ];
-      if (o && o.toss_receipt_url) orderFields.push(['영수증', pendingLink(o.toss_receipt_url, '영수증 보기'), true]);
       body.innerHTML =
         '<div class="pending-detail-grid">' +
           top.map(function(r) { return pendingField(r[0], r[1], r[2]); }).join('') +
@@ -7204,7 +7202,7 @@
     function exportPendingRequests() {
       const items = pendingState.items || [];
       if (!items.length) { alert('내보낼 승인요청건이 없습니다.'); return; }
-      const head = ['구분','신청ID','제목','회사/강사/주최','장소','모임일시','상세내용','신청자명','신청자연락처','신청폼','첨부파일','접수일시','주문번호','기본등록비','할인율','추가옵션','옵션금액','최종금액','결제상태','결제/입금일','회원','환불동의','포인트할인권동의','성과미달동의'];
+      const head = ['구분','신청ID','제목','회사/강사/주최','장소','모임일시','상세내용','신청자명','신청자연락처','신청폼','첨부파일','접수일시','주문번호','기본등록비','할인율','추가옵션','옵션금액','최종금액','결제상태','주문일시','회원','환불동의','포인트할인권동의','성과미달동의'];
       const rows = items.map(function(it) {
         const o = it._order || (window._pendingOrderMap || {})[it._pendingKey] || null;
         const primary = it._pendingType === 'recruit' ? (it.company_name || '') : (it._pendingType === 'lecture' ? (it.instructor || '') : (it.host || ''));
@@ -7228,7 +7226,7 @@
           o ? o.options_price : '',
           o ? o.final_price : '',
           pendingOrderStatus(o),
-          o && o.paid_at ? o.paid_at : '',
+          o && o.created_at ? o.created_at : '',
           o && (o.member_nick || o.member_id) ? ((o.member_nick || '') + (o.member_id ? ' #' + o.member_id : '')) : '',
           o ? (o.consent_refund ? 'Y' : 'N') : '',
           o ? (o.consent_points ? 'Y' : 'N') : '',

@@ -123,6 +123,6 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
       orderId = await createAdOrder(env, { ad_type: 'meetup', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.meetup, coupon_id: usedId, coupon_rate: rate, final_price: total, options_json: opt.keys.length ? JSON.stringify(opt.keys) : null, options_price: opt.total, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
     } catch (_) {}
   }
-  // v2.106.0: order_id — 프론트 토스 결제창(ad-checkout) 연결용
+  // order_id: 관리자 주문/입금 확인 및 환불정책 동의 기록 연결용
   return json({ id: newId, status, price: priceInfo, order_id: orderId });
 });

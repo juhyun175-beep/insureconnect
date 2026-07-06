@@ -91,7 +91,7 @@ CREATE INDEX idx_seo_published ON ic_seo_posts(status, created_at DESC);
 ### **Sprint 4 — 리쿠르팅 광고 상품화**
 - 채용공고 등록 + 상품 등급 (일반/추천/상단/메인배너/긴급)
 - 클릭/지원자 통계
-- 결제 연동 (토스/카카오페이) — 또는 운영자 수동 승인
+- 운영자 수동 승인 기반 등록비 확인
 
 ### **Sprint 5 — 강의 플랫폼 강화**
 - 신청 폼 빌트인 (외부 폼 의존 제거)

@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.108.6] - 2026-07-06
+### Removed (온라인 결제 실험 인프라 및 허수 테스트 주문 기록 정리)
+- `functions/api/payments/*` 결제 엔드포인트, `functions/api/webhooks/toss.js`, `_lib/tosspayments.js`, `migrations/d1_v2_1_1_toss_payments.sql` 삭제.
+- `index.html`의 외부 결제 SDK 로드/결제 복귀 처리와 `admin.html`의 영수증/카드취소 표시를 제거하고, 광고 등록 승인/환불 기록은 기존 무통장 수동 확인 흐름으로 유지.
+- `CHANGELOG.md`/`docs/ROADMAP_v2.md`에서 허수 테스트 주문 금액 기록과 결제 활성화 안내를 제거해 운영 매출/기획 기준으로 오해되지 않게 정리.
+
 ## [2.108.5] - 2026-07-06
 ### Changed (모바일 내공고 직접등록 버튼 강조)
 - `index.html`: 모바일 홈 계정 카드의 `내공고 직접등록` 버튼을 7~8월 이벤트 라벨 포함 강조 CTA로 조정.
@@ -38,7 +44,6 @@
 - `functions/_lib/options.js` **신설**: `OPTION_CATALOG` — ① `kakao_blast` **카카오톡 전 회원 알림 1회 29,000원**(승인 시 admin/kakao-broadcast 발송), ② `home_banner7` **홈 배너 노출 7일 19,000원**(up-homead 캠페인 편성). 가격은 **코드 고정(서버 권위)** — 클라는 key 배열만 전달, 서버가 `validateOptions(adType, keys)`로 유효성·타입·중복 검증 후 카탈로그 가격으로만 합산. 도입가로 시작해 실측 후 조정(리스트업 검증 권고).
 - `functions/_lib/orders.js`: `createAdOrder`에 `options_json`(선택 key 배열 JSON)·`options_price` 컬럼 저장(추가형 ALTER). `final_price`는 **등록가−할인+옵션가 총액**.
 - `functions/api/{recruitments,lectures,meetings}/index.js`: POST에서 `body.options` → `validateOptions` → `final_price`에 합산, 응답 `price.options/options_price` 포함. **비관리자(유료 대상) 등록에만** 적용(기존 흐름 무변경).
-- `functions/api/payments/ad-checkout.js`: 옵션 포함 주문은 orderName에 '+ 추가옵션' 표기(토스 결제창). 금액은 서버 `final_price`(옵션 포함)만 사용.
 - `index.html`: 결제 스텝(②)에 **「📣 추가 옵션」 박스**(체크박스 2종·가격 표기) + 실시간 합산(`smUpdatePrice` 옵션가 반영, 「추가 옵션 +N원」 행). 제출 시 `payload.options`(선택 key만) 전송·서버 재계산. 모달 재오픈 시 옵션 체크 초기화.
 - `functions/api/admin/refunds.js` + `admin.html`: 주문표에 **유료 옵션 배지(📣카톡알림·📣홈배너7일)** + 옵션가(`+N원`) 표시 → 관리자가 **승인 시 이행할 옵션을 한눈에** 확인. TSV export에 옵션/옵션가 컬럼 추가. (이행은 수동: 카톡은 브로드캐스트 발송, 홈배너는 캠페인 편성)
 - **정리**: 프로덕션 `ad_orders` 허수 8건(입금대기 테스트)·`refund_logs` 4건(사유 '테스트') 삭제 — KPI 실측 왜곡 제거.
@@ -46,18 +51,8 @@
 - 백엔드 7파일 `node --check` 0 · index.html/admin.html 인라인 스크립트 구문 0 · 보안스캔 HIGH 0
 
 ## [2.106.0] - 2026-07-04
-### Added (토스페이먼츠 공고 등록비 결제 ON — GROWTH_PLAN_2026H2 Phase 1-1 🔥)
-- **배경**: ad_orders 5건 745,000원 전부 입금대기(무통장 수기 입금 마찰). 기획서 우선순위 1번 "결제 마찰 제거 > 신규 상품" — 기존 `payments/checkout·confirm`(ic_products용)을 공고 주문에도 연결.
-- `functions/api/payments/ad-checkout.js` **신설**: `POST {order_id}` → ad_orders(status='pending_payment'만) 조회 → 토스 orderId(`icad_…`) 발급·저장 → `{clientKey, orderId, amount, orderName, successUrl, failUrl}` 응답. 금액은 서버 `final_price`만 사용(클라 전달값 무시), 응답에 개인정보 없음. 결제 시도마다 orderId 재발급(재시도 충돌 방지). `TOSS_CLIENT_KEY` 미등록 시 503.
-- `functions/api/payments/ad-confirm.js` **신설**: `POST {paymentKey, orderId, amount}` → toss_order_id 역조회 → 금액 일치 검증(변조 방지) → 토스 confirm → `status='paid'` + paid_at + 결제수단/영수증 기록. 이미 paid면 멱등 응답, confirm 실패 시 pending_payment 유지(무통장 백업 생존).
-- `functions/_lib/orders.js`: `ensureOrderTossCols` — ad_orders에 `toss_order_id/toss_payment_key/toss_method/toss_receipt_url/paid_at` 컬럼 추가(ALTER best-effort).
-- `functions/api/{meetings,lectures,recruitments}/index.js`: POST 응답에 `order_id` 포함(프론트 결제창 연결 고리).
-- `index.html`: ② 결제 안내 스텝에 "카드·간편결제는 입금 없이 제출" 힌트 + 버튼명 「입금완료·신청제출」→「신청 제출 →」(카드 결제자 혼란 제거). ③ 완료 스텝에 **「💳 등록비 바로 결제」 박스**(`/api/payments/config` enabled일 때만 노출, 전액할인 0원 주문 제외) — 토스 SDK(v1) 동적 로드 → `requestPayment('카드')`. `/?adpay=success` 복귀 시 ad-confirm 자동 호출+결과 안내, `/?adpay=fail`은 무통장 백업 안내(사용자 취소는 무음). 모달 재오픈 시 이전 주문 결제정보·버튼 라벨 초기화.
-- `functions/api/admin/refunds.js` + `admin.html`: 주문 테이블에 **결제 상태 표시**(💳결제완료·결제수단·영수증 링크 / 미결제) — 기획서 KPI "주문→결제완료 전환율" 실측 기반. **환불 승인 시 토스 결제 건은 카드 취소 자동 실행**(partial90은 `cancelAmount` 부분취소, `_lib/tosspayments.js` cancelPayment 확장) — 토스 취소 실패 시 환불 기록 없이 중단(돈-기록 불일치 방지). 무통장 건은 기존대로 수기 반환.
-- `_headers`: Permissions-Policy `payment=()` 전면차단 → `payment=(self "https://js.tosspayments.com" "https://pay.tosspayments.com")` (결제창 차단 방지).
-- **활성화 조건(운영 액션 남음)**: `npx wrangler pages secret put TOSS_CLIENT_KEY·TOSS_SECRET_KEY --project-name=insureconnect-hub` 등록 즉시 결제 버튼 자동 노출(현재 미등록 → 버튼 숨김, 기존 무통장 플로우 무변경으로 안전 배포).
-### Verified
-- 백엔드 8파일 `node --check` 0 · index.html 29블록/admin.html 3블록 인라인 스크립트 구문 0 · 보안스캔 HIGH 0
+### Removed (무효 테스트 주문 기록 정리)
+- 테스트용 주문 금액 기록은 운영 매출이나 기획 기준으로 쓰지 않도록 제거. 광고 등록은 무통장 입금 확인/관리자 승인 흐름을 기준으로 유지한다.
 
 ## [2.105.0] - 2026-07-04
 ### Fixed (GSC 색인 실측 대응 — 색인 생성 촉진 + AdSense 승인 준비)
@@ -2037,51 +2032,7 @@
 - 누적 데이터가 더 안정적인 신호 (오늘은 데이터 적어 「NEW」 만 가득)
 - UI 단순화 → 사용자 의사결정 부담 ↓
 
-## [2.1.1-toss-backend] - 2026-05-28  ← master 브랜치 (production 미배포)
-### Changed (Stripe → 토스페이먼츠 전환)
-- **이유**: Stripe 한국 정식 미진출 + 사용 난이도 / 토스페이먼츠가 한국 사업자 + 모든 결제수단 지원
-- **Stripe 코드 제거**: `_lib/stripe.js`, `/api/webhooks/stripe`, 기존 checkout/status 의 Stripe 부분
-- **재사용**: D1 테이블 (`ic_products`, `ic_purchases`), `/api/products`, `/api/downloads/{token}` 100% 그대로
-
-### Added (토스페이먼츠 백엔드 인프라)
-- **D1 ALTER** — `toss_order_id`, `toss_payment_key`, `toss_method`, `toss_receipt_url` 컬럼 추가
-  - 기존 stripe_* 컬럼은 NULL 상태로 보존 (deprecated)
-- **`_lib/tosspayments.js`** — 외부 npm 의존성 0
-  - `confirmPayment()` — POST /v1/payments/confirm (paymentKey/orderId/amount)
-  - `cancelPayment()` — POST /v1/payments/{paymentKey}/cancel (환불)
-  - `retrievePayment()` — 결제 조회
-  - `verifyWebhookSignature()` — HMAC-SHA256 (Stripe 패턴과 동일, hex/base64/t=... 형식 모두 처리)
-  - `makeOrderId() / randomToken()`
-- **API 5종**
-  - `GET  /api/payments/config` — clientKey 노출 (프론트 SDK 초기화용)
-  - `POST /api/payments/checkout` — orderId 발급 + pending purchase + 응답에 orderId/amount/orderName/clientKey/successUrl/failUrl
-  - `POST /api/payments/confirm` — successUrl 에서 호출, 토스 confirm → status=paid + download_token 발급 (멱등성 보장)
-  - `GET  /api/payments/status` — purchase_id 또는 order_id 로 폴링
-  - `POST /api/webhooks/toss` — webhook 수신 (PAYMENT.DONE 보완 + PAYMENT.CANCELED 환불 처리)
-- **결제 흐름** (Stripe hosted 페이지 → 토스 결제위젯/창)
-  ```
-  [프론트] /api/payments/checkout → orderId, amount, clientKey 받음
-  [프론트] Toss SDK requestPayment() 호출 → 결제수단 선택 모달
-  [사용자] 카드/카톡/네이버/토스페이 선택 결제
-  [토스]   successUrl 리다이렉트 + paymentKey/orderId/amount 쿼리
-  [프론트] /api/payments/confirm 호출
-  [백엔드] amount 변조 검증 → 토스 confirm → status=paid → download_token 발급
-  [프론트] /api/downloads/{token} 으로 다운로드 트리거
-  ```
-
-### 다음 단계 (Phase 2 — 프론트 UI)
-- 카드뉴스 모달 "📥 다운로드" 버튼 + 결제 모달 (Toss SDK 통합)
-- successUrl 처리 + 자동 다운로드
-- 관리자 「💳 결제 상품」 탭
-
-### 필수 시크릿 (사용자 등록 필요)
-```bash
-npx wrangler pages secret put TOSS_SECRET_KEY     --project-name=insureconnect-hub --env=preview
-npx wrangler pages secret put TOSS_CLIENT_KEY     --project-name=insureconnect-hub --env=preview
-npx wrangler pages secret put TOSS_WEBHOOK_SECRET --project-name=insureconnect-hub --env=preview
-```
-
-## [2.1.0-stripe-backend] - 2026-05-28  ← (Stripe 시도 — Toss 로 대체됨)
+## [2.1.0-stripe-backend] - 2026-05-28  ← (운영 미사용 결제 실험 기록)
 ### Reverted
 - Sprint 2a / 2b 회원 시스템 코드 revert (사용자 결정 — Stripe 결제 우선)
   - D1 `ic_users / ic_email_otps / ic_sessions` 테이블은 데이터 보존 (재도입 시 복구 가능)
