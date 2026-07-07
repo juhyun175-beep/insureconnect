@@ -7049,8 +7049,7 @@
         return;
       }
       const render = (it, type) => {
-        const d = new Date(it.created_at);
-        const dateStr = `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+        const dateStr = pendingDateText(it.created_at);
         const fileBlock = it.file_url
           ? `<div class="pending-card-file">📎 <a href="${esc(it.file_url)}" target="_blank" rel="noopener">첨부파일 보기</a></div>` : '';
         const sub = (type === 'recruit' && it.company_name)
@@ -7094,10 +7093,32 @@
     function pendingTypeLabel(type) {
       return type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
     }
-    function pendingDateText(s) {
-      const d = new Date(s || '');
-      if (Number.isNaN(d.getTime())) return String(s || '-');
-      return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+    // DB의 created_at 등은 datetime('now') = UTC(타임존 표식 없음)로 저장된다.
+    // 관리자 화면은 실제 한국시간(KST, Asia/Seoul)으로 변환해 표기한다.
+    function _toKstDate(s) {
+      if (!s) return null;
+      let str = String(s).trim().replace(' ', 'T');
+      if (!/([zZ])|([+-]\d\d:?\d\d)$/.test(str)) str += 'Z'; // 표식 없으면 UTC로 간주
+      const d = new Date(str);
+      return Number.isNaN(d.getTime()) ? null : d;
+    }
+    function _kstParts(d) {
+      return new Intl.DateTimeFormat('en-US', {
+        timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+      }).formatToParts(d).reduce(function (o, x) { o[x.type] = x.value; return o; }, {});
+    }
+    function kstDateTime(s) { // 상세: 2026-07-07 16:55 (KST)
+      const d = _toKstDate(s);
+      if (!d) return String(s || '-');
+      const p = _kstParts(d);
+      return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute} (KST)`;
+    }
+    function pendingDateText(s) { // 목록: 7/7 16:55 (KST 기준)
+      const d = _toKstDate(s);
+      if (!d) return String(s || '-');
+      const p = _kstParts(d);
+      return `${Number(p.month)}/${Number(p.day)} ${p.hour}:${p.minute}`;
     }
     function pendingTableFor(type) {
       return type === 'recruit' ? 'recruitments' : (type === 'meetup' ? 'meetings' : 'lectures');
@@ -7326,7 +7347,7 @@
       let top = [
         ['구분', pendingTypeLabel(it._pendingType)],
         ['신청 ID', it.id],
-        ['접수일시', it.created_at || '-'],
+        ['접수일시', kstDateTime(it.created_at)],
         ['상태', it.status || 'pending']
       ].concat(pendingSpecificFields(it));
       let orderFields = [
@@ -7338,7 +7359,7 @@
         ['이행 상태', pendingFulfillmentText(o)],
         ['옵션 금액', o ? pendingMoney(o.options_price) : '-'],
         ['최종 금액', o ? pendingMoney(o.final_price) : '-'],
-        ['주문일시', o && o.created_at ? o.created_at : '-']
+        ['주문일시', o && o.created_at ? kstDateTime(o.created_at) : '-']
       ];
       body.innerHTML =
         '<div class="pending-detail-grid">' +
