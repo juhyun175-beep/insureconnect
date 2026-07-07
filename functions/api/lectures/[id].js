@@ -1,5 +1,6 @@
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
+import { fulfillApprovedOptions } from '../../_lib/fulfillment.js';
 export const onRequestOptions = () => corsPreflight();
 
 export const onRequestGet = async ({ params, env }) => handle(async () => {
@@ -50,5 +51,8 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   await env.DB.prepare(
     `UPDATE ic_lectures SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`
   ).bind(...values, params.id).run();
-  return json({ ok: true, featured_granted: autoFree });
+  const fulfillment = body.status === 'approved'
+    ? await fulfillApprovedOptions(env, { adType: 'lecture', adId: params.id })
+    : null;
+  return json({ ok: true, featured_granted: autoFree, fulfillment });
 });

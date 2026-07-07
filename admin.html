@@ -3645,6 +3645,7 @@
         <!-- 홈 화면 노출 -->
         <button class="upload-tab" data-panel="up-popup">📢 홈 팝업 공지</button>
         <button class="upload-tab" data-panel="up-homead" style="border-color:#0ea5e9;color:#0ea5e9;">🖼 홈 광고배너</button>
+        <button class="upload-tab" data-panel="up-notice" style="border-color:#7c3aed;color:#7c3aed;">📋 운영자 공지</button>
         <button class="upload-tab" data-panel="up-coupang" style="border-color:#ff5a5f;color:#ff5a5f;">🛍 쿠팡파트너스</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
         <!-- v2.15.1: 유입 경로·회원/지표는 「통합 기록지표」 슬라이더로 이동 -->
@@ -4491,6 +4492,37 @@
         <div id="refund-logs" style="font-size:12px;color:var(--txt-mid);"></div>
       </div><!-- /#up-refunds -->
 
+      <!-- v2.110.0: 운영자 공지 — 홈 우측 공지 패널 블록 빌더 -->
+      <div class="upload-panel" id="up-notice">
+        <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(124,58,237,0.30);border-left:3px solid #7c3aed;border-radius:8px;background:linear-gradient(90deg,rgba(124,58,237,0.08),rgba(124,58,237,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:6px;letter-spacing:0.03em;">📋 운영자 공지</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>텍스트, 이미지, 표 블록을 순서대로 구성해 PC·모바일 홈에 공지로 노출합니다.</li>
+            <li>표는 엑셀/시트에서 복사한 탭 구분 데이터를 붙여넣으면 자동으로 행/열을 구성합니다.</li>
+            <li>저장 후 홈 새로고침 시 반영되며, 비활성 또는 빈 블록이면 공지 영역은 숨겨집니다.</li>
+          </ul>
+        </div>
+        <div class="nl-upload-box" style="margin-bottom:14px;">
+          <div class="nl-form">
+            <div class="nl-field" style="display:flex;align-items:center;gap:8px;">
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:800;color:var(--txt-hi);"><input type="checkbox" id="notice-enabled"> 홈에 노출</label>
+            </div>
+            <div class="nl-field">
+              <label>공지 제목</label>
+              <input type="text" id="notice-title" maxlength="80" placeholder="운영자 공지">
+            </div>
+          </div>
+        </div>
+        <div id="notice-blocks"></div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin:12px 0;">
+          <button type="button" class="nl-upload-btn" style="background:rgba(124,58,237,0.12);color:#7c3aed;flex:0 0 auto;" onclick="noticeAdd('text')">➕ 텍스트</button>
+          <button type="button" class="nl-upload-btn" style="background:rgba(14,165,233,0.12);color:#0ea5e9;flex:0 0 auto;" onclick="noticeAdd('image')">➕ 이미지</button>
+          <button type="button" class="nl-upload-btn" style="background:rgba(245,158,11,0.14);color:#b45309;flex:0 0 auto;" onclick="noticeAdd('table')">➕ 표</button>
+          <button type="button" class="nl-upload-btn" id="notice-save-btn" style="flex:1;min-width:140px;" onclick="noticeSave()">💾 저장</button>
+        </div>
+        <p class="nl-status" id="notice-status"></p>
+      </div><!-- /#up-notice -->
+
       <!-- v2.94.0: 홈 광고배너 — 다중 캠페인·로테이션·스케줄·팝업제어·성과 -->
       <div class="upload-panel" id="up-homead">
         <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(14,165,233,0.30);border-left:3px solid #0ea5e9;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.08),rgba(14,165,233,0.02));">
@@ -4920,6 +4952,7 @@
         if (target === 'up-dm' && typeof loadDmAdmin === 'function') { loadDmAdmin(); }
         if (target === 'up-refunds' && typeof loadRefunds === 'function') { loadRefunds(); }
         if (target === 'up-homead' && typeof loadHomeAdAdmin === 'function') { loadHomeAdAdmin(); }
+        if (target === 'up-notice' && typeof loadNoticeAdmin === 'function') { loadNoticeAdmin(); }
       });
     });
 
@@ -6527,6 +6560,123 @@
       }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
     }
 
+    /* v2.110.0: 운영자 공지 — 텍스트/이미지/표 블록 빌더 */
+    var _noticeCfg = { enabled: false, title: '운영자 공지', blocks: [] };
+
+    function noticeParseTable(text){
+      var lines=String(text||'').replace(/\r/g,'').split('\n').filter(function(x){ return x.trim() !== ''; }).slice(0,30);
+      var hasTab=String(text||'').indexOf('\t')>=0;
+      return lines.map(function(line){
+        return (hasTab ? line.split('\t') : line.split(',')).slice(0,10).map(function(cell){ return String(cell||'').trim().slice(0,300); });
+      }).filter(function(row){ return row.some(function(cell){ return cell; }); });
+    }
+    function noticeTableText(block){
+      return (block.rows||[]).map(function(row){ return (row||[]).join('\t'); }).join('\n');
+    }
+    function noticeAdd(type){
+      if(!_noticeCfg.blocks) _noticeCfg.blocks=[];
+      if(_noticeCfg.blocks.length>=30){ alert('블록은 최대 30개입니다.'); return; }
+      if(type==='image') _noticeCfg.blocks.push({ type:'image', url:'', alt:'', caption:'' });
+      else if(type==='table') _noticeCfg.blocks.push({ type:'table', header:true, rows:[['구분','내용'],['','']] });
+      else _noticeCfg.blocks.push({ type:'text', value:'' });
+      noticeRender();
+    }
+    function noticeRemove(idx){ _noticeCfg.blocks.splice(idx,1); noticeRender(); }
+    function noticeMove(idx, dir){
+      var j=idx+dir;
+      if(j<0||j>=_noticeCfg.blocks.length) return;
+      var t=_noticeCfg.blocks[idx]; _noticeCfg.blocks[idx]=_noticeCfg.blocks[j]; _noticeCfg.blocks[j]=t;
+      noticeRender();
+    }
+    function noticeField(idx, key, val){
+      var b=_noticeCfg.blocks[idx]; if(!b) return;
+      if(key==='header') b.header=!!val;
+      else b[key]=String(val||'');
+    }
+    function noticeTableInput(idx, val){
+      var b=_noticeCfg.blocks[idx]; if(!b) return;
+      b.rows=noticeParseTable(val);
+    }
+    async function noticeUpload(files, idx){
+      if(!files||!files.length) return;
+      var b=_noticeCfg.blocks[idx]; if(!b) return;
+      var f=files[0];
+      var st=document.getElementById('notice-status');
+      if(st){ st.style.color='var(--txt-lo)'; st.textContent='이미지 업로드 중…'; }
+      try{
+        var ext=(f.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'').slice(0,5)||'jpg';
+        var path='notice_'+Date.now()+'_'+idx+'.'+ext;
+        var up=await fetch('/api/files/home-notice/'+path,{method:'POST',headers:adminHeaders({'Content-Type':f.type,'x-upsert':'true'}),body:f});
+        if(!up.ok) throw new Error('업로드 실패');
+        b.url='/api/files/home-notice/'+path;
+        noticeRender();
+        if(st){ st.style.color='#10b981'; st.textContent='✅ 이미지 업로드 완료 — 저장을 눌러 반영하세요.'; }
+      }catch(e){ if(st){ st.style.color='#ef4444'; st.textContent='❌ '+e.message; } }
+    }
+    function noticeBlockHtml(b, idx){
+      var head='<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">'
+        +'<span style="font-size:11px;font-weight:800;color:#7c3aed;background:rgba(124,58,237,0.12);padding:2px 8px;border-radius:5px;">블록 '+(idx+1)+' · '+(b.type==='image'?'이미지':b.type==='table'?'표':'텍스트')+'</span>'
+        +'<button type="button" onclick="noticeMove('+idx+',-1)" '+(idx===0?'disabled':'')+' style="border:none;background:rgba(120,140,180,0.15);color:var(--txt-hi);border-radius:5px;padding:4px 8px;cursor:pointer;font-weight:700;">↑</button>'
+        +'<button type="button" onclick="noticeMove('+idx+',1)" '+(idx===_noticeCfg.blocks.length-1?'disabled':'')+' style="border:none;background:rgba(120,140,180,0.15);color:var(--txt-hi);border-radius:5px;padding:4px 8px;cursor:pointer;font-weight:700;">↓</button>'
+        +'<button type="button" onclick="noticeRemove('+idx+')" style="margin-left:auto;border:none;background:rgba(220,38,38,0.14);color:#dc2626;border-radius:6px;padding:5px 10px;cursor:pointer;font-weight:700;font-size:11px;">삭제</button>'
+        +'</div>';
+      if(b.type==='image'){
+        return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;background:var(--bg-card);">'+head
+          +(b.url?'<img src="'+esc(b.url)+'" alt="" style="width:100%;max-height:180px;object-fit:contain;border:1px solid var(--border);border-radius:8px;background:var(--bg);margin-bottom:8px;">':'<div style="font-size:12px;color:var(--txt-lo);padding:16px;border:1px dashed var(--border);border-radius:8px;text-align:center;margin-bottom:8px;">이미지를 업로드하세요.</div>')
+          +'<label class="nl-file-label" style="margin:0 0 8px;">📎 이미지 업로드<input type="file" accept="image/*" onchange="noticeUpload(this.files,'+idx+')"><span class="nl-file-name">홈 공지 이미지</span></label>'
+          +'<input type="text" value="'+esc(b.url||'')+'" oninput="noticeField('+idx+',\'url\',this.value)" placeholder="/api/files/home-notice/..." style="width:100%;padding:7px 9px;font-size:12px;margin-bottom:7px;">'
+          +'<input type="text" value="'+esc(b.alt||'')+'" oninput="noticeField('+idx+',\'alt\',this.value)" placeholder="대체텍스트" style="width:100%;padding:7px 9px;font-size:12px;margin-bottom:7px;">'
+          +'<input type="text" value="'+esc(b.caption||'')+'" oninput="noticeField('+idx+',\'caption\',this.value)" placeholder="캡션(선택)" style="width:100%;padding:7px 9px;font-size:12px;">'
+          +'</div>';
+      }
+      if(b.type==='table'){
+        return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;background:var(--bg-card);">'+head
+          +'<label style="display:flex;align-items:center;gap:7px;font-size:12px;font-weight:800;color:var(--txt-hi);margin-bottom:8px;"><input type="checkbox" '+(b.header?'checked':'')+' onchange="noticeField('+idx+',\'header\',this.checked)"> 첫 행을 헤더로 사용</label>'
+          +'<textarea oninput="noticeTableInput('+idx+',this.value)" placeholder="엑셀/시트 표를 붙여넣으세요" style="width:100%;min-height:110px;padding:8px 10px;font-size:12px;line-height:1.5;">'+esc(noticeTableText(b))+'</textarea>'
+          +'<div style="font-size:11px;color:var(--txt-lo);margin-top:6px;">행 최대 30개 · 열 최대 10개 · 셀 최대 300자</div>'
+          +'</div>';
+      }
+      return '<div style="border:1px solid var(--border);border-radius:10px;padding:12px 14px;margin-bottom:12px;background:var(--bg-card);">'+head
+        +'<textarea oninput="noticeField('+idx+',\'value\',this.value)" placeholder="공지 내용을 입력하세요" style="width:100%;min-height:120px;padding:8px 10px;font-size:12.5px;line-height:1.6;">'+esc(b.value||'')+'</textarea>'
+        +'</div>';
+    }
+    function noticeRender(){
+      var box=document.getElementById('notice-blocks'); if(!box) return;
+      if(!_noticeCfg.blocks) _noticeCfg.blocks=[];
+      box.innerHTML=_noticeCfg.blocks.length
+        ? _noticeCfg.blocks.map(function(b,idx){ return noticeBlockHtml(b,idx); }).join('')
+        : '<div style="font-size:12.5px;color:var(--txt-lo);padding:12px;border:1px dashed var(--border);border-radius:10px;text-align:center;">블록이 없습니다. 텍스트, 이미지, 표를 추가하세요.</div>';
+    }
+    async function loadNoticeAdmin(){
+      var st=document.getElementById('notice-status');
+      try{
+        var r=await fetch('/api/home-notice?all=1',{headers:adminHeaders()});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error((d&&d.error)||'로드 실패');
+        _noticeCfg=d.notice||{enabled:false,title:'운영자 공지',blocks:[]};
+        if(!Array.isArray(_noticeCfg.blocks)) _noticeCfg.blocks=[];
+        var en=document.getElementById('notice-enabled'); if(en) en.checked=_noticeCfg.enabled===true;
+        var title=document.getElementById('notice-title'); if(title) title.value=_noticeCfg.title||'운영자 공지';
+        noticeRender();
+        if(st){ st.style.color='var(--txt-lo)'; st.textContent=_noticeCfg.updated_at ? ('마지막 저장: '+String(_noticeCfg.updated_at).slice(0,16).replace('T',' ')) : ''; }
+      }catch(e){ if(st){ st.style.color='#ef4444'; st.textContent='❌ '+e.message; } }
+    }
+    async function noticeSave(){
+      var btn=document.getElementById('notice-save-btn'); var st=document.getElementById('notice-status');
+      var en=document.getElementById('notice-enabled'); var title=document.getElementById('notice-title');
+      _noticeCfg.enabled=!!(en&&en.checked);
+      _noticeCfg.title=(title&&title.value)||'운영자 공지';
+      btn.disabled=true; var old=btn.textContent; btn.textContent='⏳ 저장 중…';
+      try{
+        var r=await fetch('/api/home-notice',{method:'PUT',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify(_noticeCfg)});
+        var d=await r.json();
+        if(!r.ok||!d.ok) throw new Error((d&&d.error)||'저장 실패');
+        _noticeCfg=d.notice||_noticeCfg;
+        if(st){ st.style.color='#10b981'; st.textContent='✅ 저장 완료 — 홈 새로고침 시 반영됩니다.'; }
+      }catch(e){ if(st){ st.style.color='#ef4444'; st.textContent='❌ '+e.message; } }
+      finally{ btn.disabled=false; btn.textContent=old; }
+    }
+
     /* v2.94.0: 홈 광고배너 — 다중 캠페인·로테이션·스케줄·팝업·성과 관리 */
     var _haCfg = { campaigns: [], rotation: 'sequential', popup: { enabled: true, frequency: 'once_day', delay_ms: 900 } };
     var _HA_DEFAULT_CTA = '💬 자세히 보기 →';
@@ -6685,10 +6835,20 @@
       if(key==='open_chat_promo' && opt && typeof opt==='object' && opt.days) label += ' '+opt.days+'일';
       return label;
     }
+    function _rfFulfilled(o){
+      try{ return o&&o.fulfilled_json?JSON.parse(o.fulfilled_json)||{}:{}; }catch(_){ return {}; }
+    }
+    function _rfFulfillBadge(key, st){
+      if(st&&st.status==='auto_done') return '<span style="display:inline-block;background:rgba(16,185,129,0.14);color:#059669;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'자동이행 완료')+'">✓자동</span>';
+      if(st&&st.status==='auto_failed') return '<span style="display:inline-block;background:rgba(220,38,38,0.13);color:#dc2626;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'자동이행 실패')+'">실패</span>';
+      if(st&&st.status==='manual_required') return '<span style="display:inline-block;background:rgba(245,158,11,0.16);color:#b45309;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'수동 이행 필요')+'">수동</span>';
+      return '<span style="display:inline-block;background:rgba(120,140,180,0.14);color:var(--txt-mid);border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="승인 후 이행 상태가 기록됩니다">대기</span>';
+    }
     function _rfOptBadges(o){
       var keys=[]; try{ keys=o.options_json?JSON.parse(o.options_json):[]; }catch(_){ keys=[]; }
       if(!Array.isArray(keys)||!keys.length) return '';
-      return ' '+keys.map(function(k){ return '<span style="display:inline-block;background:rgba(124,58,237,0.14);color:#7c3aed;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="유료 옵션 — 승인 시 이행 필요">📣'+_rfOptLabel(k)+'</span>'; }).join(' ');
+      var f=_rfFulfilled(o);
+      return ' '+keys.map(function(k){ var key=_rfOptKey(k); return '<span style="display:inline-block;background:rgba(124,58,237,0.14);color:#7c3aed;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="유료 옵션">📣'+_rfOptLabel(k)+'</span> '+_rfFulfillBadge(key,f[key]); }).join(' ');
     }
     async function loadRefunds(){
       var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
@@ -6759,8 +6919,8 @@
     }
     function exportOrders(){
       if(!_refundOrders.length){ alert('내보낼 주문이 없습니다.'); return; }
-      var head=['주문ID','공고타입','공고ID','제목','신청자','연락처','등록가','할인율','옵션','옵션가','최종가','상태','동의_환불제한','동의_포인트','동의_모집실패','주문일시'].join('\t');
-      var rows=_refundOrders.map(function(o){ var ok=[]; try{ ok=o.options_json?JSON.parse(o.options_json):[]; }catch(_){ ok=[]; } var oLabel=(Array.isArray(ok)?ok:[]).map(function(k){ return _rfOptLabel(k); }).join(','); return [o.id,o.ad_type,o.ad_id||'',String(o.title||'').replace(/\t/g,' '),String(o.submitter_name||o.member_nick||'').replace(/\t/g,' '),String(o.submitter_contact||'').replace(/\t/g,' '),o.base_price||0,o.coupon_rate||0,oLabel,o.options_price||0,o.final_price||0,o.status,o.consent_refund?'Y':'N',o.consent_points?'Y':'N',o.consent_fail?'Y':'N',o.created_at||''].join('\t'); });
+      var head=['주문ID','공고타입','공고ID','제목','신청자','연락처','등록가','할인율','옵션','이행상태','옵션가','최종가','상태','동의_환불제한','동의_포인트','동의_모집실패','주문일시'].join('\t');
+      var rows=_refundOrders.map(function(o){ var ok=[]; try{ ok=o.options_json?JSON.parse(o.options_json):[]; }catch(_){ ok=[]; } var oLabel=(Array.isArray(ok)?ok:[]).map(function(k){ return _rfOptLabel(k); }).join(','); return [o.id,o.ad_type,o.ad_id||'',String(o.title||'').replace(/\t/g,' '),String(o.submitter_name||o.member_nick||'').replace(/\t/g,' '),String(o.submitter_contact||'').replace(/\t/g,' '),o.base_price||0,o.coupon_rate||0,oLabel,pendingFulfillmentText(o).replace(/\r?\n/g,' / '),o.options_price||0,o.final_price||0,o.status,o.consent_refund?'Y':'N',o.consent_points?'Y':'N',o.consent_fail?'Y':'N',o.created_at||''].join('\t'); });
       var tsv=head+'\n'+rows.join('\n');
       if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(tsv).then(function(){ alert('📋 '+_refundOrders.length+'건의 주문·동의 기록을 복사했습니다.\n엑셀/시트에 붙여넣으세요.'); },function(){ _exportFallback(tsv); }); }
       else _exportFallback(tsv);
@@ -7051,9 +7211,12 @@
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ status: 'approved', reject_reason: null })
         });
-        if (!res.ok) throw new Error(await res.text());
+        const done = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error((done && done.error) || '승인 실패');
         const info = await getSubmitterContact(table, id);
-        alert('✅ 승인 완료. 사용자 페이지에 노출됩니다.\n신청자: ' + info + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
+        var f=done.fulfillment&&done.fulfillment.fulfilled?done.fulfillment.fulfilled:{};
+        var fLines=Object.keys(f).map(function(k){ var st=f[k]; return '· '+(st.label||k)+': '+(st.status==='auto_done'?'자동완료':'수동필요'); });
+        alert('✅ 승인 완료. 사용자 페이지에 노출됩니다.\n신청자: ' + info + (fLines.length?'\n\n옵션 이행\n'+fLines.join('\n'):'') + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
         loadPending();
         if (table === 'recruitments') loadRecruitList();
         else if (table === 'lectures') loadLectures();
@@ -7108,6 +7271,19 @@
       if (!Array.isArray(opts) || !opts.length) return '선택 없음';
       return opts.map(function(opt) { return _rfOptLabel(opt); }).filter(Boolean).join(', ');
     }
+    function pendingFulfillmentText(o) {
+      let opts = [], f = _rfFulfilled(o);
+      try { opts = o && o.options_json ? JSON.parse(o.options_json) : []; } catch (_) { opts = []; }
+      if (!Array.isArray(opts) || !opts.length) return '선택 옵션 없음';
+      return opts.map(function(opt) {
+        const key = _rfOptKey(opt);
+        const st = f[key];
+        const state = st && st.status === 'auto_done' ? '자동완료'
+          : (st && st.status === 'auto_failed' ? '자동실패'
+          : (st && st.status === 'manual_required' ? '수동필요' : '대기'));
+        return _rfOptLabel(opt) + ': ' + state + (st && st.message ? ' - ' + st.message : '');
+      }).join('\n');
+    }
     function pendingField(label, value, html) {
       const v = value == null || value === '' ? '-' : value;
       return '<div class="pending-detail-row"><span class="pending-detail-label">' + esc(label) + '</span><div class="pending-detail-value">' + (html ? String(v) : esc(v)) + '</div></div>';
@@ -7159,6 +7335,7 @@
         ['기본 등록비', o ? pendingMoney(o.base_price) : '-'],
         ['할인권', o ? ((o.coupon_rate || 0) + '%') : '-'],
         ['추가 옵션', pendingOptionText(o)],
+        ['이행 상태', pendingFulfillmentText(o)],
         ['옵션 금액', o ? pendingMoney(o.options_price) : '-'],
         ['최종 금액', o ? pendingMoney(o.final_price) : '-'],
         ['주문일시', o && o.created_at ? o.created_at : '-']
@@ -7212,7 +7389,7 @@
     function exportPendingRequests() {
       const items = pendingState.items || [];
       if (!items.length) { alert('내보낼 승인요청건이 없습니다.'); return; }
-      const head = ['구분','신청ID','제목','회사/강사/주최','장소','모임일시','상세내용','신청자명','신청자연락처','신청폼','첨부파일','접수일시','주문번호','기본등록비','할인율','추가옵션','옵션금액','최종금액','결제상태','주문일시','회원','환불동의','포인트할인권동의','성과미달동의'];
+      const head = ['구분','신청ID','제목','회사/강사/주최','장소','모임일시','상세내용','신청자명','신청자연락처','신청폼','첨부파일','접수일시','주문번호','기본등록비','할인율','추가옵션','이행상태','옵션금액','최종금액','결제상태','주문일시','회원','환불동의','포인트할인권동의','성과미달동의'];
       const rows = items.map(function(it) {
         const o = it._order || (window._pendingOrderMap || {})[it._pendingKey] || null;
         const primary = it._pendingType === 'recruit' ? (it.company_name || '') : (it._pendingType === 'lecture' ? (it.instructor || '') : (it.host || ''));
@@ -7233,6 +7410,7 @@
           o ? o.base_price : '',
           o ? (o.coupon_rate || 0) : '',
           pendingOptionText(o),
+          pendingFulfillmentText(o),
           o ? o.options_price : '',
           o ? o.final_price : '',
           pendingOrderStatus(o),

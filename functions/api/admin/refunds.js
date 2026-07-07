@@ -9,7 +9,7 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
-import { ensureOrderTables } from '../../_lib/orders.js';
+import { ensureOrderTables, ensureOrderFulfillmentCols } from '../../_lib/orders.js';
 import { ensureOrderOptionCols } from '../../_lib/options.js';
 
 export const onRequestOptions = () => corsPreflight();
@@ -20,13 +20,14 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   if (!verifyAdmin(request, env)) return unauthorized();
   await ensureOrderTables(env);
   await ensureOrderOptionCols(env);   // v2.107.0: 옵션 컬럼 (SELECT 에 포함되므로 보장 필요)
+  await ensureOrderFulfillmentCols(env);
   const all = (sql) => env.DB.prepare(sql).all().then((r) => r.results || []).catch(() => []);
   const first = (sql) => env.DB.prepare(sql).first().catch(() => null);
 
   const orders = await all(
     `SELECT o.id, o.ad_type, o.ad_id, o.member_id, o.submitter_name, o.submitter_contact,
             o.base_price, o.coupon_id, o.coupon_rate, o.final_price, o.status,
-            o.options_json, o.options_price,
+            o.options_json, o.options_price, o.fulfilled_json, o.fulfilled_at,
             o.consent_refund, o.consent_points, o.consent_fail, o.created_at, o.refunded_at,
             (CASE o.ad_type
                WHEN 'recruit' THEN (SELECT status FROM ic_recruitments WHERE id = o.ad_id)

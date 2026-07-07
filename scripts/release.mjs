@@ -24,6 +24,9 @@ const verifyArg = (args.find((a) => a.startsWith('--verify=')) || '').slice('--v
 const log = (...a) => console.log('[release]', ...a);
 const run = (cmd) => execSync(cmd, { encoding: 'utf8', stdio: ['inherit', 'pipe', 'pipe'] });
 const runSafe = (cmd) => { try { return run(cmd); } catch (e) { return (e.stdout || '') + (e.stderr || ''); } };
+const q = (s) => `"${String(s).replace(/"/g, '\\"')}"`;
+const NODE = q(process.execPath);
+const DLX = process.env.RELEASE_DLX || 'pnpm dlx';
 
 // v2.75.0: 배포 산출물만 안전 미니파이(소스 불변). html-minifier-terser(npx, 로컬 node_modules 없음).
 //   설정 scripts/htmlmin.json — compress/mangle OFF(전역명·onclick 보존), caseSensitive(인라인 SVG viewBox 보존).
@@ -32,7 +35,7 @@ const MINIFY_CFG = 'scripts/htmlmin.json';
 function minifyInPlace(file) {
   const tmp = file + '.tmpmin';
   try {
-    run(`npx --yes html-minifier-terser@7.2.0 --config-file ${MINIFY_CFG} "${file}" -o "${tmp}"`);
+    run(`${DLX} html-minifier-terser@7.2.0 --config-file ${MINIFY_CFG} "${file}" -o "${tmp}"`);
     const min = readFileSync(tmp, 'utf8');
     rmSync(tmp, { force: true });
     const orig = readFileSync(file, 'utf8');
@@ -56,7 +59,7 @@ log('version', version);
 
 // 2) 보안 스캔 — HIGH 0 게이트
 log('security scan…');
-const scanOut = runSafe('node scripts/security-scan.mjs');
+const scanOut = runSafe(`${NODE} scripts/security-scan.mjs`);
 const hm = scanOut.match(/HIGH\s*(\d+)/i);
 const high = hm ? parseInt(hm[1], 10) : -1;
 log('HIGH =', high, high === 0 ? '(ok)' : '(BLOCK)');
@@ -75,7 +78,7 @@ for (const f of MIN_FILES) {
 
 // 3) 배포 (--branch=main, 프로덕션 도메인 갱신)
 log('deploy --branch=main…');
-const dep = runSafe(`npx wrangler pages deploy . --project-name=${PROJECT} --branch=main --commit-message="release v${version}" --commit-dirty=true`);
+const dep = runSafe(`${DLX} wrangler pages deploy . --project-name=${PROJECT} --branch=main --commit-message="release v${version}" --commit-dirty=true`);
 // 업로드 완료 직후 읽기 좋은 원본 복원(어떤 process.exit보다 먼저) — 커밋·작업트리에는 항상 원본이 남도록
 for (const f of Object.keys(restoreMap)) { try { writeFileSync(f, restoreMap[f]); } catch (_) {} }
 if (Object.keys(restoreMap).length) log('restored readable source');
@@ -106,7 +109,21 @@ if (!NO_COMMIT) {
   try {
     run('git push origin HEAD:main');
     log('pushed to github');
-  } catch (e) { log('github push skipped:', String((e && e.message) || e).slice(0, 100)); }
+  } catch (e) {
+    console.error('[release] GitHub push failed. Deployment may be live while GitHub is stale. Run: git push origin HEAD:main');
+    console.error(String((e && e.message) || e).slice(0, 500));
+    process.exit(1);
+  }
+  runSafe('git fetch origin --prune');
+  const localHead = run('git rev-parse HEAD').trim();
+  const remoteHead = run('git rev-parse origin/main').trim();
+  if (localHead !== remoteHead) {
+    console.error('[release] GitHub verification failed: HEAD != origin/main. Push manually before considering release complete.');
+    console.error('[release] HEAD:        ' + localHead);
+    console.error('[release] origin/main: ' + remoteHead);
+    process.exit(1);
+  }
+  log('verified github sync');
 }
 
 console.log(`\n[release] OK  v${version} -> ${url}  (HIGH 0)`);

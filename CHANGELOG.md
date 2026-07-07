@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.110.0] - 2026-07-07
+### Added (추천공고 섹션 복구 + 운영자 공지 + 오픈채팅 재배치 + 옵션 자동이행)
+- `index.html`: 홈 3가지공고 위에 추천공고(`#home-featured`) 섹션을 재구축하고, 채용·강의·모임 홈 카드에 상단노출 배지와 골드 강조를 추가.
+- `functions/api/home-notice/index.js`, `index.html`, `admin.html`: 운영자 공지를 텍스트·이미지·표 블록으로 저장하고 PC·모바일 홈에 노출.
+- `index.html`: 오픈채팅 대화순위를 상단 공고 블록 우측으로 이동하고, 기존 자리에는 운영자 공지를 배치.
+- `functions/_lib/fulfillment.js`: 승인 시 `featured_listing`/`dm_inquiry`/`kakao_blast`/`home_banner7` 자동 이행 상태를 기록하고, `open_chat_promo`만 수동 이행 필요로 추적.
+- `scripts/release.mjs`: GitHub push 실패를 비정상 종료로 처리하고, 배포 후 `HEAD == origin/main` 검증을 추가.
+
 ## [2.109.1] - 2026-07-06
 ### Changed (모바일 홈 오픈채팅 블록 숨김)
 - `index.html`: 모바일 홈에서 오픈채팅방 대화순위/명장면 섹션을 노출하지 않도록 제거. PC 홈의 오픈채팅 패널은 유지하고, 모바일 로더의 `/api/kakao-stats` 호출도 중단.

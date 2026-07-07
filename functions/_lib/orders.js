@@ -22,6 +22,8 @@ export async function ensureOrderTables(env) {
        coupon_id INTEGER,
        coupon_rate INTEGER NOT NULL DEFAULT 0,
        final_price INTEGER NOT NULL DEFAULT 0,
+       fulfilled_json TEXT,
+       fulfilled_at TEXT,
        status TEXT NOT NULL DEFAULT 'pending_payment',
        consent_refund INTEGER NOT NULL DEFAULT 0,
        consent_points INTEGER NOT NULL DEFAULT 0,
@@ -31,6 +33,7 @@ export async function ensureOrderTables(env) {
      )`
   ).run();
   await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_ad_orders_ad ON ad_orders(ad_type, ad_id)`).run().catch(() => {});
+  await ensureOrderFulfillmentCols(env);
   await env.DB.prepare(
     `CREATE TABLE IF NOT EXISTS refund_logs (
        id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -47,6 +50,13 @@ export async function ensureOrderTables(env) {
        created_at TEXT NOT NULL DEFAULT (datetime('now'))
      )`
   ).run();
+}
+
+export async function ensureOrderFulfillmentCols(env) {
+  for (const s of [
+    `ALTER TABLE ad_orders ADD COLUMN fulfilled_json TEXT`,
+    `ALTER TABLE ad_orders ADD COLUMN fulfilled_at TEXT`,
+  ]) await env.DB.prepare(s).run().catch(() => {});
 }
 
 /** 공고 등록 시 주문 1건 생성(+동의 기록). 실패해도 공고 생성은 막지 않음(best-effort).

@@ -2,6 +2,7 @@ import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 import { ensureMeetingsTable, ensureParticipantsTable } from '../../_lib/meetings.js';
+import { fulfillApprovedOptions } from '../../_lib/fulfillment.js';
 export const onRequestOptions = () => corsPreflight();
 
 /** v2.70.0: 모임 상세는 '참여 게이트'.
@@ -80,5 +81,8 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   await env.DB.prepare(
     `UPDATE ic_meetings SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`
   ).bind(...values, params.id).run();
-  return json({ ok: true, featured_granted: autoFree });
+  const fulfillment = body.status === 'approved'
+    ? await fulfillApprovedOptions(env, { adType: 'meetup', adId: params.id })
+    : null;
+  return json({ ok: true, featured_granted: autoFree, fulfillment });
 });

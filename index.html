@@ -6009,6 +6009,64 @@
     @media (max-width: 1024px) {
       .ic-jobs-pair { grid-template-columns: 1fr; gap: 22px; }
     }
+    .ic-top-jobs-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 14px;
+      align-items: start;
+      margin: 18px 0 24px;
+    }
+    .ic-top-jobs-left {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .ic-top-jobs-left > .ic-jobs-pair,
+    .ic-top-jobs-left > .ic-featured {
+      margin: 0;
+    }
+    @media (max-width: 1024px) {
+      .ic-top-jobs-row { grid-template-columns: 1fr; }
+    }
+    .ic-featured {
+      padding: 14px 16px;
+      border-radius: 16px;
+      border: 1px solid #f2c94c;
+      background: linear-gradient(135deg, rgba(255,215,64,0.10), rgba(255,179,0,0.05));
+      box-shadow: var(--sh-sm);
+    }
+    [data-theme="dark"] .ic-featured {
+      border-color: rgba(242,201,76,0.45);
+      background: linear-gradient(135deg, rgba(242,201,76,0.12), rgba(255,179,0,0.06));
+    }
+    .ic-featured-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .ic-featured-title {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--txt-hi);
+    }
+    .ic-featured-pill {
+      font-size: 10.5px;
+      font-weight: 800;
+      color: #7a5600;
+      background: #ffd740;
+      padding: 2px 8px;
+      border-radius: 999px;
+      letter-spacing: 0.06em;
+    }
+    .ic-featured-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 1024px) { .ic-featured-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 480px) { .ic-featured-grid { grid-template-columns: 1fr; } }
     .ic-job-card {
       position: relative;
       display: flex; flex-direction: column;
@@ -6027,6 +6085,14 @@
       transform: translateY(-3px);
       box-shadow: 0 10px 24px rgba(0,0,0,0.10);
       border-color: var(--blue-mid);
+    }
+    .ic-job-card.rc-featured {
+      border-color: #f2c94c;
+      box-shadow: 0 6px 18px rgba(245,158,11,0.16);
+    }
+    [data-theme="dark"] .ic-job-card.rc-featured {
+      border-color: rgba(242,201,76,0.58);
+      box-shadow: 0 6px 18px rgba(242,201,76,0.10);
     }
     .ic-job-thumb {
       position: relative;
@@ -6058,6 +6124,13 @@
       letter-spacing: 0.08em;
       border-radius: 10px;
       box-shadow: 0 2px 6px rgba(239,68,68,0.35);
+    }
+    .ic-job-featured-badge {
+      left: auto;
+      right: 8px;
+      background: linear-gradient(135deg, #f2c94c, #f59e0b);
+      color: #4b3500;
+      box-shadow: 0 2px 6px rgba(245,158,11,0.32);
     }
     .ic-job-type-badge {
       position: absolute;
@@ -6296,6 +6369,83 @@
       margin-top: auto;  /* v2.1.12: 카드 하단에 고정 */
     }
     .ic-kakao-updated > span { display: block; }
+    .ic-notice-panel {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: var(--sh-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 0;
+    }
+    .ic-notice-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .ic-notice-title {
+      font-size: 0.9rem;
+      font-weight: 800;
+      color: var(--txt-hi);
+    }
+    .ic-notice-badge {
+      font-size: 10px;
+      font-weight: 800;
+      color: #fff;
+      background: linear-gradient(135deg, #7c3aed, #1a3de8);
+      padding: 2px 7px;
+      border-radius: 999px;
+    }
+    .ic-notice-body img {
+      width: 100%;
+      height: auto;
+      border-radius: 10px;
+      display: block;
+    }
+    .ic-notice-body figure { margin: 0; }
+    .ic-notice-body figcaption {
+      font-size: 11.5px;
+      color: var(--txt-lo);
+      margin-top: 4px;
+    }
+    .ic-notice-body p {
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+    .ic-notice-body table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+      display: block;
+      overflow-x: auto;
+    }
+    .ic-notice-body th,
+    .ic-notice-body td {
+      border: 1px solid var(--border);
+      padding: 6px 8px;
+      text-align: left;
+      white-space: nowrap;
+    }
+    .ic-notice-body thead th {
+      background: rgba(26,61,232,0.06);
+      font-weight: 800;
+    }
+    [data-theme="dark"] .ic-notice-body thead th {
+      background: rgba(99,102,241,0.14);
+    }
+    .ic-notice-body > * + * { margin-top: 10px; }
+    .ic-notice-updated {
+      font-size: 10.5px;
+      color: var(--txt-lo);
+    }
+    .ic-notice-panel--mobile {
+      margin: 0 0 14px;
+    }
     .ic-kakao-highlight {
       border: 1px solid rgba(254,229,0,0.34);
       border-radius: 12px;
@@ -9057,6 +9207,12 @@
 
     <!-- v2.71.0: 고객 렌트카·통신 견적 연결 CTA 삭제(요청). v2.72.0: 인라인 배너 대신 '자동 팝업 광고'로 노출(모달을 body로 이동해 모바일에서도 뜨도록). -->
 
+    <section id="home-notice-panel-mobile" class="ic-notice-panel ic-notice-panel--mobile" data-home-notice-panel aria-label="운영자 공지" style="display:none;">
+      <div class="ic-notice-head"><span class="ic-notice-title">운영자 공지</span><span class="ic-notice-badge">공지</span></div>
+      <div class="ic-notice-body"></div>
+      <div class="ic-notice-updated"></div>
+    </section>
+
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section" data-tour="quickmenu">
       <div class="ic-m-section-head"><span>빠른 메뉴</span><button type="button" onclick="if(typeof icTourStart==='function')icTourStart()" title="처음이세요? 사용법 안내 보기" style="font-size:12px;font-weight:800;color:#fff;background:linear-gradient(135deg,#1a3de8,#4f6df0);border:none;border-radius:999px;padding:5px 14px;cursor:pointer;font-family:inherit;box-shadow:0 2px 8px rgba(26,61,232,.3);">사용법</button></div>
@@ -9157,6 +9313,17 @@
       </div>
     </div>
 
+    <div class="ic-top-jobs-row">
+      <div class="ic-top-jobs-left">
+    <!-- 추천공고: 채용·강의·모임 중 상단노출(featured) 공고를 모아 부각 -->
+    <section class="ic-featured" id="home-featured" aria-label="추천공고" style="display:none;">
+      <div class="ic-featured-head">
+        <span class="ic-featured-title">🔝 추천공고</span>
+        <span class="ic-featured-pill">PICK</span>
+      </div>
+      <div class="ic-featured-grid" id="home-featured-grid"></div>
+    </section>
+
     <!-- v2.85.0: 채용·강의·모임 공고 섹션 — 실시간 방문기록 보드 바로 아래로 이동 -->
     <div class="ic-jobs-pair">
       <!-- ══ 진행중인 채용공고 ══ -->
@@ -9207,15 +9374,45 @@
         </div>
       </section>
     </div>
+      </div>
+      <!-- v2.110.0: 오픈채팅방 대화순위 — 상단 공고 블록 우측으로 이동 -->
+      <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
+        <div class="ic-kakao-head">
+          <span class="ic-kakao-title">오픈채팅방 대화순위</span>
+          <span class="ic-kakao-badge">KAKAO</span>
+        </div>
+        <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
+          <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
+          <span id="home-kakao-period"></span>
+        </div>
+        <div class="ic-kakao-rank-list" id="home-kakao-list">
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+          <div class="ic-kakao-skel"></div>
+        </div>
+        <div class="ic-kakao-highlight" id="home-kakao-highlight" style="display:none;">
+          <div class="ic-kh-head">
+            <span>이달의 오픈채팅 명장면</span>
+            <span class="ic-kh-month" id="home-kakao-highlight-month"></span>
+          </div>
+          <div class="ic-kh-list" id="home-kakao-highlight-list"></div>
+          <a class="ic-kh-cta" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('CREW300 오픈채팅 참여','highlight')}catch(_){} try{armCommunityFallback('CREW 300')}catch(_){}">이런 대화 나누는 방 참여 →</a>
+        </div>
+        <div class="ic-kakao-updated" id="home-kakao-updated"></div>
+      </div>
+    </div>
 
     <!-- v2.12.0: 홈 자유게시판 + 삼따AI 퀵 위젯 2단 (자유게시판 오른쪽에 삼따AI) -->
     <div class="ibh-aii-row">
       <style>
-        /* v2.98.0: 삼따AI 히어로(좌) · 자유게시판(중) · 오픈채팅방 대화순위(우) 3열 — 친구초대/포인트받기 섹션 제거 */
+        /* v2.110.0: 삼따AI 히어로(좌) · 자유게시판(중) · 운영자 공지(우) */
         .ibh-aii-row{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(0,1fr) 280px;grid-template-areas:"ai board kakao";gap:14px;align-items:stretch;margin:18px 0 24px;}
         .ibh-aii-row > .home-aii{grid-area:ai;}
         .ibh-aii-row > .ibh-col{grid-area:board;}
-        .ibh-aii-row > .ic-kakao-panel{grid-area:kakao;}
+        .ibh-aii-row > #home-notice-panel{grid-area:kakao;}
+        .ibh-aii-row.ibh-aii-row--no-notice{grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);grid-template-areas:"ai board";}
         .ibh-aii-row .ibh{margin:0;}
         /* v2.33.0: 우측 광고 컬럼(제휴상품) — 삼따AI 오른쪽 배치(전환 유도). 좁은 화면 숨김(모바일 홈은 별도 레이아웃) */
         /* v2.36.0: 광고배너 높이를 옆 섹션(자유게시판·삼따AI)과 동일하게 stretch. 이미지의 어두운 배경과 블렌딩되도록 다크 배경 + contain(크롭 없음) */
@@ -9228,7 +9425,7 @@
         @media(prefers-reduced-motion:reduce){.ibh-ad{animation:none;}.ibh-ad::after{animation:none;display:none;}}
         .ibh-ad:hover{transform:translateY(-2px);box-shadow:0 12px 30px rgba(12,31,184,0.20);}
         .ibh-ad img{display:block;width:100%;height:auto;max-height:100%;object-fit:contain;}
-        @media(max-width:1024px){ .ibh-aii-row{grid-template-columns:1fr;grid-template-areas:"ai" "board" "kakao";} }
+        @media(max-width:1024px){ .ibh-aii-row{grid-template-columns:1fr;grid-template-areas:"ai" "board" "kakao";} .ibh-aii-row.ibh-aii-row--no-notice{grid-template-columns:1fr;grid-template-areas:"ai" "board";} }
         /* v2.98.0: 자유게시판 단독 컬럼 — 삼따AI 높이에 맞춰 stretch(하단 정렬), 바로가기 푸터는 카드 하단 고정 */
         .ibh-col{display:flex;flex-direction:column;gap:10px;min-width:0;}
         .ibh-aii-row .ibh-col > .ibh{margin:0;flex:1;display:flex;flex-direction:column;}
@@ -9358,33 +9555,11 @@
         </div>
         <a class="aii-share-cta" href="/ai#share">💬 단톡방 대화 붙여넣기 한 번 → AI가 사례 자동등록 <b>+10P</b> →</a>
       </section>
-      <!-- v2.98.0: 오픈채팅방 대화순위 — 자유게시판 우측(삼따AI 높이에 맞춰 전체 높이 채움). 기존 .ic-top-row(뉴스 옆)에서 이동 -->
-      <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
-        <div class="ic-kakao-head">
-          <span class="ic-kakao-title">오픈채팅방 대화순위</span>
-          <span class="ic-kakao-badge">KAKAO</span>
-        </div>
-        <div id="home-kakao-meta" class="ic-kakao-meta" style="display:none;">
-          <span class="ic-kakao-meta-label" id="home-kakao-room"></span>
-          <span id="home-kakao-period"></span>
-        </div>
-        <div class="ic-kakao-rank-list" id="home-kakao-list">
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-          <div class="ic-kakao-skel"></div>
-        </div>
-        <div class="ic-kakao-highlight" id="home-kakao-highlight" style="display:none;">
-          <div class="ic-kh-head">
-            <span>이달의 오픈채팅 명장면</span>
-            <span class="ic-kh-month" id="home-kakao-highlight-month"></span>
-          </div>
-          <div class="ic-kh-list" id="home-kakao-highlight-list"></div>
-          <a class="ic-kh-cta" href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('CREW300 오픈채팅 참여','highlight')}catch(_){} try{armCommunityFallback('CREW 300')}catch(_){}">이런 대화 나누는 방 참여 →</a>
-        </div>
-        <div class="ic-kakao-updated" id="home-kakao-updated"></div>
-      </div>
+      <section id="home-notice-panel" class="ic-notice-panel" data-home-notice-panel aria-label="운영자 공지" style="display:none;">
+        <div class="ic-notice-head"><span class="ic-notice-title">운영자 공지</span><span class="ic-notice-badge">공지</span></div>
+        <div class="ic-notice-body"></div>
+        <div class="ic-notice-updated"></div>
+      </section>
     </div>
 
     <!-- v2.34.0: 홈 광고 팝업 (배너 클릭 → 확대 배너 + 「상담 받아보기」 → 네이버폼) -->
@@ -16748,6 +16923,125 @@
     function _viewsMeta(n){
       return `<span class="ic-job-views" title="조회수"><svg viewBox="0 0 24 24" width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7-11-7-11-7z"/><circle cx="12" cy="12" r="3"/></svg>${(Number(n)||0).toLocaleString()}</span>`;
     }
+    function _homeTypeBadge(label, featured) {
+      return `<span class="ic-job-type-badge"${featured ? ' style="top:auto;bottom:8px;right:8px;"' : ''}>${label}</span>`;
+    }
+    function _homeFeaturedBadge() {
+      return '<span class="ic-job-new ic-job-featured-badge">🔝 상단</span>';
+    }
+    function _homeCardThumb(it, fallback, label, featured) {
+      let thumb;
+      if (it.file_url && it.file_type === 'image') {
+        thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
+      } else if (it.file_url && it.file_type === 'pdf') {
+        thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
+      } else {
+        thumb = `<span class="ic-job-thumb-fallback">${fallback}</span>`;
+      }
+      const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
+      return `${thumb}${newBadge}${featured ? _homeFeaturedBadge() : ''}${_homeTypeBadge(label, featured)}`;
+    }
+    function _featuredSortValue(it) {
+      return new Date(it.featured_until || it.created_at || 0).getTime() || 0;
+    }
+    function _homeFeaturedCard(it) {
+      const meta = it._homeType === 'lecture'
+        ? { share: 'lecture', open: '__openHomeLecture', fallback: '🎓', label: '강의', sub: it.instructor }
+        : it._homeType === 'meetup'
+        ? { share: 'meetup', open: '__openHomeMeetup', fallback: '🤝', label: '모임', sub: [it.host, it.location].filter(Boolean).join(' · ') }
+        : { share: 'recruit', open: '__openHomeJob', fallback: '📝', label: '채용', sub: it.company_name };
+      const shareFn = meta.share === 'lecture' ? 'shareLecture' : (meta.share === 'meetup' ? 'shareMeetup' : 'shareRecruit');
+      return `<button class="ic-job-card rc-featured" type="button" onclick="window.${meta.open}(${it.id})">
+        <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="${shareFn}(${it.id}, event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+        </span>
+        <div class="ic-job-thumb">${_homeCardThumb(it, meta.fallback, meta.label, true)}${_shareBadge(meta.share, it.id)}</div>
+        <div class="ic-job-body">
+          ${meta.sub ? `<div class="ic-job-company">${esc(meta.sub)}</div>` : ''}
+          <div class="ic-job-title">${esc(it.title)}</div>
+          <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}</div>
+        </div>
+      </button>`;
+    }
+    async function loadHomeFeatured() {
+      const section = document.getElementById('home-featured');
+      const grid = document.getElementById('home-featured-grid');
+      if (!section || !grid) return;
+      section.style.display = 'none';
+      try {
+        const [jobs, lectures, meetups] = await Promise.all([
+          fetch('/api/recruitments?limit=8').then(r => r.ok ? r.json() : []),
+          fetch('/api/lectures?limit=8').then(r => r.ok ? r.json() : []),
+          fetch('/api/meetings?limit=8').then(r => r.ok ? r.json() : []),
+        ]);
+        const items = []
+          .concat((Array.isArray(jobs) ? jobs : []).map(it => ({ ...it, _homeType: 'recruit' })))
+          .concat((Array.isArray(lectures) ? lectures : []).map(it => ({ ...it, _homeType: 'lecture' })))
+          .concat((Array.isArray(meetups) ? meetups : []).map(it => ({ ...it, _homeType: 'meetup' })))
+          .filter(it => Number(it.featured) === 1)
+          .sort((a, b) => _featuredSortValue(b) - _featuredSortValue(a))
+          .slice(0, 8);
+        if (!items.length) {
+          grid.innerHTML = '';
+          section.style.display = 'none';
+          return;
+        }
+        await _ensureShareCounts();
+        grid.innerHTML = items.map(_homeFeaturedCard).join('');
+        section.style.display = '';
+      } catch (_) {
+        grid.innerHTML = '';
+        section.style.display = 'none';
+      }
+    }
+    function _noticeBlockHtml(block) {
+      if (!block || !block.type) return '';
+      if (block.type === 'text') return `<p>${esc(block.value || '')}</p>`;
+      if (block.type === 'image') {
+        return `<figure><img src="${esc(block.url || '')}" alt="${esc(block.alt || '')}" loading="lazy" decoding="async">${block.caption ? `<figcaption>${esc(block.caption)}</figcaption>` : ''}</figure>`;
+      }
+      if (block.type === 'table' && Array.isArray(block.rows)) {
+        const rows = block.rows;
+        const head = block.header && rows.length
+          ? `<thead><tr>${rows[0].map(cell => `<th>${esc(cell)}</th>`).join('')}</tr></thead>`
+          : '';
+        const bodyRows = block.header ? rows.slice(1) : rows;
+        return `<table>${head}<tbody>${bodyRows.map(row => `<tr>${(Array.isArray(row) ? row : []).map(cell => `<td>${esc(cell)}</td>`).join('')}</tr>`).join('')}</tbody></table>`;
+      }
+      return '';
+    }
+    function _renderNoticePanel(panel, notice) {
+      const title = panel.querySelector('.ic-notice-title');
+      const body = panel.querySelector('.ic-notice-body');
+      const updated = panel.querySelector('.ic-notice-updated');
+      if (title) title.textContent = notice.title || '운영자 공지';
+      if (body) body.innerHTML = (notice.blocks || []).map(_noticeBlockHtml).join('');
+      if (updated) {
+        const d = new Date(notice.updated_at || '');
+        updated.textContent = Number.isNaN(d.getTime()) ? '' : `업데이트 ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+      }
+      panel.style.display = '';
+    }
+    async function loadHomeNotice() {
+      const panels = Array.from(document.querySelectorAll('[data-home-notice-panel]'));
+      const row = document.querySelector('.ibh-aii-row');
+      if (!panels.length) return;
+      try {
+        const res = await fetch('/api/home-notice');
+        const data = await res.json();
+        const notice = data && data.ok ? data.notice : null;
+        if (!notice || !notice.enabled || !Array.isArray(notice.blocks) || !notice.blocks.length) {
+          panels.forEach(p => { p.style.display = 'none'; });
+          if (row) row.classList.add('ibh-aii-row--no-notice');
+          return;
+        }
+        if (row) row.classList.remove('ibh-aii-row--no-notice');
+        panels.forEach(p => _renderNoticePanel(p, notice));
+      } catch (_) {
+        panels.forEach(p => { p.style.display = 'none'; });
+        if (row) row.classList.add('ibh-aii-row--no-notice');
+      }
+    }
     async function loadHomeJobs() {
       const grid = document.getElementById('home-jobs-grid');
       if (!grid) return;
@@ -16761,25 +17055,13 @@
         }
         await _ensureShareCounts(); // v2.1.31: 공유 카운트 배지용
         grid.innerHTML = items.map(it => {
-          let thumb;
-          let typeBadge = '';
-          if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
-            typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
-          } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
-            typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
-          } else {
-            thumb = `<span class="ic-job-thumb-fallback">📝</span>`;
-            typeBadge = '<span class="ic-job-type-badge">✍ TEXT</span>';
-          }
-          const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
           const shareBadge = _shareBadge('recruit', it.id);
-          return `<button class="ic-job-card" type="button" onclick="window.__openHomeJob(${it.id})">
+          const typeLabel = it.file_url && it.file_type === 'image' ? '🖼 이미지' : (it.file_url && it.file_type === 'pdf' ? '📄 PDF' : '✍ TEXT');
+          return `<button class="ic-job-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="window.__openHomeJob(${it.id})">
             <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareRecruit(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}${shareBadge}</div>
+            <div class="ic-job-thumb">${_homeCardThumb(it, '📝', typeLabel, !!it.featured)}${shareBadge}</div>
             <div class="ic-job-body">
               ${it.company_name ? `<div class="ic-job-company">${esc(it.company_name)}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
@@ -16923,23 +17205,12 @@
         }
         await _ensureShareCounts(); // v2.1.31
         grid.innerHTML = items.map((it, i) => {
-          let thumb, typeBadge = '';
-          if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
-            typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
-          } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
-            typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
-          } else {
-            thumb = `<span class="ic-job-thumb-fallback">🎓</span>`;
-            typeBadge = '<span class="ic-job-type-badge">📝 강의</span>';
-          }
-          const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
-          return `<button class="ic-job-card" type="button" onclick="window.__openHomeLecture(${it.id})">
+          const typeLabel = it.file_url && it.file_type === 'image' ? '🖼 이미지' : (it.file_url && it.file_type === 'pdf' ? '📄 PDF' : '📝 강의');
+          return `<button class="ic-job-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="window.__openHomeLecture(${it.id})">
             <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}${_shareBadge('lecture', it.id)}</div>
+            <div class="ic-job-thumb">${_homeCardThumb(it, '🎓', typeLabel, !!it.featured)}${_shareBadge('lecture', it.id)}</div>
             <div class="ic-job-body">
               ${it.instructor ? `<div class="ic-job-company">${esc(it.instructor)}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
@@ -16976,24 +17247,13 @@
         }
         await _ensureShareCounts();
         grid.innerHTML = items.map((it, i) => {
-          let thumb, typeBadge = '';
-          if (it.file_url && it.file_type === 'image') {
-            thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
-            typeBadge = '<span class="ic-job-type-badge">🖼 이미지</span>';
-          } else if (it.file_url && it.file_type === 'pdf') {
-            thumb = `<iframe src="${esc(it.file_url)}#toolbar=0&navpanes=0&scrollbar=0&view=FitH" loading="lazy" decoding="async"></iframe>`;
-            typeBadge = '<span class="ic-job-type-badge">📄 PDF</span>';
-          } else {
-            thumb = `<span class="ic-job-thumb-fallback">🤝</span>`;
-            typeBadge = '<span class="ic-job-type-badge">📝 모임</span>';
-          }
-          const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
+          const typeLabel = it.file_url && it.file_type === 'image' ? '🖼 이미지' : (it.file_url && it.file_type === 'pdf' ? '📄 PDF' : '📝 모임');
           const sub = [it.host, it.location].filter(Boolean).map(esc).join(' · ');
-          return `<button class="ic-job-card" type="button" onclick="window.__openHomeMeetup(${it.id})">
+          return `<button class="ic-job-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="window.__openHomeMeetup(${it.id})">
             <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareMeetup(${it.id}, event)">
               <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
             </span>
-            <div class="ic-job-thumb">${thumb}${newBadge}${typeBadge}${_shareBadge('meetup', it.id)}</div>
+            <div class="ic-job-thumb">${_homeCardThumb(it, '🤝', typeLabel, !!it.featured)}${_shareBadge('meetup', it.id)}</div>
             <div class="ic-job-body">
               ${sub ? `<div class="ic-job-company">${sub}</div>` : ''}
               <div class="ic-job-title">${esc(it.title)}</div>
@@ -17232,12 +17492,14 @@
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { loadHomeJobs(); loadHomeLectures(); loadHomeMeetups(); loadKakaoRank(); loadMobileHome(); });
+      document.addEventListener('DOMContentLoaded', () => { loadHomeFeatured(); loadHomeJobs(); loadHomeLectures(); loadHomeMeetups(); loadKakaoRank(); loadHomeNotice(); loadMobileHome(); });
     } else {
+      loadHomeFeatured();
       loadHomeJobs();
       loadHomeLectures();
       loadHomeMeetups();
       loadKakaoRank();
+      loadHomeNotice();
       loadMobileHome();
     }
   })();
