@@ -6443,9 +6443,6 @@
       font-size: 10.5px;
       color: var(--txt-lo);
     }
-    .ic-notice-panel--mobile {
-      margin: 0 0 14px;
-    }
     .ic-kakao-highlight {
       border: 1px solid rgba(254,229,0,0.34);
       border-radius: 12px;
@@ -9207,11 +9204,7 @@
 
     <!-- v2.71.0: 고객 렌트카·통신 견적 연결 CTA 삭제(요청). v2.72.0: 인라인 배너 대신 '자동 팝업 광고'로 노출(모달을 body로 이동해 모바일에서도 뜨도록). -->
 
-    <section id="home-notice-panel-mobile" class="ic-notice-panel ic-notice-panel--mobile" data-home-notice-panel aria-label="운영자 공지" style="display:none;">
-      <div class="ic-notice-head"><span class="ic-notice-title">운영자 공지</span><span class="ic-notice-badge">공지</span></div>
-      <div class="ic-notice-body"></div>
-      <div class="ic-notice-updated"></div>
-    </section>
+    <!-- v2.110.1: 모바일 홈에서 운영자 공지 패널 제거 — 빠른 메뉴 카드와 겹치는 문제. 운영자 공지는 PC 홈(#home-notice-panel)에서만 노출. -->
 
     <!-- v2.6.2: 메뉴 통합 (자주쓰는 + 더둘러보기 + 기타 → 하나의 일관된 그리드) -->
     <section class="ic-m-section" data-tour="quickmenu">
