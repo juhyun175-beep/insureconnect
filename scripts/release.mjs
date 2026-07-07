@@ -82,8 +82,9 @@ const dep = runSafe(`${DLX} wrangler pages deploy . --project-name=${PROJECT} --
 // 업로드 완료 직후 읽기 좋은 원본 복원(어떤 process.exit보다 먼저) — 커밋·작업트리에는 항상 원본이 남도록
 for (const f of Object.keys(restoreMap)) { try { writeFileSync(f, restoreMap[f]); } catch (_) {} }
 if (Object.keys(restoreMap).length) log('restored readable source');
-const url = (dep.match(/https:\/\/[a-z0-9-]+\.[a-z0-9-]+\.pages\.dev/i) || [])[0];
-if (!url) { console.error('[release] ABORT: deploy URL not found.\n', dep.slice(-600)); process.exit(1); }
+const depClean = dep.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '');
+const url = (depClean.match(/https:\/\/[^\s"'<>]+\.pages\.dev/i) || [])[0];
+if (!url) { console.error('[release] ABORT: deploy URL not found.\n', depClean.slice(-600)); process.exit(1); }
 log('deployed', url);
 
 // 4) 배포URL 마커 검증 (옵션)
