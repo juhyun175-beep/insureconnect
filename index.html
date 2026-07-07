@@ -8761,29 +8761,85 @@
         <button class="sm-close" type="button" onclick="smCloseRefundPolicy()" aria-label="닫기">✕</button>
       </div>
       <div class="sm-body" style="font-size:13px;line-height:1.6;color:var(--txt-hi);">
-        <p style="margin:0 0 14px;padding:10px 12px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.35);border-radius:9px;font-weight:600;">공고 등록비는 <b>「게시(노출) 시작」 시점에 제공이 개시되는 광고 게재 용역</b>입니다.</p>
+        <p style="margin:0 0 14px;padding:10px 12px;background:rgba(245,158,11,0.10);border:1px solid rgba(245,158,11,0.35);border-radius:9px;font-weight:600;">공고 등록비는 <b>공고의 게시(노출)가 시작되는 시점부터 제공이 개시되는 광고 게재 용역</b>입니다.</p>
         <div style="margin-bottom:13px;">
-          <div style="font-weight:800;color:#16a34a;margin-bottom:5px;">① 게시 전 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 결제확인 ~ 승인·노출 시작 전</span></div>
-          <ul style="margin:0;padding-left:18px;"><li><b>전액 환불</b></li><li>사용한 할인권 1회 복원, 포인트 결제분은 포인트로 환원</li></ul>
+          <div style="font-weight:800;color:#16a34a;margin-bottom:5px;">① 게시 전 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 결제 완료 후 ~ 승인 및 노출 시작 전</span></div>
+          <ul style="margin:0;padding-left:18px;line-height:1.65;">
+            <li>이용자는 <b>게시(노출)가 시작되기 전까지</b> 환불을 신청할 수 있습니다.</li>
+            <li>환불 승인 시 결제금액은 <b>전액 환불</b>됩니다.</li>
+            <li>사용한 할인권은 1회 복원됩니다.</li>
+            <li>포인트로 결제한 금액은 포인트로 환원됩니다.</li>
+          </ul>
         </div>
         <div style="margin-bottom:13px;">
-          <div style="font-weight:800;color:#dc2626;margin-bottom:5px;">② 게시 후 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 승인·노출 개시 이후</span></div>
-          <ul style="margin:0;padding-left:18px;"><li><b>환불 불가</b></li><li>게재 기간·잔여일수·조회수·지원/참여/문의 실적과 무관</li><li>상단노출 등 부가옵션도 적용 시작 후 환불 불가</li></ul>
+          <div style="font-weight:800;color:#dc2626;margin-bottom:5px;">② 게시 후 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 승인 및 노출 시작 이후</span></div>
+          <ul style="margin:0;padding-left:18px;line-height:1.65;">
+            <li>공고가 승인되어 게시(노출)가 시작된 이후에는 광고 게재 용역이 개시된 것으로 보며 <b>환불은 불가능</b>합니다.</li>
+            <li>게재기간의 잔여일수와 관계없이 환불되지 않습니다.</li>
+            <li>조회수, 노출수, 지원자 수, 참가자 수, 문의 건수, 계약 성사 여부 등 광고 성과와 관계없이 환불되지 않습니다.</li>
+            <li>HOT 배지, 상단고정 등 모든 부가옵션 역시 적용이 시작된 이후에는 환불되지 않습니다.</li>
+          </ul>
         </div>
-        <div style="margin-bottom:14px;">
-          <div style="font-weight:800;color:#1a3de8;margin-bottom:5px;">③ 운영자 귀책 <span style="font-weight:600;color:var(--txt-mid);font-size:12px;">· 시스템 오류 미게재·정당한 사유 없는 삭제 등</span></div>
-          <ul style="margin:0;padding-left:18px;"><li>전액 환불 또는 동등 재게재</li></ul>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:#1a3de8;margin-bottom:5px;">③ 운영자 귀책사유</div>
+          <p style="margin:0 0 4px;color:var(--txt-mid);font-size:12.5px;">다음과 같은 운영자의 귀책사유가 발생한 경우</p>
+          <ul style="margin:0 0 6px;padding-left:18px;line-height:1.65;">
+            <li>시스템 오류로 공고가 게시되지 않은 경우</li>
+            <li>승인 완료 후 정상적으로 노출되지 않은 경우</li>
+            <li>정당한 사유 없이 공고가 삭제된 경우</li>
+          </ul>
+          <p style="margin:0 0 4px;color:var(--txt-mid);font-size:12.5px;">운영자는 상황에 따라 다음 중 하나를 제공합니다.</p>
+          <ul style="margin:0;padding-left:18px;line-height:1.65;"><li><b>전액 환불</b></li><li><b>동일 조건으로 재게재</b></li></ul>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">④ 공고 승인 및 등록 거부</div>
+          <p style="margin:0 0 4px;color:var(--txt-mid);font-size:12.5px;">모든 공고는 관리자 검수 후 승인됩니다. 운영자는 다음과 같은 경우 승인 없이 공고 등록을 거부하거나 수정을 요청할 수 있습니다.</p>
+          <ul style="margin:0 0 6px;padding-left:18px;line-height:1.65;">
+            <li>운영정책에 위반되는 경우</li>
+            <li>관계 법령에 위반되는 경우</li>
+            <li>허위 또는 과장된 내용인 경우</li>
+            <li>타인의 권리를 침해하는 경우</li>
+            <li>서비스 목적과 현저히 맞지 않는 경우</li>
+            <li>기타 운영자가 부적절하다고 판단하는 경우</li>
+          </ul>
+          <p style="margin:0;color:var(--txt-mid);font-size:12.5px;">공고가 승인 전에 등록 거부된 경우에는 결제금액을 <b>전액 환불</b>합니다.</p>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">⑤ 등록자의 책임</div>
+          <p style="margin:0;color:var(--txt-mid);font-size:12.5px;line-height:1.65;">공고 내용의 정확성, 적법성 및 진실성에 대한 책임은 등록자에게 있습니다. 운영자는 등록된 공고 내용의 사실 여부를 보증하지 않으며, 공고 내용으로 인해 발생하는 분쟁에 대해 법령상 책임이 있는 경우를 제외하고 책임을 부담하지 않습니다.</p>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">⑥ 운영정책 위반</div>
+          <p style="margin:0 0 4px;color:var(--txt-mid);font-size:12.5px;">다음 행위가 확인되는 경우 운영자는 환불 없이 공고를 중단하거나 서비스 이용을 제한할 수 있습니다.</p>
+          <ul style="margin:0;padding-left:18px;line-height:1.65;">
+            <li>허위 공고 등록</li>
+            <li>중복 공고 등록</li>
+            <li>타인 명의 사용</li>
+            <li>다계정 생성</li>
+            <li>자동화 프로그램 사용</li>
+            <li>반복적인 등록 및 취소를 통한 시스템 악용</li>
+            <li>운영정책 또는 관계 법령 위반</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">⑦ 포인트 및 할인권</div>
+          <ul style="margin:0;padding-left:18px;line-height:1.65;">
+            <li>포인트와 할인권은 현금으로 환불하거나 양도할 수 없습니다.</li>
+            <li>미사용 상태에서 취소가 가능한 경우에 한하여 복원됩니다.</li>
+            <li>할인권은 발급일로부터 14일이 지나면 자동 소멸됩니다.</li>
+          </ul>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">⑧ 공고 검수</div>
+          <p style="margin:0;color:var(--txt-mid);font-size:12.5px;line-height:1.65;">공고는 관리자 검수를 거쳐 승인 후 게시됩니다. 검수 및 승인 소요시간은 운영 상황에 따라 달라질 수 있으며, 이용자는 이를 확인하고 신청하는 것으로 간주합니다.</p>
+        </div>
+        <div style="margin-bottom:13px;">
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">⑨ 환불 처리</div>
+          <p style="margin:0;color:var(--txt-mid);font-size:12.5px;line-height:1.65;">환불이 승인된 경우 실제 환불은 승인일 기준 <b>영업일 3~5일 이내</b> 원 결제수단 또는 결제 경로를 통해 처리됩니다.</p>
         </div>
         <div style="border-top:1px solid var(--border,rgba(0,0,0,0.08));padding-top:12px;">
-          <div style="font-weight:800;margin-bottom:6px;">공통</div>
-          <ul style="margin:0;padding-left:18px;color:var(--txt-mid);font-size:12.5px;line-height:1.65;">
-            <li>환불 신청은 결제일로부터 <b>7일 이내, 「게시 전」</b>에 한해 접수</li>
-            <li>포인트·할인권: 환불·현금화·양도 불가, 미사용분 취소만 가능, 발급 14일 경과 시 자동 소멸</li>
-            <li>참가자 모집 실패·지원율/참여율 저조 등 <b>성과 미달은 환불 사유가 아님</b></li>
-            <li>허위·중복·타인명의 공고, 다계정·자동화·반복 등록취소·시스템 악용 시 환불 없이 게시 중단·이용 제한</li>
-            <li>환불 확정 시 실제 입금 반환은 영업일 3~5일 내 결제 경로로 처리</li>
-            <li>관계 법령에 강행규정이 있는 경우 그 범위에서 우선 적용</li>
-          </ul>
+          <div style="font-weight:800;color:var(--txt-hi);margin-bottom:5px;">⑩ 관계 법령</div>
+          <p style="margin:0;color:var(--txt-mid);font-size:12.5px;line-height:1.65;">본 정책에서 정하지 않은 사항 또는 관계 법령의 강행규정이 있는 경우에는 해당 법령이 우선 적용됩니다.</p>
         </div>
         <button type="button" onclick="smCloseRefundPolicy()" style="margin-top:18px;width:100%;padding:12px;border:none;border-radius:10px;background:var(--txt-hi);color:var(--bg-card,#fff);font-weight:800;font-size:14px;cursor:pointer;">확인</button>
       </div>
