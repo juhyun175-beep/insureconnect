@@ -5,6 +5,7 @@
  *   유입 양면: 참석 설계사(→회원) + 모임 주최자(→모임 등록)
  */
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { getPromoRemaining } from '../_lib/promo.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
@@ -18,6 +19,11 @@ const daysAgo = (iso) => {
 
 export const onRequestGet = async ({ env }) => {
   const url = `${SITE}/meeting`;
+  const promo = await getPromoRemaining(env);
+  const promoRemaining = promo.enabled ? Math.max(0, Number(promo.remaining || 0)) : 0;
+  const submitCta = promoRemaining > 0
+    ? `＋ 모임 주최자세요? 등록비 0원 · 선착순 ${promoRemaining}건 남음 →`
+    : '＋ 모임 주최자세요? 모임 공고 등록하기 →';
 
   let items = [];
   try {
@@ -44,7 +50,7 @@ export const onRequestGet = async ({ env }) => {
   }).join('');
 
   const title = '보험설계사 모임·세미나·스터디 일정 모음 | InsureConnect';
-  const desc = `보험설계사 오프라인 모임·영업 스터디·세미나·네트워킹 ${items.length}건을 한 곳에서. 장소·일정·신청 정보를 확인하고 바로 참여하세요. 주최자는 무료로 모임을 등록할 수 있습니다.`;
+  const desc = `보험설계사 오프라인 모임·영업 스터디·세미나·네트워킹 ${items.length}건을 한 곳에서. 장소·일정·신청 정보를 확인하고 바로 참여하세요. 주최자는 직접 모임을 등록할 수 있습니다.`;
 
   const itemListLd = {
     '@context': 'https://schema.org', '@type': 'CollectionPage',
@@ -110,11 +116,11 @@ header.h h1{margin:0 0 8px;font-size:27px;letter-spacing:-0.02em}header.h p{marg
 <header class="h">
   <h1>보험설계사 모임 · 세미나 · 스터디</h1>
   <p>오프라인 모임 · 영업 스터디 · 세미나 · 네트워킹 일정을 한 곳에서. 현재 ${items.length}건의 모임이 등록되어 있습니다.</p>
-  <a class="h-cta" href="/api/auth/kakao/login">＋ 모임 주최자세요? 무료로 모임 등록 →</a>
+  <a class="h-cta" href="/?post=meetup">${submitCta}</a>
 </header>
 ${items.length
   ? `<div class="sec"><div class="grid">${cards}</div></div>`
-  : `<div class="empty"><div class="empty-box">현재 등록된 모임이 없습니다. 잠시 후 다시 확인해주세요.<br><br><a href="/api/auth/kakao/login" style="color:#0d9488;font-weight:700;text-decoration:none">모임 무료 등록하기 →</a></div></div>`}
+  : `<div class="empty"><div class="empty-box">현재 등록된 모임이 없습니다. 잠시 후 다시 확인해주세요.<br><br><a href="/?post=meetup" style="color:#0d9488;font-weight:700;text-decoration:none">${submitCta}</a></div></div>`}
 <div class="sec" style="margin-top:16px">
   ${seoShareBar(url, '보험설계사 모임·세미나 모음', '오프라인 모임·스터디·세미나 일정을 한 곳에서', `${SITE}/logo-full.png`)}
 </div>

@@ -12116,6 +12116,14 @@
       setTimeout(() => tryOpen(20), 300);
     }
     /* v2.99.0: 알림 클릭 진입 — ?chat=lounge → 실시간채팅, ?dm=<room_id|rooms> → 1:1 문의 */
+    function openPostFromURL() {
+      const qs = new URLSearchParams(location.search);
+      const post = qs.get('post');
+      if (post === 'recruit' || post === 'lecture' || post === 'meetup') {
+        setTimeout(() => openSubmitModal(post), 300);
+      }
+    }
+
     function openChatFromURL() {
       const qs = new URLSearchParams(location.search);
       if (qs.get('chat') === 'lounge') { if (typeof goToPage === 'function') goToPage('chat'); return; }
@@ -12126,11 +12134,12 @@
     }
     // 페이지 로드 시 실행
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); openMeetupFromURL(); openChatFromURL(); });
+      document.addEventListener('DOMContentLoaded', () => { openRecruitFromURL(); openLectureFromURL(); openMeetupFromURL(); openPostFromURL(); openChatFromURL(); });
     } else {
       openRecruitFromURL();
       openLectureFromURL();
       openMeetupFromURL();
+      openPostFromURL();
       openChatFromURL();
     }
 
@@ -12526,8 +12535,7 @@
         });
         if (!insRes.ok) {
           if (insRes.status === 401) {
-            if (confirm('로그인 후 공고를 등록할 수 있어요.\n카카오로 로그인하시겠어요?')) location.href = '/api/auth/kakao/login';
-            throw new Error('로그인이 필요합니다.');
+            throw new Error('접수 권한 확인에 실패했습니다. 새로고침 후 다시 시도해주세요.');
           }
           const errText = await insRes.text();
           throw new Error('신청 접수 실패: ' + errText.slice(0, 200));

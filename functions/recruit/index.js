@@ -5,6 +5,7 @@
  *   유입 양면: 구직 설계사(→회원) + 구인 지점/GA(→공고 무료등록)
  */
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { getPromoRemaining } from '../_lib/promo.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
@@ -18,6 +19,11 @@ const daysAgo = (iso) => {
 
 export const onRequestGet = async ({ env }) => {
   const url = `${SITE}/recruit`;
+  const promo = await getPromoRemaining(env);
+  const promoRemaining = promo.enabled ? Math.max(0, Number(promo.remaining || 0)) : 0;
+  const submitCta = promoRemaining > 0
+    ? `＋ 구인 담당자세요? 등록비 0원 · 선착순 ${promoRemaining}건 남음 →`
+    : '＋ 구인 담당자세요? 공고 등록 →';
 
   let jobs = [];
   try {
@@ -44,7 +50,7 @@ export const onRequestGet = async ({ env }) => {
   }).join('');
 
   const title = '보험설계사 채용·구인공고 모음 | InsureConnect';
-  const desc = `보험설계사·GA 법인대리점 채용/리크루팅 공고 ${jobs.length}건을 한 곳에서. 지점 모집·정착지원·교육 정보를 확인하고 바로 지원하세요. 구인 담당자는 무료로 공고를 등록할 수 있습니다.`;
+  const desc = `보험설계사·GA 법인대리점 채용/리크루팅 공고 ${jobs.length}건을 한 곳에서. 지점 모집·정착지원·교육 정보를 확인하고 바로 지원하세요. 구인 담당자는 직접 공고를 등록할 수 있습니다.`;
 
   const itemListLd = {
     '@context': 'https://schema.org', '@type': 'CollectionPage',
@@ -109,11 +115,11 @@ header.h h1{margin:0 0 8px;font-size:27px;letter-spacing:-0.02em}header.h p{marg
 <header class="h">
   <h1>보험설계사 채용 · 구인공고</h1>
   <p>지점 리크루팅 · GA 법인대리점 모집 · 정착지원·교육 정보를 한 곳에서. 현재 ${jobs.length}건의 공고가 등록되어 있습니다.</p>
-  <a class="h-cta" href="/api/auth/kakao/login">＋ 구인 담당자세요? 무료로 공고 등록 →</a>
+  <a class="h-cta" href="/?post=recruit">${submitCta}</a>
 </header>
 ${jobs.length
   ? `<div class="sec"><div class="grid">${cards}</div></div>`
-  : `<div class="empty"><div class="empty-box">현재 등록된 채용공고가 없습니다. 잠시 후 다시 확인해주세요.<br><br><a href="/api/auth/kakao/login" style="color:#16a34a;font-weight:700;text-decoration:none">구인 공고 무료 등록하기 →</a></div></div>`}
+  : `<div class="empty"><div class="empty-box">현재 등록된 채용공고가 없습니다. 잠시 후 다시 확인해주세요.<br><br><a href="/?post=recruit" style="color:#16a34a;font-weight:700;text-decoration:none">${submitCta}</a></div></div>`}
 <div class="sec" style="margin-top:16px">
   ${seoShareBar(url, '보험설계사 채용·구인공고 모음', '지점 리크루팅·GA 모집·정착지원 공고를 한 곳에서', `${SITE}/logo-full.png`)}
 </div>

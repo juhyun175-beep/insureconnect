@@ -64,6 +64,7 @@ export function seoCtaFooter(SITE) {
     <div class="seo-cta-desc">보험사 전산·청구서류·소식지·실무도구·채용공고 + 설계사 커뮤니티까지.<br>카카오로 1초 가입하면 자주 쓰는 전산을 즐겨찾기·알림으로 더 빠르게 쓸 수 있어요.</div>
     <div class="seo-cta-links">
       <a class="primary" href="/api/auth/kakao/login">💬 카카오로 1초 가입 →</a>
+      <a href="/?post=recruit">📤 공고 등록</a>
       <a href="/company">🖥 보험사 전산·청구</a>
       <a href="/insurance">📚 보험 정보</a>
       <a href="https://open.kakao.com/o/gSN4EEoh" target="_blank" rel="noopener nofollow">💬 오픈채팅</a>
