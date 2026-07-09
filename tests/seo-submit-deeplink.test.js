@@ -46,6 +46,7 @@ module.exports = (async () => {
     assert(html.includes('openRecruitFromURL(); openLectureFromURL(); openMeetupFromURL(); openPostFromURL(); openChatFromURL();'), 'DOMContentLoaded init should include post deeplink');
     assert(html.includes('openMeetupFromURL();\n      openPostFromURL();\n      openChatFromURL();'), 'already-loaded init should include post deeplink');
     assert(!html.includes("로그인 후 공고를 등록할 수 있어요."), 'anonymous posting fallback should not route submitters to Kakao login');
+    assert(html.includes('postGateBypass'), 'anonymous posting deeplink should hide the login gate so the submit modal is visible');
   }
 
   for (const [rel, mode, promoCopy, fallbackCopy] of [

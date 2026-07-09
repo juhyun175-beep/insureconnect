@@ -2,7 +2,7 @@
 
 ## [2.113.0] - 2026-07-09
 ### Changed (SEO 허브 비로그인 등록 CTA)
-- `index.html`: `?post=recruit|lecture|meetup` 딥링크를 추가해 SSR 허브 CTA가 비로그인 등록 모달을 바로 열도록 연결.
+- `index.html`: `?post=recruit|lecture|meetup` 딥링크를 추가하고 해당 진입에서는 로그인 게이트를 숨겨 SSR 허브 CTA가 비로그인 등록 모달을 바로 열도록 연결.
 - `functions/recruit/index.js`, `functions/lecture/index.js`, `functions/meeting/index.js`: 카카오 로그인 CTA를 등록 딥링크로 교체하고 런치 프로모 잔여 건수에 따라 `등록비 0원`/일반 등록 문구를 자동 전환.
 - `functions/_lib/seo-cta.js`: 전 SEO 페이지 공통 푸터에 `공고 등록` 진입점을 추가하고 등록 관련 무료 고정 문구를 가격 중립 문구로 정리.
 
