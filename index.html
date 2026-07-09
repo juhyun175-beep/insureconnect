@@ -2326,6 +2326,8 @@
     .sm-pay-label { font-size: 12px; color: var(--txt-lo); font-weight: 600; }
     .sm-pay-val { font-size: 14.5px; color: var(--txt-hi); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
     .sm-pay-amount { color: #db2777; font-size: 18px; }
+    .sm-promo-free { text-decoration: line-through; color: #94a3b8; }
+    .sm-promo-note { display: block; margin-top: 2px; font-size: 11px; color: var(--txt-lo); font-weight: 600; }
     .sm-copy-btn {
       margin-left: 8px;
       padding: 4px 10px;
@@ -8660,6 +8662,10 @@
               <span class="sm-pay-label">등록가</span>
               <span class="sm-pay-val"><span id="sm-base-price">20,000</span>원</span>
             </div>
+            <div class="sm-pay-row" id="sm-promo-row" style="display:none">
+              <span class="sm-pay-label">🎉 런치 프로모 (선착순 30건)</span>
+              <span class="sm-pay-val" style="color:#16a34a;font-weight:800">− 20,000원 <small class="sm-promo-note">남은 <span id="sm-promo-left">0</span>건</small></span>
+            </div>
             <div class="sm-pay-row" id="sm-coupon-row" style="display:none">
               <span class="sm-pay-label">할인권</span>
               <span class="sm-pay-val"><select id="sm-coupon-sel" onchange="smUpdatePrice()" style="font-family:inherit;font-size:13px;font-weight:700;padding:6px 9px;border:1.5px solid #e2e8f0;border-radius:8px;background:#fff;color:#334155;cursor:pointer;"><option value="">할인권 없음</option></select></span>
@@ -8736,12 +8742,12 @@
         <div class="sm-step" id="sm-step-3">
           <div class="sm-done-icon">✅</div>
           <div class="sm-done-title">승인요청이 접수되었습니다</div>
-          <p class="sm-done-msg">
+          <p class="sm-done-msg" id="sm-done-msg-main">
             관리자 결제(입금) 확인 + 승인 후 공고가 업로드되며,<br>
             등록하신 연락처로 결과를 안내드립니다.<br>
             🔝 승인되면 <strong>3일간 무료로 상단 노출</strong>됩니다.
           </p>
-          <p class="sm-done-msg" style="font-size:12px;color:var(--txt-lo)">
+          <p class="sm-done-msg" id="sm-done-msg-sub" style="font-size:12px;color:var(--txt-lo)">
             영업일 기준 1~2일 소요됩니다. 결제(입금) 누락 시 반려될 수 있습니다.
           </p>
           <div class="sm-actions">
@@ -12246,6 +12252,7 @@
       }
       submitState.step = 1;
       submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
+      window.SM_PROMO = { remaining: 0 };
       ['sm-opt-featured_listing','sm-opt-dm_inquiry','sm-opt-kakao_blast','sm-opt-open_chat_promo','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
       const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
@@ -12259,6 +12266,7 @@
       document.getElementById('sm-status-1').textContent = '';
       document.getElementById('sm-status-2').textContent = '';
       smSetMode(mode);                      // 모드 적용 (UI + state)
+      smLoadPromoStatus();
       smShowStep(1);
       document.getElementById('submit-modal').classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -12297,6 +12305,18 @@
     const SM_MAX_RATE = { recruit: 15, lecture: 35, meetup: 49 }; // v2.69.0: 할인권 안내용 최대 할인율
     function smWon(n){ return Number(n||0).toLocaleString('ko-KR'); }
     var _smCoupons = null;
+    window.SM_PROMO = window.SM_PROMO || { remaining: 0 };
+    function smPromoActive(){ return !!(window.SM_PROMO && Number(window.SM_PROMO.remaining || 0) > 0); }
+    async function smLoadPromoStatus(){
+      try {
+        const r = await fetch('/api/promo/status', { credentials:'same-origin' });
+        window.SM_PROMO = r.ok ? (await r.json()) : { remaining: 0 };
+      } catch (_) {
+        window.SM_PROMO = { remaining: 0 };
+      }
+      smRenderCoupons();
+      smUpdatePrice();
+    }
     async function smLoadCoupons(){
       try { const r = await fetch('/api/coupons', { credentials:'same-origin' }); _smCoupons = r.ok ? ((await r.json()).coupons || []) : []; }
       catch(_){ _smCoupons = []; }
@@ -12306,16 +12326,20 @@
       const sel = document.getElementById('sm-coupon-sel'); if(!sel) return;
       const adType = SM_BASE[submitState.mode] ? submitState.mode : 'recruit';
       const bp = document.getElementById('sm-base-price'); if(bp) bp.textContent = smWon(SM_BASE[adType]);
+      const promoActive = smPromoActive();
+      if (promoActive && sel) sel.value = '';
       if(_smCoupons === null){ smUpdatePrice(); return; }
       const mine = _smCoupons.filter(function(c){ return c.status==='active' && c.ad_type===adType; });
       var opts = '<option value="" data-rate="0">할인권 없음</option>';
       mine.forEach(function(c){ var dl = Math.max(0, Math.ceil((new Date(String(c.expires_at).replace(' ','T')+'Z') - new Date())/86400000)); opts += '<option value="'+c.id+'" data-rate="'+c.discount_rate+'">'+c.discount_rate+'% 할인권 (D-'+dl+')</option>'; });
       sel.innerHTML = opts;
-      const row = document.getElementById('sm-coupon-row'); if(row) row.style.display = mine.length ? '' : 'none';
+      const row = document.getElementById('sm-coupon-row'); if(row) row.style.display = (!promoActive && mine.length) ? '' : 'none';
       const hint = document.getElementById('sm-coupon-hint');
       if(hint){
         const maxRate = SM_MAX_RATE[adType] || 0;
-        hint.innerHTML = mine.length
+        hint.innerHTML = promoActive
+          ? '🎉 런치 프로모 적용 중 — 등록비는 0원이며 할인권은 사용되지 않습니다.'
+          : mine.length
           ? '🎟️ 보유 할인권 <b>'+mine.length+'개</b> — 위에서 선택하면 등록비가 자동 할인됩니다 (최대 '+maxRate+'%).'
           : '🎟️ <b>할인권으로 등록비 최대 '+maxRate+'% 할인</b> 가능 — 포인트로 교환 후 사용하세요. <a href="/me" target="_blank" rel="noopener" style="color:#1a3de8;font-weight:800;">할인권 교환 →</a>';
       }
@@ -12366,10 +12390,16 @@
     function smUpdatePrice(){
       const adType = SM_BASE[submitState.mode] ? submitState.mode : 'recruit';
       const base = SM_BASE[adType];
+      const promoActive = smPromoActive();
       const sel = document.getElementById('sm-coupon-sel');
       var rate = 0; if(sel && sel.selectedOptions && sel.selectedOptions[0]){ rate = parseInt(sel.selectedOptions[0].getAttribute('data-rate')||'0',10)||0; }
+      if (promoActive) rate = 0;
       var optTotal = 0; smSelectedOptions().forEach(function(opt){ optTotal += smOptionAmount(opt); });   // v2.107.0
-      const discount = Math.round(base*rate/100), final = base - discount + optTotal;
+      const discount = promoActive ? 0 : Math.round(base*rate/100), final = (promoActive ? 0 : base) - discount + optTotal;
+      const bp = document.getElementById('sm-base-price'); if(bp) { bp.textContent = smWon(base); bp.classList.toggle('sm-promo-free', promoActive); }
+      const prow = document.getElementById('sm-promo-row'); if(prow) prow.style.display = promoActive ? '' : 'none';
+      const pleft = document.getElementById('sm-promo-left'); if(pleft) pleft.textContent = smWon(window.SM_PROMO && window.SM_PROMO.remaining);
+      const crow = document.getElementById('sm-coupon-row'); if(crow && promoActive) crow.style.display = 'none';
       const dr = document.getElementById('sm-discount-row'); if(dr) dr.style.display = rate>0 ? '' : 'none';
       const da = document.getElementById('sm-discount-amt'); if(da) da.textContent = smWon(discount);
       const orow = document.getElementById('sm-options-row'); if(orow) orow.style.display = optTotal>0 ? '' : 'none';
@@ -12506,6 +12536,7 @@
         const insJson = await insRes.json().catch(() => ({}));
         submitState.orderId = insJson.order_id || null;
         submitState.payPrice = (insJson.price && typeof insJson.price.price === 'number') ? insJson.price.price : null;
+        smUpdateDoneMessage(insJson.price);
         smSetupPayStep();
         // v2.1.30: 쿨다운 폐지 → localStorage 저장 불필요
         smShowStep(3);
@@ -12518,6 +12549,24 @@
     function smSetupPayStep(){
       const box = document.getElementById('sm-pay-online');
       if (box) box.style.display = 'none';
+    }
+    function smUpdateDoneMessage(price){
+      const main = document.getElementById('sm-done-msg-main');
+      const sub = document.getElementById('sm-done-msg-sub');
+      const finalPrice = price && typeof price.price === 'number' ? price.price : null;
+      const fp = document.getElementById('sm-final-price');
+      if (fp && finalPrice !== null) fp.textContent = smWon(finalPrice);
+      if (!main || !sub) return;
+      if (finalPrice === 0) {
+        main.innerHTML = '입금 없이 접수 완료 — 관리자 승인 후 게시됩니다.<br>등록하신 연락처로 결과를 안내드립니다.<br>🔝 승인되면 <strong>3일간 무료로 상단 노출</strong>됩니다.';
+        sub.textContent = '영업일 기준 1~2일 소요됩니다.';
+      } else if (finalPrice > 0) {
+        main.innerHTML = '입금액 <strong>'+smWon(finalPrice)+'원</strong> (옵션 금액)을 입금해 주세요.<br>관리자 입금 확인 + 승인 후 공고가 업로드됩니다.<br>등록하신 연락처로 결과를 안내드립니다.';
+        sub.textContent = '클라이언트 표시 금액과 다르면 서버 확정 금액을 기준으로 안내됩니다.';
+      } else {
+        main.innerHTML = '관리자 결제(입금) 확인 + 승인 후 공고가 업로드되며,<br>등록하신 연락처로 결과를 안내드립니다.<br>🔝 승인되면 <strong>3일간 무료로 상단 노출</strong>됩니다.';
+        sub.textContent = '영업일 기준 1~2일 소요됩니다. 결제(입금) 누락 시 반려될 수 있습니다.';
+      }
     }
     document.addEventListener('DOMContentLoaded', () => {
       const fileEl = document.getElementById('sm-input-file');

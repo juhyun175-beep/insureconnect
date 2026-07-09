@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.112.0] - 2026-07-09
+### Added (런치 프로모 등록비 0원)
+- `functions/_lib/promo.js`, `functions/api/promo/status.js`: 선착순 30건 등록비(base) 0원 런치 프로모 상태 계산과 공개 상태 API를 추가.
+- `functions/api/recruitments/index.js`, `functions/api/lectures/index.js`, `functions/api/meetings/index.js`: 프로모 잔여 시 쿠폰을 소모하지 않고 등록비만 0원 처리하며, 옵션 가격은 서버 카탈로그 기준으로 그대로 합산.
+- `functions/_lib/orders.js`, `index.html`: `ad_orders.promo_code` 기록과 등록 모달의 프로모 잔여 표시/쿠폰 숨김/서버 확정 금액 안내를 추가.
+
 ## [2.111.0] - 2026-07-09
 ### Added (AdSense 정적 파일 배포 검증)
 - `scripts/verify-adsense-files.mjs`: `Mediapartners-Google` User-Agent로 라이브 `ads.txt`/`robots.txt`를 조회해 200 응답, `text/plain` content-type, AdSense publisher ID 및 Sitemap 노출을 검증하는 배포 후 가드를 추가.

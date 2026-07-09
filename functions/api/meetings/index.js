@@ -5,6 +5,7 @@ import { AD_BASE, finalPrice, ensurePostingCouponCols, validateCoupon } from '..
 import { createAdOrder } from '../../_lib/orders.js';
 import { validateOptions } from '../../_lib/options.js';
 import { ensureMeetingsTable, ensureParticipantsTable } from '../../_lib/meetings.js';
+import { LAUNCH_PROMO, getPromoRemaining } from '../../_lib/promo.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -106,21 +107,25 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     try {
       await ensurePostingCouponCols(env);
       let rate = 0, usedId = null, usedType = null;
-      const cp = (user && body.coupon_id) ? await validateCoupon(env, user.id, body.coupon_id, 'meetup') : { ok: false };
-      if (cp.ok) { rate = cp.rate; usedId = cp.id; usedType = cp.coupon_type; }
-      const price = finalPrice('meetup', rate);
-      await env.DB.prepare(`UPDATE ic_meetings SET price=?, coupon_id=?, coupon_rate=? WHERE id=?`).bind(price, usedId, rate, newId).run().catch(() => {});
-      if (usedId && user) {
+      const promo = await getPromoRemaining(env);
+      const promoApplied = promo.enabled && promo.remaining > 0;
+      if (!promoApplied) {
+        const cp = (user && body.coupon_id) ? await validateCoupon(env, user.id, body.coupon_id, 'meetup') : { ok: false };
+        if (cp.ok) { rate = cp.rate; usedId = cp.id; usedType = cp.coupon_type; }
+      }
+      const basePrice = promoApplied ? 0 : finalPrice('meetup', rate);
+      await env.DB.prepare(`UPDATE ic_meetings SET price=?, coupon_id=?, coupon_rate=? WHERE id=?`).bind(basePrice, usedId, rate, newId).run().catch(() => {});
+      if (!promoApplied && usedId && user) {
         await env.DB.prepare(`UPDATE user_coupons SET status='used', used_at=datetime('now'), used_ad_type='meetup', used_ad_id=? WHERE id=? AND member_id=? AND status='active'`).bind(newId, usedId, user.id).run().catch(() => {});
         try { await env.DB.prepare(`INSERT INTO coupon_logs (member_id, coupon_id, coupon_type, ad_type, discount_rate, action, used_at) VALUES (?,?,?,?,?, 'use', datetime('now'))`).bind(user.id, usedId, usedType, 'meetup', rate).run(); } catch (_) {}
       }
       // v2.107.0: 유료 애드온 옵션 — 서버 카탈로그 가격으로만 합산(클라 전달값은 key 배열뿐)
       const opt = validateOptions('meetup', body.options);
-      const total = price + opt.total;
-      priceInfo = { base: AD_BASE.meetup, rate, price: total, options: opt.keys, options_price: opt.total };
+      const total = basePrice + opt.total;
+      priceInfo = { base: AD_BASE.meetup, rate, price: total, options: opt.keys, options_price: opt.total, promo: { applied: promoApplied, code: LAUNCH_PROMO.code, remaining: Math.max(0, promo.remaining - (promoApplied ? 1 : 0)) } };
       // v2.67.0: 주문/동의 기록(환불 정책)
       const cs = body.consent || {};
-      orderId = await createAdOrder(env, { ad_type: 'meetup', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.meetup, coupon_id: usedId, coupon_rate: rate, final_price: total, options_json: opt.keys.length ? JSON.stringify(opt.keys) : null, options_price: opt.total, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
+      orderId = await createAdOrder(env, { ad_type: 'meetup', ad_id: newId, member_id: user ? user.id : null, submitter_name: submitterName, submitter_contact: submitterContact, base_price: AD_BASE.meetup, coupon_id: usedId, coupon_rate: rate, final_price: total, options_json: opt.keys.length ? JSON.stringify(opt.keys) : null, options_price: opt.total, promo_code: promoApplied ? LAUNCH_PROMO.code : null, consent_refund: cs.refund, consent_points: cs.points, consent_fail: cs.fail });
     } catch (_) {}
   }
   // order_id: 관리자 주문/입금 확인 및 환불정책 동의 기록 연결용
