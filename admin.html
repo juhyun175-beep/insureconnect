@@ -3783,6 +3783,9 @@
         <p class="nl-status" id="cf-status"></p>
       </div>
 
+      <div id="cf-summary" style="margin:0 0 10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:rgba(26,61,232,0.06);font-size:12.5px;color:var(--txt-mid);font-weight:700;">
+        청구서류 커버리지 계산 중…
+      </div>
       <div class="nl-list" id="cf-list">
         <p class="empty-msg">청구서류 로딩 중…</p>
       </div>
@@ -4260,6 +4263,7 @@
           #up-traffic .tf-fill{display:block;height:100%;background:linear-gradient(90deg,#1a3de8,#00c8ee);border-radius:6px}
           #up-traffic .tf-cnt{min-width:34px;text-align:right;color:var(--txt-mid,#9fb0c8);font-weight:700}
           #up-traffic .tf-land .tf-name{max-width:200px}
+          #up-traffic .tf-vertical .tf-name{max-width:150px}
           #up-traffic table.tf-recent{width:100%;border-collapse:collapse;font-size:12px;margin-top:4px}
           #up-traffic table.tf-recent th{text-align:left;color:var(--txt-mid,#9fb0c8);padding:6px 8px;border-bottom:1px solid var(--border,#2a3550);font-size:11px}
           #up-traffic table.tf-recent td{padding:6px 8px;border-bottom:1px solid rgba(120,140,180,0.1);color:var(--txt-hi,#e6edf3)}
@@ -4292,6 +4296,7 @@
         <div class="tf-grid">
           <div class="tf-block"><h4>📡 유입 채널</h4><div id="tf-ref"><p class="cs-empty">불러오는 중…</p></div></div>
           <div class="tf-block tf-land"><h4>📄 유입 페이지 (랜딩)</h4><div id="tf-land"><p class="cs-empty">불러오는 중…</p></div></div>
+          <div class="tf-block tf-vertical"><h4>🧭 버티컬별 유입</h4><div id="tf-vertical"><p class="cs-empty">불러오는 중…</p></div></div>
           <div class="tf-block"><h4>📱 기기</h4><div id="tf-dev"><p class="cs-empty">불러오는 중…</p></div></div>
           <div class="tf-block"><h4>🔗 UTM·QR 캠페인</h4><div id="tf-utm"><p class="cs-empty">불러오는 중…</p></div></div>
         </div>
@@ -4706,6 +4711,24 @@
             <li><strong>본문</strong>: HTML 허용 (<code>&lt;h2&gt; &lt;p&gt; &lt;ul&gt; &lt;img&gt;</code> 등) — Markdown 변환 미적용</li>
             <li><strong>FAQ JSON</strong>: <code>[{"q":"질문","a":"답변"}]</code> 형식, Google FAQ schema 자동 적용</li>
           </ul>
+        </div>
+
+        <div style="background:rgba(16,185,129,0.06);border:1px solid rgba(16,185,129,0.20);border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:8px;">
+            <div style="font-size:12px;font-weight:800;color:#10b981;letter-spacing:0.03em;">IndexNow 제출</div>
+            <button type="button" onclick="fillIndexNowFromSeoForm()"
+                    style="padding:6px 10px;background:transparent;border:1px solid rgba(16,185,129,0.5);color:#10b981;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">
+              현재 SEO URL 넣기
+            </button>
+          </div>
+          <textarea id="indexnow-urls" rows="3" placeholder="https://insureconnect.co.kr/insurance/claim/example-slug" style="width:100%;padding:8px 10px;font-size:12px;font-family:Monaco,Consolas,monospace;resize:vertical;line-height:1.5;margin-bottom:8px;"></textarea>
+          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+            <button type="button" id="indexnow-submit-btn" onclick="submitIndexNow()"
+                    style="padding:8px 14px;background:#10b981;color:#fff;border:none;border-radius:8px;font-size:12px;font-weight:800;cursor:pointer;letter-spacing:0.04em;">
+              IndexNow 제출
+            </button>
+            <div id="indexnow-status" style="font-size:12px;color:var(--txt-mid,#9aa);line-height:1.5;"></div>
+          </div>
         </div>
 
         <!-- 등록 폼 -->
@@ -5554,12 +5577,26 @@
       const max = Math.max.apply(null, arr.map(x => x.count)) || 1;
       return arr.map(x => `<div class="tf-row"><span class="tf-name" title="${esc(x.name)}">${esc(x.name)}</span><span class="tf-bar"><span class="tf-fill" style="width:${Math.round(x.count / max * 100)}%"></span></span><span class="tf-cnt">${x.count}</span></div>`).join('');
     }
+    const tfVerticalLabels = {
+      company: '전산 전체',
+      ga: 'GA 전체',
+      insurance: '보험지식 전체',
+      recruit: '채용 전체',
+      lecture: '강의 전체',
+      meeting: '미팅 전체',
+      community: '커뮤니티 전체',
+      other: '기타',
+    };
+    function tfVerticalBars(arr) {
+      return tfBars((arr || []).map(x => ({ name: tfVerticalLabels[x.name] || x.name, count: x.count })));
+    }
     function renderTraffic() {
       if (!_tsCache) return;
       const s = _tsPeriod === 'today' ? 'today' : 'total';
       const set = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
       set('tf-ref', tfBars(_tsCache['referrer_' + s]));
       set('tf-land', tfBars(_tsCache['landing_' + s]));
+      set('tf-vertical', tfVerticalBars(_tsCache['vertical_' + s]));
       set('tf-dev', tfBars(_tsCache['device_' + s]));
       set('tf-utm', tfBars(_tsCache['utm_' + s]));
       const rec = _tsCache.recent || [];
@@ -7642,13 +7679,36 @@
       }
     }
 
+    const CLAIM_FORM_INSURERS = [
+      '신한라이프','미래에셋생명','한화생명','삼성생명','교보생명','흥국생명','푸본현대생명','IM라이프',
+      'KDB생명','KB라이프','DB생명','동양생명','농협생명','ABL생명','카디프생명','AIA생명',
+      '메트라이프생명','IBK연금보험','처브라이프','하나생명','메리츠화재','한화손해보험','롯데손해보험','흥국화재',
+      '삼성화재','현대해상','KB손해보험','DB손해보험','AIG손해보험','라이나손해보험','농협손해보험','하나손해보험'
+    ];
+    const CLAIM_FORM_ALIAS = { '라이나손보': '라이나손해보험' };
+    function renderClaimFormsSummary(items) {
+      const el = document.getElementById('cf-summary');
+      if (!el) return;
+      const canonical = new Set(CLAIM_FORM_INSURERS);
+      const registered = new Set();
+      (items || []).forEach(it => {
+        const name = CLAIM_FORM_ALIAS[it.company || it.company_name] || it.company || it.company_name;
+        if (canonical.has(name)) registered.add(name);
+      });
+      const missing = CLAIM_FORM_INSURERS.filter(name => !registered.has(name));
+      el.innerHTML = `등록 ${registered.size}/${CLAIM_FORM_INSURERS.length}개사 · 미등록 ${missing.length}개사`
+        + (missing.length ? `<div style="margin-top:6px;font-size:11.5px;font-weight:600;color:var(--txt-mid);line-height:1.6;">미등록: ${missing.map(esc).join(', ')}</div>` : '');
+    }
+
     async function loadClaimForms() {
       const el = document.getElementById('cf-list');
+      const summary = document.getElementById('cf-summary');
       try {
         const res = await fetch(`/api/claim-forms?order=created_at.desc&limit=100`, {
           headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
         });
         const items = await res.json();
+        renderClaimFormsSummary(items || []);
 
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 청구서류가 없습니다.</p>';
@@ -7674,6 +7734,7 @@
 
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">청구서류 로드 실패</p>';
+        if (summary) summary.textContent = '청구서류 커버리지 계산 실패';
       }
     }
 
@@ -9632,6 +9693,57 @@
     }
     window.submitSeoPost = submitSeoPost;
     window.resetSeoForm = resetSeoForm;
+
+    const INDEXNOW_SITE_ORIGIN = 'https://insureconnect.co.kr';
+
+    function getCurrentSeoUrlForIndexNow() {
+      const cat = document.getElementById('seo-cat')?.value || 'claim';
+      const slug = (document.getElementById('seo-slug')?.value || '').trim().toLowerCase();
+      if (!/^[a-z0-9-]{2,80}$/.test(slug)) return '';
+      return `${INDEXNOW_SITE_ORIGIN}/insurance/${cat}/${slug}`;
+    }
+
+    function fillIndexNowFromSeoForm() {
+      const url = getCurrentSeoUrlForIndexNow();
+      if (!url) return alert('SEO 카테고리와 slug를 먼저 입력하세요');
+      const input = document.getElementById('indexnow-urls');
+      if (input) input.value = url;
+    }
+
+    async function submitIndexNow() {
+      const input = document.getElementById('indexnow-urls');
+      const status = document.getElementById('indexnow-status');
+      const btn = document.getElementById('indexnow-submit-btn');
+      let urls = String(input?.value || '').split(/[\s,]+/).map(v => v.trim()).filter(Boolean);
+      if (!urls.length) {
+        const currentUrl = getCurrentSeoUrlForIndexNow();
+        if (currentUrl) urls = [currentUrl];
+      }
+      if (!urls.length) return alert('제출할 URL을 입력하세요');
+
+      if (status) status.textContent = '제출 중...';
+      if (btn) btn.disabled = true;
+      try {
+        const res = await fetch('/api/admin/indexnow', {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ urls }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok || data.ok === false) throw new Error(data.error || data.response || `HTTP ${res.status}`);
+        const submitted = Number(data.submitted || urls.length).toLocaleString();
+        const check = data.checkUrl
+          ? ` · <a href="${String(data.checkUrl).replace(/&/g,'&amp;').replace(/"/g,'&quot;')}" target="_blank" rel="noopener" style="color:#10b981;text-decoration:none;font-weight:700;">Bing 확인</a>`
+          : '';
+        if (status) status.innerHTML = `제출 완료: ${submitted}건 · IndexNow ${data.status || 'OK'}${check}`;
+      } catch (e) {
+        if (status) status.textContent = '제출 실패: ' + e.message;
+      } finally {
+        if (btn) btn.disabled = false;
+      }
+    }
+    window.fillIndexNowFromSeoForm = fillIndexNowFromSeoForm;
+    window.submitIndexNow = submitIndexNow;
 
     async function loadSeoPostsAdmin() {
       const el = document.getElementById('seo-list');

@@ -134,7 +134,7 @@ header.h h1{margin:0 0 8px;font-size:25px;letter-spacing:-0.02em}header.h p{marg
 <nav class="crumb"><a href="/">홈</a> &raquo; <a href="/company">보험사 전산</a> &raquo; <span>보험금 청구서류 양식</span></nav>
 <header class="h">
   <h1>보험사 보험금 청구서류 양식 다운로드</h1>
-  <p>보험사별 보험금 청구서 양식(PDF)을 무료로 내려받으세요. 보험사명을 누르면 전산·고객센터·청구 안내도 볼 수 있습니다.</p>
+  <p>보험사별 보험금 청구서 양식(PDF)을 무료로 내려받으세요. 현재 ${INSURERS.length}개사 중 ${withForms}개사 등록 완료. 보험사명을 누르면 전산·고객센터·청구 안내도 볼 수 있습니다.</p>
 </header>
 <div class="wrap">
 <div class="cf-grid">${cardsHtml || '<p>등록된 청구서류가 없습니다.</p>'}</div>
