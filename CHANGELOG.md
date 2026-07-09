@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.111.0] - 2026-07-09
+### Added (AdSense 정적 파일 배포 검증)
+- `scripts/verify-adsense-files.mjs`: `Mediapartners-Google` User-Agent로 라이브 `ads.txt`/`robots.txt`를 조회해 200 응답, `text/plain` content-type, AdSense publisher ID 및 Sitemap 노출을 검증하는 배포 후 가드를 추가.
+- `.github/workflows/deploy.yml`: Cloudflare Pages 배포 직후 AdSense-critical static file 검증 스텝을 실행해 실패 시 GitHub Actions 배포 워크플로가 실패하도록 연결.
+
 ## [2.110.1] - 2026-07-07
 ### Fixed (모바일 운영자 공지 겹침)
 - `index.html`: 모바일 홈에서 운영자 공지 패널(`#home-notice-panel-mobile`)이 바로 아래 빠른 메뉴 카드와 겹치던 문제를 해결. 모바일에서는 운영자 공지를 노출하지 않고 PC 홈(`#home-notice-panel`)에서만 표시하도록 변경. 사용하지 않게 된 `.ic-notice-panel--mobile` 스타일도 제거.
