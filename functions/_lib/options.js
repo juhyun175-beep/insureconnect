@@ -119,7 +119,9 @@ export function validateOptions(adType, keys) {
         out.push(selected);
         total += item.price * count;
       } else {
-        out.push(key);
+        const slot = key === 'bundle_boost' ? optionSlot(raw) : null;
+        if (slot) out.push({ key, slot });
+        else out.push(key);
         total += item.price;
       }
     }

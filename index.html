@@ -8712,6 +8712,7 @@
                     <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--txt-mid,#475569);"><input type="radio" name="sm-opt-open_chat_post-slot" value="noon" disabled checked onchange="smUpdatePrice()">점심 12:30</label>
                     <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--txt-mid,#475569);"><input type="radio" name="sm-opt-open_chat_post-slot" value="pm9" disabled onchange="smUpdatePrice()">저녁 9시</label>
                   </div>
+                  <div id="sm-opt-open_chat_post-bundle-hint" style="display:none;margin-top:6px;font-size:11px;font-weight:800;color:#5b21b6;">패키지 게시 2회 시간대 선택</div>
                 </div>
               </div>
               <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#fff;line-height:1.5;margin-bottom:8px;cursor:pointer;padding:10px 11px;border-radius:10px;background:#5b21b6;box-shadow:0 8px 18px rgba(91,33,182,0.18);">
@@ -12296,6 +12297,7 @@
       ['sm-opt-featured_listing','sm-opt-dm_inquiry','sm-opt-kakao_blast','sm-opt-seo_boost','sm-opt-open_chat_post','sm-opt-bundle_boost','sm-opt-open_chat_promo','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) { c.checked = false; c.disabled = false; delete c.dataset.bundlePrev; } });   // v2.107.0: 옵션 초기화
       const ocCount = document.getElementById('sm-opt-open_chat_post-count'); if (ocCount) { ocCount.value = '1'; ocCount.disabled = true; delete ocCount.dataset.bundlePrev; }
       document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.checked = r.value === 'noon'; r.disabled = true; delete r.dataset.bundlePrev; });
+      const ocHint = document.getElementById('sm-opt-open_chat_post-bundle-hint'); if (ocHint) ocHint.style.display = 'none';
       const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
@@ -12424,7 +12426,7 @@
     }
     function smOpenChatPostSlot(){
       const checked = document.querySelector('input[name="sm-opt-open_chat_post-slot"]:checked');
-      return checked && ['am8','noon','pm9'].includes(checked.value) ? checked.value : 'noon';
+      return checked && ['am8','noon','pm9'].includes(checked.value) ? checked.value : null;
     }
     function smToggleDailyOption(key){
       const cb = document.getElementById('sm-opt-'+key);
@@ -12438,7 +12440,8 @@
       const count = document.getElementById('sm-opt-'+key+'-count');
       if (count) count.disabled = !(cb && cb.checked);
       if (key === 'open_chat_post') {
-        document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.disabled = !(cb && cb.checked); });
+        const bundleOn = smOptionChecked('bundle_boost');
+        document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.disabled = !(bundleOn || (cb && cb.checked)); });
       }
       smUpdatePrice();
     }
@@ -12460,6 +12463,7 @@
         }
       });
       const count = document.getElementById('sm-opt-open_chat_post-count');
+      const hint = document.getElementById('sm-opt-open_chat_post-bundle-hint');
       if (count) {
         if (on) {
           count.dataset.bundlePrev = count.value || '1';
@@ -12469,18 +12473,10 @@
           delete count.dataset.bundlePrev;
         }
       }
-      document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){
-        if (on) {
-          r.dataset.bundlePrev = r.checked ? '1' : '0';
-          r.checked = r.value === 'noon';
-        } else {
-          if (r.dataset.bundlePrev) r.checked = r.dataset.bundlePrev === '1';
-          delete r.dataset.bundlePrev;
-        }
-      });
       smToggleCountOption('open_chat_post');
       if (count) count.disabled = on || !smOptionChecked('open_chat_post');
-      document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.disabled = on || !smOptionChecked('open_chat_post'); });
+      document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.disabled = !(on || smOptionChecked('open_chat_post')); });
+      if (hint) hint.style.display = on ? '' : 'none';
       smUpdatePrice();
     }
     window.smSyncBundleBoost = smSyncBundleBoost;
@@ -12493,6 +12489,12 @@
         if(!c || !c.checked) return;
         if(k !== 'bundle_boost' && bundled.includes(k)) return;
         var meta = SM_OPTIONS[k] || {};
+        if(k === 'bundle_boost') {
+          var bslot = smOpenChatPostSlot();
+          if (bslot) options.push({ key: 'bundle_boost', slot: bslot });
+          else options.push(k);
+          return;
+        }
         if(meta.pricing === 'daily') options.push({ key: k, days: smDailyOptionDays(k) });
         else if(meta.pricing === 'count') {
           var count = smCountOptionCount(k);

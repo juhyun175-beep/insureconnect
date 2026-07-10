@@ -80,6 +80,19 @@ module.exports = (async () => {
   }
 
   {
+    const opt = validateOptions('recruit', [{ key: 'bundle_boost', slot: 'pm9' }, 'seo_boost', 'kakao_blast']);
+    assert.strictEqual(opt.total, 59000, 'bundle_boost with slot should still charge the bundle price once');
+    assert.deepStrictEqual(plain(opt.keys), [{ key: 'bundle_boost', slot: 'pm9' }], 'bundle_boost should preserve a valid selected slot');
+    assert.deepStrictEqual(plain(opt.optionKeys), ['bundle_boost']);
+  }
+
+  {
+    const opt = validateOptions('recruit', [{ key: 'bundle_boost', slot: 'hacked' }]);
+    assert.strictEqual(opt.total, 59000, 'invalid bundle slot should not invalidate the bundle');
+    assert.deepStrictEqual(plain(opt.keys), ['bundle_boost'], 'invalid bundle slot should be dropped for backward compatibility');
+  }
+
+  {
     const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
     for (const marker of [
       'open_chat_post: { price: 25000, pricing: \'count\', min: 1, max: 3 }',
@@ -90,6 +103,7 @@ module.exports = (async () => {
       'name="sm-opt-open_chat_post-slot"',
       'id="sm-opt-seo_boost"',
       'id="sm-opt-bundle_boost"',
+      'id="sm-opt-open_chat_post-bundle-hint"',
       '단품 합산 94,000원',
       '풀데이 점유',
       'smSyncBundleBoost',

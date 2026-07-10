@@ -109,6 +109,7 @@ module.exports = (async () => {
     assert(admin.includes('function _rfFulfillLabel(key, st)'), 'admin should render labels from fulfilled_json keys');
     assert(admin.includes("['bundle_boost','seo_boost','open_chat_post','kakao_blast']"), 'admin should show expanded bundle fulfillment keys');
     assert(admin.includes("if(key==='open_chat_post' && st)"), 'admin should display open_chat_post count and slot from fulfillment status');
+    assert(admin.includes('시간대 미지정'), 'admin should visibly show unspecified open_chat_post slots');
   }
 
   {
@@ -127,6 +128,22 @@ module.exports = (async () => {
     assert(seoUpdate, 'seo_boost reapproval should remain idempotent via CASE guard');
     assert.match(seoUpdate.sql, /ELSE seo_boost_until/);
     assert(!/updated_at/.test(seoUpdate.sql), 'meetup seo boost should not update updated_at');
+  }
+
+  {
+    const { fulfilled } = await fulfill({
+      order: {
+        id: 503,
+        options_json: JSON.stringify(['bundle_boost']),
+        fulfilled_json: null,
+        status: 'pending_payment',
+      },
+    });
+    assert.strictEqual(fulfilled.open_chat_post.status, 'manual_required');
+    assert.strictEqual(fulfilled.open_chat_post.count, 2);
+    assert.strictEqual(fulfilled.open_chat_post.slot, null);
+    assert.match(fulfilled.open_chat_post.message, /시간대 미지정 — 등록자와 협의 필요/);
+    assert(!fulfilled.open_chat_post.message.includes('점심 12:30'), 'unspecified bundle slot should not fall back to noon');
   }
 
   console.log('fulfillment red option tests passed');

@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.117.0] - 2026-07-10
+### Added (SEO 공고 프리뷰 레일 + 번들 slot 보존)
+- `functions/_lib/posting-widget.js`: 공고 수집/정렬을 `collectPostings(env)`로 분리하고, 하단 SEO 위젯과 데스크톱 우측 고정 프리뷰 레일이 같은 공고 풀을 공유하도록 확장.
+- `functions/_lib/posting-widget.js`: 캐시 키를 `posting-widget-v2`로 올리고, 레일 클릭 계측은 `seo_rail_{type}_{id}` 식별값으로 분리.
+- `index.html`, `functions/_lib/options.js`: `bundle_boost` 선택 시 오픈챗 시간대 slot을 보존해 `{ key:'bundle_boost', slot }` 형태로 서버에 전달/저장.
+- `functions/_lib/fulfillment.js`, `admin.html`: 번들 slot 미선택 시 점심 12:30으로 추정하지 않고 `시간대 미지정 — 등록자와 협의 필요` 상태로 표시.
+- `tests/posting-widget-rail.test.js` 및 기존 옵션/이행 테스트를 보강해 레일 렌더, 캐시 v2, `seo_rail_` 계측, 번들 slot 보존, XSS 이스케이프를 검증.
+
 ## [2.116.0] - 2026-07-10
 ### Added (레드 옵션 승인 이행)
 - `functions/_lib/fulfillment.js`: `bundle_boost`를 승인 시 `seo_boost`·`open_chat_post`·`kakao_blast`로 전개하고, 번들 전개 이행 기록을 `fulfilled_json.bundle_boost`에 남김.

@@ -54,6 +54,7 @@ function loadClientPricing() {
   ];
   ids.forEach((id) => elements.set(id, makeElement({ id })));
   elements.set('sm-opt-open_chat_post-count', makeElement({ id: 'sm-opt-open_chat_post-count', value: '1', disabled: true }));
+  elements.set('sm-opt-open_chat_post-bundle-hint', makeElement({ id: 'sm-opt-open_chat_post-bundle-hint', style: { display: 'none' } }));
   elements.set('sm-opt-open_chat_promo-days', makeElement({ id: 'sm-opt-open_chat_promo-days', value: '1', disabled: true }));
 
   const radios = [
@@ -112,25 +113,29 @@ module.exports = (async () => {
   }
 
   {
-    const { client, elements } = loadClientPricing();
+    const { client, elements, radios } = loadClientPricing();
     check(elements, 'bundle_boost');
+    radios.forEach((r) => { r.checked = r.value === 'pm9'; });
     client.smSyncBundleBoost();
-    assert.deepStrictEqual(plain(client.smSelectedOptions()), ['bundle_boost']);
+    assert.deepStrictEqual(plain(client.smSelectedOptions()), [{ key: 'bundle_boost', slot: 'pm9' }]);
     assert.strictEqual(selectedTotal(client), 59000);
     assert.strictEqual(elements.get('sm-opt-seo_boost').disabled, true);
     assert.strictEqual(elements.get('sm-opt-open_chat_post').disabled, true);
     assert.strictEqual(elements.get('sm-opt-kakao_blast').disabled, true);
+    assert.strictEqual(radios.every((r) => r.disabled === false), true, 'bundle should keep slot radios enabled');
+    assert.strictEqual(elements.get('sm-opt-open_chat_post-bundle-hint').style.display, '', 'bundle should show slot guidance');
     client.smUpdatePrice();
     assert.strictEqual(elements.get('sm-final-price').textContent, '79,000');
   }
 
   {
-    const { client, elements } = loadClientPricing();
+    const { client, elements, radios } = loadClientPricing();
     check(elements, 'seo_boost');
     check(elements, 'kakao_blast');
     check(elements, 'bundle_boost');
+    radios.forEach((r) => { r.checked = r.value === 'pm9'; });
     client.smSyncBundleBoost();
-    assert.deepStrictEqual(plain(client.smSelectedOptions()), ['bundle_boost'], 'bundle should hide included singles from client payload');
+    assert.deepStrictEqual(plain(client.smSelectedOptions()), [{ key: 'bundle_boost', slot: 'pm9' }], 'bundle should hide included singles and preserve selected slot');
     assert.strictEqual(selectedTotal(client), 59000);
   }
 

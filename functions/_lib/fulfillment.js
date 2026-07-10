@@ -66,6 +66,7 @@ const OPEN_CHAT_SLOT_LABELS = {
   noon: '점심 12:30',
   pm9: '저녁 9시',
 };
+const OPEN_CHAT_SLOT_UNKNOWN = '시간대 미지정 — 등록자와 협의 필요';
 
 function optionKey(opt) {
   if (opt && typeof opt === 'object') return String(opt.key || opt.id || opt.option || '');
@@ -95,7 +96,7 @@ function status(label, state, message, extra = {}) {
   };
 }
 
-function optionSlot(raw, fallback = 'noon') {
+function optionSlot(raw, fallback = null) {
   if (raw && typeof raw === 'object' && OPEN_CHAT_SLOT_LABELS[String(raw.slot || '')]) return String(raw.slot);
   return fallback;
 }
@@ -104,7 +105,7 @@ function openChatPostMeta(raw) {
   const countRaw = raw && typeof raw === 'object' ? parseInt(raw.count ?? raw.quantity ?? raw.qty, 10) : 1;
   const count = Math.max(1, Math.min(3, Number.isFinite(countRaw) ? countRaw : 1));
   const slot = optionSlot(raw);
-  return { count, slot, slotLabel: OPEN_CHAT_SLOT_LABELS[slot] || OPEN_CHAT_SLOT_LABELS.noon };
+  return { count, slot, slotLabel: OPEN_CHAT_SLOT_LABELS[slot] || OPEN_CHAT_SLOT_UNKNOWN };
 }
 
 function manualMessage(key, raw) {
