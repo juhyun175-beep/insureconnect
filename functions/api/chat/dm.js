@@ -11,6 +11,7 @@
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { getUserFromRequest } from '../../_lib/auth.js';
 import { sendPushToMember } from '../../_lib/push.js';
+import { ensureDmCol } from '../../_lib/fulfillment.js';
 
 const POST_TABLES = { recruit: 'ic_recruitments', lecture: 'ic_lectures', meetup: 'ic_meetings' };
 
@@ -37,7 +38,7 @@ async function ensureTable(env) {
 async function postingOf(env, adType, adId) {
   const t = POST_TABLES[adType];
   if (!t || !adId) return null;
-  return await env.DB.prepare(`SELECT submitter_id, title FROM ${t} WHERE id = ?`).bind(adId).first().catch(() => null);
+  return await env.DB.prepare(`SELECT submitter_id, title, dm_enabled FROM ${t} WHERE id = ?`).bind(adId).first().catch(() => null);
 }
 
 /** 요청에서 방을 해석하고 참여자 검증. 성공 시 {room_id, ad_type, ad_id, inquirer_id, owner_id, title}, 실패 시 {error, status}. */
@@ -55,6 +56,7 @@ async function resolveRoom(env, user, { room_id, ad_type, ad_id }) {
   if (!post) return { error: '공고를 찾을 수 없습니다.', status: 404 };
   const ownerId = post.submitter_id;
   if (!ownerId) return { error: '이 공고는 등록자가 연결되어 있지 않아 문의 채팅을 사용할 수 없습니다.', status: 400 };
+  if (Number(post.dm_enabled) !== 1) return { error: '이 공고는 1:1 문의 옵션이 활성화되지 않았습니다.', status: 403 };
   if (ownerId === inquirerId) return { error: '본인이 등록한 공고입니다. (문의 대상이 아닙니다)', status: 400 };
   if (user.id !== inquirerId && user.id !== ownerId) return { error: '이 문의방에 접근 권한이 없습니다.', status: 403 };
   return { room_id: `${adType}:${adId}:${inquirerId}`, ad_type: adType, ad_id: adId, inquirer_id: inquirerId, owner_id: ownerId, title: post.title || '' };
@@ -66,6 +68,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
   await ensureTable(env);
+  await ensureDmCol(env);
   const url = new URL(request.url);
 
   // 내 문의방 목록
@@ -143,6 +146,7 @@ export const onRequestPost = async (context) => handle(async () => {
   const user = await getUserFromRequest(env, request);
   if (!user) return json({ error: '로그인 후 이용할 수 있습니다.', code: 'login_required' }, 401);
   await ensureTable(env);
+  await ensureDmCol(env);
   const b = await request.json().catch(() => ({}));
   const body = String(b.body || '').replace(/\s+$/, '').trim().slice(0, 500);
   if (!body) return error('메시지를 입력해주세요.');

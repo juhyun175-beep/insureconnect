@@ -9,6 +9,8 @@ const AD_META = {
   meetup: { table: 'ic_meetings', label: '모임' },
 };
 
+const DM_TABLES = ['ic_recruitments', 'ic_lectures', 'ic_meetings'];
+
 const PUBLIC_SITE = 'https://insureconnect.co.kr';
 const HOME_AD_KEY = 'home_ad';
 const HOME_BANNER_DAYS = 7;
@@ -49,6 +51,12 @@ const SEO_BOOST_SQL = {
     select: `SELECT seo_boost_until FROM ic_meetings WHERE id = ?`,
   },
 };
+
+export async function ensureDmCol(env) {
+  for (const table of DM_TABLES) {
+    await env.DB.prepare(`ALTER TABLE ${table} ADD COLUMN dm_enabled INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  }
+}
 
 const OPTION_LABELS = {
   featured_listing: '추천공고 등록',
@@ -411,7 +419,7 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
 
   const has = (key) => options.some((o) => o.key === key);
   let adRow = null;
-  const needAdRow = has('kakao_blast') || has('home_banner7');
+  const needAdRow = has('dm_inquiry') || has('kakao_blast') || has('home_banner7');
   if (needAdRow) {
     adRow = await getAdRow(env, adType, id);
   }
@@ -437,12 +445,23 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
   }
 
   if (has('dm_inquiry')) {
-    fulfilled.dm_inquiry = status(
-      OPTION_LABELS.dm_inquiry,
-      'auto_done',
-      '1:1 문의 버튼은 승인된 공고 상세에서 자동으로 사용 가능합니다.',
-      { mode: 'existing_dm_button' }
-    );
+    await ensureDmCol(env);
+    if (adRow?.submitter_id) {
+      await env.DB.prepare(`UPDATE ${meta.table} SET dm_enabled = 1 WHERE id = ?`).bind(id).run();
+      fulfilled.dm_inquiry = status(
+        OPTION_LABELS.dm_inquiry,
+        'auto_done',
+        '1:1 문의 버튼을 활성화했습니다.',
+        { mode: 'dm_enabled' }
+      );
+    } else {
+      fulfilled.dm_inquiry = status(
+        OPTION_LABELS.dm_inquiry,
+        'auto_failed',
+        '등록자 회원 계정이 연결되지 않아 1:1 문의를 활성화할 수 없습니다. 등록자와 조율(환불/계정 연결)이 필요합니다.',
+        { mode: 'dm_enabled' }
+      );
+    }
   }
 
   if (has('seo_boost')) {

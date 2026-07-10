@@ -6,8 +6,20 @@ import { createAdOrder } from '../../_lib/orders.js';
 import { validateOptions } from '../../_lib/options.js';
 import { ensureMeetingsTable, ensureParticipantsTable } from '../../_lib/meetings.js';
 import { LAUNCH_PROMO, getPromoRemaining } from '../../_lib/promo.js';
+import { ensureDmCol } from '../../_lib/fulfillment.js';
 
 export const onRequestOptions = () => corsPreflight();
+
+function optionKey(raw) {
+  if (raw && typeof raw === 'object') return String(raw.key || raw.id || raw.option || '');
+  return String(raw || '');
+}
+
+function registrationOptionsForUser(options, user) {
+  if (user || !Array.isArray(options)) return options;
+  // Anonymous postings have no submitter_id, so DM receiving cannot work; do not sell dm_inquiry.
+  return options.filter((opt) => optionKey(opt) !== 'dm_inquiry');
+}
 
 /** 외부 신청 폼 URL 신뢰 도메인(구글폼·네이버폼) — recruitments/lectures 와 동일 정책 */
 const TRUSTED_FORM_HOSTS = /^(docs\.google\.com|forms\.gle|form\.naver\.com|naver\.me)$/i;
@@ -27,6 +39,7 @@ function sanitizeFormUrl(raw) {
 /** 모임공고 목록 — 기본 status='approved'. ?status=pending/all 은 관리자 전용. */
 export const onRequestGet = async ({ request, env }) => handle(async () => {
   await ensureMeetingsTable(env);
+  await ensureDmCol(env);
   await ensureParticipantsTable(env); // v2.68.0: participant_count 서브쿼리용
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 200);
@@ -48,9 +61,9 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const sql = isAdmin
     ? `SELECT id, title, host, description, location, event_at, file_url, file_type, form_url, created_at,
               status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
-              ${featuredExpr}, ${partCount}, ${viewsExpr}
+              dm_enabled, ${featuredExpr}, ${partCount}, ${viewsExpr}
        FROM ic_meetings WHERE ${where} ${orderTail}`
-    : `SELECT id, title, host, created_at, status, featured_until, ${featuredExpr}, ${partCount}, ${viewsExpr}
+    : `SELECT id, title, host, created_at, status, featured_until, dm_enabled, ${featuredExpr}, ${partCount}, ${viewsExpr}
        FROM ic_meetings WHERE ${where} ${orderTail}`;
   const rs = await env.DB.prepare(sql).bind(...params, limit).all();
   return json(rs.results || []);
@@ -120,7 +133,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
         try { await env.DB.prepare(`INSERT INTO coupon_logs (member_id, coupon_id, coupon_type, ad_type, discount_rate, action, used_at) VALUES (?,?,?,?,?, 'use', datetime('now'))`).bind(user.id, usedId, usedType, 'meetup', rate).run(); } catch (_) {}
       }
       // v2.107.0: 유료 애드온 옵션 — 서버 카탈로그 가격으로만 합산(클라 전달값은 key 배열뿐)
-      const opt = validateOptions('meetup', body.options);
+      const opt = validateOptions('meetup', registrationOptionsForUser(body.options, user));
       const total = basePrice + opt.total;
       priceInfo = { base: AD_BASE.meetup, rate, price: total, options: opt.keys, options_price: opt.total, promo: { applied: promoApplied, code: LAUNCH_PROMO.code, remaining: Math.max(0, promo.remaining - (promoApplied ? 1 : 0)) } };
       // v2.67.0: 주문/동의 기록(환불 정책)

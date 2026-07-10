@@ -26,7 +26,7 @@ export const onRequestGet = async ({ params, request, env }) => handle(async () 
     if (p) { canView = true; mine = true; }
   }
 
-  const teaser = { ok: true, id, title: row.title, host: row.host, status: row.status, participant_count, mine, locked: !canView };
+  const teaser = { ok: true, id, title: row.title, host: row.host, status: row.status, dm_enabled: row.dm_enabled, participant_count, mine, locked: !canView };
   if (!canView) return json(teaser);
   // 참여자/주최/관리자만 명단까지 열람
   const pl = await env.DB.prepare(`SELECT nickname FROM ic_meeting_participants WHERE meeting_id = ? ORDER BY id ASC LIMIT 300`).bind(id).all().catch(() => ({ results: [] }));
@@ -58,7 +58,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   if (!cur) return error('Not found', 404);
 
   const allowed = ['title','host','description','location','event_at','file_url','file_type','form_url',
-                   'status','reject_reason','approved_at'];
+                   'status','reject_reason','approved_at','dm_enabled'];
   const fields = allowed.filter(k => k in body);
   if (body.status === 'approved' && !('approved_at' in body)) {
     fields.push('approved_at');

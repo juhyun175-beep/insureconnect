@@ -5,8 +5,20 @@ import { AD_BASE, finalPrice, ensurePostingCouponCols, validateCoupon } from '..
 import { createAdOrder } from '../../_lib/orders.js';
 import { validateOptions } from '../../_lib/options.js';
 import { LAUNCH_PROMO, getPromoRemaining } from '../../_lib/promo.js';
+import { ensureDmCol } from '../../_lib/fulfillment.js';
 
 export const onRequestOptions = () => corsPreflight();
+
+function optionKey(raw) {
+  if (raw && typeof raw === 'object') return String(raw.key || raw.id || raw.option || '');
+  return String(raw || '');
+}
+
+function registrationOptionsForUser(options, user) {
+  if (user || !Array.isArray(options)) return options;
+  // Anonymous postings have no submitter_id, so DM receiving cannot work; do not sell dm_inquiry.
+  return options.filter((opt) => optionKey(opt) !== 'dm_inquiry');
+}
 
 /** 채용공고 목록
  *   기본: status='approved'만 반환 (일반 사용자)
@@ -14,6 +26,7 @@ export const onRequestOptions = () => corsPreflight();
  *   ?status=all     : 관리자 전용
  */
 export const onRequestGet = async ({ request, env }) => handle(async () => {
+  await ensureDmCol(env);
   const url = new URL(request.url);
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '100', 10), 200);
   const order = url.searchParams.get('order') === 'created_at.asc' ? 'ASC' : 'DESC';
@@ -30,6 +43,7 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const rs = await env.DB.prepare(
     `SELECT id, title, company_name, description, file_url, file_type, form_url, created_at,
             status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
+            dm_enabled,
             CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured,
             COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
                       WHERE company_name = 'recruit_' || ic_recruitments.id
@@ -128,7 +142,7 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
         try { await env.DB.prepare(`INSERT INTO coupon_logs (member_id, coupon_id, coupon_type, ad_type, discount_rate, action, used_at) VALUES (?,?,?,?,?, 'use', datetime('now'))`).bind(user.id, usedId, usedType, 'recruit', rate).run(); } catch (_) {}
       }
       // v2.107.0: 유료 애드온 옵션 — 서버 카탈로그 가격으로만 합산(클라 전달값은 key 배열뿐)
-      const opt = validateOptions('recruit', body.options);
+      const opt = validateOptions('recruit', registrationOptionsForUser(body.options, user));
       const total = basePrice + opt.total;
       priceInfo = { base: AD_BASE.recruit, rate, price: total, options: opt.keys, options_price: opt.total, promo: { applied: promoApplied, code: LAUNCH_PROMO.code, remaining: Math.max(0, promo.remaining - (promoApplied ? 1 : 0)) } };
       // v2.67.0: 주문/동의 기록(환불 정책)

@@ -29,7 +29,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   if (!cur) return error('Not found', 404);
 
   const allowed = ['title','company_name','description','file_url','file_type','form_url',
-                   'status','reject_reason','approved_at'];
+                   'status','reject_reason','approved_at','dm_enabled'];
   const fields = allowed.filter(k => k in body);
   if (body.status === 'approved' && !('approved_at' in body)) {
     fields.push('approved_at');

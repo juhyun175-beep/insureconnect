@@ -27,7 +27,7 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
 
   // 승인/반려/일반 수정 필드 모두 허용
   const allowed = ['title','instructor','description','file_url','file_type','form_url',
-                   'status','reject_reason','approved_at'];
+                   'status','reject_reason','approved_at','dm_enabled'];
   const fields = allowed.filter(k => k in body);
   // 승인 시 approved_at 자동 세팅
   if (body.status === 'approved' && !('approved_at' in body)) {

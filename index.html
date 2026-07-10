@@ -8685,7 +8685,7 @@
               <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
                 <input type="checkbox" id="sm-opt-dm_inquiry" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
                 <span><b>1:1 문의 기능</b> <b style="color:#7c3aed;">+20,000원</b><br>
-                <span style="font-size:11px;color:var(--txt-mid,#475569);">공고 상세에서 등록자에게 바로 1:1 문의할 수 있게 표시</span></span>
+                <span id="sm-opt-dm_inquiry-desc" style="font-size:11px;color:var(--txt-mid,#475569);">공고 상세에서 등록자에게 바로 1:1 문의할 수 있게 표시</span></span>
               </label>
               <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
                 <input type="checkbox" id="sm-opt-kakao_blast" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
@@ -11864,6 +11864,9 @@
       const formBlock = it.form_url
         ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('lecture_${it.id}','lecture_form')}catch(_){}">📝 신청 폼 작성하기 →</a>`
         : '';
+      const dmBlock = it.dm_enabled == 1
+        ? `<button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM('lecture', ${it.id})">💬 등록자에게 1:1 문의하기</button>`
+        : '';
       document.getElementById('rc-viewer-body').innerHTML = `
         <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
         <div class="rc-viewer-head">
@@ -11871,8 +11874,7 @@
           <div class="rc-viewer-title">${esc(it.title)}</div>
           <div class="rc-viewer-date">${dateStr}</div>
         </div>
-        ${descBlock}${formBlock}${fileBlock}
-        <button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM('lecture', ${it.id})">💬 등록자에게 1:1 문의하기</button>
+        ${descBlock}${formBlock}${fileBlock}${dmBlock}
       `;
       modal.classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -12044,7 +12046,7 @@
         +'<div class="rc-viewer-head">'+(d.host?'<div class="rc-viewer-company">🤝 '+esc(d.host)+'</div>':'')+'<div class="rc-viewer-title">'+esc(d.title)+'</div></div>';
       var countLine='<div style="font-size:13px;font-weight:800;color:#0d9488;margin-bottom:8px;">👥 참여 '+(d.participant_count||0)+'명</div>';
       var partBtn='<button type="button" onclick="mtpToggle('+id+','+(d.mine?'false':'true')+')" style="width:100%;padding:12px;border:none;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;font-family:inherit;'+(d.mine?'background:rgba(13,148,136,0.16);color:#0d9488;':'background:#0d9488;color:#fff;')+'">'+(d.mine?'✓ 참여 취소':'🙋 로그인하고 참여하기')+'</button>';
-      var dmBtn='<button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM(\'meetup\', '+id+')">💬 주최자에게 1:1 문의하기</button>';
+      var dmBtn=d.dm_enabled==1?'<button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM(\'meetup\', '+id+')">💬 주최자에게 1:1 문의하기</button>':'';
       if(d.locked){
         body.innerHTML=head
           +'<div style="margin-top:14px;padding:20px 16px;border:1px dashed rgba(13,148,136,0.45);border-radius:12px;background:rgba(13,148,136,0.06);text-align:center;">'
@@ -12200,6 +12202,9 @@
       const formBlock = it.form_url
         ? `<a class="rc-viewer-form" href="${esc(it.form_url)}" target="_blank" rel="noopener noreferrer" onclick="try{trackClick('recruit_${it.id}','recruit_form')}catch(_){}">📝 채용 지원 폼 작성하기 →</a>`
         : '';
+      const dmBlock = it.dm_enabled == 1
+        ? `<button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM('recruit', ${it.id})">💬 등록자에게 1:1 문의하기</button>`
+        : '';
       document.getElementById('rc-viewer-body').innerHTML = `
         <button class="rc-viewer-close" onclick="closeRecruitViewer()" aria-label="닫기">✕</button>
         <div class="rc-viewer-head">
@@ -12210,7 +12215,7 @@
         ${descBlock}
         ${formBlock}
         ${fileBlock}
-        <button class="dm-viewer-btn" type="button" onclick="closeRecruitViewer(); openDM('recruit', ${it.id})">💬 등록자에게 1:1 문의하기</button>
+        ${dmBlock}
       `;
       modal.classList.add('open');
       document.body.style.overflow = 'hidden';
@@ -12299,6 +12304,7 @@
       document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.checked = r.value === 'noon'; r.disabled = true; delete r.dataset.bundlePrev; });
       const ocHint = document.getElementById('sm-opt-open_chat_post-bundle-hint'); if (ocHint) ocHint.style.display = 'none';
       const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
+      smUpdateDmInquiryAvailability();
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
       ['sm-input-title','sm-input-company','sm-input-instructor','sm-input-host','sm-input-location','sm-input-eventat','sm-input-desc','sm-input-name','sm-input-contact','sm-input-form'].forEach(id => {
@@ -12404,6 +12410,24 @@
       const cb = document.getElementById('sm-opt-'+key);
       return !!(cb && cb.checked);
     }
+    function smLoggedInForDm(){
+      try { return localStorage.getItem('ic_member') === '1'; } catch (_) { return false; }
+    }
+    function smUpdateDmInquiryAvailability(){
+      const cb = document.getElementById('sm-opt-dm_inquiry');
+      const desc = document.getElementById('sm-opt-dm_inquiry-desc');
+      const ok = smLoggedInForDm();
+      if (cb) {
+        cb.disabled = !ok;
+        if (!ok) cb.checked = false;
+      }
+      if (desc) {
+        desc.textContent = ok
+          ? '공고 상세에서 등록자에게 바로 1:1 문의할 수 있게 표시'
+          : '로그인 등록 시에만 제공 — 문의 수신에 회원 계정이 필요합니다';
+        desc.style.color = ok ? 'var(--txt-mid,#475569)' : '#b45309';
+      }
+    }
     function smDailyOptionDays(key){
       const meta = SM_OPTIONS[key] || {};
       const el = document.getElementById('sm-opt-'+key+'-days');
@@ -12487,6 +12511,7 @@
       Object.keys(SM_OPTIONS).forEach(function(k){
         var c = document.getElementById('sm-opt-'+k);
         if(!c || !c.checked) return;
+        if(k === 'dm_inquiry' && c.disabled) return;
         if(k !== 'bundle_boost' && bundled.includes(k)) return;
         var meta = SM_OPTIONS[k] || {};
         if(k === 'bundle_boost') {
