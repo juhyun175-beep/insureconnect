@@ -1,6 +1,7 @@
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
-import { fulfillApprovedOptions } from '../../_lib/fulfillment.js';
+import { ensureDmCol, fulfillApprovedOptions } from '../../_lib/fulfillment.js';
+import { submitUrls } from '../../_lib/indexnow.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -18,8 +19,26 @@ export const onRequestDelete = async ({ params, request, env }) => handle(async 
   return json({ ok: true });
 });
 
-export const onRequestPatch = async ({ params, request, env }) => handle(async () => {
+const PUBLIC_SITE = 'https://insureconnect.co.kr';
+
+function approvalIndexNowUrls(id) {
+  return [`${PUBLIC_SITE}/og/recruit/${encodeURIComponent(id)}`, `${PUBLIC_SITE}/recruit`];
+}
+
+async function queueIndexNow(context, urls) {
+  const task = submitUrls(context.env, urls).catch(() => {});
+  if (context.waitUntil) {
+    context.waitUntil(task);
+  } else {
+    await task;
+  }
+  return true;
+}
+
+export const onRequestPatch = async (context) => handle(async () => {
+  const { params, request, env } = context;
   if (!verifyAdmin(request, env)) return unauthorized();
+  await ensureDmCol(env);
   const body = await request.json();
 
   // v2.11.1: 현재 상태/노출 확인 (최초 승인 시 3일 무료 노출 맛보기 판단)
@@ -41,7 +60,8 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   // 상단노출(featured_until) 제어
   //  - 관리자 수동: feature_days (양수=now+N일 / 0·음수=해제)  ← 레거시·컴프용
   //  - 자동 맛보기: 최초 승인(pending→approved) 시 노출이 없으면 3일 무료(5만원 게시 보상)
-  const autoFree = (body.status === 'approved' && cur.status !== 'approved' && cur.featured_until == null && !('feature_days' in body));
+  const firstApproval = body.status === 'approved' && cur.status !== 'approved';
+  const autoFree = (firstApproval && cur.featured_until == null && !('feature_days' in body));
   if ('feature_days' in body) {
     const d = parseInt(body.feature_days, 10);
     if (Number.isFinite(d) && d > 0) { sets.push(`featured_until = datetime('now', ?)`); values.push('+' + d + ' days'); }
@@ -57,5 +77,8 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   const fulfillment = body.status === 'approved'
     ? await fulfillApprovedOptions(env, { adType: 'recruit', adId: params.id })
     : null;
-  return json({ ok: true, featured_granted: autoFree, fulfillment });
+  const indexnowSubmitted = firstApproval
+    ? await queueIndexNow(context, approvalIndexNowUrls(params.id))
+    : false;
+  return json({ ok: true, featured_granted: autoFree, fulfillment, indexnow: { submitted: indexnowSubmitted } });
 });

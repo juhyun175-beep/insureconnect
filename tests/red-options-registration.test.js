@@ -4,7 +4,7 @@ const path = require('path');
 
 const root = path.resolve(__dirname, '..');
 
-function makeEnv({ promoUsed = 30 } = {}) {
+function makeEnv({ promoUsed = 100 } = {}) {
   const calls = [];
   let nextRecruitmentId = 900;
   let nextOrderId = 1200;

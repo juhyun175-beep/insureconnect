@@ -1,8 +1,8 @@
 export const LAUNCH_PROMO = {
   enabled: true,
   code: 'launch30',
-  limit: 30,
-  label: '런치 프로모 — 선착순 30건 등록비 0원',
+  limit: 100,
+  label: '런치 프로모 — 선착순 100건 등록비 0원',
 };
 
 export async function ensurePromoCol(env) {

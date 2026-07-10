@@ -56,8 +56,8 @@ module.exports = (async () => {
     {
       enabled: true,
       code: 'launch30',
-      limit: 30,
-      label: '런치 프로모 — 선착순 30건 등록비 0원',
+      limit: 100,
+      label: '런치 프로모 — 선착순 100건 등록비 0원',
     },
     'launch promo constants should be fixed server-side',
   );
@@ -71,7 +71,7 @@ module.exports = (async () => {
     );
 
     const remaining = await promo.getPromoRemaining(env);
-    assert.deepStrictEqual({ ...remaining }, { enabled: true, remaining: 18, limit: 30 });
+    assert.deepStrictEqual({ ...remaining }, { enabled: true, remaining: 88, limit: 100 });
     const count = calls.find((c) => /COUNT\(\*\) AS used FROM ad_orders WHERE promo_code = \?/.test(c.sql));
     assert(count, 'getPromoRemaining should count used promo orders');
     assert.deepStrictEqual(count.values, ['launch30'], 'promo count should bind the launch code');
@@ -82,7 +82,7 @@ module.exports = (async () => {
     const remaining = await promo.getPromoRemaining(env);
     assert.deepStrictEqual(
       { ...remaining },
-      { enabled: true, remaining: 0, limit: 30 },
+      { enabled: true, remaining: 0, limit: 100 },
       'promo count failures should safely disable application',
     );
   }

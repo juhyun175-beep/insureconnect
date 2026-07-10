@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.118.0] - 2026-07-10
+### Fixed (파트 A — dm_inquiry 게이트 수리)
+- `functions/_lib/fulfillment.js`: `dm_inquiry` 승인 이행이 실제로 `dm_enabled`를 켜도록 변경하고, 비로그인 등록처럼 `submitter_id`가 없는 공고는 `auto_failed`로 기록.
+- `functions/api/chat/dm.js`, 등록 목록 API, `index.html`: `dm_enabled` 3겹 게이트(DB 플래그·서버 403·프론트 조건부 버튼)를 적용하고, 비로그인 등록에서는 `dm_inquiry`를 판매/청구하지 않도록 차단.
+- `functions/api/*/[id].js`: 관리자 PATCH에서 `dm_enabled` 수동 토글을 허용해 보상·예외 처리를 지원.
+
+### Added (파트 B~D — 프로모 100건, IndexNow, SEO 클릭 집계)
+- `functions/_lib/promo.js`, `index.html`: 런치 프로모 한도를 선착순 100건으로 상향하고 모달 문구를 정합화.
+- `functions/api/recruitments/[id].js`, `functions/api/lectures/[id].js`, `functions/api/meetings/[id].js`: 공고 최초 승인 시 상세 SSR URL과 허브 URL을 IndexNow에 비동기 제출.
+- `functions/api/admin/seo-clicks.js`, `admin.html`: SEO 위젯/레일 클릭을 `seo_widget_click` 로그에서 집계하고, 관리자 주문/이행 영역에 기간별 합계와 공고별 표를 표시.
+- `tests/dm-inquiry-gate.test.js`, `tests/promo-indexnow-seo-clicks.test.js`: DM 옵션 게이트, 비로그인 옵션 제거, 프로모 한도, IndexNow 최초 승인 제출, SEO 클릭 집계 API/관리자 카드 마커를 검증.
+
 ## [2.117.0] - 2026-07-10
 ### Added (SEO 공고 프리뷰 레일 + 번들 slot 보존)
 - `functions/_lib/posting-widget.js`: 공고 수집/정렬을 `collectPostings(env)`로 분리하고, 하단 SEO 위젯과 데스크톱 우측 고정 프리뷰 레일이 같은 공고 풀을 공유하도록 확장.
@@ -37,7 +49,7 @@
 
 ## [2.112.0] - 2026-07-09
 ### Added (런치 프로모 등록비 0원)
-- `functions/_lib/promo.js`, `functions/api/promo/status.js`: 선착순 30건 등록비(base) 0원 런치 프로모 상태 계산과 공개 상태 API를 추가.
+- `functions/_lib/promo.js`, `functions/api/promo/status.js`: 선착순 등록비(base) 0원 런치 프로모 상태 계산과 공개 상태 API를 추가.
 - `functions/api/recruitments/index.js`, `functions/api/lectures/index.js`, `functions/api/meetings/index.js`: 프로모 잔여 시 쿠폰을 소모하지 않고 등록비만 0원 처리하며, 옵션 가격은 서버 카탈로그 기준으로 그대로 합산.
 - `functions/_lib/orders.js`, `index.html`: `ad_orders.promo_code` 기록과 등록 모달의 프로모 잔여 표시/쿠폰 숨김/서버 확정 금액 안내를 추가.
 
@@ -1232,7 +1244,7 @@
 ### Added (신규유입 — B: 삼따AI 답변 공유 카드 = 제품이 곧 광고)
 - **📤 삼따AI 답변 공유**: 홈 위젯에서 받은 답변에 「이 답변 공유」 버튼 → 공개 카드 `/a/{id}` 생성 → 카톡방·카페에 붙여넣기(navigator.share/클립보드). 비회원이 OG 미리보기로 보고 「카카오로 3초 시작」 CTA로 가입
 - **공개 카드 SSR `/a/{id}`**: 질문+답변 1건 + OG 미리보기(제목=질문) + 가입 CTA 착지(프리미엄 다크 카드). noindex(검색 노출 X·공유 전용)·본문 escape·조회수 집계. **DB 전체가 아닌 답변 1건만 공개 → 데이터 해자 안전**
-- **`POST /api/answers/share`**(로그인): 질문/답변 저장(길이 캡·일일 30건 한도·submitter 귀속) → 단축 id 반환
+- **`POST /api/answers/share`**(로그인): 질문/답변 저장(길이 캡·일일 30회 한도·submitter 귀속) → 단축 id 반환
 - **마이그레이션** `d1_v2_14_1_shared_answers.sql`(ic_shared_answers, 원격 D1 적용)
 ### Verified
 - `node --check` · 보안 HIGH 0 · `/a/{id}` SSR 렌더(OG/CTA) · `POST /api/answers/share` 401 게이트
@@ -1720,7 +1732,7 @@
 ### Added (자유게시판 신고/차단/욕설필터 — 커뮤니티 안전)
 - **욕설·비속어 필터 + 스팸 휴리스틱**: 글/댓글 작성 시 부적절 표현·링크도배·문자반복 차단(`_lib/moderation.js`)
 - **회원 차단**: 차단된 회원은 글·댓글 작성 불가(`ic_banned_members`, `ALTER` 없이 신규 테이블)
-- **신고 기능**: 글·댓글에 🚨 신고 버튼 → `/api/board/report`(로그인·1일 30건 한도·중복 방지, `ic_board_reports`)
+- **신고 기능**: 글·댓글에 🚨 신고 버튼 → `/api/board/report`(로그인·1일 30회 한도·중복 방지, `ic_board_reports`)
 - **관리자 신고 처리 패널**: 🚨 신고 탭 — 신고 목록·원문 보기·글/댓글 삭제·작성자 차단·무시 (`/api/admin/board-reports`)
 ### Security
 - 신규 엔드포인트 전부 인증(로그인/`verifyAdmin`)·prepared statement·테이블명 화이트리스트·신고 도배 한도 적용. `isBanned`는 테이블 부재 시 fail-open(정상 이용 보장)
@@ -1928,7 +1940,7 @@
   - SSR(게시판·보험사·GA) 공통 푸터 + SPA 양쪽에 비콘 → **그동안 추적 안 되던 SEO 착지점도 집계**
   - 봇 자동 제외, 120일 초과 자동 정리
 - **집계 API** `/api/stats/traffic`(admin) 실데이터 구현 (기존 빈 응답 → referrer/landing/device/utm today·total + recent)
-- **관리자 "📈 유입 경로" 탭**: 유입 채널/유입 페이지/기기 막대그래프(오늘·누적) + 최근 유입 30건
+- **관리자 "📈 유입 경로" 탭**: 유입 채널/유입 페이지/기기 막대그래프(오늘·누적) + 최근 유입 30개
   - 참고: 검색 키워드는 GSC/네이버 서치어드바이저 (referrer는 채널까지만)
 
 ## [2.1.69] - 2026-05-31

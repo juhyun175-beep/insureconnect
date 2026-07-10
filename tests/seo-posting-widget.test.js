@@ -149,7 +149,7 @@ module.exports = (async () => {
     ['functions/board/[id].js', '../_lib/posting-widget.js'],
     ['functions/community/index.js', '../_lib/posting-widget.js'],
   ]) {
-    const source = fs.readFileSync(path.join(root, file), 'utf8');
+    const source = fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n/g, '\n');
     assert(source.includes(`import { seoPostingWidget } from '${importPath}';`), `${file} should import seoPostingWidget`);
     assert(source.includes('const postingWidget = await seoPostingWidget(env);'), `${file} should build widget inside handler`);
     assert(source.includes('${postingWidget}\n${seoCtaFooter(SITE)}'), `${file} should render widget immediately before SEO CTA footer`);

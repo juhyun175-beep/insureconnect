@@ -4301,7 +4301,7 @@
           <div class="tf-block"><h4>🔗 UTM·QR 캠페인</h4><div id="tf-utm"><p class="cs-empty">불러오는 중…</p></div></div>
         </div>
         <div class="tf-block" style="margin-top:14px;">
-          <h4>🕒 최근 유입 30건</h4>
+          <h4>🕒 최근 유입 30개</h4>
           <table class="tf-recent">
             <thead><tr><th>시각</th><th>채널</th><th>유입 페이지</th><th>기기</th></tr></thead>
             <tbody id="tf-recent"><tr><td colspan="4" class="cs-empty">불러오는 중…</td></tr></tbody>
@@ -4479,6 +4479,22 @@
             <li>환불: <b>전액</b>(게시 전·할인권 원복) / <b>부분(재량 90%)</b>(게시 후 운영자 재량) / <b>거절</b>(사유 기록). 실제 입금 반환은 운영자가 수기 처리</li>
             <li>「동의 기록 내보내기」로 전체 주문·동의 내역을 표(TSV)로 복사</li>
           </ul>
+        </div>
+        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(14,165,233,0.28);border-left:3px solid #0ea5e9;border-radius:8px;background:linear-gradient(90deg,rgba(14,165,233,0.08),rgba(14,165,233,0.02));">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px;">
+            <div style="font-size:12px;font-weight:800;color:#0ea5e9;">📊 SEO 노출 클릭</div>
+            <select id="seo-click-days" onchange="loadSeoClicks()" style="padding:6px 10px;border:1px solid rgba(14,165,233,0.35);border-radius:6px;background:var(--bg-card);color:var(--txt-hi);font-size:12px;font-weight:700;">
+              <option value="7">7일</option>
+              <option value="14" selected>14일</option>
+              <option value="30">30일</option>
+            </select>
+          </div>
+          <div id="seo-click-summary" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;font-size:11.5px;color:var(--txt-mid);">
+            <span>위젯 0</span><span>레일 0</span><span>전체 0</span>
+          </div>
+          <div id="seo-click-table" style="font-size:12px;color:var(--txt-mid);">
+            <p class="empty-msg" style="margin:0;">아직 클릭 데이터가 없습니다 — 위젯/레일 배포 후 쌓입니다</p>
+          </div>
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;flex-wrap:wrap;gap:8px;">
           <div id="refund-summary" style="font-size:12.5px;font-weight:700;color:var(--txt-hi);">불러오는 중…</div>
@@ -6906,8 +6922,44 @@
       });
       return ' '+badges.join(' ');
     }
+    var _SEO_CLICK_TYPE={recruit:'채용',lecture:'강의',meetup:'모임'};
+    function _seoClickNum(n){ return Number(n||0).toLocaleString('ko-KR'); }
+    async function loadSeoClicks(){
+      var days=(document.getElementById('seo-click-days')||{}).value||'14';
+      var sm=document.getElementById('seo-click-summary');
+      var box=document.getElementById('seo-click-table');
+      if(box) box.innerHTML='<p class="empty-msg" style="margin:0;">불러오는 중…</p>';
+      try{
+        var r=await fetch('/api/admin/seo-clicks?days='+encodeURIComponent(days),{headers:adminHeaders()});
+        var d=await r.json();
+        if(!r.ok) throw new Error((d&&d.error)||'load failed');
+        var t=d.totals||{};
+        if(sm){
+          sm.innerHTML='<span style="display:inline-flex;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(14,165,233,0.10);color:#0284c7;font-weight:800;">위젯 '+_seoClickNum(t.widget)+'</span>'
+            +'<span style="display:inline-flex;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(124,58,237,0.10);color:#7c3aed;font-weight:800;">레일 '+_seoClickNum(t.rail)+'</span>'
+            +'<span style="display:inline-flex;gap:4px;padding:4px 8px;border-radius:6px;background:rgba(16,185,129,0.10);color:#059669;font-weight:800;">전체 '+_seoClickNum(t.all)+'</span>';
+        }
+        var rows=d.rows||[];
+        if(!rows.length){ if(box) box.innerHTML='<p class="empty-msg" style="margin:0;">아직 클릭 데이터가 없습니다 — 위젯/레일 배포 후 쌓입니다</p>'; return; }
+        if(box) box.innerHTML='<div style="overflow-x:auto;"><table style="width:100%;border-collapse:collapse;font-size:12px;min-width:620px;">'
+          +'<thead><tr style="color:var(--txt-mid);border-bottom:1px solid rgba(14,165,233,0.25);"><th style="text-align:left;padding:7px;">구분</th><th style="text-align:left;padding:7px;">제목</th><th style="text-align:right;padding:7px;">위젯</th><th style="text-align:right;padding:7px;">레일</th><th style="text-align:right;padding:7px;">합계</th><th style="text-align:left;padding:7px;">상태</th></tr></thead><tbody>'
+          +rows.map(function(row){
+            return '<tr style="border-bottom:1px solid var(--border);">'
+              +'<td style="padding:8px;font-weight:800;color:#0ea5e9;white-space:nowrap;">'+esc(_SEO_CLICK_TYPE[row.type]||row.type)+'</td>'
+              +'<td style="padding:8px;color:var(--txt-hi);font-weight:700;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(row.title||'-')+'</td>'
+              +'<td style="padding:8px;text-align:right;font-variant-numeric:tabular-nums;">'+_seoClickNum(row.widget_clicks)+'</td>'
+              +'<td style="padding:8px;text-align:right;font-variant-numeric:tabular-nums;">'+_seoClickNum(row.rail_clicks)+'</td>'
+              +'<td style="padding:8px;text-align:right;font-weight:900;color:#059669;font-variant-numeric:tabular-nums;">'+_seoClickNum(row.total)+'</td>'
+              +'<td style="padding:8px;">'+(row.boosted?'<span style="display:inline-block;padding:2px 6px;border-radius:5px;background:rgba(245,158,11,0.18);color:#b45309;font-size:10px;font-weight:900;">PICK</span>':'')+'</td>'
+            +'</tr>';
+          }).join('')+'</tbody></table></div>';
+      }catch(e){
+        if(box) box.innerHTML='<p class="empty-msg" style="margin:0;">SEO 클릭 데이터를 불러오지 못했습니다.</p>';
+      }
+    }
     async function loadRefunds(){
       var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
+      loadSeoClicks();
       if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">불러오는 중…</td></tr>';
       try{
         var r=await fetch('/api/admin/refunds',{headers:adminHeaders()});

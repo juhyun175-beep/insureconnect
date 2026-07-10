@@ -39,7 +39,7 @@ async function renderHub(rel, promoRemaining) {
 
 module.exports = (async () => {
   {
-    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8');
+    const html = fs.readFileSync(path.join(root, 'index.html'), 'utf8').replace(/\r\n/g, '\n');
     assert(html.includes('function openPostFromURL()'), 'home page should define ?post= submit deeplink handler');
     assert(html.includes("if (post === 'recruit' || post === 'lecture' || post === 'meetup')"), 'handler should accept only posting modes');
     assert(html.includes('setTimeout(() => openSubmitModal(post), 300)'), 'handler should wait briefly for modal DOM before opening');
