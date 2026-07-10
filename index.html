@@ -8692,11 +8692,38 @@
                 <span><b>카카오톡 전 회원 알림 1회</b> <b style="color:#7c3aed;">+29,000원</b><br>
                 <span style="font-size:11px;color:var(--txt-mid,#475569);">승인 시 알림 수신 회원 전원에게 공고를 카톡 1회 발송 (주 2슬롯 한정 · 웹푸시 동시 발송)</span></span>
               </label>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;cursor:pointer;">
+                <input type="checkbox" id="sm-opt-seo_boost" onchange="smUpdatePrice()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <span><b>SEO 페이지 상단 고정 7일</b> <b style="color:#7c3aed;">+15,000원</b><br>
+                <span style="font-size:11px;color:var(--txt-mid,#475569);">보험사 전산·보험정보 등 검색 유입 페이지 전체의 공고 위젯 1번 자리에 7일 고정 + PICK 배지. 클릭 수 실측 리포트 제공</span></span>
+              </label>
+              <div style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;">
+                <input type="checkbox" id="sm-opt-open_chat_post" onchange="smToggleCountOption('open_chat_post')" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
+                <div style="flex:1;min-width:0;">
+                  <label for="sm-opt-open_chat_post" style="cursor:pointer;"><b>오픈채팅 골든타임 게시 1회</b> <b style="color:#7c3aed;">회당 +25,000원</b></label><br>
+                  <span style="font-size:11px;color:var(--txt-mid,#475569);">운영 오픈채팅방에 선택한 골든타임 슬롯으로 공고를 게시합니다.</span>
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap;">
+                    <select id="sm-opt-open_chat_post-count" disabled onchange="smUpdatePrice()" style="padding:5px 8px;border:1.5px solid rgba(124,58,237,0.28);border-radius:8px;font-size:12px;font-weight:800;color:#7c3aed;background:#fff;">
+                      <option value="1">1회</option>
+                      <option value="2">2회</option>
+                      <option value="3">3회</option>
+                    </select>
+                    <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--txt-mid,#475569);"><input type="radio" name="sm-opt-open_chat_post-slot" value="am8" disabled onchange="smUpdatePrice()">오전 8시</label>
+                    <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--txt-mid,#475569);"><input type="radio" name="sm-opt-open_chat_post-slot" value="noon" disabled checked onchange="smUpdatePrice()">점심 12:30</label>
+                    <label style="display:inline-flex;align-items:center;gap:4px;font-size:11px;color:var(--txt-mid,#475569);"><input type="radio" name="sm-opt-open_chat_post-slot" value="pm9" disabled onchange="smUpdatePrice()">저녁 9시</label>
+                  </div>
+                </div>
+              </div>
+              <label style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:#fff;line-height:1.5;margin-bottom:8px;cursor:pointer;padding:10px 11px;border-radius:10px;background:#5b21b6;box-shadow:0 8px 18px rgba(91,33,182,0.18);">
+                <input type="checkbox" id="sm-opt-bundle_boost" onchange="smSyncBundleBoost()" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#fff;">
+                <span><b>부스트 패키지</b> <b style="color:#fde68a;">+59,000원</b> <span style="font-size:11px;color:#ddd6fe;"><s>단품 합산 94,000원</s> → 59,000원</span><br>
+                <span style="font-size:11px;color:#ede9fe;">SEO 고정 7일 + 오픈챗 게시 2회 + 카톡 전회원 알림 1회를 한 번에 적용</span></span>
+              </label>
               <div style="display:flex;gap:9px;align-items:flex-start;font-size:12px;color:var(--txt-hi,#0f172a);line-height:1.5;margin-bottom:8px;">
                 <input type="checkbox" id="sm-opt-open_chat_promo" onchange="smToggleDailyOption('open_chat_promo')" style="margin-top:2px;flex-shrink:0;width:16px;height:16px;accent-color:#7c3aed;">
                 <div style="flex:1;min-width:0;">
-                  <label for="sm-opt-open_chat_promo" style="cursor:pointer;"><b>오픈채팅방 홍보</b> <b style="color:#7c3aed;">하루당 +280,000원</b></label><br>
-                  <span style="font-size:11px;color:var(--txt-mid,#475569);">운영 오픈채팅방에 선택 기간 동안 공고를 홍보합니다.</span>
+                  <label for="sm-opt-open_chat_promo" style="cursor:pointer;"><b>오픈채팅 풀데이 점유</b> <b style="color:#7c3aed;">하루당 +280,000원</b></label><br>
+                  <span style="font-size:11px;color:var(--txt-mid,#475569);">게시 3회 + 공지 고정 종일 구성으로 운영 오픈채팅방을 하루 단위로 점유합니다.</span>
                   <div style="display:flex;align-items:center;gap:6px;margin-top:7px;flex-wrap:wrap;">
                     <input type="number" id="sm-opt-open_chat_promo-days" min="1" max="30" value="1" disabled oninput="smUpdatePrice()" onchange="smUpdatePrice()" style="width:76px;padding:5px 8px;border:1.5px solid rgba(124,58,237,0.28);border-radius:8px;font-size:12px;font-weight:800;color:#7c3aed;background:#fff;">
                     <span style="font-size:11px;color:var(--txt-mid,#475569);">일 동안 홍보</span>
@@ -12266,7 +12293,9 @@
       submitState.step = 1;
       submitState.orderId = null; submitState.payPrice = null;   // v2.106.0: 이전 주문 결제 정보 초기화
       window.SM_PROMO = { remaining: 0 };
-      ['sm-opt-featured_listing','sm-opt-dm_inquiry','sm-opt-kakao_blast','sm-opt-open_chat_promo','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) c.checked = false; });   // v2.107.0: 옵션 초기화
+      ['sm-opt-featured_listing','sm-opt-dm_inquiry','sm-opt-kakao_blast','sm-opt-seo_boost','sm-opt-open_chat_post','sm-opt-bundle_boost','sm-opt-open_chat_promo','sm-opt-home_banner7'].forEach(id => { const c = document.getElementById(id); if (c) { c.checked = false; c.disabled = false; delete c.dataset.bundlePrev; } });   // v2.107.0: 옵션 초기화
+      const ocCount = document.getElementById('sm-opt-open_chat_post-count'); if (ocCount) { ocCount.value = '1'; ocCount.disabled = true; delete ocCount.dataset.bundlePrev; }
+      document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.checked = r.value === 'noon'; r.disabled = true; delete r.dataset.bundlePrev; });
       const ocDays = document.getElementById('sm-opt-open_chat_promo-days'); if (ocDays) { ocDays.value = '1'; ocDays.disabled = true; }
       const payBox = document.getElementById('sm-pay-online'); if (payBox) payBox.style.display = 'none';
       const sbtn = document.getElementById('sm-submit-btn'); if (sbtn) sbtn.textContent = '신청 제출 →';   // 이전 제출의 '제출 중…' 잔상 제거
@@ -12363,9 +12392,16 @@
       featured_listing: { price: 18000 },
       dm_inquiry: { price: 20000 },
       kakao_blast: { price: 29000 },
+      open_chat_post: { price: 25000, pricing: 'count', min: 1, max: 3 },
+      seo_boost: { price: 15000 },
+      bundle_boost: { price: 59000, bundle: ['seo_boost','open_chat_post','kakao_blast'] },
       open_chat_promo: { price: 280000, pricing: 'daily', min: 1, max: 30 },
       home_banner7: { price: 300000 }
     };
+    function smOptionChecked(key){
+      const cb = document.getElementById('sm-opt-'+key);
+      return !!(cb && cb.checked);
+    }
     function smDailyOptionDays(key){
       const meta = SM_OPTIONS[key] || {};
       const el = document.getElementById('sm-opt-'+key+'-days');
@@ -12376,6 +12412,20 @@
       if (el && String(el.value) !== String(days)) el.value = String(days);
       return days;
     }
+    function smCountOptionCount(key){
+      const meta = SM_OPTIONS[key] || {};
+      const el = document.getElementById('sm-opt-'+key+'-count');
+      const min = meta.min || 1, max = meta.max || 30;
+      let count = parseInt(el && el.value, 10);
+      if (!Number.isFinite(count)) count = min;
+      count = Math.max(min, Math.min(max, count));
+      if (el && String(el.value) !== String(count)) el.value = String(count);
+      return count;
+    }
+    function smOpenChatPostSlot(){
+      const checked = document.querySelector('input[name="sm-opt-open_chat_post-slot"]:checked');
+      return checked && ['am8','noon','pm9'].includes(checked.value) ? checked.value : 'noon';
+    }
     function smToggleDailyOption(key){
       const cb = document.getElementById('sm-opt-'+key);
       const days = document.getElementById('sm-opt-'+key+'-days');
@@ -12383,13 +12433,73 @@
       smUpdatePrice();
     }
     window.smToggleDailyOption = smToggleDailyOption;
+    function smToggleCountOption(key){
+      const cb = document.getElementById('sm-opt-'+key);
+      const count = document.getElementById('sm-opt-'+key+'-count');
+      if (count) count.disabled = !(cb && cb.checked);
+      if (key === 'open_chat_post') {
+        document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.disabled = !(cb && cb.checked); });
+      }
+      smUpdatePrice();
+    }
+    window.smToggleCountOption = smToggleCountOption;
+    function smSyncBundleBoost(){
+      const bundle = document.getElementById('sm-opt-bundle_boost');
+      const on = !!(bundle && bundle.checked);
+      ['seo_boost','open_chat_post','kakao_blast'].forEach(function(key){
+        const cb = document.getElementById('sm-opt-'+key);
+        if (!cb) return;
+        if (on) {
+          cb.dataset.bundlePrev = cb.checked ? '1' : '0';
+          cb.checked = true;
+          cb.disabled = true;
+        } else {
+          cb.disabled = false;
+          if (cb.dataset.bundlePrev) cb.checked = cb.dataset.bundlePrev === '1';
+          delete cb.dataset.bundlePrev;
+        }
+      });
+      const count = document.getElementById('sm-opt-open_chat_post-count');
+      if (count) {
+        if (on) {
+          count.dataset.bundlePrev = count.value || '1';
+          count.value = '2';
+        } else if (count.dataset.bundlePrev) {
+          count.value = count.dataset.bundlePrev;
+          delete count.dataset.bundlePrev;
+        }
+      }
+      document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){
+        if (on) {
+          r.dataset.bundlePrev = r.checked ? '1' : '0';
+          r.checked = r.value === 'noon';
+        } else {
+          if (r.dataset.bundlePrev) r.checked = r.dataset.bundlePrev === '1';
+          delete r.dataset.bundlePrev;
+        }
+      });
+      smToggleCountOption('open_chat_post');
+      if (count) count.disabled = on || !smOptionChecked('open_chat_post');
+      document.querySelectorAll('input[name="sm-opt-open_chat_post-slot"]').forEach(function(r){ r.disabled = on || !smOptionChecked('open_chat_post'); });
+      smUpdatePrice();
+    }
+    window.smSyncBundleBoost = smSyncBundleBoost;
     function smSelectedOptions(){
       var options = [];
+      var bundleOn = smOptionChecked('bundle_boost');
+      var bundled = bundleOn ? (SM_OPTIONS.bundle_boost.bundle || []) : [];
       Object.keys(SM_OPTIONS).forEach(function(k){
         var c = document.getElementById('sm-opt-'+k);
         if(!c || !c.checked) return;
+        if(k !== 'bundle_boost' && bundled.includes(k)) return;
         var meta = SM_OPTIONS[k] || {};
         if(meta.pricing === 'daily') options.push({ key: k, days: smDailyOptionDays(k) });
+        else if(meta.pricing === 'count') {
+          var count = smCountOptionCount(k);
+          var slot = k === 'open_chat_post' ? smOpenChatPostSlot() : null;
+          if (slot) options.push({ key: 'open_chat_post', count: count, slot: slot });
+          else options.push({ key: k, count: count });
+        }
         else options.push(k);
       });
       return options;
@@ -12398,6 +12508,10 @@
       var key = (opt && typeof opt === 'object') ? opt.key : opt;
       var meta = SM_OPTIONS[key] || {};
       if(meta.pricing === 'daily') return (meta.price || 0) * smDailyOptionDays(key);
+      if(meta.pricing === 'count') {
+        var count = (opt && typeof opt === 'object' && Number.isFinite(Number(opt.count))) ? Number(opt.count) : smCountOptionCount(key);
+        return (meta.price || 0) * count;
+      }
       return meta.price || 0;
     }
     function smUpdatePrice(){

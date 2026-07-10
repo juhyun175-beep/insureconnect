@@ -18,7 +18,7 @@ const OPTION_LABELS = {
   dm_inquiry: '1:1 문의 기능',
   kakao_blast: '카카오톡 전 회원 알림 1회',
   home_banner7: '홈 배너 노출 7일',
-  open_chat_promo: '오픈채팅방 홍보',
+  open_chat_promo: '오픈채팅 풀데이 점유',
 };
 
 function optionKey(opt) {
@@ -50,7 +50,7 @@ function status(label, state, message, extra = {}) {
 }
 
 function manualMessage(key) {
-  if (key === 'open_chat_promo') return '오픈채팅방 홍보는 운영자가 등록자와 직접 대화로 안내합니다.';
+  if (key === 'open_chat_promo') return '오픈채팅 풀데이 점유는 운영자가 등록자와 직접 대화로 안내합니다.';
   return '관리자 확인이 필요합니다.';
 }
 

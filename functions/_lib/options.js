@@ -27,8 +27,27 @@ export const OPTION_CATALOG = {
     price: 29000,
     types: ['recruit', 'lecture', 'meetup'],
   },
+  open_chat_post: {
+    label: '오픈채팅 골든타임 게시 1회',
+    price: 25000,
+    pricing: 'count',
+    min_count: 1,
+    max_count: 3,
+    types: ['recruit', 'lecture', 'meetup'],
+  },
+  seo_boost: {
+    label: 'SEO 페이지 상단 고정 7일 (전 SEO 페이지 위젯 1번 슬롯 + PICK 배지)',
+    price: 15000,
+    types: ['recruit', 'lecture', 'meetup'],
+  },
+  bundle_boost: {
+    label: '부스트 패키지 (SEO 고정 7일 + 오픈챗 게시 2회 + 카톡 전회원 알림 1회)',
+    price: 59000,
+    types: ['recruit', 'lecture', 'meetup'],
+    includes: [{ key: 'seo_boost' }, { key: 'open_chat_post', count: 2 }, { key: 'kakao_blast' }],
+  },
   open_chat_promo: {
-    label: '오픈채팅방 홍보',
+    label: '오픈채팅 풀데이 점유 (게시 3회 + 공지 고정 종일)',
     price: 280000,
     pricing: 'daily',
     min_days: 1,
@@ -56,15 +75,35 @@ function optionDays(raw, item) {
   return Math.max(min, Math.min(max, Number.isFinite(n) ? n : min));
 }
 
+function optionCount(raw, item) {
+  const n = raw && typeof raw === 'object'
+    ? parseInt(raw.count ?? raw.quantity ?? raw.qty, 10)
+    : item.min_count;
+  const min = item.min_count || 1;
+  const max = item.max_count || 30;
+  return Math.max(min, Math.min(max, Number.isFinite(n) ? n : min));
+}
+
+function optionSlot(raw) {
+  if (!raw || typeof raw !== 'object') return null;
+  const slot = String(raw.slot || '');
+  return ['am8', 'noon', 'pm9'].includes(slot) ? slot : null;
+}
+
 /** 클라 전달 옵션 배열 검증 — 유효 옵션만 남기고 서버 가격으로 합산. 중복 제거. */
 export function validateOptions(adType, keys) {
   const out = [];
   const optionKeys = [];
   let total = 0;
   if (Array.isArray(keys)) {
+    const hasBundleBoost = keys.some((raw) => optionKey(raw) === 'bundle_boost');
+    const bundledKeys = hasBundleBoost
+      ? new Set((OPTION_CATALOG.bundle_boost.includes || []).map((x) => x.key).filter(Boolean))
+      : new Set();
     for (const raw of keys) {
       const key = optionKey(raw);
       const item = OPTION_CATALOG[key];
+      if (bundledKeys.has(key)) continue;
       if (!item || optionKeys.includes(key)) continue;
       if (!item.types.includes(adType)) continue;
       optionKeys.push(key);
@@ -72,6 +111,13 @@ export function validateOptions(adType, keys) {
         const days = optionDays(raw, item);
         out.push({ key, days });
         total += item.price * days;
+      } else if (item.pricing === 'count') {
+        const count = optionCount(raw, item);
+        const selected = { key, count };
+        const slot = optionSlot(raw);
+        if (slot) selected.slot = slot;
+        out.push(selected);
+        total += item.price * count;
       } else {
         out.push(key);
         total += item.price;

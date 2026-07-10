@@ -6865,11 +6865,14 @@
     var _RF_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
     var _RF_ST={pending_payment:'입금대기',paid:'결제완료',published:'게시',refunded:'환불완료'};
     /* v2.107.0: 유료 애드온 옵션 라벨 — 이행(수동) 안내용 */
-    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일',dm_inquiry:'1:1문의 기능',featured_listing:'추천공고 등록',open_chat_promo:'오픈채팅방 홍보'};
+    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일',dm_inquiry:'1:1문의 기능',featured_listing:'추천공고 등록',seo_boost:'SEO고정7일',open_chat_post:'오픈챗 게시',bundle_boost:'부스트패키지',open_chat_promo:'오픈채팅 풀데이 점유'};
+    var _RF_SLOT={am8:'오전8시',noon:'점심12:30',pm9:'저녁9시'};
     function _rfOptKey(opt){ return opt && typeof opt==='object' ? String(opt.key||opt.id||opt.option||'') : String(opt||''); }
     function _rfOptLabel(opt){
       var key=_rfOptKey(opt), label=_RF_OPT[key]||key;
       if(key==='open_chat_promo' && opt && typeof opt==='object' && opt.days) label += ' '+opt.days+'일';
+      if(key==='open_chat_post' && opt && typeof opt==='object' && opt.count) label += ' '+opt.count+'회';
+      if(key==='open_chat_post' && opt && typeof opt==='object' && _RF_SLOT[opt.slot]) label += ' · '+_RF_SLOT[opt.slot];
       return label;
     }
     function _rfFulfilled(o){

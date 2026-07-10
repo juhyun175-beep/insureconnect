@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.115.0] - 2026-07-10
+### Added (레드 가격대 옵션 신설)
+- `functions/_lib/options.js`: `open_chat_post`(회당 25,000원, 1~3회), `seo_boost`(15,000원), `bundle_boost`(59,000원)를 서버 권위 카탈로그에 추가하고, count 가격·slot 보존·번들 단품 dedupe를 적용.
+- `index.html`: 등록 모달 옵션 UI에 SEO 고정, 오픈채팅 골든타임 게시, 부스트 패키지를 추가하고 번들 선택 시 포함 단품을 자동 체크/잠금 처리.
+- `admin.html`, `functions/_lib/fulfillment.js`: 주문/이행 표시에서 새 옵션 키와 `오픈채팅 풀데이 점유` 리네이밍을 반영.
+- `open_chat_promo`는 기존 280,000원 앵커를 유지하면서 `오픈채팅 풀데이 점유`로 리네이밍.
+- `tests/red-options-pricing.test.js`, `tests/red-options-registration.test.js`: 옵션 가격 계산, options_json 저장, 비정상 slot 제거, 번들 이중청구 방지를 검증.
+
 ## [2.114.0] - 2026-07-10
 ### Added (SEO SSR 공고 로테이션 위젯)
 - `functions/_lib/posting-widget.js`: 승인된 채용·강의·모임 공고를 SEO 페이지 하단에 3건 로테이션 노출하는 공통 위젯을 추가하고, `seo_boost_until` 추가형 ALTER 및 60초 `caches.default` 캐시를 적용.
