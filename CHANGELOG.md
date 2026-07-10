@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.116.0] - 2026-07-10
+### Added (레드 옵션 승인 이행)
+- `functions/_lib/fulfillment.js`: `bundle_boost`를 승인 시 `seo_boost`·`open_chat_post`·`kakao_blast`로 전개하고, 번들 전개 이행 기록을 `fulfilled_json.bundle_boost`에 남김.
+- `functions/_lib/fulfillment.js`: `seo_boost` 승인 이행으로 `seo_boost_until` 7일 적용을 추가하고, `open_chat_post`는 count/slot 포함 수동 이행 상태로 기록.
+- `admin.html`: 번들 전개로 생성된 `fulfilled_json` 키도 주문 행에 표시하고, `open_chat_post`의 게시 횟수와 시간대를 운영자가 바로 판독할 수 있게 보강.
+- `tests/fulfillment-red-options.test.js`: 번들 전개, SEO 고정 CASE 업데이트, 카톡 알림 이행 시도, 오픈챗 수동 이행, 관리자 표시 마커를 검증.
+
 ## [2.115.0] - 2026-07-10
 ### Added (레드 가격대 옵션 신설)
 - `functions/_lib/options.js`: `open_chat_post`(회당 25,000원, 1~3회), `seo_boost`(15,000원), `bundle_boost`(59,000원)를 서버 권위 카탈로그에 추가하고, count 가격·slot 보존·번들 단품 dedupe를 적용.

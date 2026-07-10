@@ -1,5 +1,6 @@
 import { ensureOrderTables, ensureOrderFulfillmentCols } from './orders.js';
-import { ensureOrderOptionCols } from './options.js';
+import { ensureOrderOptionCols, OPTION_CATALOG } from './options.js';
+import { ensureBoostCols } from './posting-widget.js';
 import { sendMemoToMember } from './kakao-msg.js';
 
 const AD_META = {
@@ -13,12 +14,57 @@ const HOME_AD_KEY = 'home_ad';
 const HOME_BANNER_DAYS = 7;
 const MAX_HOME_AD_CAMPAIGNS = 20;
 
+const SEO_BOOST_SQL = {
+  recruit: {
+    update: `UPDATE ic_recruitments
+        SET seo_boost_until =
+              CASE
+                WHEN seo_boost_until IS NULL OR seo_boost_until <= datetime('now')
+                  THEN datetime('now', '+7 days')
+                ELSE seo_boost_until
+              END
+      WHERE id = ?`,
+    select: `SELECT seo_boost_until FROM ic_recruitments WHERE id = ?`,
+  },
+  lecture: {
+    update: `UPDATE ic_lectures
+        SET seo_boost_until =
+              CASE
+                WHEN seo_boost_until IS NULL OR seo_boost_until <= datetime('now')
+                  THEN datetime('now', '+7 days')
+                ELSE seo_boost_until
+              END
+      WHERE id = ?`,
+    select: `SELECT seo_boost_until FROM ic_lectures WHERE id = ?`,
+  },
+  meetup: {
+    update: `UPDATE ic_meetings
+        SET seo_boost_until =
+              CASE
+                WHEN seo_boost_until IS NULL OR seo_boost_until <= datetime('now')
+                  THEN datetime('now', '+7 days')
+                ELSE seo_boost_until
+              END
+      WHERE id = ?`,
+    select: `SELECT seo_boost_until FROM ic_meetings WHERE id = ?`,
+  },
+};
+
 const OPTION_LABELS = {
   featured_listing: '추천공고 등록',
   dm_inquiry: '1:1 문의 기능',
   kakao_blast: '카카오톡 전 회원 알림 1회',
+  seo_boost: 'SEO 페이지 상단 고정 7일 (전 SEO 페이지 위젯 1번 슬롯 + PICK 배지)',
+  open_chat_post: '오픈채팅 골든타임 게시 1회',
+  bundle_boost: '부스트 패키지 (SEO 고정 7일 + 오픈챗 게시 2회 + 카톡 전회원 알림 1회)',
   home_banner7: '홈 배너 노출 7일',
   open_chat_promo: '오픈채팅 풀데이 점유',
+};
+
+const OPEN_CHAT_SLOT_LABELS = {
+  am8: '오전 8시',
+  noon: '점심 12:30',
+  pm9: '저녁 9시',
 };
 
 function optionKey(opt) {
@@ -49,9 +95,60 @@ function status(label, state, message, extra = {}) {
   };
 }
 
-function manualMessage(key) {
+function optionSlot(raw, fallback = 'noon') {
+  if (raw && typeof raw === 'object' && OPEN_CHAT_SLOT_LABELS[String(raw.slot || '')]) return String(raw.slot);
+  return fallback;
+}
+
+function openChatPostMeta(raw) {
+  const countRaw = raw && typeof raw === 'object' ? parseInt(raw.count ?? raw.quantity ?? raw.qty, 10) : 1;
+  const count = Math.max(1, Math.min(3, Number.isFinite(countRaw) ? countRaw : 1));
+  const slot = optionSlot(raw);
+  return { count, slot, slotLabel: OPEN_CHAT_SLOT_LABELS[slot] || OPEN_CHAT_SLOT_LABELS.noon };
+}
+
+function manualMessage(key, raw) {
+  if (key === 'open_chat_post') {
+    const m = openChatPostMeta(raw);
+    return `오픈채팅 골든타임 게시 ${m.count}회 (${m.slotLabel}) — 운영자가 해당 시간대에 직접 게시합니다.`;
+  }
   if (key === 'open_chat_promo') return '오픈채팅 풀데이 점유는 운영자가 등록자와 직접 대화로 안내합니다.';
   return '관리자 확인이 필요합니다.';
+}
+
+function expandedOption(key, raw = { key }) {
+  return { key, raw };
+}
+
+function expandBundles(options) {
+  const bundle = options.find((o) => o.key === 'bundle_boost');
+  if (!bundle) return { options, expanded: false };
+  const includes = OPTION_CATALOG.bundle_boost?.includes || [];
+  const included = new Set(includes.map((x) => x.key).filter(Boolean));
+  const bundleSlot = optionSlot(bundle.raw);
+  const out = [];
+  const seen = new Set();
+  const push = (opt) => {
+    if (!opt || !opt.key || seen.has(opt.key)) return;
+    seen.add(opt.key);
+    out.push(opt);
+  };
+  for (const opt of options) {
+    if (opt.key === 'bundle_boost') {
+      for (const inc of includes) {
+        if (!inc || !inc.key) continue;
+        if (inc.key === 'open_chat_post') {
+          push(expandedOption('open_chat_post', { key: 'open_chat_post', count: inc.count || 1, slot: bundleSlot }));
+        } else {
+          push(expandedOption(inc.key, { key: inc.key }));
+        }
+      }
+      continue;
+    }
+    if (included.has(opt.key)) continue;
+    push(opt);
+  }
+  return { options: out, expanded: true };
 }
 
 function cut(s, n) {
@@ -66,6 +163,14 @@ function kstDate(offsetDays = 0) {
   return new Date(Date.now() + 9 * 3600 * 1000 + offsetDays * 86400 * 1000)
     .toISOString()
     .slice(0, 10);
+}
+
+function kstDateTime(raw) {
+  const s = String(raw || '').trim();
+  if (!s) return '';
+  const d = new Date(s.includes('T') ? s : `${s.replace(' ', 'T')}Z`);
+  if (Number.isNaN(d.getTime())) return s;
+  return new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 16).replace('T', ' ');
 }
 
 function absoluteUrl(u) {
@@ -256,6 +361,21 @@ async function createHomeBannerCampaign(env, meta, adType, id, orderId, ad) {
   );
 }
 
+async function applySeoBoost(env, adType, id) {
+  const sql = SEO_BOOST_SQL[adType];
+  if (!sql) return status(OPTION_LABELS.seo_boost, 'auto_failed', 'SEO 고정 대상 공고 타입을 확인하지 못했습니다.', { mode: 'seo_boost_until' });
+  await ensureBoostCols(env);
+  await env.DB.prepare(sql.update).bind(id).run();
+  const row = await env.DB.prepare(sql.select).bind(id).first().catch(() => null);
+  const until = kstDateTime(row?.seo_boost_until) || kstDateTime(new Date(Date.now() + 7 * 86400000).toISOString());
+  return status(
+    OPTION_LABELS.seo_boost,
+    'auto_done',
+    `SEO 전 페이지 위젯 상단 고정 7일을 적용했습니다. (~ ${until} KST)`,
+    { mode: 'seo_boost_until' }
+  );
+}
+
 async function ensureOrderReadiness(env) {
   await ensureOrderTables(env);
   await ensureOrderOptionCols(env);
@@ -274,9 +394,19 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
   ).bind(adType, id).first().catch(() => null);
   if (!order) return { ok: true, order_id: null, options: [], fulfilled: {} };
 
-  const options = parseOrderOptions(order.options_json);
+  let options = parseOrderOptions(order.options_json);
   let fulfilled = {};
   try { fulfilled = order.fulfilled_json ? JSON.parse(order.fulfilled_json) || {} : {}; } catch (_) { fulfilled = {}; }
+  const bundle = expandBundles(options);
+  options = bundle.options;
+  if (bundle.expanded) {
+    fulfilled.bundle_boost = status(
+      OPTION_LABELS.bundle_boost,
+      'auto_done',
+      '패키지 구성 옵션으로 전개되어 개별 이행됩니다.',
+      { mode: 'bundle_expand' }
+    );
+  }
 
   const has = (key) => options.some((o) => o.key === key);
   let adRow = null;
@@ -314,6 +444,10 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
     );
   }
 
+  if (has('seo_boost')) {
+    fulfilled.seo_boost = await applySeoBoost(env, adType, id);
+  }
+
   if (has('kakao_blast') && fulfilled.kakao_blast?.status !== 'auto_done') {
     fulfilled.kakao_blast = adRow
       ? await sendKakaoBlast(env, meta, adType, id, adRow)
@@ -326,9 +460,14 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
       : status(OPTION_LABELS.home_banner7, 'auto_failed', '대상 공고를 찾지 못해 홈 배너 자동 등록을 실행하지 못했습니다.', { mode: 'home_banner_campaign' });
   }
 
-  for (const key of ['open_chat_promo']) {
+  for (const key of ['open_chat_post', 'open_chat_promo']) {
     if (!has(key)) continue;
-    fulfilled[key] = status(OPTION_LABELS[key], 'manual_required', manualMessage(key));
+    const opt = options.find((o) => o.key === key);
+    const extra = key === 'open_chat_post' ? (() => {
+      const m = openChatPostMeta(opt?.raw);
+      return { mode: 'open_chat_post', count: m.count, slot: m.slot };
+    })() : {};
+    fulfilled[key] = status(OPTION_LABELS[key], 'manual_required', manualMessage(key, opt?.raw), extra);
   }
 
   const now = new Date().toISOString();

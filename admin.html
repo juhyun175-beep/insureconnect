@@ -6875,6 +6875,14 @@
       if(key==='open_chat_post' && opt && typeof opt==='object' && _RF_SLOT[opt.slot]) label += ' · '+_RF_SLOT[opt.slot];
       return label;
     }
+    function _rfFulfillLabel(key, st){
+      var label=_RF_OPT[key]||key;
+      if(key==='open_chat_post' && st){
+        if(st.count) label += ' '+st.count+'회';
+        if(_RF_SLOT[st.slot]) label += ' · '+_RF_SLOT[st.slot];
+      }
+      return label;
+    }
     function _rfFulfilled(o){
       try{ return o&&o.fulfilled_json?JSON.parse(o.fulfilled_json)||{}:{}; }catch(_){ return {}; }
     }
@@ -6888,7 +6896,13 @@
       var keys=[]; try{ keys=o.options_json?JSON.parse(o.options_json):[]; }catch(_){ keys=[]; }
       if(!Array.isArray(keys)||!keys.length) return '';
       var f=_rfFulfilled(o);
-      return ' '+keys.map(function(k){ var key=_rfOptKey(k); return '<span style="display:inline-block;background:rgba(124,58,237,0.14);color:#7c3aed;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="유료 옵션">📣'+_rfOptLabel(k)+'</span> '+_rfFulfillBadge(key,f[key]); }).join(' ');
+      var seen={};
+      var badges=keys.map(function(k){ var key=_rfOptKey(k); seen[key]=1; return '<span style="display:inline-block;background:rgba(124,58,237,0.14);color:#7c3aed;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="유료 옵션">📣'+_rfOptLabel(k)+'</span> '+_rfFulfillBadge(key,f[key]); });
+      ['bundle_boost','seo_boost','open_chat_post','kakao_blast'].forEach(function(key){
+        if(!f[key]||seen[key]) return;
+        badges.push('<span style="display:inline-block;background:rgba(14,165,233,0.13);color:#0284c7;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(f[key].message||'이행 상태')+'">↳ '+_rfFulfillLabel(key,f[key])+'</span> '+_rfFulfillBadge(key,f[key]));
+      });
+      return ' '+badges.join(' ');
     }
     async function loadRefunds(){
       var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
