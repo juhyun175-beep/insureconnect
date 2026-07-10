@@ -106,6 +106,32 @@
       --sh-sm:      0 1px 3px rgba(15,15,15,0.06);
       --sh-md:      0 4px 16px rgba(15,15,15,0.10);
       --sh-lg:      0 12px 40px rgba(15,15,15,0.14);
+
+      /* Canonical v1 tokens. Stage 1 is additive: legacy variables above remain the active UI contract. */
+      --ic-blue: #1a3de8;
+      --ic-blue-hover: #1533c4;
+      --ic-blue-soft: rgba(26,61,232,0.08);
+      --ic-gray-900: #37352f;
+      --ic-gray-600: #6b6a66;
+      --ic-gray-400: #9b9a97;
+      --ic-gray-200: rgba(55,53,47,0.12);
+      --ic-gray-100: #f1f1ef;
+      --ic-bg: #f7f7f5;
+      --ic-surface: #ffffff;
+      --ic-success: #16a34a;
+      --ic-warning: #d97706;
+      --ic-danger: #dc2626;
+      --fs-xs: 12px;
+      --fs-sm: 13px;
+      --fs-base: 14px;
+      --fs-lg: 16px;
+      --fs-xl: 20px;
+      --fs-2xl: 24px;
+      --r-sm: 6px;
+      --r-md: 10px;
+      --r-full: 999px;
+      --sh-1: 0 1px 3px rgba(15,15,15,0.06);
+      --sh-2: 0 8px 24px rgba(15,15,15,0.10);
     }
     [data-theme="dark"] {
       /* v2.8.21: 노션 다크(웜 차콜) — GitHub식 푸른-검정 → 따뜻한 차콜 + 또렷한 보더 */
@@ -117,6 +143,17 @@
       --txt-lo:     #6b6b69;
       --sh-sm:      0 1px 3px rgba(0,0,0,0.4);
       --sh-md:      0 4px 16px rgba(0,0,0,0.5);
+
+      /* Dark canonical tokens are opt-in only; no existing selector consumes them in Stage 1. */
+      --ic-bg: #191919;
+      --ic-surface: #242424;
+      --ic-gray-900: #e6e6e4;
+      --ic-gray-600: #9b9b97;
+      --ic-gray-400: #6b6b69;
+      --ic-gray-200: rgba(255,255,255,0.11);
+      --ic-gray-100: #2d333b;
+      --sh-1: 0 1px 3px rgba(0,0,0,0.4);
+      --sh-2: 0 8px 24px rgba(0,0,0,0.5);
     }
     /* v2.8.21: 노션 다크 — LIVE 방문배너를 파랑 그라데이션 → 플랫 차콜 카드(작은 색 액센트만 유지) */
     [data-theme="dark"] .ic-visitor-strip { background: var(--bg-card); border: 1px solid var(--border); box-shadow: none; }
