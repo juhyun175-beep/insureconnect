@@ -4,14 +4,16 @@
  */
 import { GA_LIST } from '../_lib/ga-companies.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { seoPostingWidget } from '../_lib/posting-widget.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
 
-export const onRequestGet = async () => {
+export const onRequestGet = async ({ env }) => {
   const url = `${SITE}/ga`;
+  const postingWidget = await seoPostingWidget(env);
   const cards = GA_LIST.map(g =>
     `<a class="ico" href="/ga/${g.slug}"><span class="ico-name">${esc(g.name)}</span><span class="ico-sub">전산 바로가기·로그인</span></a>`
   ).join('');
@@ -69,6 +71,7 @@ header.h h1{margin:0 0 8px;font-size:26px;letter-spacing:-0.02em}header.h p{marg
 <div class="sec"><div class="grid">${cards}</div></div>
 <p class="intro">GA(법인보험대리점)는 여러 보험사 상품을 비교·판매하는 대리점입니다. 소속 설계사는 각 GA의 전산(ERP)에서 청약·고객관리·수수료 등을 처리합니다. 보험사 직접 전산은 <a href="/company">보험사 전산·청구 안내</a>에서 확인하세요.</p>
 ${seoShareBar(url, 'GA 법인대리점 전산 바로가기 모음', '주요 GA 설계사 전산 바로가기·로그인 모음', `${SITE}/logo-full.png`)}
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

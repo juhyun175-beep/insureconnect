@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.114.0] - 2026-07-10
+### Added (SEO SSR 공고 로테이션 위젯)
+- `functions/_lib/posting-widget.js`: 승인된 채용·강의·모임 공고를 SEO 페이지 하단에 3건 로테이션 노출하는 공통 위젯을 추가하고, `seo_boost_until` 추가형 ALTER 및 60초 `caches.default` 캐시를 적용.
+- `functions/company/*`, `functions/insurance/*`, `functions/ga/*`, `functions/newsletter/index.js`, `functions/board/*`, `functions/community/index.js`: 공통 CTA 푸터 직전에 공고 위젯을 삽입해 기본 무료 노출 데모와 향후 `seo_boost` 1번 슬롯 정렬을 반영.
+- 위젯 링크 클릭은 기존 `/api/track/link-click` 스키마(`company_type`, `company_name`)를 사용하되 `seo_widget_{type}_{id}` 식별값으로 공고주 푸시 오발동을 방지.
+
 ## [2.113.0] - 2026-07-09
 ### Changed (SEO 허브 비로그인 등록 CTA)
 - `index.html`: `?post=recruit|lecture|meetup` 딥링크를 추가하고 해당 진입에서는 로그인 게이트를 숨겨 SSR 허브 CTA가 비로그인 등록 모달을 바로 열도록 연결.

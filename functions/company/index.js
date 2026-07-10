@@ -4,16 +4,18 @@
  */
 import { INSURERS } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { seoPostingWidget } from '../_lib/posting-widget.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
 
-export const onRequestGet = async () => {
+export const onRequestGet = async ({ env }) => {
   const life = INSURERS.filter(i => i.type === 'life');
   const nonlife = INSURERS.filter(i => i.type === 'nonlife');
   const url = `${SITE}/company`;
+  const postingWidget = await seoPostingWidget(env);
 
   const cardsOf = (arr) => arr.map(i =>
     `<a class="ico" href="/company/${i.slug}"><span class="ico-name">${esc(i.name)}</span><span class="ico-sub">전산·청구·고객센터</span></a>`
@@ -81,6 +83,7 @@ header.h h1{margin:0 0 8px;font-size:27px;letter-spacing:-0.02em}header.h p{marg
 <div class="sec"><h2>🟦 생명보험</h2><div class="grid">${cardsOf(life)}</div></div>
 <div class="sec"><h2>🟧 손해보험</h2><div class="grid">${cardsOf(nonlife)}</div></div>
 ${seoShareBar(url, '보험사 전산·고객센터·청구 안내 모음', '생보·손보 전 보험사 전산 바로가기·고객센터·청구를 한 곳에서', `${SITE}/logo-full.png`)}
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

@@ -3,6 +3,7 @@
  *   /company/customer-center, /company/claim-fax
  *   - broad 고검색량 쿼리("보험사 고객센터 번호", "보험금 청구 팩스번호") 타깃
  *   - 32개 상세(/company/{slug})로 내부링크 분배 (hub-spoke)
+ *   - v2.114.0: seoPostingWidget은 renderAggregation(env 미전달 구조) 범위 밖.
  */
 import { INSURERS, TYPE_LABEL } from './insurers.js';
 import { seoCtaFooter, seoShareBar } from './seo-cta.js';

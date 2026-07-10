@@ -4,6 +4,7 @@
  */
 import { SEO_CATEGORY_MAP } from '../../_lib/seo-categories.js';
 import { seoCtaFooter } from '../../_lib/seo-cta.js';
+import { seoPostingWidget } from '../../_lib/posting-widget.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s || '')
@@ -13,6 +14,7 @@ const esc = (s) => String(s || '')
 export const onRequestGet = async ({ params, env }) => {
   const cat = SEO_CATEGORY_MAP[params.category];
   if (!cat) return new Response('Not found', { status: 404 });
+  const postingWidget = await seoPostingWidget(env);
 
   const rs = await env.DB.prepare(
     `SELECT slug, title, excerpt, cover_image_url, view_count, created_at
@@ -103,6 +105,7 @@ header.cat-head p{margin:0;color:#6b7280}
   <p>${esc(cat.desc)}</p>
 </header>
 ${listHtml}
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

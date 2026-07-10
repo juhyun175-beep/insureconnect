@@ -12,6 +12,7 @@
 import { isBot } from '../../_lib/bot.js';
 import { SEO_CATEGORY_MAP } from '../../_lib/seo-categories.js';
 import { seoCtaFooter, seoShareBar } from '../../_lib/seo-cta.js';
+import { seoPostingWidget } from '../../_lib/posting-widget.js';
 
 const SITE = 'https://insureconnect.co.kr';
 
@@ -43,6 +44,7 @@ export const onRequestGet = async ({ params, env, request }) => {
     `SELECT * FROM ic_seo_posts WHERE category = ? AND slug = ? AND status = 'published'`
   ).bind(category, slug).first();
   if (!row) return new Response('Not found', { status: 404 });
+  const postingWidget = await seoPostingWidget(env);
 
   // view count (봇 제외)
   if (!isBot(request)) {
@@ -210,6 +212,7 @@ ${seoShareBar(url, row.title, description, ogImage)}
 ${faqHtml}
 ${relatedHtml}
 ${popularHtml}
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

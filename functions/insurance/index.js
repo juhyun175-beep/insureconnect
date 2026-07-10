@@ -4,12 +4,14 @@
  */
 import { SEO_CATEGORIES } from '../_lib/seo-categories.js';
 import { seoCtaFooter } from '../_lib/seo-cta.js';
+import { seoPostingWidget } from '../_lib/posting-widget.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s || '')
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
 export const onRequestGet = async ({ env }) => {
+  const postingWidget = await seoPostingWidget(env);
   // 카테고리별 글 수
   const counts = await env.DB.prepare(
     `SELECT category, COUNT(*) AS n FROM ic_seo_posts WHERE status='published' GROUP BY category`
@@ -146,6 +148,7 @@ header.b-head p{margin:0;opacity:.9;font-size:15px}
   <h2>자주 묻는 질문</h2>
   ${hubFaqs.map(f => `<details><summary>${esc(f.q)}</summary><p>${esc(f.a)}</p></details>`).join('')}
 </section>
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

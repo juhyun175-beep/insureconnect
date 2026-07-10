@@ -5,6 +5,7 @@
  *   타깃: "보험설계사 커뮤니티", "보험영업 노하우", "설계사 후기" 롱테일
  */
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { seoPostingWidget } from '../_lib/posting-widget.js';
 import { BOARD_SEO_WHERE } from '../_lib/board-seo.js';
 
 const SITE = 'https://insureconnect.co.kr';
@@ -17,6 +18,7 @@ const fmt = (iso) => (iso ? String(iso).slice(0, 10) : '');
 
 export const onRequestGet = async ({ env }) => {
   const url = `${SITE}/community`;
+  const postingWidget = await seoPostingWidget(env);
 
   let posts = [];
   try {
@@ -109,6 +111,7 @@ ${posts.length
 <div class="sec" style="margin-top:16px">
   ${seoShareBar(url, '보험설계사 커뮤니티 인기글', '현장 설계사들의 영업 노하우·후기를 모았습니다', `${SITE}/logo-full.png`)}
 </div>
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

@@ -4,6 +4,7 @@
  */
 import { GA_MAP } from '../_lib/ga-companies.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { seoPostingWidget } from '../_lib/posting-widget.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
@@ -11,9 +12,10 @@ const esc = (s) => String(s == null ? '' : s)
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
 
-export const onRequestGet = async ({ params }) => {
+export const onRequestGet = async ({ params, env }) => {
   const ga = GA_MAP[params.slug];
   if (!ga) return new Response('Not found', { status: 404 });
+  const postingWidget = await seoPostingWidget(env);
 
   const url = `${SITE}/ga/${ga.slug}`;
   const homepage = `https://${ga.site}`;
@@ -117,6 +119,7 @@ header.c-head p{margin:0;color:#6b7280;font-size:14px}
 </section>
 </div>
 ${seoShareBar(url, ga.name + ' 전산 바로가기', desc, `${SITE}/logo-full.png`)}
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;

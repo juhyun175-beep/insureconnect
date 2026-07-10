@@ -5,6 +5,7 @@
  */
 import { INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { seoPostingWidget } from '../_lib/posting-widget.js';
 import { renderAggregation, AGGREGATIONS, renderClaimFormsHub } from '../_lib/company-aggregation.js';
 
 const SITE = 'https://insureconnect.co.kr';
@@ -32,6 +33,8 @@ export const onRequestGet = async ({ params, env }) => {
     }
     return new Response('Not found', { status: 404 });
   }
+
+  const postingWidget = await seoPostingWidget(env);
 
   // 보험금 청구서류 양식 (D1)
   const cfNames = [ins.name, ...(CF_ALIAS[ins.name] || [])];
@@ -190,6 +193,7 @@ ${seoShareBar(url, ins.name + ' 전산·청구 안내', desc, `${SITE}/logo-full
   <ul>${related.map(([href, t]) => `<li><a href="${href}">${esc(t)}</a></li>`).join('')}</ul>
 </section>
 </div>
+${postingWidget}
 ${seoCtaFooter(SITE)}
 </body>
 </html>`;
