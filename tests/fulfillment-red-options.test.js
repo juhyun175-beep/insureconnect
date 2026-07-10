@@ -5,7 +5,7 @@ const { pathToFileURL } = require('url');
 
 const root = path.resolve(__dirname, '..');
 
-function makeEnv({ order, adType = 'recruit', adRow = {}, seoUntil = '2026-07-17 12:00:00' } = {}) {
+function makeEnv({ order, adType = 'recruit', adRow = {}, seoUntil = '2026-07-17 12:00:00', members = [], kakaoRestKey } = {}) {
   const calls = [];
   const tableByType = { recruit: 'ic_recruitments', lecture: 'ic_lectures', meetup: 'ic_meetings' };
   const table = tableByType[adType] || 'ic_recruitments';
@@ -43,6 +43,7 @@ function makeEnv({ order, adType = 'recruit', adRow = {}, seoUntil = '2026-07-17
             return Promise.resolve(null);
           },
           all() {
+            if (/FROM ic_members/.test(sql)) return Promise.resolve({ results: members });
             return Promise.resolve({ results: [] });
           },
         };
@@ -50,13 +51,14 @@ function makeEnv({ order, adType = 'recruit', adRow = {}, seoUntil = '2026-07-17
         return rec;
       },
     },
+    KAKAO_REST_KEY: kakaoRestKey,
   };
   return { env, calls };
 }
 
-async function fulfill({ order, adType = 'recruit', seoUntil } = {}) {
+async function fulfill({ order, adType = 'recruit', seoUntil, members, kakaoRestKey } = {}) {
   const mod = await import(pathToFileURL(path.join(root, 'functions/_lib/fulfillment.js')).href + `?t=${Date.now()}${Math.random()}`);
-  const { env, calls } = makeEnv({ order, adType, seoUntil });
+  const { env, calls } = makeEnv({ order, adType, seoUntil, members, kakaoRestKey });
   const result = await mod.fulfillApprovedOptions(env, { adType, adId: 77 });
   const orderUpdate = calls.find((c) => /UPDATE ad_orders\s+SET status =/.test(c.sql));
   assert(orderUpdate, 'fulfillment should persist fulfilled_json to ad_orders');
@@ -128,6 +130,27 @@ module.exports = (async () => {
     assert(seoUpdate, 'seo_boost reapproval should remain idempotent via CASE guard');
     assert.match(seoUpdate.sql, /ELSE seo_boost_until/);
     assert(!/updated_at/.test(seoUpdate.sql), 'meetup seo boost should not update updated_at');
+  }
+
+  {
+    const { fulfilled } = await fulfill({
+      kakaoRestKey: 'dummy-rest-key',
+      members: [],
+      order: {
+        id: 504,
+        options_json: JSON.stringify(['kakao_blast']),
+        fulfilled_json: null,
+        status: 'pending_payment',
+      },
+    });
+    assert.strictEqual(fulfilled.kakao_blast.status, 'manual_required');
+    assert.strictEqual(fulfilled.kakao_blast.mode, 'kakao_broadcast');
+    assert.strictEqual(fulfilled.kakao_blast.total, 0);
+    assert.strictEqual(fulfilled.kakao_blast.sent, 0);
+    assert.strictEqual(fulfilled.kakao_blast.failed, 0);
+    assert.strictEqual(fulfilled.kakao_blast.revoked, 0);
+    assert.match(fulfilled.kakao_blast.message, /알림 수신 동의 회원이 0명/);
+    assert.match(fulfilled.kakao_blast.message, /환불\/대체 이행/);
   }
 
   {

@@ -1,6 +1,6 @@
 import { getPromoRemaining } from './promo.js';
 
-const CACHE_URL = 'https://insureconnect.co.kr/__cache/posting-widget-v2';
+const CACHE_URL = 'https://insureconnect.co.kr/__cache/posting-widget-v3';
 
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;')
@@ -80,7 +80,7 @@ function renderWidget(items, promo) {
     </a>`).join('');
 
   return `
-<!-- __cache/posting-widget-v2 -->
+<!-- __cache/posting-widget-v3 -->
 <style>
 .seo-posting-widget{max-width:760px;margin:0 auto 16px;padding:0 16px}
 .spw-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:16px 18px;box-shadow:0 2px 8px rgba(0,0,0,.035)}
@@ -96,14 +96,14 @@ function renderWidget(items, promo) {
 .spw-pick{font-size:10px;font-weight:900;color:#fff;background:#ef4444;border-radius:5px;padding:2px 6px;letter-spacing:.04em}
 .spw-empty{font-size:13px;color:#64748b;line-height:1.55;margin:4px 0 10px}
 .spw-cta{display:block;margin-top:10px;text-align:center;text-decoration:none;font-size:13.5px;font-weight:900;color:#1a3de8;background:#eef2ff;border:1px solid #dbeafe;border-radius:10px;padding:10px 12px}
-.spw-rail{position:fixed;right:20px;top:120px;width:230px;z-index:30;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 13px 13px;box-shadow:0 8px 22px rgba(15,23,42,.08)}
+.spw-rail{position:fixed;right:20px;top:120px;width:230px;z-index:30;box-sizing:border-box;max-height:calc(100vh - 140px);overflow-y:auto;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 13px 13px;box-shadow:0 8px 22px rgba(15,23,42,.08)}
 .spw-rail-close{position:absolute;right:8px;top:8px;width:24px;height:24px;border:0;background:#f1f5f9;color:#64748b;border-radius:999px;font-size:13px;font-weight:900;line-height:24px;cursor:pointer}
 .spw-rail-title{font-size:13.5px;font-weight:900;color:#0f172a;margin:2px 28px 10px 1px}
-.spw-rail-list{display:grid;gap:8px}
-.spw-rail-item{display:block;text-decoration:none;color:#0f172a;border:1px solid #eef2f7;border-radius:10px;padding:9px 10px;background:#fbfdff;transition:border-color .15s,background .15s,transform .15s}
+.spw-rail-list{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}
+.spw-rail-item{min-width:0;max-width:100%;box-sizing:border-box;display:block;text-decoration:none;color:#0f172a;border:1px solid #eef2f7;border-radius:10px;padding:9px 10px;background:#fbfdff;transition:border-color .15s,background .15s,transform .15s}
 .spw-rail-item:hover{border-color:#bfdbfe;background:#eff6ff;transform:translateY(-1px)}
 .spw-rail-item .spw-type{display:inline-flex;margin-bottom:6px}
-.spw-rail-item .spw-main{display:block}
+.spw-rail-item .spw-main{display:block;min-width:0;max-width:100%}
 .spw-rail-item .spw-main strong{display:block;font-size:12.5px;line-height:1.35;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .spw-rail-item .spw-main small{display:block;font-size:11.5px;color:#64748b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px}
 .spw-rail-item .spw-pick{display:inline-block;margin-top:6px}

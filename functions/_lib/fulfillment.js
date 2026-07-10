@@ -260,6 +260,14 @@ async function sendKakaoBlast(env, meta, adType, id, ad) {
       WHERE alert_optin = 1 AND kakao_refresh_token IS NOT NULL`
   ).all().catch(() => ({ results: [] }));
   const members = rs.results || [];
+  if (members.length === 0) {
+    return status(
+      OPTION_LABELS.kakao_blast,
+      'manual_required',
+      '알림 수신 동의 회원이 0명이라 자동 발송할 수 없습니다. 구매자와 조율(환불/대체 이행)이 필요합니다.',
+      { mode: 'kakao_broadcast', total: 0, sent: 0, failed: 0, revoked: 0 }
+    );
+  }
   const payload = {
     title: adTitle(meta, ad),
     description: adDescription(adType, ad),
@@ -284,10 +292,14 @@ async function sendKakaoBlast(env, meta, adType, id, ad) {
   };
   await Promise.all(Array.from({ length: Math.min(5, members.length) }, worker));
 
+  const state = sent === 0 && members.length > 0 ? 'auto_failed' : 'auto_done';
+  const message = state === 'auto_failed'
+    ? `카카오톡 알림 자동 발송 실패: 대상 ${members.length}명 전원 실패, 실패 ${failed}명`
+    : `카카오톡 알림 자동 발송 완료: 대상 ${members.length}명, 성공 ${sent}명, 실패 ${failed}명`;
   return status(
     OPTION_LABELS.kakao_blast,
-    'auto_done',
-    `카카오톡 알림 자동 발송 완료: 대상 ${members.length}명, 성공 ${sent}명, 실패 ${failed}명`,
+    state,
+    message,
     { mode: 'kakao_broadcast', total: members.length, sent, failed, revoked, url: payload.url, image: payload.image }
   );
 }

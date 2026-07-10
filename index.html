@@ -6234,10 +6234,12 @@
       display: flex;
       flex-direction: column;
       gap: 10px;
-      /* v2.1.12: 왼쪽 컬럼(실시간 인기 + 히어로/즐겨찾기) 하단까지 정확히 늘어나도록
-         stretch (grid 기본값이지만 명시) — 내부 rank-list 가 남는 높이를 채움 */
-      align-self: stretch;
+      /* v2.119.0: 좌측 공고 컬럼이 가변 높이가 되어 stretch 제거 — 자연 높이 + sticky */
+      align-self: start;
       min-height: 0;
+    }
+    @media (min-width: 1025px) {
+      .ic-kakao-panel { position: sticky; top: 14px; }
     }
     .ic-kakao-head {
       display: flex;
@@ -6286,18 +6288,15 @@
     }
     .ic-kakao-rank-list {
       display: flex; flex-direction: column; gap: 5px;
-      /* v2.1.12: 남는 세로 공간을 차지 (즐겨찾기 하단과 카드 하단 일치) */
-      flex: 1 1 auto;
+      /* v2.119.0: 패널 자연 높이에 맞춰 항목을 위에서부터 자연 흐름으로 배치 */
+      flex: 0 1 auto;
       min-height: 0;
       overflow-y: auto;
       scrollbar-width: thin;
-      /* v2.64.0: 10개 항목을 세로로 균등 분산 → 늘어난 패널 높이에 내용 맞춤 */
-      justify-content: space-between;
     }
     .ic-kakao-panel.has-highlight .ic-kakao-rank-list {
       flex: 0 0 auto;
       max-height: 255px;
-      justify-content: flex-start;
     }
     /* 항목 자체도 살짝 키워 빈 공간 없이 채움 */
     .ic-kakao-rank-list > .ic-kakao-rank-item { padding-top: 9px; padding-bottom: 9px; }

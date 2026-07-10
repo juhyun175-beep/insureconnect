@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.119.0] - 2026-07-10
+### Fixed
+- `index.html`: 홈 오픈채팅 순위 패널이 좌측 공고 컬럼 높이에 stretch되지 않도록 자연 높이로 되돌리고, 데스크톱에서만 sticky로 따라오게 조정.
+- `functions/_lib/posting-widget.js`: SEO 프리뷰 레일의 캐시 키를 `posting-widget-v3`로 올리고, 긴 공고 제목이 230px 레일 밖으로 밀리지 않도록 grid shrink, box sizing, 짧은 뷰포트 내부 스크롤을 보강.
+- `functions/_lib/fulfillment.js`: `kakao_blast` 대상 회원이 0명일 때 자동 완료 대신 수동 이행 필요로 기록하고, 발송 대상이 있어도 전원 실패하면 `auto_failed`로 남기도록 수정.
+- `tests/kakao-panel-rail-layout.test.js`, `tests/posting-widget-rail.test.js`, `tests/fulfillment-red-options.test.js`: 홈 패널 높이, SEO 레일 overflow, 카카오 알림 0명 가드를 검증.
+
 ## [2.118.0] - 2026-07-10
 ### Fixed (파트 A — dm_inquiry 게이트 수리)
 - `functions/_lib/fulfillment.js`: `dm_inquiry` 승인 이행이 실제로 `dm_enabled`를 켜도록 변경하고, 비로그인 등록처럼 `submitter_id`가 없는 공고는 `auto_failed`로 기록.

@@ -86,8 +86,8 @@ module.exports = (async () => {
     const { env, calls } = makeEnv(rowsByTable);
     const html = await mod.seoPostingWidget(env);
 
-    assert(html.includes('__cache/posting-widget-v2'), 'widget cache-busting marker should use cache key v2');
-    assert([...sandbox.caches.default.store.keys()].some((key) => key.includes('posting-widget-v2')), 'cache put should use posting-widget-v2 key');
+    assert(html.includes('__cache/posting-widget-v3'), 'widget cache-busting marker should use cache key v3');
+    assert([...sandbox.caches.default.store.keys()].some((key) => key.includes('posting-widget-v3')), 'cache put should use posting-widget-v3 key');
     assert.strictEqual(calls.filter((c) => /SELECT id, title,/.test(c.sql)).length, 3, 'cache miss should query all posting tables once');
     await mod.seoPostingWidget(env);
     assert.strictEqual(calls.filter((c) => /SELECT id, title,/.test(c.sql)).length, 3, 'cache hit should avoid additional D1 SELECTs');
@@ -97,6 +97,11 @@ module.exports = (async () => {
     assert(html.includes('right:20px'), 'rail should sit in the right margin');
     assert(html.includes('top:120px'), 'rail should use the requested top offset');
     assert(html.includes('width:230px'), 'rail should use the requested width');
+    assert(html.includes('box-sizing:border-box'), 'rail should be self-contained when pages lack a global box-sizing reset');
+    assert(html.includes('max-height:calc(100vh - 140px)'), 'rail should guard short viewports with a max height');
+    assert(html.includes('overflow-y:auto'), 'rail should scroll internally in short viewports');
+    assert(html.includes('.spw-rail-list{display:grid;gap:8px;grid-template-columns:minmax(0,1fr)}'), 'rail list grid should allow narrow tracks to shrink');
+    assert(html.includes('.spw-rail-item{min-width:0;max-width:100%;box-sizing:border-box;'), 'rail items should not overflow the 230px rail');
     assert(html.includes('@media(max-width:1279px)'), 'rail should be hidden at 1279px and below');
     assert(html.includes("sessionStorage.getItem('spw_rail_hide')"), 'rail should honor session hide state');
     assert(html.includes("sessionStorage.setItem('spw_rail_hide','1')"), 'rail close button should hide for the current session');
