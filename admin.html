@@ -4852,13 +4852,10 @@
 
   <script>
     /* ── 설정 ── */
-    const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
-    const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
-
     /* ── 관리자 비밀번호는 소스코드에 저장되지 않음 ──
-       DB(RLS 정책)에서만 검증됨. 입력한 비밀번호는 sessionStorage에 임시 저장됨.
-       비밀번호 변경은 Supabase SQL 에서 'verify_admin_secret()' 함수와
-       관련 RLS 정책의 비교 문자열을 수정해야 합니다. */
+       서버 환경변수 ADMIN_SECRET(x-admin-secret 헤더)로만 검증됨(functions/_lib/admin.js).
+       입력한 비밀번호는 sessionStorage에 임시 저장됨.
+       변경: npx wrangler pages secret put ADMIN_SECRET --project-name=insureconnect-hub */
     let ADMIN_SECRET = sessionStorage.getItem('ic_admin_secret') || '';
 
     /* ── HTML 이스케이프 ── */
@@ -4871,8 +4868,6 @@
 
     function adminHeaders(extra) {
       return Object.assign({
-        'apikey': SB_ANON,
-        'Authorization': `Bearer ${SB_ANON}`,
         'x-admin-secret': ADMIN_SECRET
       }, extra || {});
     }
@@ -4916,8 +4911,6 @@
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': SB_ANON,
-            'Authorization': `Bearer ${SB_ANON}`,
             'x-admin-secret': val
           },
           body: '{}'
@@ -6119,7 +6112,7 @@
       try {
         const res = await fetch(`/api/top-items`, {
           method: 'POST',
-          headers: { 'Content-Type':'application/json', 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          headers: { 'Content-Type':'application/json' },
           body: '{}'
         });
         if (!res.ok) return;
@@ -6390,11 +6383,7 @@
       try {
         const res = await fetch(`/api/stats`, {
           method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': SB_ANON,
-            'Authorization': `Bearer ${SB_ANON}`
-          },
+          headers: { 'Content-Type': 'application/json' },
           body: '{}'
         });
         const d = await res.json();
@@ -7333,7 +7322,20 @@
     }
 
     async function approveItem(table, id) {
-      if (!confirm('이 신청을 승인하시겠어요? 사용자 페이지에 즉시 노출됩니다.')) return;
+      /* v2.122.0: 승인 = 유료옵션 자동이행 트리거 — 입금대기 주문이면 승인 전에 명확히 경고
+         (카톡 전회원 알림은 발송 후 되돌릴 수 없음) */
+      const _typeOf = { recruitments: 'recruit', lectures: 'lecture', meetings: 'meetup' };
+      const _ord = (window._pendingOrderMap || {})[(_typeOf[table] || '') + '_' + id] || null;
+      let extra = '';
+      if (_ord) {
+        const optTxt = pendingOptionText(_ord);
+        extra = '\n\n주문상태: ' + pendingOrderStatus(_ord)
+          + (optTxt && optTxt !== '선택 없음' ? '\n유료옵션: ' + optTxt : '');
+        if (_ord.status === 'pending_payment' && (_ord.final_price || 0) > 0) {
+          extra += '\n\n⚠️ 아직 입금대기 상태입니다!\n승인 즉시 카톡 전회원 알림 등 유료옵션이 자동이행(발송 후 취소 불가)됩니다.\n입금 확인 후 승인하는 것을 권장합니다.';
+        }
+      }
+      if (!confirm('이 신청을 승인하시겠어요? 사용자 페이지에 즉시 노출됩니다.' + extra)) return;
       try {
         const res = await fetch(`/api/${table}/${id}`, {
           method: 'PATCH',
@@ -7654,9 +7656,7 @@
     async function loadNewsletters() {
       const el = document.getElementById('nl-list');
       try {
-        const res = await fetch(`/api/newsletters?order=created_at.desc&limit=50`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
-        });
+        const res = await fetch(`/api/newsletters?order=created_at.desc&limit=50`);
         const items = await res.json();
 
         if (!items || items.length === 0) {
@@ -7775,9 +7775,7 @@
       const el = document.getElementById('cf-list');
       const summary = document.getElementById('cf-summary');
       try {
-        const res = await fetch(`/api/claim-forms?order=created_at.desc&limit=100`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
-        });
+        const res = await fetch(`/api/claim-forms?order=created_at.desc&limit=100`);
         const items = await res.json();
         renderClaimFormsSummary(items || []);
 
@@ -8518,9 +8516,7 @@
       const el = document.getElementById('kn-list');
       if (!el) return;
       try {
-        const res = await fetch(`/api/knowledge-posts?order=created_at.desc&limit=100`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
-        });
+        const res = await fetch(`/api/knowledge-posts?order=created_at.desc&limit=100`);
         const items = await res.json();
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 포스트가 없습니다.</p>'; return;
@@ -8756,9 +8752,7 @@
     async function loadCardNews() {
       const el = document.getElementById('cn-list');
       try {
-        const res = await fetch(`/api/card-news?order=created_at.desc&limit=300`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
-        });
+        const res = await fetch(`/api/card-news?order=created_at.desc&limit=300`);
         const items = await res.json();
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 카드뉴스가 없습니다.</p>';
@@ -8808,9 +8802,7 @@
       if (!confirm('이 카드뉴스 세트를 모두 삭제하시겠습니까?')) return;
       try {
         // 2) GET — 서버가 set_id 필터를 정확히 적용했는지 확인
-        const res = await fetch(`/api/card-news?set_id=${encodeURIComponent(setId)}`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` }
-        });
+        const res = await fetch(`/api/card-news?set_id=${encodeURIComponent(setId)}`);
         const rows = await res.json();
         if (!Array.isArray(rows)) throw new Error('서버 응답이 배열이 아님');
         // 3) cross-check — 반환된 모든 row 가 진짜 해당 set_id 인가? (서버 GET 버그 방지)
@@ -8989,8 +8981,7 @@
       const el = document.getElementById('tb-list');
       try {
         const res = await fetch(
-          `/api/textbooks?order=sort_order.asc,created_at.desc&limit=50`,
-          { headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` } }
+          `/api/textbooks?order=sort_order.asc,created_at.desc&limit=50`
         );
         const items = await res.json();
 

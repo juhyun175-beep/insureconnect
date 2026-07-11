@@ -5,12 +5,21 @@ import { submitUrls } from '../../_lib/indexnow.js';
 
 export const onRequestOptions = () => corsPreflight();
 
-export const onRequestGet = async ({ params, env }) => handle(async () => {
+// 비관리자 단건 조회에 노출되는 안전 필드(등록자 연락처·쿠폰 등 내부 정보 제외)
+const PUBLIC_FIELDS = ['id', 'title', 'company_name', 'description', 'file_url', 'file_type',
+                       'form_url', 'created_at', 'status', 'approved_at', 'featured_until', 'dm_enabled'];
+
+export const onRequestGet = async ({ params, request, env }) => handle(async () => {
   const row = await env.DB.prepare(
     `SELECT * FROM ic_recruitments WHERE id = ?`
   ).bind(params.id).first();
   if (!row) return error('Not found', 404);
-  return json(row);
+  if (verifyAdmin(request, env)) return json(row);
+  // 공개 응답: 승인된 공고만, 안전 필드만 (pending/rejected 열람 + 연락처 노출 차단)
+  if (row.status !== 'approved') return error('Not found', 404);
+  const pub = {};
+  for (const f of PUBLIC_FIELDS) pub[f] = row[f] ?? null;
+  return json(pub);
 });
 
 export const onRequestDelete = async ({ params, request, env }) => handle(async () => {

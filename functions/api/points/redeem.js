@@ -25,7 +25,12 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const pts = me?.points || 0;
   if (pts < item.cost) return json({ error: '포인트가 부족합니다.', code: 'insufficient_points', need: item.cost, points: pts }, 402);
 
-  await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ?`).bind(item.cost, user.id).run();
+  // 조건부 차감 — 동시 요청 race 로 잔액이 음수가 되는 것을 차단
+  const dec = await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ? AND points >= ?`)
+    .bind(item.cost, user.id, item.cost).run();
+  if (!((dec?.meta?.changes || 0) > 0)) {
+    return json({ error: '포인트가 부족합니다.', code: 'insufficient_points', need: item.cost, points: pts }, 402);
+  }
   if (item.ai_bonus) {
     await env.DB.prepare(`UPDATE ic_members SET ai_bonus = COALESCE(ai_bonus,0) + ? WHERE id = ?`).bind(item.ai_bonus, user.id).run();
   }

@@ -33,16 +33,17 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const statusParam = url.searchParams.get('status') || 'approved';
 
   // pending/all/rejected는 관리자만
-  if (statusParam !== 'approved') {
-    if (!verifyAdmin(request, env)) return unauthorized();
-  }
+  const isAdmin = verifyAdmin(request, env);
+  if (statusParam !== 'approved' && !isAdmin) return unauthorized();
 
   const where = statusParam === 'all' ? '1=1' : 'status = ?';
   const params = statusParam === 'all' ? [] : [statusParam];
+  // 등록자 이름·연락처·반려사유는 관리자 응답에만 포함(개인정보 노출 차단 — meetings v2.70.0 패턴)
+  const adminCols = isAdmin ? `submitter_name, submitter_contact, reject_reason,` : ``;
   // v2.11.0: 상단노출(featured_until > now) 공고를 최상단으로 정렬 + featured 플래그 반환
   const rs = await env.DB.prepare(
     `SELECT id, title, company_name, description, file_url, file_type, form_url, created_at,
-            status, submitter_name, submitter_contact, reject_reason, approved_at, featured_until,
+            status, ${adminCols} approved_at, featured_until,
             dm_enabled,
             CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now') THEN 1 ELSE 0 END AS featured,
             COALESCE((SELECT SUM(clicks) FROM ic_link_clicks_daily
