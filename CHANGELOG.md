@@ -1,5 +1,9 @@
 # Changelog
 
+## [2.122.1] - 2026-07-11
+### Fixed
+- `scripts/htmlmin.json`: 배포 미니파이(`removeComments: true`)가 레거시 공유링크 OG 치환의 앵커 주석 `<!-- OG:START -->`/`<!-- OG:END -->`까지 제거해 `functions/_middleware.js`의 OG 재작성이 프로덕션에서 무력화되던 문제 수정 — `ignoreCustomComments`로 해당 마커만 보존. (v2.122.0의 D1 전환과 합쳐져 `?news=`/`?recruit=`/`?post=` 공유 미리보기가 실제로 복원됨. v2.75.0 미니파이 도입 시점부터 잠복하던 회귀.)
+
 ## [2.122.0] - 2026-07-11
 ### Security (전수 감사 — 발견 즉시 수정분)
 - `functions/api/recruitments/index.js`, `functions/api/lectures/index.js`: 공개 목록 GET이 등록자 이름·연락처(`submitter_name`/`submitter_contact`)와 `reject_reason`을 비인증 응답에 포함하던 개인정보 노출 수정 — 관리자(x-admin-secret) 요청에만 포함(meetings v2.70.0과 동일 패턴).
