@@ -1,7 +1,7 @@
 import { ensureOrderTables, ensureOrderFulfillmentCols } from './orders.js';
 import { ensureOrderOptionCols, OPTION_CATALOG } from './options.js';
 import { ensureBoostCols } from './posting-widget.js';
-import { sendMemoToMember } from './kakao-msg.js';
+import { optinCount, enqueueBroadcast, drainKakaoQueue } from './kakao-queue.js';
 
 const AD_META = {
   recruit: { table: 'ic_recruitments', label: '채용' },
@@ -59,7 +59,7 @@ export async function ensureDmCol(env) {
 }
 
 const OPTION_LABELS = {
-  featured_listing: '추천공고 등록',
+  featured_listing: '추천공고 등록 (상단노출 7일)',
   dm_inquiry: '1:1 문의 기능',
   kakao_blast: '카카오톡 전 회원 알림 1회',
   seo_boost: 'SEO 페이지 상단 고정 7일 (전 SEO 페이지 위젯 1번 슬롯 + PICK 배지)',
@@ -243,7 +243,11 @@ async function getAdRow(env, adType, id) {
   return null;
 }
 
-async function sendKakaoBlast(env, meta, adType, id, ad) {
+/** v2.123.0: 즉시 전량 발송 → 대기열 등록 + 인라인 1청크 드레인.
+ *   입금대기(final_price>0) 주문은 발송을 보류(manual_required) — 관리자가 결제완료(mark_paid)
+ *   처리하면 fulfillApprovedOptions 재실행으로 이 지점을 다시 지나며 대기열에 등록된다.
+ *   (카톡 발송은 비가역이므로 유일하게 입금 게이트를 거는 옵션) */
+async function sendKakaoBlast(env, meta, adType, id, ad, order) {
   if (!env.KAKAO_REST_KEY) {
     return status(OPTION_LABELS.kakao_blast, 'auto_failed', 'KAKAO_REST_KEY가 없어 카카오톡 자동 발송을 실행하지 못했습니다.', {
       mode: 'kakao_broadcast',
@@ -254,13 +258,17 @@ async function sendKakaoBlast(env, meta, adType, id, ad) {
     });
   }
 
-  const rs = await env.DB.prepare(
-    `SELECT id, kakao_access_token, kakao_refresh_token, kakao_token_expires
-       FROM ic_members
-      WHERE alert_optin = 1 AND kakao_refresh_token IS NOT NULL`
-  ).all().catch(() => ({ results: [] }));
-  const members = rs.results || [];
-  if (members.length === 0) {
+  if (order && order.status === 'pending_payment' && (order.final_price || 0) > 0) {
+    return status(
+      OPTION_LABELS.kakao_blast,
+      'manual_required',
+      '입금대기 주문이라 카카오톡 발송을 보류했습니다. 관리자가 입금확인(결제완료) 처리하면 자동으로 발송 대기열에 등록됩니다.',
+      { mode: 'kakao_queue', gated: 'pending_payment', total: 0, sent: 0, failed: 0, revoked: 0 }
+    );
+  }
+
+  const total = await optinCount(env);
+  if (total === 0) {
     return status(
       OPTION_LABELS.kakao_blast,
       'manual_required',
@@ -275,32 +283,15 @@ async function sendKakaoBlast(env, meta, adType, id, ad) {
     image: imageForAd(adType, id, ad),
   };
 
-  let sent = 0, failed = 0, revoked = 0, cursor = 0;
-  const worker = async () => {
-    while (cursor < members.length) {
-      const m = members[cursor++];
-      const r = await sendMemoToMember(env, m, payload);
-      if (r.ok) sent++;
-      else {
-        failed++;
-        if (r.revoked) {
-          revoked++;
-          await env.DB.prepare(`UPDATE ic_members SET alert_optin = 0 WHERE id = ?`).bind(m.id).run().catch(() => {});
-        }
-      }
-    }
-  };
-  await Promise.all(Array.from({ length: Math.min(5, members.length) }, worker));
+  const batchKey = `blast:${order?.id || `${adType}:${id}`}`;
+  await enqueueBroadcast(env, payload, batchKey);
+  const drained = await drainKakaoQueue(env, 20).catch(() => ({ sent: 0, failed: 0, revoked: 0, remaining: total }));
 
-  const state = sent === 0 && members.length > 0 ? 'auto_failed' : 'auto_done';
-  const message = state === 'auto_failed'
-    ? `카카오톡 알림 자동 발송 실패: 대상 ${members.length}명 전원 실패, 실패 ${failed}명`
-    : `카카오톡 알림 자동 발송 완료: 대상 ${members.length}명, 성공 ${sent}명, 실패 ${failed}명`;
   return status(
     OPTION_LABELS.kakao_blast,
-    state,
-    message,
-    { mode: 'kakao_broadcast', total: members.length, sent, failed, revoked, url: payload.url, image: payload.image }
+    'auto_queued',
+    `카카오톡 알림 대기열 등록 완료: 대상 ${total}명 (즉시 발송 ${drained.sent}명 · 나머지 ${Math.max(0, drained.remaining)}명은 수분 내 자동 발송)`,
+    { mode: 'kakao_queue', batch_key: batchKey, total, sent: drained.sent, failed: drained.failed, revoked: drained.revoked, url: payload.url, image: payload.image }
   );
 }
 
@@ -410,7 +401,7 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
 
   await ensureOrderReadiness(env);
   const order = await env.DB.prepare(
-    `SELECT id, options_json, fulfilled_json, status FROM ad_orders
+    `SELECT id, options_json, fulfilled_json, status, final_price FROM ad_orders
       WHERE ad_type = ? AND ad_id = ? ORDER BY id DESC LIMIT 1`
   ).bind(adType, id).first().catch(() => null);
   if (!order) return { ok: true, order_id: null, options: [], fulfilled: {} };
@@ -436,23 +427,23 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
     adRow = await getAdRow(env, adType, id);
   }
 
-  if (has('featured_listing')) {
+  // v2.123.0: 유료 추천공고 = 상단노출 7일 '가산' — 무료 첫승인 맛보기 3일과 차별화.
+  //   fulfilled 가드로 재승인 시 중복 가산 방지(기간 연장형이라 CASE 만으론 멱등 아님).
+  if (has('featured_listing') && fulfilled.featured_listing?.status !== 'auto_done') {
     await env.DB.prepare(
       `UPDATE ${meta.table}
-          SET featured_until =
-                CASE
-                  WHEN featured_until IS NULL OR featured_until <= datetime('now')
-                    THEN datetime('now', '+3 days')
-                  ELSE featured_until
-                END,
+          SET featured_until = datetime(
+                CASE WHEN featured_until IS NOT NULL AND featured_until > datetime('now')
+                     THEN featured_until ELSE datetime('now') END,
+                '+7 days'),
               updated_at = datetime('now')
         WHERE id = ?`
     ).bind(id).run();
     fulfilled.featured_listing = status(
       OPTION_LABELS.featured_listing,
       'auto_done',
-      '승인 시 상단노출 상태를 보장했습니다.',
-      { mode: 'ensure_featured_until' }
+      '상단노출 7일을 적용했습니다 (남은 노출기간에 가산 — 첫 승인 무료 3일과 별도).',
+      { mode: 'featured_until_plus7' }
     );
   }
 
@@ -480,9 +471,9 @@ export async function fulfillApprovedOptions(env, { adType, adId }) {
     fulfilled.seo_boost = await applySeoBoost(env, adType, id);
   }
 
-  if (has('kakao_blast') && fulfilled.kakao_blast?.status !== 'auto_done') {
+  if (has('kakao_blast') && !['auto_done', 'auto_queued'].includes(fulfilled.kakao_blast?.status)) {
     fulfilled.kakao_blast = adRow
-      ? await sendKakaoBlast(env, meta, adType, id, adRow)
+      ? await sendKakaoBlast(env, meta, adType, id, adRow, order)
       : status(OPTION_LABELS.kakao_blast, 'auto_failed', '대상 공고를 찾지 못해 카카오톡 자동 발송을 실행하지 못했습니다.', { mode: 'kakao_broadcast' });
   }
 

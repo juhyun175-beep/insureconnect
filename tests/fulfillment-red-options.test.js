@@ -23,7 +23,7 @@ function makeEnv({ order, adType = 'recruit', adRow = {}, seoUntil = '2026-07-17
             return Promise.resolve({ meta: { changes: 1 } });
           },
           first() {
-            if (/SELECT id, options_json, fulfilled_json, status FROM ad_orders/.test(sql)) {
+            if (/SELECT id, options_json, fulfilled_json, status, final_price FROM ad_orders/.test(sql)) {
               return Promise.resolve(order || null);
             }
             if (sql === `SELECT * FROM ${table} WHERE id = ?`) {

@@ -5661,7 +5661,8 @@
         const d = await r.json();
         if (!r.ok) throw new Error(d.error || ('HTTP ' + r.status));
         res.style.color = '#10b981';
-        res.innerHTML = `✅ 카톡 발송 완료 — 대상 ${d.total}명 / 성공 ${d.sent} / 실패 ${d.failed}` + (d.revoked ? ` / 동의해제 ${d.revoked}` : '')
+        /* v2.123.0: 대기열 방식 — 즉시 1청크 발송 + 나머지는 5분 cron·대시보드 폴링이 자동 발송 */
+        res.innerHTML = `✅ 카톡 발송 대기열 등록 — 대상 ${d.total}명 / 즉시 발송 ${d.sent}` + (d.remaining ? ` / 남은 ${d.remaining}명 자동 발송 중` : '') + (d.failed ? ` / 실패 ${d.failed}` : '') + (d.revoked ? ` / 동의해제 ${d.revoked}` : '')
           + (d.image ? `<br><span style="font-size:11px;color:var(--txt-mid)">표지 이미지: <a href="${d.image}" target="_blank" rel="noopener" style="color:var(--blue-mid)">${d.image.split('/').pop().slice(0,48)}</a></span>` : '');
         if (d.total === 0) res.textContent += ' (아직 카톡 알림 동의 회원이 없습니다. 회원이 로그인 시 "카카오톡 메시지" 동의해야 발송됩니다.)';
       } catch (e) {
@@ -6380,6 +6381,9 @@
 
     /* ── 대시보드 데이터 로드 ── */
     async function loadDashboard() {
+      /* v2.123.0: 카톡 발송 대기열 드레인 킥 — 대시보드가 열려 있는 동안 10초마다
+         최대 20명씩 자동 발송(비면 즉시 종료). cron 워커(5분)의 보조 트리거. */
+      try { fetch('/api/cron/kakao-queue', { method: 'POST', headers: adminHeaders() }).catch(function(){}); } catch (_) {}
       try {
         const res = await fetch(`/api/stats`, {
           method: 'POST',
@@ -6870,7 +6874,7 @@
     var _RF_AD={recruit:'채용',lecture:'강의',meetup:'모임'};
     var _RF_ST={pending_payment:'입금대기',paid:'결제완료',published:'게시',refunded:'환불완료'};
     /* v2.107.0: 유료 애드온 옵션 라벨 — 이행(수동) 안내용 */
-    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일',dm_inquiry:'1:1문의 기능',featured_listing:'추천공고 등록',seo_boost:'SEO고정7일',open_chat_post:'오픈챗 게시',bundle_boost:'부스트패키지',open_chat_promo:'오픈채팅 풀데이 점유'};
+    var _RF_OPT={kakao_blast:'카톡알림',home_banner7:'홈배너7일',dm_inquiry:'1:1문의 기능',featured_listing:'추천공고 7일',seo_boost:'SEO고정7일',open_chat_post:'오픈챗 게시',bundle_boost:'부스트패키지',open_chat_promo:'오픈채팅 풀데이 점유'};
     var _RF_SLOT={am8:'오전8시',noon:'점심12:30',pm9:'저녁9시'};
     var _RF_SLOT_UNKNOWN='시간대 미지정';
     function _rfOptKey(opt){ return opt && typeof opt==='object' ? String(opt.key||opt.id||opt.option||'') : String(opt||''); }
@@ -6895,6 +6899,7 @@
     }
     function _rfFulfillBadge(key, st){
       if(st&&st.status==='auto_done') return '<span style="display:inline-block;background:rgba(16,185,129,0.14);color:#059669;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'자동이행 완료')+'">✓자동</span>';
+      if(st&&st.status==='auto_queued') return '<span style="display:inline-block;background:rgba(14,165,233,0.15);color:#0284c7;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'발송 대기열 등록 — 자동 발송 중')+'">✓큐</span>';
       if(st&&st.status==='auto_failed') return '<span style="display:inline-block;background:rgba(220,38,38,0.13);color:#dc2626;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'자동이행 실패')+'">실패</span>';
       if(st&&st.status==='manual_required') return '<span style="display:inline-block;background:rgba(245,158,11,0.16);color:#b45309;border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="'+esc(st.message||'수동 이행 필요')+'">수동</span>';
       return '<span style="display:inline-block;background:rgba(120,140,180,0.14);color:var(--txt-mid);border-radius:5px;padding:1px 5px;font-size:10px;font-weight:800;white-space:nowrap;" title="승인 후 이행 상태가 기록됩니다">대기</span>';
@@ -6966,7 +6971,10 @@
             var act;
             if(refunded){ act='<span style="color:#16a34a;font-weight:700;">환불완료</span>'; }
             else{
-              act='<button type="button" onclick="refundDo('+o.id+",'full')\" style=\"background:rgba(220,38,38,0.14);color:#dc2626;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\">전액</button>"
+              act=(o.status==='pending_payment'&&(o.final_price||0)>0
+                  ? '<button type="button" onclick="markOrderPaid('+o.id+')" style="background:rgba(16,185,129,0.16);color:#059669;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:800;cursor:pointer;" title="입금 확인 후 결제완료 처리 — 승인된 공고면 보류된 카톡 발송이 자동 진행">💰입금확인</button> '
+                  : '')
+                +'<button type="button" onclick="refundDo('+o.id+",'full')\" style=\"background:rgba(220,38,38,0.14);color:#dc2626;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\">전액</button>"
                 +' <button type="button" onclick="refundDo('+o.id+",'partial90')\" style=\"background:rgba(245,158,11,0.16);color:#b45309;border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;\" title=\"게시 후 운영자 재량 부분환불\">부분90%</button>"
                 +' <button type="button" onclick="refundReject('+o.id+')" style="background:rgba(120,140,180,0.15);color:var(--txt-hi);border:none;border-radius:6px;padding:4px 7px;font-size:11px;font-weight:700;cursor:pointer;">거절</button>';
             }
@@ -7279,6 +7287,9 @@
             <div class="pending-card-actions">
               <button class="pending-btn-approve" type="button" onclick="event.stopPropagation();approveItem('${it._table}', ${it.id})">✅ 승인</button>
               <button class="pending-btn-reject" type="button" onclick="event.stopPropagation();rejectItem('${it._table}', ${it.id})">❌ 반려</button>
+              ${(it._order && it._order.status === 'pending_payment' && (it._order.final_price || 0) > 0)
+                ? `<button type="button" style="background:rgba(245,158,11,0.2);color:#b45309;border:none;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:800;cursor:pointer;" title="입금 확인 후 눌러주세요 — 승인된 공고면 보류된 카톡 발송이 자동 진행됩니다" onclick="event.stopPropagation();markOrderPaid(${it._order.id})">💰 입금확인</button>`
+                : ''}
             </div>
           </div>`;
       };
@@ -7346,7 +7357,7 @@
         if (!res.ok) throw new Error((done && done.error) || '승인 실패');
         const info = await getSubmitterContact(table, id);
         var f=done.fulfillment&&done.fulfillment.fulfilled?done.fulfillment.fulfilled:{};
-        var fLines=Object.keys(f).map(function(k){ var st=f[k]; return '· '+(st.label||k)+': '+(st.status==='auto_done'?'자동완료':'수동필요'); });
+        var fLines=Object.keys(f).map(function(k){ var st=f[k]; return '· '+(st.label||k)+': '+(st.status==='auto_done'?'자동완료':st.status==='auto_queued'?'발송대기열 등록(자동 발송 중)':st.status==='auto_failed'?'자동실패':'수동필요'); });
         alert('✅ 승인 완료. 사용자 페이지에 노출됩니다.\n신청자: ' + info + (fLines.length?'\n\n옵션 이행\n'+fLines.join('\n'):'') + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
         loadPending();
         if (table === 'recruitments') loadRecruitList();
@@ -7410,11 +7421,36 @@
         const key = _rfOptKey(opt);
         const st = f[key];
         const state = st && st.status === 'auto_done' ? '자동완료'
+          : (st && st.status === 'auto_queued' ? '발송대기열'
           : (st && st.status === 'auto_failed' ? '자동실패'
-          : (st && st.status === 'manual_required' ? '수동필요' : '대기'));
+          : (st && st.status === 'manual_required' ? '수동필요' : '대기')));
         return _rfOptLabel(opt) + ': ' + state + (st && st.message ? ' - ' + st.message : '');
       }).join('\n');
     }
+    /* v2.123.0: 입금확인(결제완료) — 승인된 공고면 보류됐던 카톡 발송이 자동 대기열 등록됨 */
+    async function markOrderPaid(orderId) {
+      if (!confirm('이 주문을 결제완료(입금확인) 처리할까요?\n공고가 이미 승인 상태라면 보류됐던 카카오톡 알림 등이 자동 이행됩니다.')) return;
+      try {
+        const res = await fetch('/api/admin/refunds', {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ order_id: orderId, action: 'mark_paid' })
+        });
+        const d = await res.json().catch(() => ({}));
+        if (!res.ok || !d.ok) throw new Error((d && d.error) || ('HTTP ' + res.status));
+        var f = d.fulfillment && d.fulfillment.fulfilled ? d.fulfillment.fulfilled : {};
+        var lines = Object.keys(f).map(function(k) {
+          var st = f[k];
+          return '· ' + (st.label || k) + ': ' + (st.status === 'auto_done' ? '자동완료' : st.status === 'auto_queued' ? '발송대기열 등록(자동 발송 중)' : st.status === 'auto_failed' ? '자동실패' : '수동필요');
+        });
+        alert('💰 결제완료 처리됨. (주문 #' + orderId + ')' + (lines.length ? '\n\n옵션 이행\n' + lines.join('\n') : '\n(공고 승인 시 옵션이 이행됩니다)'));
+        loadPending();
+        if (typeof loadRefunds === 'function') loadRefunds();
+      } catch (e) {
+        alert('입금확인 실패: ' + e.message);
+      }
+    }
+
     function pendingField(label, value, html) {
       const v = value == null || value === '' ? '-' : value;
       return '<div class="pending-detail-row"><span class="pending-detail-label">' + esc(label) + '</span><div class="pending-detail-value">' + (html ? String(v) : esc(v)) + '</div></div>';
