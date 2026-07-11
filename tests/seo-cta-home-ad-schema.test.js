@@ -19,5 +19,11 @@ assert(!html.includes('if(!c.enabled || !imgs.length) return;'), 'SEO popup must
 assert(html.includes('setTimeout(show, 5000);'), 'SEO popup should retain the five-second delay');
 assert(html.includes("document.addEventListener('mouseout'"), 'SEO popup should retain desktop exit intent');
 assert(html.includes('3*86400000'), 'SEO popup should retain the three-day cooldown');
+assert(html.includes("JSON.stringify({menu:'홈광고',card:card})"), 'SEO popup tracking should use the home-ad stats menu');
+assert(html.includes("track('popimp:'+c.id);"), 'SEO popup impressions should be attributed to the selected campaign');
+assert(html.includes("track('click:'+c.id);"), 'SEO popup clicks should be attributed to the selected campaign');
+assert(!html.includes("menu:'광고팝업'"), 'SEO popup tracking should not use the retired unaggregated menu');
+assert(!html.includes("track('노출')"), 'SEO popup impressions should not use an unattributed card');
+assert(!html.includes("track('클릭')"), 'SEO popup clicks should not use an unattributed card');
 
 console.log('seo CTA home-ad schema regression test passed');

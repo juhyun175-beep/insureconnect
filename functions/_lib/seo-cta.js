@@ -146,7 +146,7 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
   var KEY='ic_adpop_v1';
   try{ var last=parseInt(localStorage.getItem(KEY)||'0',10)||0; if(Date.now()-last < 3*86400000) return; }catch(e){}
   if(/bot|crawler|spider|scrap|preview|naverbot|yeti|googlebot|bingbot|headless/i.test(navigator.userAgent||'')) return;
-  function track(card){ try{ fetch('/api/track/card-click',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({menu:'광고팝업',card:card})}); }catch(e){} }
+  function track(card){ try{ fetch('/api/track/card-click',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({menu:'홈광고',card:card})}); }catch(e){} }
   fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
     if(!d||!d.ok||!d.config) return;
     var cfg=d.config;
@@ -164,11 +164,11 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
       if(shown) return; shown=true;
       el.classList.add('show'); document.body.style.overflow='hidden';
       try{ localStorage.setItem(KEY,String(Date.now())); }catch(e){}
-      track('노출');
+      track('popimp:'+c.id);
       function close(){ el.classList.remove('show'); document.body.style.overflow=''; }
       var x=el.querySelector('.ic-adpop-x'); if(x) x.addEventListener('click',close);
       el.addEventListener('click',function(e){ if(e.target===el) close(); });
-      if(lk) lk.addEventListener('click',function(){ track('클릭'); });
+      if(lk) lk.addEventListener('click',function(){ track('click:'+c.id); });
     }
     setTimeout(show, 5000);
     if(!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent||'')){
