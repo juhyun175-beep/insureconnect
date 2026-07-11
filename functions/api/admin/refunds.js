@@ -11,6 +11,7 @@ import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { ensureOrderTables, ensureOrderFulfillmentCols } from '../../_lib/orders.js';
 import { ensureOrderOptionCols } from '../../_lib/options.js';
+import { fulfillApprovedOptions } from '../../_lib/fulfillment.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -66,6 +67,27 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const o = await env.DB.prepare(`SELECT * FROM ad_orders WHERE id = ?`).bind(orderId).first().catch(() => null);
   if (!o) return error('주문을 찾을 수 없습니다.', 404);
   const reason = String(b.reason || '').slice(0, 300);
+
+  // v2.123.0: 입금확인(결제완료) 전이 — 수기 무통장입금 흐름의 빠진 상태.
+  //   paid 처리 후 공고가 이미 승인 상태면 fulfillApprovedOptions 재실행(멱등) →
+  //   입금대기로 보류됐던 카카오톡 발송이 이 시점에 대기열 등록된다.
+  if (action === 'mark_paid') {
+    if (o.status !== 'pending_payment') return error('입금대기 상태의 주문만 결제완료 처리할 수 있습니다.');
+    const upd = await env.DB.prepare(
+      `UPDATE ad_orders SET status = 'paid' WHERE id = ? AND status = 'pending_payment'`
+    ).bind(o.id).run();
+    if (!((upd?.meta?.changes || 0) > 0)) return error('이미 처리된 주문입니다.', 409);
+
+    let fulfillment = null;
+    const table = POSTING_TABLE[o.ad_type];
+    if (table && o.ad_id) {
+      const p = await env.DB.prepare(`SELECT status FROM ${table} WHERE id = ?`).bind(o.ad_id).first().catch(() => null);
+      if (p?.status === 'approved') {
+        fulfillment = await fulfillApprovedOptions(env, { adType: o.ad_type, adId: o.ad_id });
+      }
+    }
+    return json({ ok: true, action: 'mark_paid', order_id: o.id, fulfillment });
+  }
 
   if (action === 'reject') {
     await env.DB.prepare(

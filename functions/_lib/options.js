@@ -13,7 +13,7 @@
 
 export const OPTION_CATALOG = {
   featured_listing: {
-    label: '추천공고 등록',
+    label: '추천공고 등록 (상단노출 7일)',
     price: 18000,
     types: ['recruit', 'lecture', 'meetup'],
   },

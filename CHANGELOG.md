@@ -1,5 +1,17 @@
 # Changelog
 
+## [2.123.0] - 2026-07-11
+### Added (감사 후속 1~5번 — 카톡 발송 큐 · 입금확인 · 추천공고 차별화 · JS/CSS 외부화 · D1 정리)
+- `functions/_lib/kakao-queue.js`(신규): 카카오톡 발송 대기열 — '전 회원 일괄발송'을 요청 내 동기 발송(서브리퀘스트 한도 무료 50/유료 1000, 수십 초 응답)에서 D1 큐 + 청크(20명) 드레인으로 전환. 행 단위 optimistic claim으로 동시 드레인 중복발송 차단, 실패 3회 재시도 후 확정, 크래시 고아행 자동 복구.
+- `functions/api/cron/kakao-queue.js`(신규): 드레인 엔드포인트(POST=관리자/CRON_SECRET, GET=관리자 현황). 트리거 3중화 — cron 워커 5분 주기 + 관리자 대시보드 10초 폴링 킥 + 등록 직후 인라인 1청크.
+- `scripts/cron-worker`: `*/5 * * * *` 스케줄 추가(+수동 `?job=queue`). `deploy.yml`에 cron 워커 동기 배포 스텝(best-effort) 추가 — main 머지만으로 워커 코드까지 갱신.
+- `functions/api/admin/refunds.js`: **입금확인(mark_paid) 전이** 추가 — `pending_payment → paid` 가드 전이 후, 공고가 이미 승인 상태면 `fulfillApprovedOptions` 재실행(멱등)으로 보류된 카톡 발송을 그 시점에 대기열 등록. `admin.html` 승인대기 카드·주문/환불 표에 `💰 입금확인` 버튼, `auto_queued`(✓큐) 배지, 대시보드 드레인 킥.
+- `functions/_lib/fulfillment.js`: `kakao_blast`에 **입금 게이트** — `pending_payment`(final_price>0) 주문은 발송 보류(manual_required)로 기록, 입금확인 시 자동 진행. 발송은 대기열 등록(`auto_queued`)으로 전환. `featured_listing`은 **상단노출 7일 '가산'**(잔여기간에 +7일)으로 변경해 무료 첫승인 맛보기 3일과 차별화(재승인 중복가산 가드 포함). 라벨·등록 UI 문구도 '상단노출 7일'로 명시.
+- `scripts/externalize.mjs`(신규): **배포 아티팩트 전용 인라인 JS/CSS 외부화** — 속성 없는 `<script>`(29개)·`<style>`(10개)을 내용해시 파일(`assets/…js|css`)로 추출하고 같은 위치를 참조로 치환. index.html 843KB → **141KB**(미니파이 후 134KB), 자산은 `_headers` `/assets/*` 1년 immutable 캐시 + 해시 파일명 자동 캐시버스팅 → 재방문 전송량 대폭 감소, 외부 스크립트 V8 코드캐시 활성화. 전 JS `node --check` 검증·실패 시 원본 자동 롤백(인라인 폴백), `deploy.yml`·`release.mjs` 양쪽 파이프라인 연결(소스 불변, 배포 직후 복원). 헤드리스 크로미엄 동등성 스모크(JS 오류 0·전역함수 동일) 통과.
+- `deploy.yml`: 테스트 실행 스텝 추가(`node --test tests/*.test.js`) — 이제 CI가 17개 테스트로 게이트.
+- D1 운영 정리: 코드 미참조 레거시 테이블 7개(`ic_users`·`ic_sessions`·`ic_rental_inquiries`·`ic_rental_vehicles`·`ic_telecom_devices`·`ic_telecom_inquiries`·`ic_email_otps`, 총 14행)를 `zz_legacy_*`로 가역 리네임(백업 보존, 추후 DROP 가능).
+- `tests/kakao-queue-payment-gate.test.js`·`tests/externalize-artifact.test.js`(신규): 입금 게이트/큐 등록/재승인 멱등/추천 7일 가산/외부화 무손실·결정성 회귀 고정.
+
 ## [2.122.1] - 2026-07-11
 ### Fixed
 - `scripts/htmlmin.json`: 배포 미니파이(`removeComments: true`)가 레거시 공유링크 OG 치환의 앵커 주석 `<!-- OG:START -->`/`<!-- OG:END -->`까지 제거해 `functions/_middleware.js`의 OG 재작성이 프로덕션에서 무력화되던 문제 수정 — `ignoreCustomComments`로 해당 마커만 보존. (v2.122.0의 D1 전환과 합쳐져 `?news=`/`?recruit=`/`?post=` 공유 미리보기가 실제로 복원됨. v2.75.0 미니파이 도입 시점부터 잠복하던 회귀.)

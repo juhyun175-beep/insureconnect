@@ -5,7 +5,7 @@
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
-import { sendMemoToMember } from '../../_lib/kakao-msg.js';
+import { optinCount, enqueueBroadcast, drainKakaoQueue } from '../../_lib/kakao-queue.js';
 import { SITE } from '../../_lib/auth.js';
 
 export const onRequestOptions = () => corsPreflight();
@@ -62,20 +62,18 @@ export const onRequestPost = async ({ env, request }) => handle(async () => {
     image = await fetchOgImage(url);
   }
 
-  const rs = await env.DB.prepare(
-    `SELECT id, kakao_access_token, kakao_refresh_token, kakao_token_expires
-     FROM ic_members WHERE alert_optin = 1 AND kakao_refresh_token IS NOT NULL`
-  ).all();
-  const members = rs.results || [];
-
-  let sent = 0, failed = 0, revoked = 0;
-  for (const m of members) {
-    const r = await sendMemoToMember(env, m, { title, description: desc, url, image });
-    if (r.ok) { sent++; }
-    else {
-      failed++;
-      if (r.revoked) { revoked++; await env.DB.prepare(`UPDATE ic_members SET alert_optin = 0 WHERE id = ?`).bind(m.id).run().catch(() => {}); }
-    }
+  // v2.123.0: 즉시 전량 순차발송(서브리퀘스트 한도·수십초 응답) → 대기열 등록 + 인라인 1청크.
+  //   나머지는 cron 워커(5분)·관리자 대시보드 폴링 킥이 자동 드레인.
+  const total = await optinCount(env);
+  if (total === 0) {
+    return json({ ok: true, total: 0, queued: 0, sent: 0, failed: 0, revoked: 0, remaining: 0, image: image || `${SITE}/logo-full.png`, url });
   }
-  return json({ ok: true, total: members.length, sent, failed, revoked, image: image || `${SITE}/logo-full.png`, url });
+  const batchKey = `broadcast:${Date.now()}`;
+  await enqueueBroadcast(env, { title, description: desc, url, image }, batchKey);
+  const d = await drainKakaoQueue(env, 20).catch(() => ({ sent: 0, failed: 0, revoked: 0, remaining: total }));
+  return json({
+    ok: true, total, queued: total, batch_key: batchKey,
+    sent: d.sent, failed: d.failed, revoked: d.revoked, remaining: Math.max(0, d.remaining),
+    image: image || `${SITE}/logo-full.png`, url,
+  });
 });

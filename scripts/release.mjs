@@ -67,21 +67,33 @@ if (high !== 0) { console.error('[release] ABORT: security HIGH != 0 (or scan un
 
 if (DRY) { log('--dry: scan passed, version', version, '— skipping deploy/commit.'); process.exit(0); }
 
+// 2.4) v2.123.0: 인라인 JS/CSS 외부화 — 배포 산출물만(소스 불변, 배포 직후 복원 + assets/ 정리).
+//   진짜 원본을 먼저 캡처해 두고, 외부화 → 미니파이 → 배포 → 원본 복원 순서.
+const MIN_FILES = ['index.html', 'admin.html'];
+const trueOrig = {};
+for (const f of MIN_FILES) { try { trueOrig[f] = readFileSync(f, 'utf8'); } catch (_) {} }
+log('externalize inline JS/CSS (deploy artifact only)…');
+try {
+  run(`${NODE} scripts/externalize.mjs index.html`);
+  log('  index.html: externalized to assets/');
+} catch (e) {
+  log('externalize skip:', String((e && e.message) || e).slice(0, 120)); // 스크립트가 자체 롤백(인라인 폴백)
+}
+
 // 2.5) 안전 미니파이 — 배포 산출물만(소스 불변, 배포 직후 복원). v2.75.0
 log('minify (deploy artifact only)…');
-const MIN_FILES = ['index.html', 'admin.html'];
-const restoreMap = {};
 for (const f of MIN_FILES) {
   const orig = minifyInPlace(f);
-  if (orig != null) { restoreMap[f] = orig; log(`  ${f}: minified for deploy`); }
+  if (orig != null) log(`  ${f}: minified for deploy`);
 }
 
 // 3) 배포 (--branch=main, 프로덕션 도메인 갱신)
 log('deploy --branch=main…');
 const dep = runSafe(`${DLX} wrangler pages deploy . --project-name=${PROJECT} --branch=main --commit-message="release v${version}" --commit-dirty=true`);
 // 업로드 완료 직후 읽기 좋은 원본 복원(어떤 process.exit보다 먼저) — 커밋·작업트리에는 항상 원본이 남도록
-for (const f of Object.keys(restoreMap)) { try { writeFileSync(f, restoreMap[f]); } catch (_) {} }
-if (Object.keys(restoreMap).length) log('restored readable source');
+for (const f of Object.keys(trueOrig)) { try { writeFileSync(f, trueOrig[f]); } catch (_) {} }
+try { rmSync('assets', { recursive: true, force: true }); } catch (_) {} // 배포 산출물 잔재 제거(커밋 오염 방지)
+if (Object.keys(trueOrig).length) log('restored readable source');
 const depClean = dep.replace(/\x1b\[[0-9;?]*[ -/]*[@-~]/g, '');
 const url = (depClean.match(/https:\/\/[^\s"'<>]+\.pages\.dev/i) || [])[0];
 if (!url) { console.error('[release] ABORT: deploy URL not found.\n', depClean.slice(-600)); process.exit(1); }

@@ -3,6 +3,7 @@
  * 스케줄에 맞춰 Pages 엔드포인트(/api/cron/*)를 호출한다.
  *   - 매일 07:00 KST  → /api/cron/daily-brief  (일간 모닝 브리핑 + 만기 푸시)
  *   - 매주 월 08:00 KST → /api/cron/weekly-digest (주간 다이제스트)
+ *   - 5분마다        → /api/cron/kakao-queue  (카톡 발송 대기열 드레인 — 비면 즉시 종료)
  *
  * 인증: 이 Worker의 secret CRON_SECRET == Pages의 env.CRON_SECRET 이어야 한다.
  * 실제 발송은 Pages 쪽 게이트(DAILY_BRIEF_ENABLED / DIGEST_SEND_ENABLED)가 '1'일 때만.
@@ -26,14 +27,18 @@ async function trigger(env, path) {
 
 export default {
   async scheduled(event, env, ctx) {
-    // event.cron 으로 어떤 스케줄인지 구분
-    const path = event.cron === '0 23 * * 0' ? '/api/cron/weekly-digest' : '/api/cron/daily-brief';
+    // event.cron 으로 어떤 스케줄인지 구분 (v2.123.0: */5분 = 카톡 대기열 드레인)
+    const path = event.cron === '0 23 * * 0' ? '/api/cron/weekly-digest'
+      : event.cron === '*/5 * * * *' ? '/api/cron/kakao-queue'
+      : '/api/cron/daily-brief';
     ctx.waitUntil(trigger(env, path));
   },
-  // 수동 트리거(테스트)용 — GET 으로 한 번 실행
+  // 수동 트리거(테스트)용 — GET 으로 한 번 실행 (?job=weekly|queue|daily)
   async fetch(request, env) {
     const job = new URL(request.url).searchParams.get('job');
-    const path = job === 'weekly' ? '/api/cron/weekly-digest' : '/api/cron/daily-brief';
+    const path = job === 'weekly' ? '/api/cron/weekly-digest'
+      : job === 'queue' ? '/api/cron/kakao-queue'
+      : '/api/cron/daily-brief';
     const body = await trigger(env, path);
     return new Response(body, { headers: { 'content-type': 'application/json; charset=utf-8' } });
   },
