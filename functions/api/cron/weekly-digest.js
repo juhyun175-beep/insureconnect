@@ -15,7 +15,7 @@
  *                   (3) 미리보기로 검증  (4) DIGEST_SEND_ENABLED=1 설정 시 실제 발송 시작.
  */
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
-import { verifyAdmin } from '../../_lib/admin.js';
+import { verifyAdmin, constantTimeEqual } from '../../_lib/admin.js';
 import { sendMemoToMember } from '../../_lib/kakao-msg.js';
 import { sendWebPush } from '../../_lib/webpush.js';
 import { SITE } from '../../_lib/auth.js';
@@ -26,7 +26,7 @@ export const onRequestOptions = () => corsPreflight();
 function authed(request, env) {
   if (verifyAdmin(request, env)) return true;
   const secret = env.CRON_SECRET;
-  return !!(secret && request.headers.get('x-cron-secret') === secret);
+  return !!(secret && constantTimeEqual(request.headers.get('x-cron-secret') || '', secret));
 }
 
 async function buildDigest(env) {

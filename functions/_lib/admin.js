@@ -9,7 +9,7 @@
  *     (`===` 는 일부 엔진에서 차이 발견 시 조기 종료 가능 → timing-attack 표면)
  */
 
-function constantTimeEqual(a, b) {
+export function constantTimeEqual(a, b) {
   if (typeof a !== 'string' || typeof b !== 'string') return false;
   if (a.length !== b.length) return false;
   let mismatch = 0;

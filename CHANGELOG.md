@@ -1,5 +1,26 @@
 # Changelog
 
+## [2.122.0] - 2026-07-11
+### Security (전수 감사 — 발견 즉시 수정분)
+- `functions/api/recruitments/index.js`, `functions/api/lectures/index.js`: 공개 목록 GET이 등록자 이름·연락처(`submitter_name`/`submitter_contact`)와 `reject_reason`을 비인증 응답에 포함하던 개인정보 노출 수정 — 관리자(x-admin-secret) 요청에만 포함(meetings v2.70.0과 동일 패턴).
+- `functions/api/recruitments/[id].js`, `functions/api/lectures/[id].js`: 단건 GET이 상태 무관 `SELECT *`(연락처·쿠폰 내부필드 포함)를 공개하던 문제 수정 — 비관리자는 승인(approved) 공고의 안전 필드만, pending/rejected는 404. 관리자는 기존대로 전체 필드(승인 UI 연락처 표시 유지).
+- `functions/api/user-upload/[[path]].js`: 서버측 레이트리밋 부재(주석상 client-side 신뢰) 수정 — D1 `ic_upload_rl`로 IP당 시간당 20건 강제(429), R2 무제한 업로드 남용 차단.
+- `functions/api/points/redeem.js`, `functions/api/postings/feature.js`: 포인트/상단노출권 차감을 조건부 UPDATE(`AND points >= ?`)로 변경 — 동시 요청 race로 잔액이 음수가 되는 이중지불 차단.
+- `functions/api/cron/daily-brief.js`, `functions/api/cron/weekly-digest.js`: `x-cron-secret` 비교를 `functions/_lib/admin.js`의 constant-time 비교로 교체(타이밍 누출 방지, `constantTimeEqual` export).
+- `tests/public-pii-gate.test.js`: 목록/단건 공개 응답의 PII 미포함·pending 404·관리자 전체필드 유지를 회귀 테스트로 고정.
+
+### Fixed (승인 → 유료옵션 자동이행 운영 안전장치)
+- `admin.html` `approveItem`: 승인 확인창에 주문상태·선택 유료옵션을 표시하고, `입금대기` 주문은 "승인 즉시 카톡 전회원 알림 등 자동이행(발송 후 취소 불가)" 경고를 추가 — 입금 확인 전 오승인으로 인한 비가역 발송 방지.
+
+### Removed (죽은 레거시 Supabase 연동 제거 — 프로젝트 삭제됨·DNS 미해석 확인)
+- `functions/_middleware.js`: 레거시 공유링크(`?news=`/`?recruit=`/`?post=`) OG 데이터 소스를 삭제된 Supabase REST에서 D1로 전환(기능 복원 — 기존엔 fetch 실패로 기본 OG 폴백만 동작). `?recruit=`는 approved 공고만 노출하도록 강화.
+- `index.html`(16곳)·`admin.html`(11곳): 하드코딩된 Supabase URL/anon key 상수와 `/api/*` 호출에 붙던 무의미한 `apikey`/`Authorization` 헤더, 도달 불가 레거시 스니펫(fetchNewCount·loadSideStats 2차 폴백) 제거.
+- 코드·DB 어디서도 참조되지 않는 고아 자산 14개 삭제(~3.4MB): `connect.png`(1.6MB)/`connect.webp`, `gmconnect.png/webp`, `managerlink.png/webp`, `brand-mark.jpg`, `rental-banner.jpg`, `rental-page-banner.jpg`, `rental-promo.jpg`, `telecom-banner.jpg`, `telecom-promo.jpg`, `logo-full.webp`, `logo.webp`.
+- Supabase(Postgres) 전용 `cleanup.sql`, Netlify 잔재 `.netlify/state.json`, 로컬 툴 상태 `.wrangler/cache/*.json` git 추적 제거(+`.gitignore`에 `.netlify/` 추가).
+
+### Docs
+- `docs/AUDIT_2026-07-11.md`: 전수 감사 보고서 — 유료옵션 자동반영 구조 평가, 미수정 권고사항(입금 게이트 상태전이, 카톡 일괄발송 서브리퀘스트 한도, 유료 추천공고 3일 vs 무료 맛보기 3일 중복, 성능 로드맵, D1 레거시 테이블 정리 목록) 정리.
+
 ## [2.121.0] - 2026-07-11
 ### Fixed
 - `functions/_lib/seo-cta.js`: SEO 광고팝업 노출/클릭 트래킹이 `menu:'광고팝업'`(집계 대상 외)로 찍혀 관리자 「🖼 홈 광고배너」 성과표(`menu:'홈광고'`만 집계)에 전혀 반영되지 않던 문제 수정. `menu:'홈광고'` + `popimp:`/`click:`+캠페인ID 패턴으로 변경해 캠페인별 성과 귀속 가능해짐. (참고: 수정 이전 `광고팝업` 버킷에 쌓인 과거 데이터는 캠페인 귀속이 불가해 성과표에 소급 반영되지 않음.)

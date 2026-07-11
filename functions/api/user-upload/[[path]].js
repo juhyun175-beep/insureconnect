@@ -6,18 +6,42 @@
  * 허용 폴더: recruitments, lectures
  * 허용 MIME: image/*, application/pdf
  * 크기 제한: 10 MB
- * Rate-limit: IP당 1시간 5건 (KV/D1 미사용 → 간단히 client-side localStorage 신뢰 + 서버 측 파일명 충돌 방지)
+ * Rate-limit: IP당 1시간 20건 — D1(ic_upload_rl) 서버측 강제. (과거 client-side 신뢰 → 서버측으로 교체)
  */
 import { json, corsPreflight } from '../../_lib/http.js';
 
 const ALLOWED_FOLDERS = new Set(['recruitments', 'lectures', 'meetings', 'rental-cards']);
 const ALLOWED_MIME = /^(image\/(png|jpe?g|webp|gif|heic|heif)|application\/pdf)$/i;
 const MAX_BYTES = 10 * 1024 * 1024;
+const RL_MAX_PER_HOUR = 20;
+
+/** IP당 시간당 업로드 횟수 제한. D1 장애 시 업로드를 막지 않음(best-effort). */
+async function rateLimited(env, request) {
+  try {
+    const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+    await env.DB.prepare(
+      `CREATE TABLE IF NOT EXISTS ic_upload_rl (ip TEXT NOT NULL, ts TEXT NOT NULL DEFAULT (datetime('now')))`
+    ).run();
+    await env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_upload_rl_ip ON ic_upload_rl(ip, ts)`).run().catch(() => {});
+    const row = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM ic_upload_rl WHERE ip = ? AND ts > datetime('now', '-1 hour')`
+    ).bind(ip).first();
+    if ((row?.n || 0) >= RL_MAX_PER_HOUR) return true;
+    await env.DB.prepare(`INSERT INTO ic_upload_rl (ip) VALUES (?)`).bind(ip).run();
+    if (Math.random() < 0.02) {
+      await env.DB.prepare(`DELETE FROM ic_upload_rl WHERE ts < datetime('now', '-1 day')`).run().catch(() => {});
+    }
+    return false;
+  } catch (_) { return false; }
+}
 
 export const onRequestOptions = () => corsPreflight();
 
 export const onRequestPost = async ({ params, request, env }) => {
   try {
+    if (await rateLimited(env, request)) {
+      return json({ error: '업로드가 너무 잦습니다. 1시간 후 다시 시도해 주세요.' }, 429);
+    }
     const p = params.path;
     const parts = Array.isArray(p) ? p : (p ? [p] : []);
     if (parts.length < 2) return json({ error: 'Path must be {folder}/{filename}' }, 400);

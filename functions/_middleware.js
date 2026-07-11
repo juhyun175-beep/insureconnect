@@ -4,16 +4,18 @@
 //   ?recruit=<id>    → 채용공고
 //   ?post=<id>       → 보험지식
 
-const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
+// v2.122.0: 레거시 공유링크(?news=/?recruit=/?post=) OG 데이터 소스를 D1로 전환.
+//   과거 Supabase(rzllpymhtygnooduevgf — 프로젝트 삭제됨, DNS 미해석) 의존 제거.
+const PUBLIC_SITE      = 'https://insureconnect.co.kr';
+const DEFAULT_OG_IMAGE = `${PUBLIC_SITE}/logo-full.png`;
 
-const TRUSTED_IMAGE_PREFIX = `${SB_URL}/storage/`;
-const DEFAULT_OG_IMAGE     = 'https://insureconnect.co.kr/logo-full.png';
-
-const SB_HEADERS = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
-
+// 자체 서빙 이미지(/api/files/... 등 상대경로) 또는 자기 도메인 절대 URL만 신뢰
 function safeImage(url) {
-  if (typeof url === 'string' && url.startsWith(TRUSTED_IMAGE_PREFIX)) return url;
+  if (typeof url === 'string') {
+    const s = url.trim();
+    if (s.startsWith('/') && !s.startsWith('//')) return PUBLIC_SITE + s;
+    if (s.startsWith(PUBLIC_SITE + '/')) return s;
+  }
   return DEFAULT_OG_IMAGE;
 }
 
@@ -22,11 +24,11 @@ function esc(s) {
     .replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-async function sbFetch(path) {
-  const res = await fetch(`${SB_URL}/rest/v1/${path}`, { headers: SB_HEADERS });
-  if (!res.ok) return null;
-  const rows = await res.json();
-  return Array.isArray(rows) && rows.length ? rows : null;
+async function d1All(env, sql, ...binds) {
+  if (!env || !env.DB) return null;
+  const rs = await env.DB.prepare(sql).bind(...binds).all().catch(() => null);
+  const rows = rs && Array.isArray(rs.results) ? rs.results : null;
+  return rows && rows.length ? rows : null;
 }
 
 function buildOg({ title, description, image, url }) {
@@ -61,7 +63,7 @@ function isInternalPath(p) {
 }
 
 export async function onRequest(context) {
-  const { request, next } = context;
+  const { request, next, env } = context;
   const reqUrl = new URL(request.url);
 
   // v2.97.0: 커스텀 도메인 통합 — 프로덕션 pages.dev 표준 호스트 → insureconnect.co.kr 301(영구).
@@ -111,8 +113,9 @@ export async function onRequest(context) {
   let og = null;
   try {
     if (newsId) {
-      const rows = await sbFetch(
-        `ic_card_news?set_id=eq.${encodeURIComponent(newsId)}&order=sort_order.asc&select=title,file_url,file_type`
+      const rows = await d1All(env,
+        `SELECT title, file_url, file_type FROM ic_card_news WHERE set_id = ? ORDER BY sort_order ASC`,
+        newsId
       );
       if (rows) {
         const cover = rows.find(r => r.file_type === 'image') || rows[0];
@@ -124,8 +127,10 @@ export async function onRequest(context) {
         });
       }
     } else if (recruitId) {
-      const rows = await sbFetch(
-        `ic_recruitments?id=eq.${encodeURIComponent(recruitId)}&select=title,company_name,description,file_url,file_type&limit=1`
+      const rows = await d1All(env,
+        `SELECT title, company_name, description, file_url, file_type
+           FROM ic_recruitments WHERE id = ? AND status = 'approved' LIMIT 1`,
+        recruitId
       );
       if (rows) {
         const r = rows[0];
@@ -137,8 +142,9 @@ export async function onRequest(context) {
         });
       }
     } else if (postId) {
-      const rows = await sbFetch(
-        `ic_knowledge_posts?id=eq.${encodeURIComponent(postId)}&select=title,content,image_url&limit=1`
+      const rows = await d1All(env,
+        `SELECT title, content, image_url FROM ic_knowledge_posts WHERE id = ? LIMIT 1`,
+        postId
       );
       if (rows) {
         const p = rows[0];

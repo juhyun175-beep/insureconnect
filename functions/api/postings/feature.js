@@ -44,11 +44,18 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
     return json({ error: '포인트가 부족합니다.', code: 'insufficient_points', need: COST, points, feature_credit: credit }, 402);
   }
 
-  // 차감(크레딧 1장 우선, 없으면 포인트 COST) + 노출기간 연장(이미 노출중이면 그 만료시점에서 +DAYS, 아니면 now+DAYS)
+  // 차감(크레딧 1장 우선, 없으면 포인트 COST) — 조건부 UPDATE 로 동시 요청 race(음수 잔액) 차단
+  //  + 노출기간 연장(이미 노출중이면 그 만료시점에서 +DAYS, 아니면 now+DAYS)
   if (useCredit) {
-    await env.DB.prepare(`UPDATE ic_members SET feature_credit = feature_credit - 1 WHERE id = ?`).bind(user.id).run();
+    const dec = await env.DB.prepare(`UPDATE ic_members SET feature_credit = feature_credit - 1 WHERE id = ? AND feature_credit > 0`).bind(user.id).run();
+    if (!((dec?.meta?.changes || 0) > 0)) {
+      return json({ error: '상단노출권 사용에 실패했습니다. 다시 시도해 주세요.', code: 'retry' }, 409);
+    }
   } else {
-    await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ?`).bind(COST, user.id).run();
+    const dec = await env.DB.prepare(`UPDATE ic_members SET points = points - ? WHERE id = ? AND points >= ?`).bind(COST, user.id, COST).run();
+    if (!((dec?.meta?.changes || 0) > 0)) {
+      return json({ error: '포인트가 부족합니다.', code: 'insufficient_points', need: COST, points }, 402);
+    }
   }
   await env.DB.prepare(
     `UPDATE ${table}
