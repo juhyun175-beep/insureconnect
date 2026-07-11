@@ -1,5 +1,10 @@
 # Changelog
 
+## [2.120.0] - 2026-07-11
+### Fixed
+- `functions/_lib/seo-cta.js`: SEO SSR 페이지의 광고 팝업이 홈 광고의 다중 캠페인 스키마(`campaigns`)를 읽고, 팝업 마스터 스위치를 존중하도록 복구.
+- Pages Production의 최신 배포 기준(`b670925`)을 GitHub `main`으로 동기화해 사용자 도메인 Functions 라우팅 갱신 대상에 포함.
+
 ## [2.119.0] - 2026-07-10
 ### Fixed
 - `index.html`: 홈 오픈채팅 순위 패널이 좌측 공고 컬럼 높이에 stretch되지 않도록 자연 높이로 되돌리고, 데스크톱에서만 sticky로 따라오게 조정.

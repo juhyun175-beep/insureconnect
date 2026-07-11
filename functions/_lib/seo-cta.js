@@ -149,8 +149,13 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
   function track(card){ try{ fetch('/api/track/card-click',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({menu:'광고팝업',card:card})}); }catch(e){} }
   fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
     if(!d||!d.ok||!d.config) return;
-    var c=d.config; var imgs=(c.images||[]).filter(Boolean);
-    if(!c.enabled || !imgs.length) return;   // 관리자 설정 없으면 광고 미표시(하드코딩 제거)
+    var cfg=d.config;
+    if(cfg.popup && cfg.popup.enabled===false) return;
+    var arr=(cfg.campaigns||[]).filter(function(x){ return x && x.images && x.images.length; });
+    if(!arr.length) return;
+    var c=arr[0];
+    var imgs=(c.images||[]).filter(Boolean);
+    if(!imgs.length) return;
     var el=document.getElementById('ic-adpop'); if(!el) return;
     var img=el.querySelector('.ic-adpop-img'); if(img){ img.setAttribute('src', imgs[0]); if(c.alt) img.setAttribute('alt', c.alt); }
     var lk=el.querySelector('.ic-adpop-link'); if(lk){ if(c.link_url){ lk.setAttribute('href', c.link_url); } else { lk.removeAttribute('target'); lk.setAttribute('href','#'); } }
