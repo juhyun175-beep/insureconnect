@@ -3,6 +3,7 @@
   "collapseWhitespace": true,
   "conservativeCollapse": true,
   "removeComments": true,
+  "ignoreCustomComments": ["^\\s*OG:(START|END)\\s*$"],
   "minifyCSS": true,
   "minifyJS": { "compress": false, "mangle": false }
 }
