@@ -2,9 +2,10 @@
  * v2.1.68: GA(법인대리점)별 전산 SSR 랜딩 (프로그래매틱 SEO)
  *   GET /ga/{slug}  — 타깃: "지에이코리아 전산", "굿리치 로그인", "프라임에셋 전산 바로가기" 등
  */
-import { GA_MAP } from '../_lib/ga-companies.js';
+import { GA_LIST, GA_MAP } from '../_lib/ga-companies.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
 import { seoPostingWidget } from '../_lib/posting-widget.js';
+import { pickRelatedPosts, relatedHtml, crossLinkHtml } from '../_lib/seo-links.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
@@ -16,6 +17,11 @@ export const onRequestGet = async ({ params, env }) => {
   const ga = GA_MAP[params.slug];
   if (!ga) return new Response('Not found', { status: 404 });
   const postingWidget = await seoPostingWidget(env);
+  const relatedPosts = await pickRelatedPosts(
+    env.DB,
+    ga.slug,
+    ['practice', 'recruit-tips', 'underwrite'],
+  );
 
   const url = `${SITE}/ga/${ga.slug}`;
   const homepage = `https://${ga.site}`;
@@ -39,11 +45,6 @@ export const onRequestGet = async ({ params, env }) => {
     ] };
 
   const faqHtml = faqs.map(f => `<dl><dt>Q. ${esc(f.q)}</dt><dd>${esc(f.a)}</dd></dl>`).join('');
-  const related = [
-    ['/company', '보험사 전산·고객센터·청구 안내'],
-    ['/insurance/practice/fp-income-structure', '설계사 수수료·소득 구조 이해'],
-    ['/insurance/recruit-tips/career-fp-transition', '경력 설계사 이직 — 옮기기 전 점검'],
-  ];
 
   const html = `<!DOCTYPE html>
 <html lang="ko">
@@ -113,10 +114,7 @@ header.c-head p{margin:0;color:#6b7280;font-size:14px}
   ${faqHtml}
 </section>
 
-<section class="card rel">
-  <h2>설계사라면 함께 보면 좋은 정보</h2>
-  <ul>${related.map(([href, t]) => `<li><a href="${href}">${esc(t)}</a></li>`).join('')}</ul>
-</section>
+${relatedHtml(relatedPosts, '설계사라면 함께 보면 좋은 정보')}${crossLinkHtml(GA_LIST, ga.slug, '다른 GA 전산 바로가기', '/ga/', ' 전산 바로가기')}
 </div>
 ${seoShareBar(url, ga.name + ' 전산 바로가기', desc, `${SITE}/logo-full.png`)}
 ${postingWidget}

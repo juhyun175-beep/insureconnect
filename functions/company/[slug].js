@@ -3,10 +3,11 @@
  *   GET /company/{slug}
  *   타깃 검색: "삼성생명 전산 바로가기", "현대해상 청구 팩스번호", "메리츠화재 보상 전화" 등
  */
-import { INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
+import { INSURERS, INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
 import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
 import { seoPostingWidget } from '../_lib/posting-widget.js';
 import { renderAggregation, AGGREGATIONS, renderClaimFormsHub } from '../_lib/company-aggregation.js';
+import { pickRelatedPosts, relatedHtml, crossLinkHtml } from '../_lib/seo-links.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
@@ -35,6 +36,11 @@ export const onRequestGet = async ({ params, env }) => {
   }
 
   const postingWidget = await seoPostingWidget(env);
+  const relatedPosts = await pickRelatedPosts(
+    env.DB,
+    ins.slug,
+    ['claim', 'actual-loss', 'terms', 'surgery-code', 'disease-code'],
+  );
 
   // 보험금 청구서류 양식 (D1)
   const cfNames = [ins.name, ...(CF_ALIAS[ins.name] || [])];
@@ -82,13 +88,6 @@ export const onRequestGet = async ({ params, env }) => {
       { '@type': 'ListItem', position: 3, name: ins.name, item: url },
     ],
   };
-
-  // 관련 게시판 글 (청구 관련)
-  const related = [
-    ['/insurance/claim/insurance-claim-process-steps', '보험금 청구 절차 단계별 가이드'],
-    ['/insurance/actual-loss/silbi-claim-documents', '실손보험 청구 서류 총정리'],
-    ['/insurance/claim/claim-deadline-3-years', '보험금 청구 소멸시효 3년'],
-  ];
 
   const faqHtml = faqs.map(f => `<dl><dt>Q. ${esc(f.q)}</dt><dd>${esc(f.a)}</dd></dl>`).join('');
   const cfHtml = claimForms.length ? `
@@ -188,10 +187,7 @@ ${seoShareBar(url, ins.name + ' 전산·청구 안내', desc, `${SITE}/logo-full
   ${faqHtml}
 </section>
 
-<section class="card rel">
-  <h2>보험금 청구가 처음이라면</h2>
-  <ul>${related.map(([href, t]) => `<li><a href="${href}">${esc(t)}</a></li>`).join('')}</ul>
-</section>
+${relatedHtml(relatedPosts, '보험금 청구가 처음이라면')}${crossLinkHtml(INSURERS.filter((peer) => peer.type === ins.type), ins.slug, '같은 유형의 보험사 전산', '/company/', ' 전산 바로가기')}
 </div>
 ${postingWidget}
 ${seoCtaFooter(SITE)}
