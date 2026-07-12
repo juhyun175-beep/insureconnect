@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.127.0] - 2026-07-13
+### Added (보험사 32개 페이지 고유 D1 콘텐츠)
+- `functions/_lib/insurers.js`: D1의 보험사명 변형을 정식 32개 보험사 slug에 정확일치로 연결하는 `INSURER_ALIASES`와 `insurerNames()` 추가. 짧은 별칭은 `IN (...)` 바인드 조회에만 사용하며 오타 데이터는 자동 매핑하지 않음.
+- `functions/_lib/company-content.js`(신규): 승인 담보·인수/보상 사례·정식 보험사명 언급 게시글을 3개 병렬 D1 쿼리로 읽고, 각 데이터셋 실패를 독립적으로 빈 배열 처리.
+- `functions/company/[slug].js`: 회사별 담보/가입금액 표와 ItemList JSON-LD, 사례 3건 이상 섹션, 청구서류 별칭 매칭, 커뮤니티 원문 링크를 데이터가 있을 때만 렌더링.
+- `functions/sitemap.xml.js`: 청구서류·승인 사례·정식 보험사명 언급 게시글의 실제 `created_at` 최댓값을 단일 `GROUP BY` 쿼리로 집계해 회사 URL별 `lastmod`에 반영하고, 데이터가 없을 때만 고정 날짜 사용.
+- `tests/company-unique-content.test.js`: 32개 보험사 별칭, 정확일치/오타 제외, 병렬 쿼리와 개별 fallback, 섹션 생략, 단일 바인드 사이트맵 집계를 회귀 테스트로 고정.
+
 ## [2.126.0] - 2026-07-13
 ### Added (네이버 블로그 재배포 유입 측정)
 - `functions/_lib/traffic.js`: 네이버 블로그·카페·포스트·지식iN referrer를 generic `Naver` 검색 유입보다 먼저 분류해 관리자 유입 경로에서 채널별로 구분.

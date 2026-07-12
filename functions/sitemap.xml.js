@@ -3,7 +3,7 @@
  * v2.1.39: 채용공고/강의공고/카드뉴스 + 기존 보험지식 + 정적 URL 통합
  *           Google Jobs / 네이버 검색 노출용 인덱싱 시드
  */
-import { INSURERS } from './_lib/insurers.js';
+import { INSURERS, insurerNames } from './_lib/insurers.js';
 import { GA_LIST } from './_lib/ga-companies.js';
 import { BOARD_SEO_WHERE } from './_lib/board-seo.js';
 
@@ -26,6 +26,44 @@ function urlEntry(loc, lastmod, changefreq = 'weekly', priority = 0.6) {
 //   GSC 실측 '발견됨-크롤 안 됨' 63페이지의 재크롤 우선순위에 악영향 → 고정 날짜로 전환.
 //   해당 페이지들의 내용이 실제로 크게 바뀐 릴리즈에서만 수동으로 올린다.
 const STATIC_LASTMOD = '2026-07-04';
+
+export async function loadCompanyLastmods(env) {
+  const names = INSURERS.flatMap((ins) =>
+    insurerNames(ins.slug).map((name) => ({ slug: ins.slug, name, official: name === ins.name ? 1 : 0 }))
+  );
+  try {
+    const rs = await env.DB.prepare(
+      `WITH insurer_names AS (
+         SELECT json_extract(value, '$.slug') AS slug,
+                json_extract(value, '$.name') AS name,
+                json_extract(value, '$.official') AS official
+         FROM json_each(?)
+       ), company_updates AS (
+         SELECT names.slug, forms.created_at
+         FROM insurer_names names
+         JOIN ic_claim_forms forms ON forms.company = names.name
+         UNION ALL
+         SELECT names.slug, cases.created_at
+         FROM insurer_names names
+         JOIN ic_insurance_cases cases ON cases.insurer = names.name
+         WHERE cases.verify_status = 'approved'
+         UNION ALL
+         SELECT names.slug, posts.created_at
+         FROM insurer_names names
+         JOIN ic_board_posts posts
+           ON names.official = 1
+          AND posts.deleted = 0
+          AND (posts.title LIKE '%' || names.name || '%' OR posts.content LIKE '%' || names.name || '%')
+       )
+       SELECT slug, MAX(created_at) AS lastmod
+       FROM company_updates
+       GROUP BY 1`
+    ).bind(JSON.stringify(names)).all();
+    return new Map((rs.results || []).filter((row) => row.slug && row.lastmod).map((row) => [row.slug, row.lastmod]));
+  } catch (_) {
+    return new Map();
+  }
+}
 
 export async function onRequestGet({ env }) {
   const today = new Date().toISOString().slice(0, 10);
@@ -51,11 +89,12 @@ export async function onRequestGet({ env }) {
   // v2.39.1: 보험사·GA 전산 랜딩(SSR 콘텐츠·자기 canonical·index,follow) — 메인 사이트맵 통합.
   //          "○○생명 전산 바로가기" 등 고의도 검색 유입 자산. 잘못된 슬러그는 [slug].js가 404 처리.
   //          (기존 functions/api/sitemap.js에만 있던 페이지를 권위본 /sitemap.xml로 일원화)
+  const companyLastmods = await loadCompanyLastmods(env);
   const companyUrls = [
     urlEntry(`${BASE}/company/customer-center`, STATIC_LASTMOD, 'weekly', 0.85),
     urlEntry(`${BASE}/company/claim-fax`, STATIC_LASTMOD, 'weekly', 0.85),
     urlEntry(`${BASE}/company/claim-forms`, STATIC_LASTMOD, 'weekly', 0.85),
-    ...INSURERS.map(i => urlEntry(`${BASE}/company/${i.slug}`, STATIC_LASTMOD, 'weekly', 0.8)),
+    ...INSURERS.map(i => urlEntry(`${BASE}/company/${i.slug}`, fmtDate(companyLastmods.get(i.slug) || STATIC_LASTMOD), 'weekly', 0.8)),
     urlEntry(`${BASE}/ga`, STATIC_LASTMOD, 'weekly', 0.8),
     ...GA_LIST.map(g => urlEntry(`${BASE}/ga/${g.slug}`, STATIC_LASTMOD, 'weekly', 0.75)),
   ];
