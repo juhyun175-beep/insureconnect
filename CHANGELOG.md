@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.126.0] - 2026-07-13
+### Added (네이버 블로그 재배포 유입 측정)
+- `functions/_lib/traffic.js`: 네이버 블로그·카페·포스트·지식iN referrer를 generic `Naver` 검색 유입보다 먼저 분류해 관리자 유입 경로에서 채널별로 구분.
+- `seo-seed/naver-draft.mjs`, `seo-seed/naver-company-ga-draft.mjs`: 재배포 링크백에 `utm_source=naverblog`, `utm_medium=repost`와 캠페인별 UTM을 자동 부착하고 드래프트 167편을 재생성.
+- `naver-blog/PUBLISH.md`: 일일 발행량, 이미지·UTM 유지 규칙, 측정 경로와 진행 트래커를 포함한 운영 매뉴얼 추가.
+
 ## [2.125.0] - 2026-07-12
 ### Fixed (보험사·GA SEO 내부링크 분산)
 - `functions/_lib/seo-links.js`(신규): URL slug의 안정 해시와 정렬된 `ic_seo_posts` 풀을 사용해 관련글을 결정론적으로 선택하는 공통 유틸 추가 — 카테고리는 `?` 바인드, DB 실패·빈 데이터는 섹션 자체를 생략하고, 같은 URL은 캐시마다 동일한 링크를 반환. 현재 페이지 제외·중복 제거 후 6개 동종 페이지 크로스링크도 함께 생성.

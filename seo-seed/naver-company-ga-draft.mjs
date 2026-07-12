@@ -9,6 +9,7 @@ import { INSURERS } from '../functions/_lib/insurers.js';
 import { GA_LIST } from '../functions/_lib/ga-companies.js';
 
 const SITE = 'https://insureconnect.co.kr';
+const UTM = '?utm_source=naverblog&utm_medium=repost&utm_campaign=nbcg2607';
 const GA_INTRO = 'GA(법인보험대리점)는 여러 보험사 상품을 비교·판매하는 대리점입니다. 소속 설계사는 각 GA의 전산(ERP)에서 청약·고객관리·수수료 등을 처리합니다. 보험사 직접 전산은 인슈어커넥트의 보험사 전산·청구 안내에서 확인할 수 있습니다.';
 
 const isPhone = (s) => /\d{3,}/.test(String(s || ''));
@@ -53,7 +54,7 @@ function pushDraft(out, { title, body, points, faqs, link, tags }) {
   out.push('❓ 자주 묻는 질문');
   faqs.forEach(q => { out.push(`Q. ${q.q}`); out.push(`A. ${q.a}`); out.push(''); });
   out.push('👉 원문보기 링크');
-  out.push(link);
+  out.push(`${link}${UTM}`);
   out.push('');
   out.push(tags.join(' '));
   out.push('');

@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const SITE = 'https://insureconnect.co.kr';
+const UTM = '?utm_source=naverblog&utm_medium=repost&utm_campaign=nb2607';
 
 const stripTags = (html) => String(html || '')
   .replace(/<[^>]+>/g, ' ').replace(/&amp;/g, '&').replace(/&lt;/g, '<')
@@ -56,7 +57,7 @@ for (const f of files) {
       faqs.forEach(q => { out.push(`Q. ${q.q}`); out.push(`A. ${q.a}`); out.push(''); });
     }
     out.push('👉 전체 내용·서류·사례는 원문에서 확인하세요');
-    out.push(link);
+    out.push(`${link}${UTM}`);
     out.push('');
     out.push(tags + ' #보험 #보험설계사 #인슈어커넥트');
     out.push('');

@@ -14,6 +14,10 @@ export function sourceFromReferrer(ref) {
   if (host.includes('copilot'))                               return { source: 'Copilot', host };
   if (host.includes('you.com'))                               return { source: 'You.com', host };
   if (host.includes('google'))                       return { source: 'Google', host };
+  if (host.includes('blog.naver'))                   return { source: '네이버블로그', host };
+  if (host.includes('cafe.naver'))                   return { source: '네이버카페', host };
+  if (host.includes('post.naver'))                   return { source: '네이버포스트', host };
+  if (host.includes('kin.naver'))                    return { source: '네이버지식iN', host };
   if (host.includes('naver'))                        return { source: 'Naver', host };
   if (host.includes('daum') || host.includes('kakao')) return { source: host.includes('kakao') ? 'KakaoTalk' : 'Daum', host };
   if (host.includes('bing'))                         return { source: 'Bing', host };
