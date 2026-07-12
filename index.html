@@ -2282,6 +2282,53 @@
     .sm-body { padding: 20px 24px 24px; }
     .sm-step { display: none; }
     .sm-step.active { display: block; }
+    /* v2.124.0: 선착순 무료 공고 프로모 광고 배너 (모달 최상단 히어로 — 프로모 활성 시 JS가 노출) */
+    .sm-free-banner {
+      display: none;               /* 기본 숨김 — 프로모 잔여분이 있을 때만 JS가 표시 */
+      position: relative;
+      overflow: hidden;
+      margin: 0 0 12px;
+      padding: 14px 15px;
+      border-radius: 12px;
+      background: linear-gradient(120deg, #1a3de8 0%, #7c3aed 52%, #db2777 100%);
+      box-shadow: 0 6px 18px rgba(124,58,237,0.28);
+      color: #fff;
+    }
+    .sm-free-banner::after {
+      content: "";
+      position: absolute; inset: 0; z-index: 0;
+      background: linear-gradient(100deg, transparent 32%, rgba(255,255,255,0.24) 48%, transparent 64%);
+      transform: translateX(-120%);
+      animation: smFreeShine 3.8s ease-in-out infinite;
+      pointer-events: none;
+    }
+    .sm-free-inner { position: relative; z-index: 1; }
+    .sm-free-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 3px 10px; border-radius: 999px;
+      background: rgba(255,255,255,0.22);
+      font-size: 10.5px; font-weight: 800; letter-spacing: 0.02em;
+    }
+    .sm-free-dot {
+      width: 6px; height: 6px; border-radius: 50%; background: #4ade80;
+      box-shadow: 0 0 0 0 rgba(74,222,128,0.7);
+      animation: smFreePulse 1.8s ease-out infinite;
+    }
+    .sm-free-title { display: block; margin-top: 8px; font-size: 15.5px; font-weight: 850; line-height: 1.3; }
+    .sm-free-sub { display: block; margin-top: 5px; font-size: 11.5px; font-weight: 650; color: rgba(255,255,255,0.94); line-height: 1.5; }
+    .sm-free-sub b { font-weight: 850; }
+    .sm-free-strike { text-decoration: line-through; opacity: 0.72; font-weight: 700; }
+    @keyframes smFreeShine { 0%, 58% { transform: translateX(-120%); } 100% { transform: translateX(120%); } }
+    @keyframes smFreePulse {
+      0% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
+      70% { box-shadow: 0 0 0 7px rgba(74,222,128,0); }
+      100% { box-shadow: 0 0 0 0 rgba(74,222,128,0); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .sm-free-banner::after { animation: none; display: none; }
+      .sm-free-dot { animation: none; }
+    }
+
     .sm-event-banner {
       margin: 0 0 12px;
       padding: 11px 13px;
@@ -8615,6 +8662,15 @@
             </button>
           </div>
 
+          <!-- v2.124.0: 선착순 100명 무료 공고 등록 프로모 배너 (프로모 잔여분 있을 때만 JS가 노출) -->
+          <div class="sm-free-banner" id="sm-free-banner" role="note" aria-label="선착순 100명 무료 공고 등록 이벤트 안내">
+            <div class="sm-free-inner">
+              <span class="sm-free-badge"><span class="sm-free-dot"></span>🔥 선착순 100명 무료</span>
+              <strong class="sm-free-title">지금 등록하면 공고 업로드 무료!</strong>
+              <span class="sm-free-sub">선착순 <b>100명</b>까지 등록비 <span class="sm-free-strike">20,000원</span> <b>→ 0원</b> · 남은 <b><span id="sm-free-left">0</span>자리</b></span>
+            </div>
+          </div>
+
           <div class="sm-event-banner" role="note" aria-label="등록비용 인하 이벤트 안내">
             <strong>7~8월 등록비용 인하 이벤트 중</strong>
             <span>채용·강의·모임 공고 기본 등록비 20,000원 적용</span>
@@ -12577,6 +12633,9 @@
       const bp = document.getElementById('sm-base-price'); if(bp) { bp.textContent = smWon(base); bp.classList.toggle('sm-promo-free', promoActive); }
       const prow = document.getElementById('sm-promo-row'); if(prow) prow.style.display = promoActive ? '' : 'none';
       const pleft = document.getElementById('sm-promo-left'); if(pleft) pleft.textContent = smWon(window.SM_PROMO && window.SM_PROMO.remaining);
+      // v2.124.0: 최상단 선착순 무료 배너 — 프로모 활성 시에만 노출 + 남은 자리 반영
+      const fban = document.getElementById('sm-free-banner'); if(fban) fban.style.display = promoActive ? 'block' : 'none';
+      const fleft = document.getElementById('sm-free-left'); if(fleft) fleft.textContent = smWon(window.SM_PROMO && window.SM_PROMO.remaining);
       const crow = document.getElementById('sm-coupon-row'); if(crow && promoActive) crow.style.display = 'none';
       const dr = document.getElementById('sm-discount-row'); if(dr) dr.style.display = rate>0 ? '' : 'none';
       const da = document.getElementById('sm-discount-amt'); if(da) da.textContent = smWon(discount);
