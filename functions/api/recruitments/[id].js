@@ -35,7 +35,10 @@ function approvalIndexNowUrls(id) {
 }
 
 async function queueIndexNow(context, urls) {
-  const task = submitUrls(context.env, urls).catch(() => {});
+  const task = submitUrls(context.env, urls).then((result) => {
+    if (!result.ok) console.error('[indexnow]', `IndexNow ${result.status || 'network'} · failed ${result.failed}`);
+    return result;
+  }).catch(e => console.error('[indexnow]', e?.message || e));
   if (context.waitUntil) {
     context.waitUntil(task);
   } else {

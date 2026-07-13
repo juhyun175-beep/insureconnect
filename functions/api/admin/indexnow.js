@@ -9,5 +9,5 @@ export const onRequestPost = async ({ request, env }) => handle(async () => {
   const body = await request.json().catch(() => ({}));
   const urls = Array.isArray(body.urls) ? body.urls : (body.url ? [body.url] : []);
   const result = await submitUrls(env, urls);
-  return json(result, result.ok ? 200 : 502);
+  return json(result, result.succeeded > 0 ? 200 : 502);
 });

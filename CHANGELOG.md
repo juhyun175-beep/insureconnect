@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.128.0] - 2026-07-13
+### Fixed (IndexNow Worker 제출 안정화·관측성)
+- `functions/_lib/indexnow.js`: 하드코딩 라이브 키는 유지하면서 Pages `INDEXNOW_KEY` 형식 가드, 100 URL 청크, 429/5xx·네트워크 오류 500ms/1500ms 재시도, `api.indexnow.org`→Bing 페일오버, 부분 성공 집계와 endpoint/chunk/status/retry 상세를 추가.
+- `functions/api/admin/indexnow.js`, `admin.html`: 모든 청크 실패에만 502를 반환하고 일부 성공은 200으로 처리. 빈 IndexNow 응답에서도 실제 상태 코드를 표시하며 키 경고와 청크별 endpoint·재시도 횟수를 관리자 화면에 노출.
+- 공고·강의·모임 최초 승인 IndexNow 백그라운드 제출의 무음 예외 처리를 `console.error('[indexnow]', ...)`로 교체하면서 기존 `indexnow: { submitted }` 응답 스키마 유지.
+- `tests/indexnow-stability.test.js`: 100개 청크, 잘못된 시크릿 폴백, 429/5xx 백오프, Bing 페일오버, 부분 성공 200·전체 실패 502, 관리자 상태 노출을 회귀 테스트로 고정.
+
 ## [2.127.0] - 2026-07-13
 ### Added (보험사 32개 페이지 고유 D1 콘텐츠)
 - `functions/_lib/insurers.js`: D1의 보험사명 변형을 정식 32개 보험사 slug에 정확일치로 연결하는 `INSURER_ALIASES`와 `insurerNames()` 추가. 짧은 별칭은 `IN (...)` 바인드 조회에만 사용하며 오타 데이터는 자동 매핑하지 않음.
