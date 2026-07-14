@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.129.0] - 2026-07-14
+### Fixed (모바일 카드뉴스 뷰어 · 공유 링크 유입)
+- `index.html`: 모바일 `.cn-viewport` 의 고정 종횡비(16/9)를 제거하고 모달 본문을 flex column 으로 재구성. 390px 기기에서 뷰포트 높이 195px → 약 600px 로 확대되어 세로·정사각·가로 카드가 각 종횡비 기준 가용 영역 내 최대 크기로 표시된다.
+- `index.html`: `.cn-modal` 백드롭 닫기를 pointerdown/pointerup 동일 타깃 검증으로 교체하고 모바일에서는 백드롭 탭 닫기를 비활성. 확대·팬 중 손가락이 모달 밖에서 떨어지면 click 타깃이 공통 조상(`.cn-modal`)으로 잡혀 팝업이 꺼지던 문제 해결.
+- `index.html`: 터치 제스처(touchstart/move/end/cancel)만 `.cn-stage` 로 확대하고 `wheel`·`dblclick`·마우스 드래그는 `.cn-viewport` 에 유지. `.cn-nav`·`.cn-zoom-ctrl`·iframe 에서 시작된 터치는 제스처에서 제외해 ＋－ 버튼 연타가 더블탭 줌으로 오인되던 회귀를 차단. `touchcancel` 처리를 추가해 제스처 락이 영구 고착되지 않도록 했다.
+- `index.html`: 스와이프 임계값 40 → 60px + 수평 의도(|dx| > |dy|×1.4) 판정 추가. PDF 분기의 `sy`/`dy` 초기화 누락 수정.
+- `index.html`: `content-visibility` 규칙 본문 소실로 `.nl-viewer-overlay`·`.cn-modal`·`.kn-modal-overlay` 가 `#home-popup-overlay` 규칙에 접합돼 있던 CSS 병합 버그 제거. `.cn-modal` z-index 가 9995 → 원래 값 10001 로 복귀.
+- `index.html`: 스크롤락을 모바일 한정 `position:fixed` 방식으로 전환하고 기존 body 인라인 스타일을 저장·복원. 모달 재진입 시 스크롤락·`history.pushState` 중복 실행을 차단하고, 모바일에서만 뒤로가기 = 모달 닫기를 적용해 데스크톱 동작은 그대로 유지했다.
+- `index.html`: 공유 카드뉴스 딥링크(`?news=`)에 **검증된 게스트 뉴스 모드** 도입. 파라미터 존재만으로 로그인 게이트를 우회하지 않고, `cardNewsState.sets` 에서 실제 `set_id` 가 확인된 경우에만 비회원 열람을 유지한다. 잘못된 id·로드 실패·6초 타임아웃·모달 닫힘 시 게이트를 복구해 `/?news=아무값` 으로 SPA 전체가 열리던 우회 경로를 차단했다. `?meeting=` 참여 게이트는 유지.
+- `tests/cardnews-mobile-viewer.test.js`: 종횡비 제거, 백드롭 판정, 터치/데스크톱 이벤트 분리, 컨트롤 버튼 제스처 제외, `touchcancel` 정리, z-index 복귀, 스크롤락 복원, 게스트 뉴스 모드 검증·복구를 회귀 테스트로 고정.
+
 ## [2.128.0] - 2026-07-13
 ### Fixed (IndexNow Worker 제출 안정화·관측성)
 - `functions/_lib/indexnow.js`: 하드코딩 라이브 키는 유지하면서 Pages `INDEXNOW_KEY` 형식 가드, 100 URL 청크, 429/5xx·네트워크 오류 500ms/1500ms 재시도, `api.indexnow.org`→Bing 페일오버, 부분 성공 집계와 endpoint/chunk/status/retry 상세를 추가.

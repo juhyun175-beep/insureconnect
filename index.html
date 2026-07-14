@@ -3113,10 +3113,6 @@
       .cn-nav:disabled { transform: none; opacity: .28; }
       .cn-prev { left: calc(50% - 44px); }
       .cn-next { left: calc(50% + 10px); right: auto; }
-      /* v2.41.0: 가로형(16:9) 카드뉴스가 세로(3:4) 박스에 갇혀 얇은 띠로 작아지던 문제 해결 →
-         가로 박스로 바꿔 화면 폭을 꽉 채움. 세부 글씨는 핀치/더블탭 줌(고화질·최대 6배)으로 확대. */
-      .cn-viewport { aspect-ratio: 16 / 9; max-height: 82vh; }
-      .cn-footer { padding-bottom: 48px; }
     }
 
     /* Ripple */
@@ -5575,6 +5571,65 @@
       height: 100dvh !important;
     }
 
+    /* ══════════════════════════════════════════════════════════════════
+       v2.129.0: 모바일 카드뉴스 뷰어 — 고정 종횡비 제거
+       기존 .cn-viewport{aspect-ratio:16/9} → 390px 기기에서 뷰포트 195px,
+       1:1 카드가 195×195px(화면의 23%)로 렌더됐다.
+       변경: 모달 본문을 flex column 으로 만들고 .cn-stage 가 남는 세로를 전부 차지.
+             object-fit:contain 이 각 이미지 종횡비 기준으로 가용 영역 내 최대 크기로 표시한다.
+       ══════════════════════════════════════════════════════════════════ */
+    body.ic-mobile .cn-modal-body {
+      display: flex;
+      flex-direction: column;
+      padding: calc(10px + env(safe-area-inset-top, 0px)) 10px
+               calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    body.ic-mobile .cn-wrap {
+      display: flex;
+      flex-direction: column;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+    body.ic-mobile .cn-head { flex: 0 0 auto; margin-bottom: 8px; }
+    body.ic-mobile .cn-stage {
+      flex: 1 1 auto;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
+      padding: 6px !important;
+      touch-action: none;
+      overscroll-behavior: contain;
+    }
+    body.ic-mobile .cn-viewport {
+      position: relative;
+      aspect-ratio: auto !important;
+      flex: 1 1 auto;
+      width: 100%;
+      height: auto;
+      min-height: 0;
+      max-height: none !important;
+    }
+    /* flex 로 결정된 높이에 % 높이가 안정적으로 해석되도록 track 을 절대배치 */
+    body.ic-mobile .cn-track {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+    body.ic-mobile .cn-footer { flex: 0 0 auto; padding-bottom: 0 !important; margin-top: 8px; }
+    body.ic-mobile .cnx       { flex: 0 0 auto; }
+
+    /* 닫기 버튼 — 44×44 최소 탭 타깃 + 고대비 */
+    body.ic-mobile .cn-modal-close {
+      width: 44px; height: 44px;
+      font-size: 20px;
+      top: calc(8px + env(safe-area-inset-top, 0px));
+      right: 8px;
+      background: rgba(8,15,48,0.72);
+      color: #fff;
+      border-color: rgba(255,255,255,0.28);
+    }
+
     /* 모바일에서 sidebar는 햄버거로 열고 닫는 기존 동작 유지하되,
        데스크탑 사이드바 콘텐츠는 보이게 (생략) */
 
@@ -7420,11 +7475,6 @@
     /* ══════════════════════════════
        ⚡ 성능 최적화
     ══════════════════════════════ */
-    /* 0) content-visibility: auto — 화면 밖 콘텐츠의 렌더링 비용을 브라우저가 알아서 스킵
-       Above-the-fold 가 아닌 영역(모달, 푸터, 패널 등)에 적용 */
-    .nl-viewer-overlay,
-    .cn-modal,
-    .kn-modal-overlay,
     /* ══════════════════════════════
        홈 진입 자동 팝업 (관리자 공지)
     ══════════════════════════════ */
@@ -9314,26 +9364,57 @@
   (function(){
     var g=document.getElementById('m-login-gate'); if(!g) return;
     try{ document.body.appendChild(g); }catch(_){}
-    var postGateBypass=false;
-    try{ var _post=new URLSearchParams(location.search).get('post'); postGateBypass=(_post==='recruit'||_post==='lecture'||_post==='meetup'); }catch(_){}
-    if(postGateBypass) g.classList.add('mlg-hidden'); // v2.113.0: 비로그인 공고 등록 딥링크는 로그인 게이트가 모달을 가리지 않게 함
+
+    var postGateBypass=false, newsPending=false;
+    try{
+      var _q=new URLSearchParams(location.search);
+      var _post=_q.get('post');
+      postGateBypass=(_post==='recruit'||_post==='lecture'||_post==='meetup');
+      // v2.129.0: ?news= 는 검증 전 후보일 뿐이며, 실제 set_id 확인 전에는 영구 우회하지 않는다.
+      // ?meeting= 은 v2.70.0 참여 게이트를 그대로 유지한다.
+      newsPending=!!_q.get('news');
+    }catch(_){}
+
+    // 카드뉴스 검증 실패·로드 실패·모달 닫힘·타임아웃에서 호출되는 게이트 복구 훅.
+    window._icGateShouldShow=false;
+    window._icGateForce=false;
+    window._icGateRestore=function(){
+      window._icGateForce=true;
+      try{ clearTimeout(window._icGateNewsTimer); }catch(_){}
+      if(window._icGateShouldShow) g.classList.remove('mlg-hidden');
+    };
+
+    if(postGateBypass || newsPending) g.classList.add('mlg-hidden');
+    if(newsPending){
+      window._icGateNewsTimer=setTimeout(function(){
+        if(!window._cnFromShareLink) window._icGateRestore();
+      },6000);
+    }
+
     // v2.16.4: 초대 링크(?ref/ic_ref) 방문자 → 맞춤 환영 배너(초대→가입 전환↑)
     try{ var _ref=(location.search.match(/[?&]ref=([^&]+)/)||[])[1]||(document.cookie.match(/(?:^|;\s*)ic_ref=([^;]+)/)||[])[1]; if(_ref){ var _inv=document.getElementById('mlg-invite'); if(_inv) _inv.style.display='block'; } }catch(_){}
     var member=false;
     try{ member = localStorage.getItem('ic_member')==='1'; }catch(_){}
-    if(member || postGateBypass) g.classList.add('mlg-hidden'); // 회원으로 알려졌거나 등록 딥링크면 우선 숨김(깜빡임 방지)
+    if(member || postGateBypass || newsPending) g.classList.add('mlg-hidden'); // 회원·허용 딥링크·뉴스 검증 대기 중 깜빡임 방지
     fetch('/api/auth/me',{credentials:'same-origin'}).then(function(r){return r.json();}).then(function(d){
       if(d && d.user){
         try{ localStorage.setItem('ic_member','1'); }catch(_){}
+        window._icGateShouldShow=false;
         g.classList.add('mlg-hidden');
       } else if(d && d.login_enabled){
         try{ localStorage.removeItem('ic_member'); }catch(_){}
+        window._icGateShouldShow=true;
         if(postGateBypass) g.classList.add('mlg-hidden');
+        else if(newsPending && !window._icGateForce) g.classList.add('mlg-hidden');
         else g.classList.remove('mlg-hidden'); // 미로그인 → 게이트 노출
       } else {
+        window._icGateShouldShow=false;
         g.classList.add('mlg-hidden');     // 로그인 미설정 → 게이트 없음
       }
-    }).catch(function(){ g.classList.add('mlg-hidden'); }); // 네트워크 실패 → 가두지 않음
+    }).catch(function(){
+      window._icGateShouldShow=false;
+      g.classList.add('mlg-hidden');       // 네트워크 실패 → 가두지 않음
+    });
     // v2.16.0: 사회적 증거 — 누적·오늘 방문수(공개 /api/stats) → 신규가입 신뢰↑
     try{ fetch('/api/stats',{method:'POST',headers:{'Content-Type':'application/json'},body:'{}'})
       .then(function(r){return r.json();}).then(function(d){
@@ -10052,7 +10133,7 @@
   <div class="cn-share-toast" id="cn-share-toast">링크가 복사되었습니다</div>
 
   <!-- 카드뉴스 팝업 뷰어 -->
-  <div class="cn-modal" id="cn-modal" onclick="if(event.target===this)closeCardNewsModal()">
+  <div class="cn-modal" id="cn-modal">
     <div class="cn-modal-body">
       <button class="cn-modal-close" onclick="closeCardNewsModal()">✕</button>
       <div class="cn-wrap" id="cn-wrap">
@@ -12871,6 +12952,8 @@
         openCardNewsFromURL();
       } catch (e) {
         console.error('CardNews load error:', e);
+        // v2.129.0: 로드 실패 시 ?news= 임시 게이트 우회가 영구화되지 않도록 복구한다.
+        try { if (window._icGateRestore) window._icGateRestore(); } catch (_) {}
         const grid = document.getElementById('cn-tile-grid');
         if (grid) grid.innerHTML = '<p class="nl-empty" style="grid-column:1/-1">뉴스를 불러올 수 없습니다.</p>';
       }
@@ -12909,10 +12992,60 @@
       });
     }
 
+    let _cnScrollY = 0;
+    let _cnPrevBodyStyle = null;
+
+    function _cnLockScroll() {
+      const b = document.body;
+      _cnPrevBodyStyle = {
+        position: b.style.position,
+        top: b.style.top,
+        width: b.style.width,
+        overflow: b.style.overflow,
+      };
+      if (b.classList.contains('ic-mobile')) {
+        _cnScrollY = window.scrollY || 0;
+        b.style.position = 'fixed';
+        b.style.top = `-${_cnScrollY}px`;
+        b.style.width = '100%';
+      } else {
+        _cnScrollY = 0;
+      }
+      b.style.overflow = 'hidden';
+    }
+
+    function _cnUnlockScroll() {
+      const b = document.body;
+      const wasMobileLock = (b.style.position === 'fixed');
+      const p = _cnPrevBodyStyle || { position: '', top: '', width: '', overflow: '' };
+      b.style.position = p.position;
+      b.style.top = p.top;
+      b.style.width = p.width;
+      b.style.overflow = p.overflow;
+      _cnPrevBodyStyle = null;
+      if (wasMobileLock) window.scrollTo(0, _cnScrollY);
+      _cnScrollY = 0;
+    }
+
     function openCardNewsModal(idx, source) {
+      const m = document.getElementById('cn-modal');
+      if (!m) return;
+
+      // 이미 열려 있으면 세트만 교체하고 스크롤락·히스토리는 중복 실행하지 않는다.
+      if (m.classList.contains('open')) { showCardNewsSet(idx); return; }
+
       showCardNewsSet(idx);
-      document.getElementById('cn-modal').classList.add('open');
-      document.body.style.overflow = 'hidden';
+      m.classList.add('open');
+      _cnLockScroll();
+
+      // 모바일에서만 안드로이드 뒤로가기를 모달 닫기로 사용한다.
+      try {
+        if (document.body.classList.contains('ic-mobile')
+            && !(history.state && history.state.cnOpen)) {
+          history.pushState({ cnOpen: 1 }, '', location.href);
+        }
+      } catch (_) {}
+
       if (!window._cnxLoaded) { window._cnxLoaded = 1; try { loadCoupangStrip(); } catch (_) {} }
       // 클릭 추적 (source: 'shared' = 외부 공유 링크 진입, 그 외 = 내부 클릭)
       try {
@@ -12923,10 +13056,30 @@
         }
       } catch (_) {}
     }
-    function closeCardNewsModal() {
-      document.getElementById('cn-modal').classList.remove('open');
-      document.body.style.overflow = '';
+
+    /** DOM·스크롤·제스처 원복만 수행한다. history 조작은 하지 않는다. */
+    function _cnTeardown() {
+      const m = document.getElementById('cn-modal');
+      if (!m || !m.classList.contains('open')) return false;
+      m.classList.remove('open');
+      _cnUnlockScroll();
+      try { cnZoomReset(); } catch (_) {}
+      try { if (window._cnGestureReset) window._cnGestureReset(); } catch (_) {}
+
+      // 비로그인 공유 링크 열람자가 닫으면 사이트 전체가 공개 상태로 남지 않도록 게이트를 복구한다.
+      if (window._cnFromShareLink) {
+        window._cnFromShareLink = false;
+        try { if (window._icGateRestore) window._icGateRestore(); } catch (_) {}
+      }
+      return true;
     }
+
+    function closeCardNewsModal() {
+      if (!_cnTeardown()) return;
+      try { if (history.state && history.state.cnOpen) history.back(); } catch (_) {}
+    }
+
+    window.addEventListener('popstate', () => { _cnTeardown(); });
 
     function showCardNewsSet(idx) {
       const set = cardNewsState.sets[idx];
@@ -12983,6 +13136,8 @@
       if (_zc) _zc.style.display = _isPdf ? 'none' : '';
       const _vp = document.querySelector('.cn-viewport'); // PDF는 iframe 자체 스크롤 위해 네이티브 터치 허용
       if (_vp) _vp.style.touchAction = _isPdf ? 'auto' : 'none';
+      const _stage = document.querySelector('.cn-stage');
+      if (_stage) _stage.style.touchAction = _isPdf ? 'auto' : 'none';
       document.getElementById('cn-track').style.transform = `translateX(-${i * 100}%)`;
       document.getElementById('cn-counter').textContent = `${i+1} / ${n}`;
       document.querySelectorAll('.cn-dot').forEach((d, idx) => d.classList.toggle('active', idx === i));
@@ -13068,7 +13223,15 @@
       const sid = qs.get('news');
       if (!sid) return;
       const idx = cardNewsState.sets.findIndex(s => s.set_id === sid);
-      if (idx >= 0) openCardNewsModal(idx, 'shared'); // 공유 링크 진입 표시
+      if (idx >= 0) {
+        // 실제 카드뉴스 세트가 확인된 경우에만 게스트 뉴스 모드를 확정한다.
+        window._cnFromShareLink = true;
+        try { clearTimeout(window._icGateNewsTimer); } catch (_) {}
+        openCardNewsModal(idx, 'shared');
+      } else {
+        // 존재하지 않는 set_id는 게이트를 즉시 복구한다.
+        try { if (window._icGateRestore) window._icGateRestore(); } catch (_) {}
+      }
     }
 
     document.getElementById('cn-prev').addEventListener('click', () => goToSlide(cardNewsState.currentSlide - 1));
@@ -13083,6 +13246,33 @@
       if (e.key === 'ArrowLeft')  goToSlide(cardNewsState.currentSlide - 1);
       if (e.key === 'ArrowRight') goToSlide(cardNewsState.currentSlide + 1);
     });
+
+    /* v2.129.0: pointerdown/pointerup이 모두 백드롭일 때만 닫아 확대·팬 종료 오닫힘을 차단한다. */
+    (function () {
+      const modal = document.getElementById('cn-modal');
+      if (!modal) return;
+      let downOnBackdrop = false;
+
+      modal.addEventListener('pointerdown', (e) => {
+        downOnBackdrop = (e.target === modal && e.isPrimary !== false);
+      });
+      modal.addEventListener('pointerup', (e) => {
+        const ok = downOnBackdrop
+          && e.target === modal
+          && !document.body.classList.contains('ic-mobile')
+          && !window._cnGestureLock;
+        downOnBackdrop = false;
+        if (ok) closeCardNewsModal();
+      });
+      modal.addEventListener('pointercancel', () => { downOnBackdrop = false; });
+
+      // iOS Safari·카카오 인앱 웹뷰에서 모달 위 네이티브 페이지 핀치줌을 차단한다.
+      ['gesturestart', 'gesturechange', 'gestureend'].forEach((ev) =>
+        modal.addEventListener(ev, (e) => {
+          if (modal.classList.contains('open')) e.preventDefault();
+        }, { passive: false })
+      );
+    })();
 
     /* ── 카드뉴스 복사/캡처 방지 ── */
     (function() {
@@ -13182,25 +13372,48 @@
 
     (function() {
       const vp = document.querySelector('.cn-viewport');
-      if (!vp) return;
+      const stage = document.querySelector('.cn-stage') || vp;
+      if (!vp || !stage) return;
       let mode = null;                         // 'swipe' | 'pan' | 'pinch'
-      let sx = 0, sy = 0, dx = 0;              // 시작 좌표 / 스와이프 변위
+      let sx = 0, sy = 0, dx = 0, dy = 0;      // 시작 좌표 / 스와이프 변위
       let panOX = 0, panOY = 0;                // 팬 시작 시 줌 오프셋
       let pinchD0 = 0, pinchS0 = 1;            // 핀치 시작 거리/배율
       let lastTap = 0;
       const dist = (t) => Math.hypot(t[0].clientX - t[1].clientX, t[0].clientY - t[1].clientY);
       const grab = (on) => { const im = cnCurImg(); if (im) im.classList.toggle('cn-grabbing', on); };
 
-      vp.addEventListener('touchstart', (e) => {
+      // stage 위 컨트롤에서 시작된 터치는 더블탭·스와이프·팬 제스처로 해석하지 않는다.
+      const isControl = (t) => !!(t && t.closest && t.closest('.cn-nav, .cn-zoom-ctrl, button, a, iframe'));
+
+      window._cnGestureLock = false;
+      const lockOn = () => { window._cnGestureLock = true; clearTimeout(window._cnLockT); };
+      const lockOff = () => {
+        clearTimeout(window._cnLockT);
+        window._cnLockT = setTimeout(() => { window._cnGestureLock = false; }, 220);
+      };
+      window._cnGestureReset = function () {
+        mode = null;
+        try { grab(false); } catch (_) {}
+        clearTimeout(window._cnLockT);
+        window._cnGestureLock = false;
+      };
+
+      stage.addEventListener('touchstart', (e) => {
+        if (isControl(e.target)) { mode = null; return; }
+        lockOn();
+
         if (!cnCurImg()) { // PDF 등 이미지 아님 → 단순 스와이프만
-          if (e.touches.length === 1) { mode = 'swipe'; sx = e.touches[0].clientX; dx = 0; }
+          if (e.touches.length === 1) {
+            const t = e.touches[0];
+            mode = 'swipe'; sx = t.clientX; sy = t.clientY; dx = 0; dy = 0;
+          }
           return;
         }
         if (e.touches.length === 2) {
           mode = 'pinch'; pinchD0 = dist(e.touches) || 1; pinchS0 = cnZoom.scale;
           e.preventDefault();
         } else if (e.touches.length === 1) {
-          const t = e.touches[0]; sx = t.clientX; sy = t.clientY; dx = 0;
+          const t = e.touches[0]; sx = t.clientX; sy = t.clientY; dx = 0; dy = 0;
           const now = Date.now();
           if (now - lastTap < 300) {           // 더블탭 → 줌 토글
             if (cnZoom.scale > 1) { cnZoom.scale = 1; cnZoom.x = 0; cnZoom.y = 0; }
@@ -13213,7 +13426,7 @@
         }
       }, { passive: false });
 
-      vp.addEventListener('touchmove', (e) => {
+      stage.addEventListener('touchmove', (e) => {
         if (mode === 'pinch' && e.touches.length === 2) {
           cnZoom.scale = pinchS0 * (dist(e.touches) / pinchD0);
           cnApplyZoom(false); e.preventDefault();
@@ -13223,17 +13436,24 @@
           cnApplyZoom(false); e.preventDefault();
         } else if (mode === 'swipe' && e.touches.length === 1) {
           dx = e.touches[0].clientX - sx;
+          dy = e.touches[0].clientY - sy;
         }
       }, { passive: false });
 
-      vp.addEventListener('touchend', (e) => {
+      stage.addEventListener('touchend', (e) => {
         grab(false);
-        if (mode === 'swipe' && Math.abs(dx) > 40) {
+        if (mode === 'swipe' && Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.4) {
           goToSlide(cardNewsState.currentSlide + (dx < 0 ? 1 : -1));
         } else if (mode === 'pinch') {
           cnApplyZoom(true); // 정착/클램프
         }
-        if (!e.touches || e.touches.length === 0) mode = null;
+        if (!e.touches || e.touches.length === 0) { mode = null; lockOff(); }
+      });
+
+      stage.addEventListener('touchcancel', () => {
+        mode = null;
+        grab(false);
+        lockOff();
       });
 
       /* 데스크톱: 휠 줌(커서 기준) */
