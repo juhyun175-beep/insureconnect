@@ -166,6 +166,43 @@ test('valid news id confirms guest mode, clears timeout and opens shared modal',
   assert.deepEqual(opened, [0, 'shared']);
 });
 
+test('narrow deep link syncs the mobile class before scroll lock and history push', () => {
+  const classes = new Set();
+  const modalClasses = new Set();
+  let pushed = null;
+  let lockedWithMobileClass = false;
+  const bodyClassList = {
+    contains: (name) => classes.has(name),
+    add: (name) => classes.add(name),
+  };
+  const modal = {
+    classList: {
+      contains: (name) => modalClasses.has(name),
+      add: (name) => modalClasses.add(name),
+    },
+  };
+  const sandbox = {
+    document: { body: { classList: bodyClassList }, getElementById: () => modal },
+    location: { href: 'https://example.test/?news=valid' },
+    history: { state: null, pushState: (...args) => { pushed = args; } },
+    showCardNewsSet: () => {},
+    _cnLockScroll: () => { lockedWithMobileClass = classes.has('ic-mobile'); },
+    cardNewsState: { sets: [{ title: '' }] },
+    matchMedia: () => ({ matches: true }),
+    _cnxLoaded: 1,
+  };
+  sandbox.window = sandbox;
+  vm.createContext(sandbox);
+  vm.runInContext([
+    extractFunction(source, '_cnSyncMobileClass'),
+    extractFunction(source, 'openCardNewsModal'),
+    "openCardNewsModal(0, 'shared');",
+  ].join('\n'), sandbox);
+  assert(classes.has('ic-mobile'));
+  assert.equal(lockedWithMobileClass, true);
+  assert.deepEqual(pushed, [{ cnOpen: 1 }, '', 'https://example.test/?news=valid']);
+});
+
 test('teardown restores the gate and clears shared-link state', () => {
   let removed = false;
   let restored = 0;

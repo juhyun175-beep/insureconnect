@@ -7,7 +7,7 @@
 - `index.html`: 터치 제스처(touchstart/move/end/cancel)만 `.cn-stage` 로 확대하고 `wheel`·`dblclick`·마우스 드래그는 `.cn-viewport` 에 유지. `.cn-nav`·`.cn-zoom-ctrl`·iframe 에서 시작된 터치는 제스처에서 제외해 ＋－ 버튼 연타가 더블탭 줌으로 오인되던 회귀를 차단. `touchcancel` 처리를 추가해 제스처 락이 영구 고착되지 않도록 했다.
 - `index.html`: 스와이프 임계값 40 → 60px + 수평 의도(|dx| > |dy|×1.4) 판정 추가. PDF 분기의 `sy`/`dy` 초기화 누락 수정.
 - `index.html`: `content-visibility` 규칙 본문 소실로 `.nl-viewer-overlay`·`.cn-modal`·`.kn-modal-overlay` 가 `#home-popup-overlay` 규칙에 접합돼 있던 CSS 병합 버그 제거. `.cn-modal` z-index 가 9995 → 원래 값 10001 로 복귀.
-- `index.html`: 스크롤락을 모바일 한정 `position:fixed` 방식으로 전환하고 기존 body 인라인 스타일을 저장·복원. 모달 재진입 시 스크롤락·`history.pushState` 중복 실행을 차단하고, 모바일에서만 뒤로가기 = 모달 닫기를 적용해 데스크톱 동작은 그대로 유지했다.
+- `index.html`: 스크롤락을 모바일 한정 `position:fixed` 방식으로 전환하고 기존 body 인라인 스타일을 저장·복원. 딥링크 데이터가 모바일 클래스 초기화보다 먼저 로드되는 경우에도 클래스를 선동기화해 `history.pushState` 누락을 막고, 모달 재진입 시 스크롤락·히스토리 중복 실행을 차단했다. 모바일에서만 뒤로가기 = 모달 닫기를 적용해 데스크톱 동작은 그대로 유지했다.
 - `index.html`: 공유 카드뉴스 딥링크(`?news=`)에 **검증된 게스트 뉴스 모드** 도입. 파라미터 존재만으로 로그인 게이트를 우회하지 않고, `cardNewsState.sets` 에서 실제 `set_id` 가 확인된 경우에만 비회원 열람을 유지한다. 잘못된 id·로드 실패·6초 타임아웃·모달 닫힘 시 게이트를 복구해 `/?news=아무값` 으로 SPA 전체가 열리던 우회 경로를 차단했다. `?meeting=` 참여 게이트는 유지.
 - `tests/cardnews-mobile-viewer.test.js`: 종횡비 제거, 백드롭 판정, 터치/데스크톱 이벤트 분리, 컨트롤 버튼 제스처 제외, `touchcancel` 정리, z-index 복귀, 스크롤락 복원, 게스트 뉴스 모드 검증·복구를 회귀 테스트로 고정.
 

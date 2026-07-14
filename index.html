@@ -12995,6 +12995,17 @@
     let _cnScrollY = 0;
     let _cnPrevBodyStyle = null;
 
+    function _cnSyncMobileClass() {
+      const b = document.body;
+      // 딥링크 API가 매우 빨리 응답하면 하단 모바일 초기화 스크립트보다 모달이 먼저 열릴 수 있다.
+      // 좁은 뷰포트에서는 먼저 클래스를 동기화해 스크롤락·pushState가 누락되지 않게 한다.
+      if (!b.classList.contains('ic-mobile')
+          && window.matchMedia
+          && window.matchMedia('(max-width: 768px)').matches) {
+        b.classList.add('ic-mobile');
+      }
+    }
+
     function _cnLockScroll() {
       const b = document.body;
       _cnPrevBodyStyle = {
@@ -13030,6 +13041,7 @@
     function openCardNewsModal(idx, source) {
       const m = document.getElementById('cn-modal');
       if (!m) return;
+      _cnSyncMobileClass();
 
       // 이미 열려 있으면 세트만 교체하고 스크롤락·히스토리는 중복 실행하지 않는다.
       if (m.classList.contains('open')) { showCardNewsSet(idx); return; }
