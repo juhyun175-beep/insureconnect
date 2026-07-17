@@ -4,17 +4,17 @@
  *   타깃 검색: "삼성생명 전산 바로가기", "현대해상 청구 팩스번호", "메리츠화재 보상 전화" 등
  */
 import { INSURERS, INSURER_MAP, TYPE_LABEL } from '../_lib/insurers.js';
-import { seoCtaFooter, seoShareBar } from '../_lib/seo-cta.js';
+import { seoShareBar } from '../_lib/seo-cta.js';
 import { seoPostingWidget } from '../_lib/posting-widget.js';
 import { renderAggregation, AGGREGATIONS, renderClaimFormsHub } from '../_lib/company-aggregation.js';
 import { pickRelatedPosts, relatedHtml, crossLinkHtml } from '../_lib/seo-links.js';
 import { caseDiseaseUrl, CASES_INDEX_WHERE, isCasesIndexable } from '../_lib/cases-seo.js';
+import { renderPage } from '../_lib/ssr-shell.js';
 
 const SITE = 'https://insureconnect.co.kr';
 const esc = (s) => String(s == null ? '' : s)
   .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
   .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-const ld = (o) => `<script type="application/ld+json">${JSON.stringify(o)}</script>`;
 const isPhone = (s) => /\d{3,}/.test(String(s || ''));
 
 // 청구서류 테이블의 보험사명 ↔ INSURERS 이름 별칭
@@ -115,62 +115,14 @@ export const onRequestGet = async ({ params, env }) => {
     ? `<tr><th>청구 팩스</th><td><a href="#" onclick="return false">${esc(ins.fax)}</a></td></tr>`
     : `<tr><th>청구 팩스</th><td>${esc(ins.fax)}</td></tr>`;
 
-  const html = `<!DOCTYPE html>
-<html lang="ko">
-<head>
-<meta charset="UTF-8">
-<title>${esc(title)} | InsureConnect</title>
-<meta name="description" content="${esc(desc)}">
-<meta name="robots" content="index,follow">
-<link rel="canonical" href="${url}">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="InsureConnect">
-<meta property="og:title" content="${esc(title)}">
-<meta property="og:description" content="${esc(desc)}">
-<meta property="og:url" content="${url}">
-<meta property="og:image" content="${SITE}/logo-full.png">
-<meta name="twitter:card" content="summary">
-${ld(orgLd)}
-${ld(faqLd)}
-${ld(breadcrumbLd)}
-<style>
-*{box-sizing:border-box}body{font-family:-apple-system,BlinkMacSystemFont,'Pretendard',sans-serif;color:#1a202c;background:#f9fafb;line-height:1.7;margin:0;padding:0}
-.crumb{font-size:13px;color:#6b7280;padding:16px 20px;max-width:760px;margin:0 auto}.crumb a{color:#1a3de8;text-decoration:none}
-.wrap{max-width:760px;margin:0 auto;padding:0 16px}
-header.c-head{background:#fff;border-radius:14px;padding:28px 26px;box-shadow:0 4px 16px rgba(0,0,0,0.04);margin-bottom:16px}
-header.c-head .badge{display:inline-block;background:#eff6ff;color:#1a3de8;font-size:12px;font-weight:700;padding:3px 10px;border-radius:999px;margin-bottom:10px}
-header.c-head h1{margin:0 0 6px;font-size:26px;color:#0f172a;letter-spacing:-0.02em}
-header.c-head p{margin:0;color:#6b7280;font-size:14px}
-.cta-erp{display:block;text-align:center;background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;text-decoration:none;font-weight:800;font-size:16px;padding:15px;border-radius:12px;margin:16px 0}
-.card{background:#fff;border-radius:14px;padding:22px 24px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:16px}
-.card h2{margin:0 0 12px;font-size:18px;color:#0f172a}
-table.info{width:100%;border-collapse:collapse}
-table.info th{text-align:left;width:120px;color:#6b7280;font-weight:600;padding:9px 0;vertical-align:top;font-size:14px}
-table.info td{padding:9px 0;color:#1f2937;font-weight:600;border-bottom:1px solid #f1f5f9}
-table.info a{color:#1a3de8;text-decoration:none}
-.cf-list{list-style:none;padding:0;margin:0}
-.cf-list li{padding:11px 0;border-bottom:1px solid #f1f5f9}
-.cf-list a{color:#1a3de8;text-decoration:none;font-weight:700;display:flex;align-items:center;gap:8px}
-.cf-ft{font-size:10.5px;font-weight:800;color:#fff;background:#ef4444;padding:2px 7px;border-radius:5px}
-.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px}
-.btn-row a{display:inline-block;background:#eff6ff;color:#1a3de8;text-decoration:none;font-weight:700;font-size:14px;padding:9px 16px;border-radius:9px}
-.faq dl{margin:0 0 12px}.faq dt{font-weight:700;color:#1e3a8a;margin-bottom:4px}.faq dd{margin:0;color:#374151}
-.rel ul{list-style:none;padding:0;margin:0}.rel li{padding:9px 0;border-bottom:1px solid #f1f5f9}.rel a{color:#1a3de8;text-decoration:none;font-weight:600}
-.note{font-size:12px;color:#9ca3af;margin-top:8px}
-@media(max-width:640px){header.c-head,.card{border-radius:0}.wrap{padding:0}.crumb{padding:12px 16px}}
-</style>
-</head>
-<body>
-<nav class="crumb" aria-label="breadcrumb"><a href="/">홈</a> &raquo; <a href="/company">보험사 전산</a> &raquo; <span>${esc(ins.name)}</span></nav>
-<div class="wrap">
-<header class="c-head">
+  const headerHtml = `
   <span class="badge">${esc(typeLabel)}</span>
   <h1>${esc(ins.name)} 전산 바로가기 · 청구 안내</h1>
   <p>${esc(ins.name)} 설계사 전산(사이버창구) 접속, 고객센터·보상접수 전화, 청구 팩스번호, 상품공시실을 한 곳에 정리했습니다.</p>
   <a class="cta-erp" href="${esc(ins.erp)}" target="_blank" rel="noopener nofollow">🖥 ${esc(ins.name)} 전산 바로가기 →</a>
-</header>
+`;
 
+  const bodyHtml = `
 <section class="card">
   <h2>고객센터 · 보상 연락처</h2>
   <table class="info">
@@ -198,11 +150,24 @@ ${seoShareBar(url, ins.name + ' 전산·청구 안내', desc, `${SITE}/logo-full
 
 ${relatedHtml(relatedPosts, '보험금 청구가 처음이라면')}${crossLinkHtml(INSURERS.filter((peer) => peer.type === ins.type), ins.slug, '같은 유형의 보험사 전산', '/company/', ' 전산 바로가기')}
 ${caseLinks.length ? `<section class="card"><h2>질병별 보험 사례</h2><ul>${caseLinks.map(d => `<li><a href="${caseDiseaseUrl(d.disease)}">${esc(d.disease)} 사례 ${d.count}건</a></li>`).join('')}</ul></section>` : ''}
-</div>
 ${postingWidget}
-${seoCtaFooter(SITE)}
-</body>
-</html>`;
+`;
+
+  const html = renderPage({
+    title: `${title} | InsureConnect`,
+    description: desc,
+    robots: 'index,follow',
+    canonical: url,
+    jsonLd: [orgLd, faqLd, breadcrumbLd],
+    breadcrumb: [
+      { label: '홈', href: '/' },
+      { label: '보험사 전산', href: '/company' },
+      { label: ins.name },
+    ],
+    headerHtml,
+    bodyHtml,
+    site: SITE,
+  });
 
   return new Response(html, {
     headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=600, s-maxage=3600' },

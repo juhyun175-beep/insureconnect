@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.132.0] - 2026-07-18
+### Changed (SSR 공용 셸 및 /cases 디자인 통일)
+- `functions/_lib/ssr-shell.js`: 회사 상세 페이지의 검증된 style·`.c-head`·`.card` 레이아웃과 공통 문서 조립을 `shellStyle()`/`renderPage()`로 추출. viewport, breadcrumb, 조건부 canonical, 다중 JSON-LD escape, `seoCtaFooter`를 공용화.
+- `functions/company/[slug].js`: 기존 보험사 데이터·FAQ·사례 내부링크·JSON-LD 본문은 유지하고 SSR 외곽 조립을 공용 셸로 전환.
+- `functions/cases/index.js`, `functions/cases/[disease].js`: 공용 셸과 `.card` 섹션을 적용해 회사 페이지와 동일한 SSR 스타일로 통일. 기존 404/noindex/index 게이트, 원문 제외, 연령대·보험사 링크·기여자 노출은 유지.
+- `tests/ssr-shell.test.js`: 반응형 문서 셸, canonical 게이트, 다중 JSON-LD 및 `</script>` 주입 방어 테스트 추가.
+
 ## [2.131.0] - 2026-07-18
 ### Added (사례 UGC 루프 가시화)
 - `functions/_lib/contributors.js`: 승인 사례 기여자 집계와 첫 글자+● 마스킹을 공용화.

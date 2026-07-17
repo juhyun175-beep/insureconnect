@@ -100,14 +100,17 @@ test('company sitemap lastmod uses one grouped, parameter-bound D1 query', async
   assert.equal(map.get('samsung-life'), '2026-07-12 01:02:03');
 });
 
-test('company route omits empty sections and keeps all unique-content markers', () => {
+test('company content and route keep their unique-content responsibilities', () => {
   const source = readFileSync(new URL('../functions/company/[slug].js', import.meta.url), 'utf8');
-  assert.match(source, /if \(!coverages\.length\) return \{ html: '', jsonLd: '' \}/);
-  assert.match(source, /if \(cases\.length < 3\) return ''/);
-  assert.match(source, /if \(!boardPosts\.length\) return ''/);
-  assert.match(source, /주요 담보 · 가입금액/);
-  assert.match(source, /인수 · 보상 사례/);
-  assert.match(source, /설계사들이 .*에 대해 나눈 이야기/);
-  assert.match(source, /\/og\/board\/\$\{encodeURIComponent\(post\.id\)\}/);
-  assert.ok(!source.includes('CF_ALIAS'));
+  const content = readFileSync(new URL('../functions/_lib/company-content.js', import.meta.url), 'utf8');
+  assert.match(content, /ic_product_coverages/);
+  assert.match(content, /ic_insurance_cases/);
+  assert.match(content, /ic_board_posts/);
+  assert.match(content, /return \{ coverages, cases, boardPosts \}/);
+  assert.match(source, /renderPage\(/);
+  assert.match(source, /caseLinks\.length/);
+  assert.match(source, /faqHtml/);
+  assert.match(source, /jsonLd: \[orgLd, faqLd, breadcrumbLd\]/);
+  assert.doesNotMatch(source, /<style>/);
+  assert.doesNotMatch(source, /<!DOCTYPE html>/);
 });
