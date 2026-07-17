@@ -2,6 +2,7 @@
 
 ## [2.130.1] - 2026-07-18
 ### Fixed (/cases 상세 페이지 params 디코딩)
+- `functions/_lib/insurers.js`: 기존 `insurerNames()` export와 slug 기준 별칭 목록을 복원하고, 정확일치 역매핑을 유지해 Pages sitemap 빌드가 실패하지 않도록 수정.
 - `functions/_lib/cases-seo.js`: Cloudflare Pages Functions가 percent-encoded route param을 전달하는 런타임을 반영해 `diseaseFromParam()` 추가. `decodeURIComponent`는 1회만 수행하고, 깨진 인코딩은 throw 없이 원문으로 폴백해 자연 404 처리.
 - `functions/cases/[disease].js`: 상세 페이지 조회 키를 `normalizeDisease(params.disease)`에서 `diseaseFromParam(params.disease)`로 교체해 `/cases/%EC%B9%98%EB%A7%A4` 같은 인덱스 링크가 실제 질병명으로 D1 조회되도록 수정.
 - `tests/cases-disease-pages.test.js`: percent-encoded param, 이미 디코딩된 한글 param, 깨진 인코딩 404를 회귀 테스트로 고정.
