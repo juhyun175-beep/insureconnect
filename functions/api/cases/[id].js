@@ -5,18 +5,29 @@
 import { json, error, handle, corsPreflight } from '../../_lib/http.js';
 import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { maybePromoteByPoints } from '../../_lib/auth.js';
+import { submitUrls } from '../../_lib/indexnow.js';
+import { caseDiseaseUrl } from '../../_lib/cases-seo.js';
 
 export const onRequestOptions = () => corsPreflight();
 
 const TEXT_FIELDS = ['disease', 'insurer', 'elapsed_period', 'join_condition', 'result', 'summary', 'special_notes', 'reject_reason', 'original_text'];
 const FIELD_LIMITS = { disease: 80, insurer: 60, elapsed_period: 60, join_condition: 80, result: 80, summary: 500, special_notes: 500, reject_reason: 200, original_text: 4000 };
 
-export const onRequestPatch = async ({ params, request, env }) => handle(async () => {
+const PUBLIC_SITE = 'https://insureconnect.co.kr';
+async function queueIndexNow(context, diseases) {
+  const urls = [...new Set(['/cases', ...diseases.filter(Boolean).map(d => caseDiseaseUrl(d)).map(p => `${PUBLIC_SITE}${p}`)])];
+  const task = submitUrls(context.env, urls).then(result => { if (result?.ok === false) console.error('[indexnow]', result); return result; }).catch(error => { console.error('[indexnow]', error); return { ok:false }; });
+  if (context.waitUntil) context.waitUntil(task); else await task;
+  return true;
+}
+
+export const onRequestPatch = async (context) => handle(async () => {
+  const { params, request, env } = context;
   if (!verifyAdmin(request, env)) return unauthorized();
   const body = await request.json();
 
   const cur = await env.DB.prepare(
-    `SELECT verify_status, submitter_id, excellent FROM ic_insurance_cases WHERE id = ?`
+    `SELECT verify_status, submitter_id, excellent, disease FROM ic_insurance_cases WHERE id = ?`
   ).bind(params.id).first();
   if (!cur) return error('Not found', 404);
 
@@ -53,6 +64,10 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
     `UPDATE ic_insurance_cases SET ${sets.join(', ')}, updated_at = datetime('now') WHERE id = ?`
   ).bind(...binds, params.id).run();
 
+  const changedSeo = cur.verify_status === 'approved' || body.verify_status === 'approved' || body.verify_status === 'rejected' ||
+    ['disease','result','summary','reliability'].some(f => f in body);
+  const indexnowSubmitted = changedSeo ? await queueIndexNow(context, [cur.disease, body.disease]) : false;
+
   // 승인 시 등록 회원 +20 (최초 승인 1회)
   if (approving && cur.submitter_id) {
     try {
@@ -72,8 +87,11 @@ export const onRequestPatch = async ({ params, request, env }) => handle(async (
   return json({ ok: true, approved: approving, excellent: markExcellent });
 });
 
-export const onRequestDelete = async ({ params, request, env }) => handle(async () => {
+export const onRequestDelete = async (context) => handle(async () => {
+  const { params, request, env } = context;
   if (!verifyAdmin(request, env)) return unauthorized();
+  const cur = await env.DB.prepare(`SELECT disease, verify_status FROM ic_insurance_cases WHERE id = ?`).bind(params.id).first();
   await env.DB.prepare(`DELETE FROM ic_insurance_cases WHERE id = ?`).bind(params.id).run();
+  const indexnowSubmitted = cur?.verify_status === 'approved' ? await queueIndexNow(context, [cur.disease]) : false;
   return json({ ok: true });
 });

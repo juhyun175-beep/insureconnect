@@ -6,6 +6,7 @@
 import { INSURERS, insurerNames } from './_lib/insurers.js';
 import { GA_LIST } from './_lib/ga-companies.js';
 import { BOARD_SEO_WHERE } from './_lib/board-seo.js';
+import { caseDiseaseUrl, CASES_INDEX_WHERE } from './_lib/cases-seo.js';
 
 const BASE = 'https://insureconnect.co.kr';
 
@@ -166,6 +167,20 @@ export async function onRequestGet({ env }) {
     urlEntry(`${BASE}/og/board/${p.id}`, fmtDate(p.created_at), 'weekly', 0.5)
   );
 
+  let caseDiseases = [];
+  try {
+    const rs = await env.DB.prepare(`SELECT TRIM(COALESCE(disease,'')) disease,
+      MAX(COALESCE(updated_at, approved_at, created_at)) lastmod,
+      COUNT(*) count, SUM(CASE WHEN category IN ('underwrite','disclosure') THEN 1 ELSE 0 END) underwriting
+      FROM ic_insurance_cases WHERE ${CASES_INDEX_WHERE}
+      GROUP BY TRIM(COALESCE(disease,''))
+      HAVING COUNT(*) >= 3 AND SUM(CASE WHEN category IN ('underwrite','disclosure') THEN 1 ELSE 0 END) >= 1`).all();
+    caseDiseases = rs.results || [];
+  } catch (_) {}
+  const caseUrls = caseDiseases.map(d => urlEntry(`${BASE}${caseDiseaseUrl(d.disease)}`, fmtDate(d.lastmod), 'weekly', 0.85));
+  const casesLastmod = caseDiseases.reduce((max, d) => String(d.lastmod || '') > max ? String(d.lastmod) : max, '');
+  const casesDirectoryUrl = urlEntry(`${BASE}/cases`, fmtDate(casesLastmod || today), 'daily', 0.85);
+
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${[
@@ -177,6 +192,8 @@ ${[
   ...lectureUrls,
   ...meetingUrls,
   ...boardUrls,
+  casesDirectoryUrl,
+  ...caseUrls,
 ].join('\n')}
 </urlset>`;
 

@@ -28,6 +28,15 @@ export async function ensureMeetingsTable(env) {
        price INTEGER,
        coupon_id INTEGER,
        coupon_rate INTEGER,
+       inquiry_enabled INTEGER NOT NULL DEFAULT 0,
+       inquiry_price INTEGER NOT NULL DEFAULT 0,
+       main_featured_enabled INTEGER NOT NULL DEFAULT 0,
+       main_featured_price INTEGER NOT NULL DEFAULT 0,
+       kakao_blast_enabled INTEGER NOT NULL DEFAULT 0,
+       kakao_blast_price INTEGER NOT NULL DEFAULT 0,
+       home_banner7_enabled INTEGER NOT NULL DEFAULT 0,
+       home_banner7_price INTEGER NOT NULL DEFAULT 0,
+       total_price INTEGER,
        created_at TEXT NOT NULL DEFAULT (datetime('now')),
        updated_at TEXT
      )`
@@ -35,6 +44,15 @@ export async function ensureMeetingsTable(env) {
   await env.DB.prepare(
     `CREATE INDEX IF NOT EXISTS idx_meetings_status ON ic_meetings(status, featured_until)`
   ).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN inquiry_enabled INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN inquiry_price INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN main_featured_enabled INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN main_featured_price INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN kakao_blast_enabled INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN kakao_blast_price INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN home_banner7_enabled INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN home_banner7_price INTEGER NOT NULL DEFAULT 0`).run().catch(() => {});
+  await env.DB.prepare(`ALTER TABLE ic_meetings ADD COLUMN total_price INTEGER`).run().catch(() => {});
 }
 
 /** v2.68.0: 모임 참여자(RSVP) 테이블 보장. 회원당 모임 1회(UNIQUE). 추가형. */
