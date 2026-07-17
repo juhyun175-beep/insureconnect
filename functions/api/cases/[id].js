@@ -7,6 +7,7 @@ import { verifyAdmin, unauthorized } from '../../_lib/admin.js';
 import { maybePromoteByPoints } from '../../_lib/auth.js';
 import { submitUrls } from '../../_lib/indexnow.js';
 import { caseDiseaseUrl } from '../../_lib/cases-seo.js';
+import { sendPushToMember } from '../../_lib/push.js';
 
 export const onRequestOptions = () => corsPreflight();
 
@@ -18,6 +19,22 @@ async function queueIndexNow(context, diseases) {
   const urls = [...new Set(['/cases', ...diseases.filter(Boolean).map(d => caseDiseaseUrl(d)).map(p => `${PUBLIC_SITE}${p}`)])];
   const task = submitUrls(context.env, urls).then(result => { if (result?.ok === false) console.error('[indexnow]', result); return result; }).catch(error => { console.error('[indexnow]', error); return { ok:false }; });
   if (context.waitUntil) context.waitUntil(task); else await task;
+  return true;
+}
+
+export async function queueApprovalPush(context, memberId, disease, send = sendPushToMember) {
+  if (!memberId) return false;
+  const task = Promise.resolve().then(() => send(context.env, memberId, {
+    title: '사례가 승인되었습니다',
+    body: `[${disease}] 페이지에 게시되었어요 (+20P)`,
+    url: `${PUBLIC_SITE}${caseDiseaseUrl(disease)}`,
+    tag: 'case-approved',
+  })).catch((error) => {
+    console.error('[push]', error);
+    return { sent: 0, ok: false };
+  });
+  if (context.waitUntil) context.waitUntil(task);
+  else await task;
   return true;
 }
 
@@ -75,6 +92,10 @@ export const onRequestPatch = async (context) => handle(async () => {
       await env.DB.prepare(`INSERT INTO ic_point_log (member_id, delta, reason) VALUES (?, 20, 'case_approve')`).bind(cur.submitter_id).run();
       await maybePromoteByPoints(env, cur.submitter_id);
     } catch (_) {}
+    const approvedDisease = body.disease == null || body.disease === ''
+      ? cur.disease
+      : String(body.disease).slice(0, FIELD_LIMITS.disease);
+    await queueApprovalPush(context, cur.submitter_id, approvedDisease);
   }
   // 우수 사례 +50 (최초 1회)
   if (markExcellent && cur.submitter_id) {

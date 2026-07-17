@@ -132,6 +132,12 @@ export const onRequestGet = async ({ env, request }) => {
     <p class="note">5만원 게시 <b>승인 시 3일간 무료 상단노출</b> 제공 · 이후 <b>50P로 7일씩 연장</b>합니다. 포인트는 삼따AI 사례 공유·승인으로 적립돼요.</p>
   </div>
 
+  <div class="card" id="my-case-section">
+    <h2>📚 내 기여 사례</h2>
+    <div id="my-case-box" style="font-size:13px;color:#64748b">불러오는 중…</div>
+    <p class="note">제출 +10P · 승인 +20P · 우수 사례 +50P. 승인된 사례는 질병별 페이지에 게시됩니다.</p>
+  </div>
+
   <div class="card">
     <h2>🔔 알림 설정</h2>
     <div class="tg">
@@ -161,6 +167,30 @@ export const onRequestGet = async ({ env, request }) => {
   <a class="back" href="/board">자유게시판 가기 →</a>
 
   <script>
+  (function(){
+    var box=document.getElementById('my-case-box'); if(!box) return;
+    var ST={
+      pending:['검수중','#b45309','#fef3c7'],
+      approved:['게시됨','#16a34a','#dcfce7'],
+      rejected:['반려','#dc2626','#fee2e2']
+    };
+    function e(s){return String(s==null?'':s).replace(/[&<>\"]/g,function(c){return({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;'}[c]);});}
+    function render(items){
+      if(!items.length){ box.innerHTML='<div class="empty">아직 제출한 사례가 없습니다.</div>'; return; }
+      box.innerHTML=items.map(function(it){
+        var st=ST[it.verify_status]||ST.pending;
+        var link=it.verify_status==='approved'&&it.page_url
+          ? '<a href="'+e(it.page_url)+'" style="color:#1a3de8;font-weight:800;text-decoration:none;white-space:nowrap;">게시된 페이지 보기</a>'
+          : '<span style="font-size:11.5px;color:'+st[1]+';white-space:nowrap;">'+st[0]+'</span>';
+        return '<div style="padding:9px 2px;border-bottom:1px solid #f1f5f9;"><div style="display:flex;align-items:center;gap:8px;"><span style="font-size:11px;font-weight:800;color:'+st[1]+';background:'+st[2]+';padding:2px 7px;border-radius:999px;white-space:nowrap;">'+st[0]+'</span><span style="flex:1;min-width:0;font-size:13px;color:#334155;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+e(it.disease||'질병 미상')+' · '+e(it.category||'사례')+'</span>'+link+'</div><div style="font-size:11px;color:#94a3b8;margin-top:4px;">'+e(it.created_at||'')+'</div></div>';
+      }).join('');
+    }
+    fetch('/api/cases?mine=1',{credentials:'same-origin',cache:'no-store'})
+      .then(function(r){return r.ok?r.json():Promise.reject(new Error('load failed'));})
+      .then(function(d){render((d&&d.cases)||[]);})
+      .catch(function(){box.textContent='내 기여 사례를 불러오지 못했습니다.';});
+  })();
+
   (function(){
     var tabs=document.querySelectorAll('.tab');
     tabs.forEach(function(t){ t.addEventListener('click',function(){

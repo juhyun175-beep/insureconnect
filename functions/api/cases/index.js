@@ -6,6 +6,7 @@
 import { json, error, corsPreflight, handle } from '../../_lib/http.js';
 import { verifyAdmin } from '../../_lib/admin.js';
 import { getUserFromRequest, maybePromoteByPoints } from '../../_lib/auth.js';
+import { caseDiseaseUrl } from '../../_lib/cases-seo.js';
 
 const CATEGORIES = ['underwrite', 'disclosure', 'claim'];
 
@@ -19,6 +20,24 @@ export const onRequestGet = async ({ request, env }) => handle(async () => {
   const q = (url.searchParams.get('q') || '').trim().slice(0, 60);
   const limit = Math.min(parseInt(url.searchParams.get('limit') || '30', 10) || 30, 100);
   const offset = Math.max(0, parseInt(url.searchParams.get('offset') || '0', 10) || 0);
+
+  if (url.searchParams.get('mine') === '1') {
+    const user = await getUserFromRequest(env, request);
+    if (!user) return error('로그인이 필요합니다', 401);
+    const mineWhere = 'submitter_id = ?';
+    const mine = await env.DB.prepare(
+      `SELECT id, disease, category, verify_status, created_at
+       FROM ic_insurance_cases WHERE ${mineWhere}
+       ORDER BY created_at DESC LIMIT ? OFFSET ?`
+    ).bind(user.id, limit, offset).all();
+    const count = await env.DB.prepare(
+      `SELECT COUNT(*) AS n FROM ic_insurance_cases WHERE ${mineWhere}`
+    ).bind(user.id).first();
+    const cases = (mine.results || []).map((item) => item.verify_status === 'approved'
+      ? { ...item, page_url: caseDiseaseUrl(item.disease) }
+      : item);
+    return json({ cases, total: count?.n || 0 });
+  }
 
   const where = [];
   const binds = [];

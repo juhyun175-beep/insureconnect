@@ -1,5 +1,14 @@
 # Changelog
 
+## [2.131.0] - 2026-07-18
+### Added (사례 UGC 루프 가시화)
+- `functions/_lib/contributors.js`: 승인 사례 기여자 집계와 첫 글자+● 마스킹을 공용화.
+- `functions/cases/index.js`, `functions/cases/[disease].js`: 사례 기여 TOP 5, 질병별 기여자 수·마스킹 닉네임, 정확히 매칭된 보험사 회사 링크와 제출 CTA를 노출.
+- `functions/api/cases/[id].js`: 최초 승인 시 제출자에게 게시 URL과 +20P를 웹푸시로 알리고, 실패를 `[push]` 로그로 기록.
+- `functions/api/cases/index.js`, `functions/me.js`: `mine=1` 본인 사례 조회와 마이페이지의 검수중·게시됨·반려 및 게시 URL 표시 추가. 원문은 반환하지 않음.
+- `index.html`: 사례 제출 모달에 제출 +10P·승인 +20P·우수 +50P 보상 및 게시/마스킹 안내 추가.
+- `tests/cases-ugc-loop.test.js`: 보험사 링크, 기여자 마스킹, 승인 푸시, 본인 사례 API, SPA/마이페이지 문구 회귀 테스트 추가.
+
 ## [2.130.1] - 2026-07-18
 ### Fixed (/cases 상세 페이지 params 디코딩)
 - `functions/_lib/insurers.js`: 기존 `insurerNames()` export와 slug 기준 별칭 목록을 복원하고, 정확일치 역매핑을 유지해 Pages sitemap 빌드가 실패하지 않도록 수정.

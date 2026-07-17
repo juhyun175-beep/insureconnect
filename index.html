@@ -9051,7 +9051,7 @@
       </div>
       <div class="sm-body">
         <div id="cm-form-box">
-          <p style="font-size:12.5px;color:var(--txt-mid);line-height:1.55;margin:0 0 12px;">실제 <strong>인수심사·고지·보상</strong> 사례를 공유해주세요. 검수 후 등록되며 포인트가 지급됩니다.<br><span style="color:#dc2626;">※ 이름·연락처 등 개인정보는 빼고 작성해주세요.</span></p>
+          <p style="font-size:12.5px;color:var(--txt-mid);line-height:1.55;margin:0 0 12px;">실제 <strong>인수심사·고지·보상</strong> 사례를 공유해주세요. 검수 후 등록되며 포인트가 지급됩니다.<br><strong>제출 +10P · 승인 +20P · 우수 사례 +50P</strong><br><span>승인된 사례는 질병별 페이지에 게시됩니다 (닉네임은 마스킹된 집계로만 표시)</span><br><span style="color:#dc2626;">※ 이름·연락처 등 개인정보는 빼고 작성해주세요.</span></p>
           <div class="sm-field"><label>카테고리</label>
             <select id="cm-category"><option value="underwrite">인수심사</option><option value="disclosure">고지(알릴의무)</option><option value="claim">보상</option></select></div>
           <div class="sm-field" style="display:flex;gap:8px;"><div style="flex:1;"><label>질병/사유</label><input type="text" id="cm-disease" maxlength="80" placeholder="예: 갑상선암"></div><div style="flex:1;"><label>보험사</label><input type="text" id="cm-insurer" maxlength="60" placeholder="예: 삼성생명"></div></div>
@@ -18076,6 +18076,7 @@
           document.getElementById('cm-done').style.display='block';
         }catch(e){ err.textContent='❌ '+(e.message||'등록 실패'); err.style.display='block'; btn.disabled=false; btn.textContent='사례 등록 (+10P)'; }
       };
+      try { if(new URLSearchParams(location.search).get('case_submit')==='1') setTimeout(window.openCaseSubmit, 0); } catch(_) {}
     })();
   </script>
 
