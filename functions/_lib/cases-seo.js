@@ -5,6 +5,16 @@ export function normalizeDisease(v) {
   return String(v ?? '').normalize('NFC').trim();
 }
 
+export function diseaseFromParam(v) {
+  let raw = String(v ?? '');
+  try {
+    raw = decodeURIComponent(raw);
+  } catch {
+    // Keep malformed percent-encoded input as-is; the DB lookup will naturally miss.
+  }
+  return normalizeDisease(raw);
+}
+
 export function caseDiseaseUrl(disease) {
   return `/cases/${encodeURIComponent(normalizeDisease(disease))}`;
 }

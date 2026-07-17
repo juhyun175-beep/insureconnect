@@ -1,4 +1,4 @@
-import { caseDiseaseUrl, normalizeDisease, CASES_INDEX_WHERE, isCasesIndexable } from '../_lib/cases-seo.js';
+import { caseDiseaseUrl, diseaseFromParam, CASES_INDEX_WHERE, isCasesIndexable } from '../_lib/cases-seo.js';
 import { insurerSlugForName } from '../_lib/insurers.js';
 import { seoCtaFooter } from '../_lib/seo-cta.js';
 const SITE='https://insureconnect.co.kr';
@@ -7,7 +7,7 @@ const ld=(o)=>`<script type="application/ld+json">${JSON.stringify(o).replace(/<
 const ageBand=(age)=>{ const n=Number(age); return Number.isFinite(n)&&n>0 ? `${Math.floor(n/10)*10}대` : '비공개'; };
 
 export async function onRequestGet({ params, env }) {
-  const disease=normalizeDisease(params.disease);
+  const disease=diseaseFromParam(params.disease);
   const rows=(await env.DB.prepare(`SELECT category, insurer, gender, age, elapsed_period, join_condition, result, summary, reliability, created_at FROM ic_insurance_cases WHERE ${CASES_INDEX_WHERE} AND TRIM(COALESCE(disease,'')) = ? ORDER BY reliability DESC, created_at DESC`).bind(disease).all()).results || [];
   if (!rows.length) return new Response('Not found',{status:404});
   const underwriting=rows.filter(r=>r.category==='underwrite'||r.category==='disclosure').length;

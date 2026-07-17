@@ -1,5 +1,19 @@
 # Changelog
 
+## [2.130.1] - 2026-07-18
+### Fixed (/cases 상세 페이지 params 디코딩)
+- `functions/_lib/cases-seo.js`: Cloudflare Pages Functions가 percent-encoded route param을 전달하는 런타임을 반영해 `diseaseFromParam()` 추가. `decodeURIComponent`는 1회만 수행하고, 깨진 인코딩은 throw 없이 원문으로 폴백해 자연 404 처리.
+- `functions/cases/[disease].js`: 상세 페이지 조회 키를 `normalizeDisease(params.disease)`에서 `diseaseFromParam(params.disease)`로 교체해 `/cases/%EC%B9%98%EB%A7%A4` 같은 인덱스 링크가 실제 질병명으로 D1 조회되도록 수정.
+- `tests/cases-disease-pages.test.js`: percent-encoded param, 이미 디코딩된 한글 param, 깨진 인코딩 404를 회귀 테스트로 고정.
+
+## [2.130.0] - 2026-07-17
+### Added (질병별 사례 롱테일 SSR 페이지)
+- `functions/_lib/cases-seo.js`: 질병명 NFC+trim 정규화, `/cases/{질병}` URL 생성, 색인 자격 기준(승인 3건 이상 및 인수/고지 1건 이상)을 단일 출처로 추가.
+- `functions/cases/index.js`, `functions/cases/[disease].js`: 질병별 사례 목록과 상세 SSR 페이지 추가. 상세는 승인 건수와 인수/고지 포함 여부에 따라 404, `noindex,follow`, `index,follow`를 분기하고 원문은 렌더/SELECT에서 제외.
+- `functions/_lib/insurers.js`, `functions/company/[slug].js`: 보험사명/별칭 정확일치 역매핑과 자격 질병 내부링크를 추가해 회사 페이지와 사례 페이지 간 교차 링크를 연결.
+- `functions/sitemap.xml.js`: 자격 질병 URL과 `/cases` 디렉터리를 사이트맵에 포함하고, `updated_at`/`approved_at`/`created_at` 기반 `lastmod`를 반영.
+- `functions/api/cases/index.js`, `functions/api/cases/[id].js`: 승인/반려/수정/삭제/질병명 변경 이벤트에서 해당 질병 URL과 `/cases`를 IndexNow 백그라운드 제출하도록 훅 추가.
+
 ## [2.129.0] - 2026-07-14
 ### Fixed (모바일 카드뉴스 뷰어 · 공유 링크 유입)
 - `index.html`: 모바일 `.cn-viewport` 의 고정 종횡비(16/9)를 제거하고 모달 본문을 flex column 으로 재구성. 390px 기기에서 뷰포트 높이 195px → 약 600px 로 확대되어 세로·정사각·가로 카드가 각 종횡비 기준 가용 영역 내 최대 크기로 표시된다.
