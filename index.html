@@ -6111,7 +6111,7 @@
       animation: jobsPulse 2.2s ease-in-out infinite;
     }
     .ic-posts-chips { display:flex; gap:6px; margin-left:auto; }
-    .ic-posts-chip { border:1px solid var(--border); border-radius:999px; padding:5px 11px; background:var(--bg-card); color:var(--txt-mid); font:700 12px/1.2 inherit; cursor:pointer; }
+    .ic-posts-chip { border:1px solid var(--border); border-radius:999px; padding:5px 11px; background:var(--bg-card); color:var(--txt-mid); font:700 12px/1.2 sans-serif; font-family:inherit; cursor:pointer; }
     .ic-posts-chip:hover { border-color:var(--blue-mid); color:var(--blue-mid); }
     .ic-posts-chip.active { border-color:transparent; color:#fff; background:linear-gradient(135deg,#1a3de8,#4f46e5); box-shadow:0 3px 10px rgba(26,61,232,.22); }
     [data-theme="dark"] .ic-posts-chip { background:rgba(255,255,255,.06); color:var(--txt-mid); }
@@ -17452,7 +17452,44 @@
     function _homeFeaturedBadge() {
       return '<span class="ic-job-new ic-job-featured-badge">🔝 상단</span>';
     }
+    /* HOME_POST_SELECTION_START */
+    const HOME_POST_KINDS = ['recruit', 'lecture', 'meetup'];
+    function _homePostIsFeatured(item) {
+      return item && (item.featured === true || Number(item.featured) === 1);
+    }
+    function _homePostCreatedAt(item) {
+      const timestamp = Date.parse(item && item.created_at ? item.created_at : '');
+      return Number.isFinite(timestamp) ? timestamp : 0;
+    }
+    function _homePostSort(items) {
+      return items.map((item, index) => ({ item, index })).sort((a, b) => {
+        const featuredOrder = Number(_homePostIsFeatured(b.item)) - Number(_homePostIsFeatured(a.item));
+        return featuredOrder || (_homePostCreatedAt(b.item) - _homePostCreatedAt(a.item)) || (a.index - b.index);
+      }).map(({ item }) => item);
+    }
+    function _selectHomePosts(items, kind) {
+      const sorted = _homePostSort(Array.isArray(items) ? items : []);
+      if (kind && kind !== 'all') return sorted.filter((item) => item.kind === kind).slice(0, 8);
+      const selected = sorted.slice(0, 8);
+      const availableKinds = HOME_POST_KINDS.filter((candidate) => sorted.some((item) => item.kind === candidate));
+      const selectedKinds = new Set(selected.map((item) => item.kind));
+      const missingKinds = availableKinds.filter((candidate) => !selectedKinds.has(candidate));
+      const usedIndexes = new Set();
+      for (const missingKind of missingKinds) {
+        const replacement = sorted.find((item) => item.kind === missingKind);
+        const replacementIndex = selected.map((item, index) => ({ item, index })).reverse().find(({ item, index }) => {
+          if (usedIndexes.has(index) || _homePostIsFeatured(item)) return false;
+          return selected.filter((selectedItem) => selectedItem.kind === item.kind).length > 1;
+        });
+        if (!replacement || !replacementIndex) continue;
+        usedIndexes.add(replacementIndex.index);
+        selected[replacementIndex.index] = replacement;
+      }
+      return selected;
+    }
+    /* HOME_POST_SELECTION_END */
     function _homeCardThumb(it, fallback, label, featured) {
+      const kind = it.kind || it._homeType;
       let thumb;
       if (it.file_url && it.file_type === 'image') {
         thumb = `<img src="${esc(it.file_url)}" alt="${esc(it.title)}" loading="lazy" decoding="async">`;
@@ -17461,8 +17498,12 @@
       } else {
         thumb = `<span class="ic-job-thumb-fallback">${fallback}</span>`;
       }
-      const newBadge = isNew(it.created_at) ? '<span class="ic-job-new">NEW</span>' : '';
-      return `${thumb}${newBadge}${featured ? _homeFeaturedBadge() : ''}${_homeTypeBadge(label, featured)}`;
+      const labels = { recruit: '채용', lecture: '강의', meetup: '모임' };
+      const categoryBadge = labels[kind]
+        ? `<span class="ic-home-category-badge ic-home-category-badge--${kind}">${labels[kind]}</span>`
+        : '';
+      const newBadge = isNew(it.created_at) ? '<span class="ic-job-new" style="top:auto;bottom:8px;left:8px;">NEW</span>' : '';
+      return `${thumb}${categoryBadge}${newBadge}${featured ? _homeFeaturedBadge() : ''}${_homeTypeBadge(label, featured)}`;
     }
     function _featuredSortValue(it) {
       return new Date(it.featured_until || it.created_at || 0).getTime() || 0;
@@ -17565,37 +17606,93 @@
         if (row) row.classList.add('ibh-aii-row--no-notice');
       }
     }
-    async function loadHomeJobs() {
-      const grid = document.getElementById('home-jobs-grid');
-      if (!grid) return;
-      try {
-        const res = await fetch(`/api/recruitments?limit=4`);
-        if (!res.ok) throw new Error('fetch failed');
-        const items = await res.json();
-        if (!Array.isArray(items) || items.length === 0) {
-          grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 채용공고가 없습니다.</div>';
-          return;
-        }
-        await _ensureShareCounts(); // v2.1.31: 공유 카운트 배지용
-        grid.innerHTML = items.map(it => {
-          const shareBadge = _shareBadge('recruit', it.id);
-          const typeLabel = it.file_url && it.file_type === 'image' ? '🖼 이미지' : (it.file_url && it.file_type === 'pdf' ? '📄 PDF' : '✍ TEXT');
-          return `<button class="ic-job-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="window.__openHomeJob(${it.id})">
-            <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareRecruit(${it.id}, event)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-            </span>
-            <div class="ic-job-thumb">${_homeCardThumb(it, '📝', typeLabel, !!it.featured)}${shareBadge}</div>
-            <div class="ic-job-body">
-              ${it.company_name ? `<div class="ic-job-company">${esc(it.company_name)}</div>` : ''}
-              <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}</div>
-            </div>
-          </button>`;
-        }).join('');
-      } catch (e) {
-        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">채용공고 로드 실패. 잠시 후 다시 시도해주세요.</div>';
-      }
+    function _homePostCard(item) {
+      const meta = item.kind === 'lecture'
+        ? { open: '__openHomeLecture', share: 'shareLecture', fallback: '🎓', label: '강의', sub: item.instructor }
+        : item.kind === 'meetup'
+        ? { open: '__openHomeMeetup', share: 'shareMeetup', fallback: '🤝', label: '모임', sub: [item.host, item.location].filter(Boolean).join(' · ') }
+        : { open: '__openHomeJob', share: 'shareRecruit', fallback: '📝', label: '채용', sub: item.company_name };
+      const typeLabel = item.file_url && item.file_type === 'image' ? '🖼 이미지' : (item.file_url && item.file_type === 'pdf' ? '📄 PDF' : `📝 ${meta.label}`);
+      const participantMeta = item.kind === 'meetup' && item.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${item.participant_count}명</span>` : '';
+      return `<button class="ic-job-card${_homePostIsFeatured(item) ? ' rc-featured' : ''}" type="button" onclick="window.${meta.open}(${item.id})">
+        <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="${meta.share}(${item.id}, event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
+        </span>
+        <div class="ic-job-thumb">${_homeCardThumb(item, meta.fallback, typeLabel, _homePostIsFeatured(item))}${_shareBadge(item.kind, item.id)}</div>
+        <div class="ic-job-body">
+          ${meta.sub ? `<div class="ic-job-company">${esc(meta.sub)}</div>` : ''}
+          <div class="ic-job-title">${esc(item.title)}</div>
+          <div class="ic-job-date">${fmtDate(item.created_at)} ${_viewsMeta(item.views)}${participantMeta}</div>
+        </div>
+      </button>`;
     }
+
+    let homePostsCache = [];
+    let homePostsLoaded = false;
+    let homePostsLoadPromise = null;
+    let homePostsAllFailed = false;
+    let activeHomePostKind = 'all';
+    let homePostsRenderVersion = 0;
+
+    async function _fetchHomePosts(kind, url) {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`home ${kind} fetch failed`);
+      const items = await response.json();
+      return (Array.isArray(items) ? items : []).map((item) => ({ ...item, kind }));
+    }
+
+    async function _renderHomePosts(kind) {
+      const grid = document.getElementById('home-posts-grid');
+      if (!grid) return;
+      activeHomePostKind = kind || 'all';
+      const renderVersion = ++homePostsRenderVersion;
+      if (homePostsAllFailed) {
+        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">공고를 불러오지 못했습니다. 잠시 후 다시 시도해주세요.</div>';
+        return;
+      }
+      const items = _selectHomePosts(homePostsCache, activeHomePostKind);
+      if (!items.length) {
+        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 공고가 없습니다.</div>';
+        return;
+      }
+      await _ensureShareCounts();
+      if (renderVersion !== homePostsRenderVersion) return;
+      grid.innerHTML = items.map(_homePostCard).join('');
+    }
+
+    function _bindHomePostChips() {
+      document.querySelectorAll('.ic-posts-chip').forEach((chip) => {
+        if (chip.dataset.bound === '1') return;
+        chip.dataset.bound = '1';
+        chip.addEventListener('click', () => {
+          document.querySelectorAll('.ic-posts-chip').forEach((candidate) => candidate.classList.toggle('active', candidate === chip));
+          _renderHomePosts(chip.dataset.kind);
+        });
+      });
+    }
+
+    async function loadHomePosts() {
+      const grid = document.getElementById('home-posts-grid');
+      if (!grid) return;
+      _bindHomePostChips();
+      if (!homePostsLoaded) {
+        if (!homePostsLoadPromise) {
+          homePostsLoadPromise = Promise.allSettled([
+            _fetchHomePosts('recruit', '/api/recruitments?limit=8'),
+            _fetchHomePosts('lecture', '/api/lectures?limit=8'),
+            _fetchHomePosts('meetup', '/api/meetings?limit=8'),
+          ]).then((results) => {
+            const successful = results.filter((result) => result.status === 'fulfilled');
+            homePostsCache = successful.flatMap((result) => result.value);
+            homePostsAllFailed = successful.length === 0;
+            homePostsLoaded = true;
+          });
+        }
+        await homePostsLoadPromise;
+      }
+      await _renderHomePosts(activeHomePostKind);
+    }
+    async function loadHomeJobs() { return loadHomePosts(); }
 
     const KAKAO_HIGHLIGHT_MAX_AGE = 42 * 24 * 60 * 60 * 1000;
     function kakaoHighlightFresh(d) {
@@ -17715,36 +17812,7 @@
       setTimeout(() => tryOpen(15), 250);
     };
 
-    /* 홈 진행중인 강의 (최신 4건) */
-    async function loadHomeLectures() {
-      const grid = document.getElementById('home-lectures-grid');
-      if (!grid) return;
-      try {
-        const res = await fetch('/api/lectures?limit=4');
-        const items = await res.json();
-        if (!Array.isArray(items) || !items.length) {
-          grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 강의가 없습니다.</div>';
-          return;
-        }
-        await _ensureShareCounts(); // v2.1.31
-        grid.innerHTML = items.map((it, i) => {
-          const typeLabel = it.file_url && it.file_type === 'image' ? '🖼 이미지' : (it.file_url && it.file_type === 'pdf' ? '📄 PDF' : '📝 강의');
-          return `<button class="ic-job-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="window.__openHomeLecture(${it.id})">
-            <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareLecture(${it.id}, event)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-            </span>
-            <div class="ic-job-thumb">${_homeCardThumb(it, '🎓', typeLabel, !!it.featured)}${_shareBadge('lecture', it.id)}</div>
-            <div class="ic-job-body">
-              ${it.instructor ? `<div class="ic-job-company">${esc(it.instructor)}</div>` : ''}
-              <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}</div>
-            </div>
-          </button>`;
-        }).join('');
-      } catch (e) {
-        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">강의 로드 실패</div>';
-      }
-    }
+    async function loadHomeLectures() { return loadHomePosts(); }
     window.__openHomeLecture = function(id) {
       if (typeof goToPage === 'function') goToPage('lecture');
       const tryOpen = (n) => {
@@ -17757,37 +17825,7 @@
       setTimeout(() => tryOpen(15), 250);
     };
 
-    /* v2.62.0: 홈 진행중인 모임 (최신 4건) */
-    async function loadHomeMeetups() {
-      const grid = document.getElementById('home-meetups-grid');
-      if (!grid) return;
-      try {
-        const res = await fetch('/api/meetings?limit=4');
-        const items = await res.json();
-        if (!Array.isArray(items) || !items.length) {
-          grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">현재 등록된 모임이 없습니다.</div>';
-          return;
-        }
-        await _ensureShareCounts();
-        grid.innerHTML = items.map((it, i) => {
-          const typeLabel = it.file_url && it.file_type === 'image' ? '🖼 이미지' : (it.file_url && it.file_type === 'pdf' ? '📄 PDF' : '📝 모임');
-          const sub = [it.host, it.location].filter(Boolean).map(esc).join(' · ');
-          return `<button class="ic-job-card${it.featured ? ' rc-featured' : ''}" type="button" onclick="window.__openHomeMeetup(${it.id})">
-            <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="shareMeetup(${it.id}, event)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-            </span>
-            <div class="ic-job-thumb">${_homeCardThumb(it, '🤝', typeLabel, !!it.featured)}${_shareBadge('meetup', it.id)}</div>
-            <div class="ic-job-body">
-              ${sub ? `<div class="ic-job-company">${sub}</div>` : ''}
-              <div class="ic-job-title">${esc(it.title)}</div>
-              <div class="ic-job-date">${fmtDate(it.created_at)} ${_viewsMeta(it.views)}${it.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${it.participant_count}명</span>` : ''}</div>
-            </div>
-          </button>`;
-        }).join('');
-      } catch (e) {
-        grid.innerHTML = '<div class="ic-jobs-empty" style="grid-column:1/-1;">모임 로드 실패</div>';
-      }
-    }
+    async function loadHomeMeetups() { return loadHomePosts(); }
     window.__openHomeMeetup = function(id) {
       if (typeof goToPage === 'function') goToPage('meetup');
       const tryOpen = (n) => {
@@ -17958,69 +17996,17 @@
     /** 모바일 홈 데이터 로드 (PC와 같은 API 사용) */
     async function loadMobileHome() {
       if (!document.body.classList.contains('ic-mobile')) return;
-      const escH = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
       loadMobileStats();
       _mApplyThemeActive();
 
       // v2.1.26: 모바일 파트너 프로모션 배너 기능 제거 (사이드바 배너 시스템 폐지)
-
-      // 채용공고
-      try {
-        const r = await fetch('/api/recruitments?limit=3');
-        const items = await r.json();
-        const el = document.getElementById('m-home-jobs');
-        if (el && !items.length) { el.innerHTML = '<div class="ic-m-list-empty">현재 등록된 채용공고가 없습니다</div>'; }
-        else if (el) {
-          el.innerHTML = items.map(it => {
-            const thumb = (it.file_url && it.file_type === 'image')
-              ? `<img src="${escH(it.file_url)}" alt="">` : '🔥';
-            return `<div class="ic-m-list-item has-copy" onclick="window.__openHomeJob(${it.id})">
-              <div class="ic-m-list-thumb">${thumb}</div>
-              <div class="ic-m-list-body">
-                <div class="ic-m-list-title">${escH(it.title)}</div>
-                <div class="ic-m-list-meta">${escH(it.company_name||'')}</div>
-              </div>
-              <span class="ic-m-list-copy" role="button" aria-label="링크 복사" onclick="shareRecruit(${it.id}, event)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-              </span>
-            </div>`;
-          }).join('');
-        }
-      } catch (_) {}
-
-      // 강의
-      try {
-        const r = await fetch('/api/lectures?limit=3');
-        const items = await r.json();
-        const el = document.getElementById('m-home-lectures');
-        if (el && !items.length) { el.innerHTML = '<div class="ic-m-list-empty">현재 등록된 강의가 없습니다</div>'; }
-        else if (el) {
-          el.innerHTML = items.map(it => {
-            const thumb = (it.file_url && it.file_type === 'image')
-              ? `<img src="${escH(it.file_url)}" alt="">` : '🎓';
-            return `<div class="ic-m-list-item has-copy" onclick="window.__openHomeLecture(${it.id})">
-              <div class="ic-m-list-thumb">${thumb}</div>
-              <div class="ic-m-list-body">
-                <div class="ic-m-list-title">${escH(it.title)}</div>
-                <div class="ic-m-list-meta">${escH(it.instructor||'')}</div>
-              </div>
-              <span class="ic-m-list-copy" role="button" aria-label="링크 복사" onclick="shareLecture(${it.id}, event)">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
-              </span>
-            </div>`;
-          }).join('');
-        }
-      } catch (_) {}
-
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { loadHomeFeatured(); loadHomeJobs(); loadHomeLectures(); loadHomeMeetups(); loadKakaoRank(); loadHomeNotice(); loadMobileHome(); });
+      document.addEventListener('DOMContentLoaded', () => { loadHomeFeatured(); loadHomePosts(); loadKakaoRank(); loadHomeNotice(); loadMobileHome(); });
     } else {
       loadHomeFeatured();
-      loadHomeJobs();
-      loadHomeLectures();
-      loadHomeMeetups();
+      loadHomePosts();
       loadKakaoRank();
       loadHomeNotice();
       loadMobileHome();
