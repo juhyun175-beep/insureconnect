@@ -192,6 +192,7 @@ module.exports = (async () => {
         crossCalls.push(args);
         return '<section data-cross></section>';
       },
+      renderPage: ({ bodyHtml }) => '<!doctype html><html><body>' + bodyHtml + '</body></html>',
     });
     const env = { DB: makeRouteDb() };
     const html = await (await companyRoute.onRequestGet({ params: { slug: 'samsung-life' }, env })).text();
