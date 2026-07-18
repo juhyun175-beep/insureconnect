@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.133.0] - 2026-07-18
+### Changed (홈 새로운 공고 통합)
+- `index.html`: 채용·강의·모임 홈 섹션을 `새로운 공고` 단일 섹션과 카테고리 칩으로 통합.
+- `index.html`: featured 우선·최신순 정렬과 카테고리 인터리브 규칙으로 상단노출 가치를 보호하고, 기존 3개 로더 별칭을 호환성 목적으로 유지.
+- `index.html`: 실제 모바일 대상이 없는 채용·강의 dead fetch 2건을 제거.
+
 ## [2.132.0] - 2026-07-18
 ### Changed (SSR 공용 셸 및 /cases 디자인 통일)
 - `functions/_lib/ssr-shell.js`: 회사 상세 페이지의 검증된 style·`.c-head`·`.card` 레이아웃과 공통 문서 조립을 `shellStyle()`/`renderPage()`로 추출. viewport, breadcrumb, 조건부 canonical, 다중 JSON-LD escape, `seoCtaFooter`를 공용화.
