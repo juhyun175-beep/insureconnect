@@ -320,7 +320,7 @@ Add one renderer that preserves the existing card and event signatures:
         : { open: '__openHomeJob', share: 'shareRecruit', fallback: '📝', label: '채용', sub: item.company_name };
       const typeLabel = item.file_url && item.file_type === 'image' ? '🖼 이미지' : (item.file_url && item.file_type === 'pdf' ? '📄 PDF' : `📝 ${meta.label}`);
       const participantMeta = item.kind === 'meetup' && item.participant_count ? ` · <span style="color:#0d9488;font-weight:700;">👥 ${item.participant_count}명</span>` : '';
-      return `<button class="ic-job-card${item.featured ? ' rc-featured' : ''}" type="button" onclick="window.${meta.open}(${item.id})">
+      return `<button class="ic-job-card${_homePostIsFeatured(item) ? ' rc-featured' : ''}" type="button" onclick="window.${meta.open}(${item.id})">
         <span class="ic-job-copy" role="button" tabindex="0" title="링크 복사" onclick="${meta.share}(${item.id}, event)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 007.07 0l2.83-2.83a5 5 0 00-7.07-7.07L11.5 4.5"/><path d="M14 11a5 5 0 00-7.07 0L4.1 13.83a5 5 0 007.07 7.07L12.5 19.5"/></svg>
         </span>
