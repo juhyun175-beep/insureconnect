@@ -6110,6 +6110,17 @@
       box-shadow: 0 2px 8px rgba(239,68,68,0.30);
       animation: jobsPulse 2.2s ease-in-out infinite;
     }
+    .ic-posts-chips { display:flex; gap:6px; margin-left:auto; }
+    .ic-posts-chip { border:1px solid var(--border); border-radius:999px; padding:5px 11px; background:var(--bg-card); color:var(--txt-mid); font:700 12px/1.2 inherit; cursor:pointer; }
+    .ic-posts-chip:hover { border-color:var(--blue-mid); color:var(--blue-mid); }
+    .ic-posts-chip.active { border-color:transparent; color:#fff; background:linear-gradient(135deg,#1a3de8,#4f46e5); box-shadow:0 3px 10px rgba(26,61,232,.22); }
+    [data-theme="dark"] .ic-posts-chip { background:rgba(255,255,255,.06); color:var(--txt-mid); }
+    [data-theme="dark"] .ic-posts-chip.active { color:#fff; background:linear-gradient(135deg,#3557f4,#6366f1); }
+    .ic-home-category-badge { position:absolute; top:8px; left:8px; z-index:3; padding:3px 8px; border-radius:999px; color:#fff; font-size:9.5px; font-weight:800; box-shadow:0 2px 6px rgba(0,0,0,.2); }
+    .ic-home-category-badge--recruit { background:linear-gradient(135deg,#1a3de8,#4f46e5); }
+    .ic-home-category-badge--lecture { background:linear-gradient(135deg,#10b981,#059669); }
+    .ic-home-category-badge--meetup { background:linear-gradient(135deg,#0d9488,#0ea5e9); }
+    @media (max-width:480px) { .ic-jobs-head { align-items:flex-start; flex-wrap:wrap; } .ic-posts-chips { width:100%; margin-left:0; overflow:auto; } }
     /* v2.96.2: box-shadow 애니 → opacity(합성). 정적 box-shadow는 .ic-jobs-pill에 유지. 매 프레임 repaint 제거 */
     @keyframes jobsPulse {
       0%, 100% { opacity: 1; }
@@ -9603,56 +9614,27 @@
       <div class="ic-featured-grid" id="home-featured-grid"></div>
     </section>
 
-    <!-- v2.85.0: 채용·강의·모임 공고 섹션 — 실시간 방문기록 보드 바로 아래로 이동 -->
-    <div class="ic-jobs-pair">
-      <!-- ══ 진행중인 채용공고 ══ -->
-      <section class="ic-jobs" aria-label="진행중인 채용공고">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            진행중인 채용공고
-            <span class="ic-jobs-pill">HIRING</span>
-          </div>
+    <!-- ══ 새로운 공고 (채용·강의·모임 통합) ══ -->
+    <section class="ic-jobs" aria-label="새로운 공고">
+      <div class="ic-jobs-head">
+        <div class="ic-jobs-title">
+          새로운 공고
+          <span class="ic-jobs-pill">NEW</span>
         </div>
-        <div class="ic-jobs-grid" id="home-jobs-grid" data-tour="jobs">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
+        <div class="ic-posts-chips" role="tablist" aria-label="공고 카테고리">
+          <button type="button" class="ic-posts-chip active" data-kind="all">전체</button>
+          <button type="button" class="ic-posts-chip" data-kind="recruit">채용</button>
+          <button type="button" class="ic-posts-chip" data-kind="lecture">강의</button>
+          <button type="button" class="ic-posts-chip" data-kind="meetup">모임</button>
         </div>
-      </section>
-
-      <!-- ══ 진행중인 강의 ══ -->
-      <section class="ic-jobs" aria-label="진행중인 강의">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            진행중인 강의
-            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#10b981,#059669);">LIVE</span>
-          </div>
-        </div>
-        <div class="ic-jobs-grid" id="home-lectures-grid">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
-
-      <!-- ══ 진행중인 모임 ══ -->
-      <section class="ic-jobs" aria-label="진행중인 모임">
-        <div class="ic-jobs-head">
-          <div class="ic-jobs-title">
-            진행중인 모임
-            <span class="ic-jobs-pill" style="background:linear-gradient(135deg,#0d9488,#0ea5e9);">MEET</span>
-          </div>
-        </div>
-        <div class="ic-jobs-grid" id="home-meetups-grid">
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-          <div class="ic-jobs-skel"></div>
-        </div>
-      </section>
-    </div>
+      </div>
+      <div class="ic-jobs-grid" id="home-posts-grid" data-tour="jobs">
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+      </div>
+    </section>
       </div>
       <!-- v2.110.0: 오픈채팅방 대화순위 — 상단 공고 블록 우측으로 이동 -->
       <div class="ic-kakao-panel" aria-label="오픈채팅방 대화 순위">
