@@ -152,7 +152,24 @@ module.exports = (async () => {
     const source = fs.readFileSync(path.join(root, file), 'utf8').replace(/\r\n/g, '\n');
     assert(source.includes(`import { seoPostingWidget } from '${importPath}';`), `${file} should import seoPostingWidget`);
     assert(source.includes('const postingWidget = await seoPostingWidget(env);'), `${file} should build widget inside handler`);
-    assert(source.includes('${postingWidget}\n${seoCtaFooter(SITE)}'), `${file} should render widget immediately before SEO CTA footer`);
+    if (file === 'functions/company/[slug].js') {
+      const bodyStart = source.indexOf('const bodyHtml =');
+      const renderStart = source.indexOf('const html = renderPage', bodyStart);
+      assert(bodyStart >= 0 && renderStart > bodyStart, `${file} should assemble bodyHtml before renderPage`);
+      const bodySource = source.slice(bodyStart, renderStart);
+      assert(bodySource.includes('${postingWidget}'), `${file} should include the widget in bodyHtml`);
+      assert(source.includes('bodyHtml,'), `${file} should pass bodyHtml to renderPage`);
+    } else {
+      assert(source.includes('${postingWidget}\n${seoCtaFooter(SITE)}'), `${file} should render widget immediately before SEO CTA footer`);
+    }
+  }
+
+  {
+    const shell = fs.readFileSync(path.join(root, 'functions/_lib/ssr-shell.js'), 'utf8').replace(/\r\n/g, '\n');
+    const bodyIndex = shell.indexOf('${bodyHtml}');
+    const footerIndex = shell.indexOf('${seoCtaFooter(site)}');
+    assert(bodyIndex >= 0, 'SSR shell should render bodyHtml');
+    assert(footerIndex > bodyIndex, 'SSR shell should render SEO CTA footer after bodyHtml');
   }
 
   {

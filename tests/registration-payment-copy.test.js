@@ -22,13 +22,20 @@ for (const phrase of [
 for (const phrase of [
   '등록비 입금 안내',
   '입금자명',
-  '입금완료·신청제출',
-  '관리자가 입금 확인 + 승인 후 공고가 업로드됩니다',
+  '신청 제출 →',
+  '관리자가 결제(입금) 확인 + 승인 후 공고가 업로드됩니다',
 ]) {
   assert(
     indexHtml.includes(phrase),
     `bank-transfer posting flow should remain: ${phrase}`,
   );
 }
+
+assert(indexHtml.includes('id="sm-submit-btn"'), 'posting modal should keep the submit button id');
+assert.match(
+  indexHtml,
+  /id="sm-submit-btn"[\s\S]{0,300}>\s*신청 제출 →\s*<\/button>/,
+  'posting modal should expose the current submit button copy',
+);
 
 console.log('registration payment copy tests passed');
