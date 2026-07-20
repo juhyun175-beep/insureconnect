@@ -6144,10 +6144,11 @@
     }
     .ic-jobs-grid {
       display: grid;
-      /* v2.0.7/8: 채용·강의 각각 내부 2열 (좌우 섹션이 가로로 배치되어 총 4열) */
-      grid-template-columns: repeat(2, 1fr);
+      /* v2.134.0: 새로운 공고 5열×5행(최대 25건) — 좁은 화면은 2열→1열로 축소 */
+      grid-template-columns: repeat(5, 1fr);
       gap: 12px;
     }
+    @media (max-width: 768px) { .ic-jobs-grid { grid-template-columns: repeat(2, 1fr); } }
     @media (max-width: 480px) { .ic-jobs-grid { grid-template-columns: 1fr; } }
 
     /* v2.0.8: 채용공고 + 강의 가로 페어 (PC) / v2.62.0: 모임 추가 → 3열 */
@@ -9629,10 +9630,11 @@
         </div>
       </div>
       <div class="ic-jobs-grid" id="home-posts-grid" data-tour="jobs">
-        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
-        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
+        <div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div><div class="ic-jobs-skel"></div>
       </div>
     </section>
       </div>
@@ -17454,6 +17456,7 @@
     }
     /* HOME_POST_SELECTION_START */
     const HOME_POST_KINDS = ['recruit', 'lecture', 'meetup'];
+    const HOME_POST_LIMIT = 25; /* v2.134.0: 5열×5행 */
     function _homePostIsFeatured(item) {
       return item && (item.featured === true || Number(item.featured) === 1);
     }
@@ -17469,8 +17472,8 @@
     }
     function _selectHomePosts(items, kind) {
       const sorted = _homePostSort(Array.isArray(items) ? items : []);
-      if (kind && kind !== 'all') return sorted.filter((item) => item.kind === kind).slice(0, 8);
-      const selected = sorted.slice(0, 8);
+      if (kind && kind !== 'all') return sorted.filter((item) => item.kind === kind).slice(0, HOME_POST_LIMIT);
+      const selected = sorted.slice(0, HOME_POST_LIMIT);
       const availableKinds = HOME_POST_KINDS.filter((candidate) => sorted.some((item) => item.kind === candidate));
       const selectedKinds = new Set(selected.map((item) => item.kind));
       const missingKinds = availableKinds.filter((candidate) => !selectedKinds.has(candidate));
@@ -17678,9 +17681,9 @@
       if (!homePostsLoaded) {
         if (!homePostsLoadPromise) {
           homePostsLoadPromise = Promise.allSettled([
-            _fetchHomePosts('recruit', '/api/recruitments?limit=8'),
-            _fetchHomePosts('lecture', '/api/lectures?limit=8'),
-            _fetchHomePosts('meetup', '/api/meetings?limit=8'),
+            _fetchHomePosts('recruit', '/api/recruitments?limit=25'),
+            _fetchHomePosts('lecture', '/api/lectures?limit=25'),
+            _fetchHomePosts('meetup', '/api/meetings?limit=25'),
           ]).then((results) => {
             const successful = results.filter((result) => result.status === 'fulfilled');
             homePostsCache = successful.flatMap((result) => result.value);
