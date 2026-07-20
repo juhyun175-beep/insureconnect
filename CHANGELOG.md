@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.135.0] - 2026-07-20
+### Changed (SEO 광고 팝업 홈 정책 통일)
+- `functions/_lib/seo-cta.js`: SEO 랜딩 광고 팝업(`#ic-adpop`)의 하드코딩 정책(5초 딜레이·기기당 3일 쿨다운 `ic_adpop_v1`) 제거. `/api/home-ad`의 관리자 설정(`popup.delay_ms`, 기본 900ms / `popup.frequency`: off·always·session·once_day)을 홈과 동일하게 준수 — session·once_day 스토리지 키(`ic_homead_pop`, `ic_homead_pop_day`)를 홈과 공유해 어느 쪽에서 봤든 함께 게이트. 스토리지 마킹은 gate 판정이 아닌 실제 `show()` 시점에 수행해 딜레이 전 이탈 시 노출 기회를 보존. `ic_adpop_v1` 키는 더 이상 읽지도 쓰지도 않음.
+- `functions/_lib/seo-cta.js`: 첫 캠페인(`arr[0]`) 고정 노출을 홈 `pickCampaign`과 동일한 로테이션(sequential `ic_homead_seq` 카운터 공유·random·weight)으로 교체(홈이 인라인 스크립트라 자체 복제본으로 포함). 봇 UA 제외, 데스크톱 이탈의도 조기 노출, `popimp:{id}`/`click:{id}` 추적, 단일 이미지 노출은 유지.
+- `tests/seo-cta-home-ad-schema.test.js`: 구 정책(5초·3일 쿨다운·첫 캠페인 고정) 회귀 검증을 관리자 설정 준수·홈 키 공유·show 시점 마킹·로테이션 검증으로 갱신.
+
 ## [2.134.0] - 2026-07-20
 ### Changed (홈 새로운 공고 5열×5행 확대)
 - `index.html`: 홈 대시보드 `새로운 공고` 그리드를 2열×4행(8건)에서 5열×5행(최대 25건)으로 확대. 768px 이하 2열, 480px 이하 1열로 축소해 모바일 레이아웃 유지.
