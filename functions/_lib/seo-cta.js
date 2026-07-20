@@ -140,20 +140,56 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
   </div>
 </div>
 <script>
-/* v2.31.0: 광고 팝업(제휴상품) — SEO 랜딩 전 페이지. 비침입형: 5초 후 or 데스크톱 이탈의도, 기기당 3일 쿨다운, 봇제외, 노출/클릭 추적
-   v2.64.0: 하드코딩 제거 — 관리자 업로드 배너(/api/home-ad)로 매번 교체. 설정 없으면 광고 미표시. */
+/* v2.31.0: 광고 팝업(제휴상품) — SEO 랜딩 전 페이지. 봇제외, 노출/클릭 추적
+   v2.64.0: 하드코딩 제거 — 관리자 업로드 배너(/api/home-ad)로 매번 교체. 설정 없으면 광고 미표시.
+   v2.135.0: 홈 광고 정책과 통일 — 하드코딩 5초 딜레이·기기당 3일 쿨다운(전용 localStorage 키) 제거.
+   popup.delay_ms/frequency 준수(session·once_day 스토리지 키는 홈과 공유), 캠페인 로테이션 적용.
+   스토리지 마킹은 gate 판정이 아닌 실제 show() 시점 — 딜레이 전 이탈해도 노출 기회 미소진. */
 (function(){
-  var KEY='ic_adpop_v1';
-  try{ var last=parseInt(localStorage.getItem(KEY)||'0',10)||0; if(Date.now()-last < 3*86400000) return; }catch(e){}
   if(/bot|crawler|spider|scrap|preview|naverbot|yeti|googlebot|bingbot|headless/i.test(navigator.userAgent||'')) return;
   function track(card){ try{ fetch('/api/track/card-click',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({menu:'홈광고',card:card})}); }catch(e){} }
+  function kstToday(){ return new Date(Date.now()+9*3600*1000).toISOString().slice(0,10); }
+  /* index.html 홈 home-ad 스크립트의 pickCampaign 복제본 (홈은 인라인 스크립트라 import 공유 불가). 로직 수정 시 양쪽 동기화 */
+  function pickCampaign(cfg){
+    var arr=(cfg.campaigns||[]).filter(function(c){ return c && c.images && c.images.length; });
+    if(!arr.length) return null;
+    if(arr.length===1) return arr[0];
+    var rot=cfg.rotation||'sequential', i;
+    if(rot==='random'){ return arr[Math.floor(Math.random()*arr.length)]; }
+    if(rot==='weight'){
+      var tot=0; for(i=0;i<arr.length;i++) tot+=Math.max(1,arr[i].weight||1);
+      var r=Math.random()*tot;
+      for(i=0;i<arr.length;i++){ r-=Math.max(1,arr[i].weight||1); if(r<=0) return arr[i]; }
+      return arr[arr.length-1];
+    }
+    var n=0; try{ n=parseInt(localStorage.getItem('ic_homead_seq')||'0',10)||0; localStorage.setItem('ic_homead_seq', String((n+1)%100000)); }catch(_){}
+    return arr[n % arr.length];
+  }
+  /* 홈 popupAllowed와 동일 판정 기준 — 마킹만 markShown(show 시점)으로 분리 */
+  function freqAllowed(popup){
+    if(!popup || popup.enabled===false) return false;
+    var freq=popup.frequency||'once_day';
+    if(freq==='off') return false;
+    if(freq==='always') return true;
+    try{
+      if(freq==='session') return !sessionStorage.getItem('ic_homead_pop');
+      if(freq==='once_day') return localStorage.getItem('ic_homead_pop_day')!==kstToday();
+    }catch(_){ return true; }
+    return true;
+  }
+  function markShown(popup){
+    var freq=(popup&&popup.frequency)||'once_day';
+    try{
+      if(freq==='session') sessionStorage.setItem('ic_homead_pop','1');
+      if(freq==='once_day') localStorage.setItem('ic_homead_pop_day', kstToday());
+    }catch(_){}
+  }
   fetch('/api/home-ad').then(function(r){return r.json();}).then(function(d){
     if(!d||!d.ok||!d.config) return;
     var cfg=d.config;
-    if(cfg.popup && cfg.popup.enabled===false) return;
-    var arr=(cfg.campaigns||[]).filter(function(x){ return x && x.images && x.images.length; });
-    if(!arr.length) return;
-    var c=arr[0];
+    if(!freqAllowed(cfg.popup)) return;
+    var c=pickCampaign(cfg);
+    if(!c) return;
     var imgs=(c.images||[]).filter(Boolean);
     if(!imgs.length) return;
     var el=document.getElementById('ic-adpop'); if(!el) return;
@@ -163,14 +199,15 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
     function show(){
       if(shown) return; shown=true;
       el.classList.add('show'); document.body.style.overflow='hidden';
-      try{ localStorage.setItem(KEY,String(Date.now())); }catch(e){}
+      markShown(cfg.popup);
       track('popimp:'+c.id);
       function close(){ el.classList.remove('show'); document.body.style.overflow=''; }
       var x=el.querySelector('.ic-adpop-x'); if(x) x.addEventListener('click',close);
       el.addEventListener('click',function(e){ if(e.target===el) close(); });
       if(lk) lk.addEventListener('click',function(){ track('click:'+c.id); });
     }
-    setTimeout(show, 5000);
+    var delay=(cfg.popup && cfg.popup.delay_ms!=null)?cfg.popup.delay_ms:900;
+    setTimeout(show, delay);
     if(!/Mobi|Android|iPhone|iPad/i.test(navigator.userAgent||'')){
       document.addEventListener('mouseout',function(e){ if((e.clientY||0)<=0 && !e.relatedTarget) show(); });
     }
