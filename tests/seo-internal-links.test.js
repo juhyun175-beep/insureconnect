@@ -173,6 +173,7 @@ module.exports = (async () => {
       INSURER_MAP: { 'samsung-life': insurers[0] },
       TYPE_LABEL: { life: '생명보험' },
       insurerNames: () => ['삼성생명', '삼성'],
+      safeInsurerNames: () => ['삼성생명', '삼성'],
       loadCompanyContent: async () => ({ coverages: [], cases: [], boardPosts: [] }),
       seoCtaFooter: () => '<footer></footer>',
       seoShareBar: () => '<div data-share></div>',

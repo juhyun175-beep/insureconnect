@@ -1,5 +1,11 @@
 # Changelog
 
+## [2.136.0] - 2026-07-22
+### Fixed (/company 보험사별 유니크 콘텐츠 복원)
+- `functions/company/[slug].js`, `functions/_lib/company-content.js`: 승인 담보·사례를 회사 상세에 표와 카드로 다시 노출하고, 메타 설명에서 원문 연락처 번호를 제거했습니다.
+- `functions/_lib/insurers.js`: 여러 보험사를 가리키는 `한화`·`현대`·`DB` 별칭을 회사별 콘텐츠 조회에서 제외해 데이터 혼입을 막았습니다.
+- `functions/sitemap.xml.js`: 안전한 보험사 별칭과 승인 담보 변경 시각을 회사 페이지 `lastmod` 집계에 반영했습니다.
+
 ## [2.135.0] - 2026-07-20
 ### Changed (SEO 광고 팝업 홈 정책 통일)
 - `functions/_lib/seo-cta.js`: SEO 랜딩 광고 팝업(`#ic-adpop`)의 하드코딩 정책(5초 딜레이·기기당 3일 쿨다운 `ic_adpop_v1`) 제거. `/api/home-ad`의 관리자 설정(`popup.delay_ms`, 기본 900ms / `popup.frequency`: off·always·session·once_day)을 홈과 동일하게 준수 — session·once_day 스토리지 키(`ic_homead_pop`, `ic_homead_pop_day`)를 홈과 공유해 어느 쪽에서 봤든 함께 게이트. 스토리지 마킹은 gate 판정이 아닌 실제 `show()` 시점에 수행해 딜레이 전 이탈 시 노출 기회를 보존. `ic_adpop_v1` 키는 더 이상 읽지도 쓰지도 않음.

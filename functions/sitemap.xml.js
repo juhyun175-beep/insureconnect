@@ -3,7 +3,7 @@
  * v2.1.39: 채용공고/강의공고/카드뉴스 + 기존 보험지식 + 정적 URL 통합
  *           Google Jobs / 네이버 검색 노출용 인덱싱 시드
  */
-import { INSURERS, insurerNames } from './_lib/insurers.js';
+import { INSURERS, safeInsurerNames } from './_lib/insurers.js';
 import { GA_LIST } from './_lib/ga-companies.js';
 import { BOARD_SEO_WHERE } from './_lib/board-seo.js';
 import { caseDiseaseUrl, CASES_INDEX_WHERE } from './_lib/cases-seo.js';
@@ -30,7 +30,7 @@ const STATIC_LASTMOD = '2026-07-04';
 
 export async function loadCompanyLastmods(env) {
   const names = INSURERS.flatMap((ins) =>
-    insurerNames(ins.slug).map((name) => ({ slug: ins.slug, name, official: name === ins.name ? 1 : 0 }))
+    safeInsurerNames(ins.slug).map((name) => ({ slug: ins.slug, name, official: name === ins.name ? 1 : 0 }))
   );
   try {
     const rs = await env.DB.prepare(
@@ -44,10 +44,15 @@ export async function loadCompanyLastmods(env) {
          FROM insurer_names names
          JOIN ic_claim_forms forms ON forms.company = names.name
          UNION ALL
-         SELECT names.slug, cases.created_at
+         SELECT names.slug, COALESCE(cases.updated_at, cases.approved_at, cases.created_at) AS created_at
          FROM insurer_names names
          JOIN ic_insurance_cases cases ON cases.insurer = names.name
          WHERE cases.verify_status = 'approved'
+         UNION ALL
+         SELECT names.slug, COALESCE(coverages.updated_at, coverages.approved_at, coverages.created_at) AS created_at
+         FROM insurer_names names
+         JOIN ic_product_coverages coverages ON coverages.insurer = names.name
+         WHERE coverages.verify_status = 'approved'
          UNION ALL
          SELECT names.slug, posts.created_at
          FROM insurer_names names

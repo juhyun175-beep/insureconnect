@@ -69,6 +69,14 @@ export function insurerNames(slug) {
   return [...new Set([ins.name, ...(INSURER_ALIASES[slug] || [])].filter(Boolean))];
 }
 
+export function safeInsurerNames(slug) {
+  const ins = INSURER_MAP[slug];
+  if (!ins) return [];
+  return insurerNames(slug).filter((name) => (
+    name === ins.name || insurerSlugForName(name) === slug
+  ));
+}
+
 export function insurerSlugForName(name) {
   const value = String(name ?? '').normalize('NFC').trim();
   if (!value) return null;

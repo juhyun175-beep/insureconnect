@@ -74,5 +74,7 @@ test('shellStyle exposes the company page style source', () => {
   const style = shellStyle();
   assert.match(style, /\.card\{/);
   assert.match(style, /header\.c-head\{/);
+  assert.match(style, /\.coverage-table\{/);
+  assert.match(style, /\.case-card\{/);
   assert.match(style, /@media\(max-width:640px\)/);
 });
