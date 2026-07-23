@@ -3315,6 +3315,43 @@
     body::before, body::after { display: none !important; }
     /* 카드 라운드 살짝 줄여 노션풍 (토큰 미사용 정의 대비, 과하지 않게) */
     .upload-panel, .nl-upload-box { box-shadow: 0 1px 3px rgba(0,0,0,0.3) !important; }
+    .admin-list-head {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      margin:8px 0 10px;
+      flex-wrap:wrap;
+    }
+    .admin-list-head .dash-section-title { margin:0; }
+    .admin-more-btn {
+      display:block;
+      width:100%;
+      margin:10px 0 0;
+      padding:8px 12px;
+      border:1px solid var(--border);
+      border-radius:8px;
+      background:var(--bg);
+      color:var(--txt-mid);
+      font-size:12px;
+      font-weight:800;
+      cursor:pointer;
+    }
+    .admin-more-btn:hover { color:var(--txt-hi); border-color:var(--blue-mid); }
+    @media (prefers-reduced-motion: reduce) {
+      .dash-body *,
+      .upload-panel *,
+      .stats-slider * {
+        animation:none !important;
+        transition:none !important;
+        scroll-behavior:auto !important;
+      }
+    }
+    @media (max-width: 640px) {
+      .av-slide.av-on,
+      .reqs-sub-pane[data-sub-pane] { animation:none !important; }
+      .dash-body * { scroll-behavior:auto !important; }
+    }
   </style>
 </head>
 <body>
@@ -3647,6 +3684,7 @@
         <button class="upload-tab" data-panel="up-homead" style="border-color:#0ea5e9;color:#0ea5e9;">🖼 홈 광고배너</button>
         <button class="upload-tab" data-panel="up-notice" style="border-color:#7c3aed;color:#7c3aed;">📋 운영자 공지</button>
         <button class="upload-tab" data-panel="up-coupang" style="border-color:#ff5a5f;color:#ff5a5f;">🛍 쿠팡파트너스</button>
+        <button class="upload-tab" data-panel="up-partners" style="border-color:#7c3aed;color:#7c3aed;">🤝 제휴 서비스</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
         <!-- v2.15.1: 유입 경로·회원/지표는 「통합 기록지표」 슬라이더로 이동 -->
 
@@ -3676,7 +3714,7 @@
             ✋ 채용·강의·모임 승인대기
             <span class="reqs-subbadge" id="pending-badge" style="display:none">0</span>
           </button>
-          <button type="button" class="reqs-refresh" onclick="loadPending()">
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-requests')">
             🔄 새로고침
           </button>
           <button type="button" class="reqs-export" onclick="exportPendingRequests()">
@@ -3733,6 +3771,10 @@
         <p class="nl-status" id="nl-status"></p>
       </div>
 
+      <div class="admin-list-head">
+        <p class="dash-section-title">📋 등록된 소식지</p>
+        <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-news')">🔄 새로고침</button>
+      </div>
       <div class="nl-list" id="nl-list">
         <p class="empty-msg">소식지 로딩 중…</p>
       </div>
@@ -3783,6 +3825,10 @@
         <p class="nl-status" id="cf-status"></p>
       </div>
 
+      <div class="admin-list-head">
+        <p class="dash-section-title">📋 등록된 청구서류</p>
+        <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-claim')">🔄 새로고침</button>
+      </div>
       <div id="cf-summary" style="margin:0 0 10px;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:rgba(26,61,232,0.06);font-size:12.5px;color:var(--txt-mid);font-weight:700;">
         청구서류 커버리지 계산 중…
       </div>
@@ -3817,6 +3863,10 @@
         <p class="nl-status" id="cn-status" style="color:var(--txt-mid)">💡 선택 순서대로 번호가 매겨져 좌→우로 보여집니다. · 알림 체크 시 업로드 후 카톡·푸시 발송(세트당 1회).</p>
       </div>
 
+      <div class="admin-list-head">
+        <p class="dash-section-title">📋 등록된 카드뉴스</p>
+        <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-card')">🔄 새로고침</button>
+      </div>
       <div class="nl-list" id="cn-list">
         <p class="empty-msg">뉴스 로딩 중…</p>
       </div>
@@ -3896,6 +3946,10 @@
         <p class="nl-status" id="rc-status"></p>
       </div>
 
+      <div class="admin-list-head">
+        <p class="dash-section-title">📋 등록된 채용공고</p>
+        <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-recruit')">🔄 새로고침</button>
+      </div>
       <div class="nl-list" id="rc-list">
         <p class="empty-msg">채용공고 로딩 중…</p>
       </div>
@@ -3947,6 +4001,10 @@
           </div>
           <p class="nl-status" id="kn-status"></p>
         </div>
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 등록된 보험지식</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-knowledge')">🔄 새로고침</button>
+        </div>
         <div class="nl-list" id="kn-list">
           <p class="empty-msg">포스트 로딩 중…</p>
         </div>
@@ -3986,6 +4044,10 @@
           <p class="nl-status" id="tb-status"></p>
         </div>
 
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 등록된 교재</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-textbook')">🔄 새로고침</button>
+        </div>
         <div class="nl-list" id="tb-list">
           <p class="empty-msg">교재 로딩 중…</p>
         </div>
@@ -4031,6 +4093,10 @@
           <p class="nl-status" id="al-status"></p>
         </div>
 
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 등록된 알림</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-alert')">🔄 새로고침</button>
+        </div>
         <div class="nl-list" id="al-list">
           <p class="empty-msg">알림 로딩 중…</p>
         </div>
@@ -4085,6 +4151,58 @@
         </div>
       </div><!-- /#up-coupang -->
 
+      <!-- ══════════════════ 제휴 파트너 광고 카드 관리 ══════════════════ -->
+      <div class="upload-panel" id="up-partners">
+        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(124,58,237,0.30);border-left:3px solid #7c3aed;border-radius:8px;background:linear-gradient(90deg,rgba(124,58,237,0.08),rgba(124,58,237,0.02));">
+          <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:6px;letter-spacing:0.03em;">🤝 제휴 서비스 광고 카드 안내</div>
+          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
+            <li>등록한 카드가 홈 하단의 <strong>제휴 서비스</strong> 영역에 광고(AD)로 노출됩니다</li>
+            <li>파트너사가 부여한 링크와 로고·썸네일을 등록하세요 · 신청·상담·계약은 각 파트너사에서 직접 진행됩니다</li>
+            <li>활성/비활성, 정렬순서, 삭제를 관리할 수 있으며 활성 카드가 없으면 홈 영역은 숨겨집니다</li>
+          </ul>
+        </div>
+
+        <div class="nl-upload-box">
+          <h4 style="margin:0 0 14px;font-size:14px;color:#7c3aed;font-weight:700;letter-spacing:0.04em;">🤝 제휴 서비스 등록</h4>
+          <div class="nl-form" id="pt-form">
+            <div class="nl-field" style="flex:1;min-width:160px;">
+              <label>파트너명 *</label>
+              <input type="text" id="pt-name" placeholder="예: 파트너 서비스명" maxlength="80">
+            </div>
+            <div class="nl-field" style="flex:1;min-width:160px;">
+              <label>카테고리 (선택)</label>
+              <input type="text" id="pt-category" placeholder="예: 간병, 렌트·리스, 통신" maxlength="30">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>한 줄 소개 (선택)</label>
+              <input type="text" id="pt-tagline" placeholder="게재 톤으로 입력 · 알선 표현은 사용하지 않습니다" maxlength="100">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>파트너 링크 (href) *</label>
+              <input type="text" id="pt-href" placeholder="https://partner.example.com/?ref=insureconnect" maxlength="500">
+            </div>
+            <div class="nl-field" style="width:100%;">
+              <label>로고·썸네일 URL (선택)</label>
+              <input type="text" id="pt-img" placeholder="https://.../logo.png" maxlength="500">
+            </div>
+            <div class="nl-field" style="min-width:110px;">
+              <label>정렬순서</label>
+              <input type="number" id="pt-sort" value="0" style="width:90px;">
+            </div>
+            <button class="nl-upload-btn" id="pt-save-btn" onclick="savePartner()">등록 (즉시 반영)</button>
+          </div>
+          <p class="nl-status" id="pt-status"></p>
+        </div>
+
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 등록된 제휴 서비스</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-partners')">🔄 새로고침</button>
+        </div>
+        <div class="nl-list" id="pt-list">
+          <p class="empty-msg">제휴 서비스 로딩 중…</p>
+        </div>
+      </div><!-- /#up-partners -->
+
       <!-- ══════════════════ 카카오톡 대화 순위 관리 ══════════════════ -->
       <div class="upload-panel" id="up-kakao">
         <div style="margin:0 0 16px;padding:12px 14px;border:1px solid rgba(254,229,0,0.35);border-left:3px solid #fee500;border-radius:8px;background:linear-gradient(90deg,rgba(254,229,0,0.09),rgba(254,229,0,0.02));">
@@ -4136,7 +4254,10 @@
         </div>
 
         <!-- 저장된 통계 목록 -->
-        <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">📋 저장된 통계 목록</div>
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 저장된 통계 목록</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-kakao')">🔄 새로고침</button>
+        </div>
         <div class="nl-list" id="kk-list">
           <p class="empty-msg">통계 로딩 중…</p>
         </div>
@@ -4192,7 +4313,10 @@
         </div>
 
         <!-- 저장된 공지 목록 -->
-        <div style="font-size:13px;font-weight:700;color:var(--txt-hi);margin-bottom:10px;">📋 등록된 공지 목록</div>
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 등록된 공지 목록</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-popup')">🔄 새로고침</button>
+        </div>
         <div class="nl-list" id="hp-list">
           <p class="empty-msg">공지 로딩 중…</p>
         </div>
@@ -4392,6 +4516,10 @@
           </div>
         </div>
 
+        <div class="admin-list-head">
+          <p class="dash-section-title">📋 등록된 강의</p>
+          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-lecture')">🔄 새로고침</button>
+        </div>
         <div class="nl-list" id="lec-list">
           <p class="empty-msg">강의 로딩 중…</p>
         </div>
@@ -4439,7 +4567,7 @@
 
         <div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 10px;flex-wrap:wrap;gap:10px;">
           <p class="dash-section-title" style="margin:0">🤝 등록된 모임</p>
-          <button type="button" onclick="loadMeetings()"
+          <button type="button" onclick="refreshAdminSection('up-meetup')"
                   style="padding:6px 12px;background:transparent;border:1px solid #0d9488;color:#0d9488;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">🔄 새로고침</button>
         </div>
         <div class="nl-list" id="meetup-list">
@@ -4458,7 +4586,7 @@
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin:0 0 10px;">
           <p class="dash-section-title" style="margin:0">문의방</p>
-          <button type="button" onclick="loadDmAdmin()" style="padding:6px 12px;background:transparent;border:1px solid #0d9488;color:#0d9488;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">🔄 새로고침</button>
+          <button type="button" onclick="refreshAdminSection('up-dm')" style="padding:6px 12px;background:transparent;border:1px solid #0d9488;color:#0d9488;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">🔄 새로고침</button>
         </div>
         <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:flex-start;">
           <div id="dm-admin-rooms" class="nl-list" style="flex:1;min-width:240px;max-height:520px;overflow-y:auto;">
@@ -4500,7 +4628,7 @@
           <div id="refund-summary" style="font-size:12.5px;font-weight:700;color:var(--txt-hi);">불러오는 중…</div>
           <div style="display:flex;gap:8px;">
             <button type="button" onclick="exportOrders()" style="padding:6px 12px;background:transparent;border:1px solid var(--blue-mid,#4a70f5);color:var(--blue-mid,#4a70f5);border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">📋 동의 기록 내보내기</button>
-            <button type="button" onclick="loadRefunds()" style="padding:6px 12px;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 새로고침</button>
+            <button type="button" onclick="refreshAdminSection('up-refunds')" style="padding:6px 12px;background:transparent;border:1px solid #f59e0b;color:#f59e0b;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;">🔄 새로고침</button>
           </div>
         </div>
         <div style="overflow-x:auto;">
@@ -4711,7 +4839,7 @@
       <div class="upload-panel" id="up-seo">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;">
           <p class="dash-section-title" style="margin:0">📝 SEO 게시판 관리</p>
-          <button type="button" onclick="loadSeoPostsAdmin()"
+          <button type="button" onclick="refreshAdminSection('up-seo')"
                   style="padding:6px 12px;background:transparent;border:1px solid #10b981;color:#10b981;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.08em;">
             🔄 새로고침
           </button>
@@ -4823,7 +4951,7 @@
         <!-- 목록 -->
         <div style="margin-top:24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
           <p class="dash-section-title" style="margin:0">📋 등록된 글 목록</p>
-          <select id="seo-filter-cat" onchange="loadSeoPostsAdmin()" style="padding:6px 10px;font-size:12px;">
+          <select id="seo-filter-cat" onchange="refreshAdminSection('up-seo')" style="padding:6px 10px;font-size:12px;">
             <option value="">전체 카테고리</option>
             <option value="claim">보험금청구</option>
             <option value="actual-loss">실손보험</option>
@@ -4923,6 +5051,7 @@
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('dashboard').style.display    = 'block';
         loadDashboard();
+        ensureAdminSectionLoaded('up-requests');
         startAutoRefresh();
       } catch (e) {
         errEl.classList.add('show');
@@ -4941,6 +5070,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('dashboard').style.display    = 'block';
             loadDashboard();
+            ensureAdminSectionLoaded('up-requests');
             startAutoRefresh();
           } else {
             sessionStorage.removeItem('ic_admin_secret');
@@ -4962,30 +5092,7 @@
         document.querySelectorAll('.upload-panel').forEach(p => {
           p.classList.toggle('active', p.id === target);
         });
-        // v2.0.0 (master): SEO 패널 진입 시 자동 로드
-        if (target === 'up-seo' && typeof loadSeoPostsAdmin === 'function') {
-          loadSeoPostsAdmin();
-        }
-        // v2.1.70: 유입 경로 패널 진입 시 자동 로드
-        if (target === 'up-traffic' && typeof loadTrafficSources === 'function') {
-          loadTrafficSources();
-        }
-        // v2.4.0: 회원/지표 패널 진입 시 자동 로드
-        if (target === 'up-members' && typeof loadMembersDash === 'function') {
-          loadMembersDash();
-        }
-        if (target === 'up-reports' && typeof loadBoardReports === 'function') {
-          loadBoardReports();
-        }
-        if (target === 'up-coupang' && typeof loadCoupang === 'function') {
-          loadCoupang();
-        }
-        if (target === 'up-cases' && typeof loadCasesPanel === 'function') { loadCasesPanel(); }
-        if (target === 'up-coverages' && typeof loadCoverages === 'function') { loadCoverages(); }
-        if (target === 'up-dm' && typeof loadDmAdmin === 'function') { loadDmAdmin(); }
-        if (target === 'up-refunds' && typeof loadRefunds === 'function') { loadRefunds(); }
-        if (target === 'up-homead' && typeof loadHomeAdAdmin === 'function') { loadHomeAdAdmin(); }
-        if (target === 'up-notice' && typeof loadNoticeAdmin === 'function') { loadNoticeAdmin(); }
+        ensureAdminSectionLoaded(target);
       });
     });
 
@@ -5566,11 +5673,9 @@
 
     /* ── v2.1.70: 유입 경로 ── */
     let _tsCache = null, _tsPeriod = 'today';
-    async function loadTrafficSources() {
+    async function loadTrafficSources(force = false) {
       try {
-        const r = await fetch('/api/stats/traffic', { headers: adminHeaders() });
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        _tsCache = await r.json();
+        _tsCache = await cachedAdminFetch('traffic:sources', '/api/stats/traffic', { headers: adminHeaders(), force }, force ? 0 : 60000);
         renderTraffic();
       } catch (e) {
         const el = document.getElementById('tf-ref');
@@ -5942,12 +6047,11 @@
     }
 
     /* ── 체류 시간 통계 렌더 ── */
-    async function loadSessionStats() {
+    async function loadSessionStats(force = false) {
       const el = document.getElementById('sess-stats-body');
       if (!el) return;
       try {
-        const res  = await fetch(`/api/stats/sessions`);
-        const d = await res.json();
+        const d = await cachedAdminFetch('dashboard:sessions', `/api/stats/sessions`, { force }, force ? 0 : 30000);
 
         function fmtDur(sec) {
           if (!sec || sec <= 0) return '—';
@@ -6110,15 +6214,14 @@
     let _pcPeriod = 'today';
     let _pcCache  = null;
 
-    async function loadPopularContent() {
+    async function loadPopularContent(force = false) {
       try {
-        const res = await fetch(`/api/top-items`, {
+        _pcCache = await cachedAdminFetch('dashboard:top-items', `/api/top-items`, {
           method: 'POST',
           headers: { 'Content-Type':'application/json' },
-          body: '{}'
-        });
-        if (!res.ok) return;
-        _pcCache = await res.json();
+          body: '{}',
+          force
+        }, force ? 0 : 30000);
         renderPopularContent();
       } catch(_) {}
     }
@@ -6231,6 +6334,10 @@
         b.classList.toggle('active', parseInt(b.getAttribute('data-av'), 10) === i);
       });
       try { window.scrollTo({ top: 0, behavior: 'smooth' }); } catch (e) { window.scrollTo(0, 0); }
+      if (i === 1) {
+        const activePanel = document.querySelector('.upload-panel.active');
+        if (activePanel) ensureAdminSectionLoaded(activePanel.id);
+      }
     }
     function adminViewStep(d){ adminView((AV_IDX + (d > 0 ? 1 : -1) + 2) % 2); }
     window.adminView = adminView; window.adminViewStep = adminViewStep;
@@ -6346,8 +6453,160 @@
     }
 
     let _cachedMainStats  = null;
+    const ADMIN_LIST_INITIAL_LIMIT = 30;
+    const ADMIN_LIST_PAGE_SIZE = 30;
+    const ADMIN_API_TTL_MS = 30000;
+    const adminSectionLoaded = new Set();
+    const adminApiCache = new Map();
 
-    /* ── 실시간 자동 갱신 (10초 간격, 탭이 보일 때만) ── */
+    const ADMIN_SECTION_LOADERS = {
+      'up-requests': loadPending,
+      'up-news': loadNewsletters,
+      'up-claim': loadClaimForms,
+      'up-card': loadCardNews,
+      'up-recruit': loadRecruitList,
+      'up-knowledge': loadKnowledgeList,
+      'up-textbook': loadTextbooks,
+      'up-alert': loadAlerts,
+      'up-coupang': loadCoupang,
+      'up-partners': loadPartners,
+      'up-kakao': loadKakaoStats,
+      'up-popup': loadHomePopups,
+      'up-reports': loadBoardReports,
+      'up-dm': loadDmAdmin,
+      'up-refunds': loadRefunds,
+      'up-lecture': loadLectures,
+      'up-meetup': loadMeetings,
+      'up-cases': loadCasesPanel,
+      'up-coverages': loadCoverages,
+      'up-seo': loadSeoPostsAdmin,
+      'up-homead': loadHomeAdAdmin,
+      'up-notice': loadNoticeAdmin
+    };
+
+    function adminPerfEnabled() {
+      try { return localStorage.getItem('ic_admin_perf') === '1'; } catch (_) { return false; }
+    }
+
+    async function measureAdminTask(name, fn) {
+      const start = performance.now();
+      try {
+        return await fn();
+      } finally {
+        if (adminPerfEnabled()) {
+          console.debug(`[admin-perf] ${name}: ${Math.round(performance.now() - start)}ms`);
+        }
+      }
+    }
+
+    async function cachedAdminFetch(key, url, options = {}, ttlMs = ADMIN_API_TTL_MS) {
+      const now = Date.now();
+      const fetchOptions = Object.assign({}, options);
+      const force = fetchOptions.force === true;
+      delete fetchOptions.force;
+      if (!force) {
+        const cached = adminApiCache.get(key);
+        if (cached && now - cached.time < ttlMs) return cached.data;
+      } else {
+        adminApiCache.delete(key);
+      }
+      const res = await fetch(url, fetchOptions);
+      const data = await res.json().catch(() => null);
+      if (!res.ok) {
+        const msg = data && (data.error || data.message) ? (data.error || data.message) : `HTTP ${res.status}`;
+        throw new Error(msg);
+      }
+      adminApiCache.set(key, { time: now, data });
+      return data;
+    }
+
+    function invalidateAdminCache(prefix) {
+      if (!prefix) { adminApiCache.clear(); return; }
+      Array.from(adminApiCache.keys()).forEach(key => {
+        if (String(key).startsWith(prefix)) adminApiCache.delete(key);
+      });
+    }
+
+    async function loadAdminSection(section, force = false) {
+      const loader = ADMIN_SECTION_LOADERS[section];
+      if (typeof loader !== 'function') return;
+      await measureAdminTask('section:' + section, () => loader(force));
+    }
+
+    async function ensureAdminSectionLoaded(section, force = false) {
+      if (!section) return;
+      if (!force && adminSectionLoaded.has(section)) return;
+      await loadAdminSection(section, force);
+      adminSectionLoaded.add(section);
+    }
+
+    async function refreshAdminSection(section) {
+      if (!section) return;
+      adminSectionLoaded.delete(section);
+      await ensureAdminSectionLoaded(section, true);
+    }
+
+    function refreshLoadedAdminSection(section) {
+      if (adminSectionLoaded.has(section)) refreshAdminSection(section);
+    }
+
+    function isAdminFormFocused() {
+      const el = document.activeElement;
+      return !!(el && el.closest && el.closest('.upload-panel') && /^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName));
+    }
+
+    function renderListChunk(container, items, renderer, options = {}) {
+      if (!container) return;
+      const list = Array.isArray(items) ? items : [];
+      const limit = Math.min(options.limit || ADMIN_LIST_INITIAL_LIMIT, list.length);
+      const step = options.step || ADMIN_LIST_PAGE_SIZE;
+      container.innerHTML = list.slice(0, limit).map(renderer).join('');
+      if (list.length > limit) {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'admin-more-btn';
+        btn.textContent = `더보기 (${list.length - limit}개 남음)`;
+        btn.addEventListener('click', () => {
+          renderListChunk(container, list, renderer, Object.assign({}, options, { limit: limit + step }));
+        });
+        container.appendChild(btn);
+      }
+    }
+
+    function renderTableChunk(tbody, items, renderer, options = {}) {
+      if (!tbody) return;
+      const list = Array.isArray(items) ? items : [];
+      const limit = Math.min(options.limit || ADMIN_LIST_INITIAL_LIMIT, list.length);
+      const step = options.step || ADMIN_LIST_PAGE_SIZE;
+      tbody.innerHTML = list.slice(0, limit).map(renderer).join('');
+      if (list.length > limit) {
+        const cols = options.colspan || 1;
+        const tr = document.createElement('tr');
+        const td = document.createElement('td');
+        td.colSpan = cols;
+        td.style.padding = '8px';
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'admin-more-btn';
+        btn.textContent = `더보기 (${list.length - limit}개 남음)`;
+        btn.addEventListener('click', () => {
+          renderTableChunk(tbody, list, renderer, Object.assign({}, options, { limit: limit + step }));
+        });
+        td.appendChild(btn);
+        tr.appendChild(td);
+        tbody.appendChild(tr);
+      }
+    }
+
+    async function refreshLightweightStats() {
+      await loadDashboard(true);
+    }
+
+    async function refreshPendingOnly() {
+      await loadPending(true);
+    }
+
+    /* ── 실시간 자동 갱신 (30초 간격, 핵심 통계/승인대기만) ── */
     let _autoTimer = null;
     let _lastKstDate = null;
     function _getKstDateStr() {
@@ -6364,34 +6623,39 @@
             /* 자정 KST 넘어감 → 강제 리셋 갱신 */
             _lastKstDate = cur;
             _cachedMainStats  = null;
+            invalidateAdminCache('dashboard:');
           }
-          loadDashboard();
+          refreshLightweightStats();
+          if (!isAdminFormFocused()) refreshPendingOnly();
         }
-      }, 10000);
+      }, 30000);
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
           const cur = _getKstDateStr();
           if (cur !== _lastKstDate) {
             _lastKstDate = cur;
             _cachedMainStats  = null;
+            invalidateAdminCache('dashboard:');
           }
-          loadDashboard();
+          refreshLightweightStats();
+          if (!isAdminFormFocused()) refreshPendingOnly();
         }
       });
     }
 
     /* ── 대시보드 데이터 로드 ── */
-    async function loadDashboard() {
+    async function loadDashboard(force = false) {
       /* v2.123.0: 카톡 발송 대기열 드레인 킥 — 대시보드가 열려 있는 동안 10초마다
          최대 20명씩 자동 발송(비면 즉시 종료). cron 워커(5분)의 보조 트리거. */
       try { fetch('/api/cron/kakao-queue', { method: 'POST', headers: adminHeaders() }).catch(function(){}); } catch (_) {}
-      try {
-        const res = await fetch(`/api/stats`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: '{}'
-        });
-        const d = await res.json();
+      return measureAdminTask('loadDashboard', async () => {
+        try {
+          const d = await cachedAdminFetch('dashboard:stats', `/api/stats`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: '{}',
+            force
+          }, force ? 0 : 15000);
         _cachedMainStats = d;   /* 슬라이드 전환 시 재렌더용 캐시 */
 
         /* KPI 숫자 업데이트 */
@@ -6427,11 +6691,11 @@
         /* 메뉴 클릭 요약은 제거됨 (우측버튼·하단네비만 추적) */
 
         /* 체류 시간 통계 */
-        loadSessionStats();
+        loadSessionStats(force);
 
 
         /* 인기 콘텐츠 (조회/공유유입/복사) */
-        loadPopularContent();
+        loadPopularContent(force);
 
 
         /* 차트 (현재 슬라이드 0에 표시) */
@@ -6446,31 +6710,10 @@
         document.getElementById('last-updated').textContent =
           `업데이트: ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
 
-      } catch (err) {
-        console.error('Stats load error:', err);
-      }
-
-      /* 소식지 & 청구서류 & 카드뉴스 목록도 로드 */
-      loadNewsletters();
-      loadClaimForms();
-      loadCardNews();
-      loadRecruitList();
-      loadKnowledgeList();
-      // v2.1.26: loadSidebarBanners 제거
-      loadTextbooks();
-      loadAlerts();
-      loadKakaoStats();
-      loadHomePopups();
-      loadLectures();
-      loadMeetings();   // v2.59.0 모임공고 관리
-      /* v2.0.3: 승인대기 + 1분 폴링 */
-      if (typeof loadPending === 'function') {
-        loadPending();
-        if (!window._pendingPollStarted) {
-          window._pendingPollStarted = true;
-          setInterval(loadPending, 60 * 1000);
+        } catch (err) {
+          console.error('Stats load error:', err);
         }
-      }
+      });
     }
 
     /* ══════════════════ 강의 관리 ══════════════════ */
@@ -6516,7 +6759,7 @@
         document.getElementById('lec-description').value = '';
         document.getElementById('lec-file').value = '';
         document.getElementById('lec-file-name').textContent = '없음';
-        loadLectures();
+        refreshAdminSection('up-lecture');
       } catch (e) {
         status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
       } finally {
@@ -6562,7 +6805,7 @@
         status.textContent = '✅ 등록 완료'; status.style.color = '#10b981';
         ['mt-title','mt-host','mt-location','mt-eventat','mt-description','mt-file'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
         document.getElementById('mt-file-name').textContent = '없음';
-        loadMeetings();
+        refreshAdminSection('up-meetup');
       } catch (e) {
         status.textContent = '❌ ' + e.message; status.style.color = '#ef4444';
       } finally {
@@ -6573,21 +6816,20 @@
     /* v2.63.0: 1:1 공고 문의 채팅 모니터 (읽기 전용) */
     var _DM_AD = { recruit: '채용', lecture: '강의', meetup: '모임' };
     function _dmAdminTime(s){ try{ var d=new Date(String(s).replace(' ','T')+'Z'); return (d.getMonth()+1)+'/'+d.getDate()+' '+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }catch(_){ return ''; } }
-    async function loadDmAdmin(){
+    async function loadDmAdmin(force = false){
       var el=document.getElementById('dm-admin-rooms'); if(!el) return;
       el.innerHTML='<p class="empty-msg">불러오는 중…</p>';
       try{
-        var r=await fetch('/api/admin/dm?rooms=1',{headers:adminHeaders()});
-        var d=await r.json();
+        var d=await cachedAdminFetch('dm:rooms', '/api/admin/dm?rooms=1', {headers:adminHeaders(), force}, force ? 0 : 30000);
         if(!d||!d.ok){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; return; }
         if(!d.rooms||!d.rooms.length){ el.innerHTML='<p class="empty-msg">문의 채팅이 아직 없습니다.</p>'; return; }
-        el.innerHTML=d.rooms.map(function(rm){
+        renderListChunk(el, d.rooms, function(rm){
           return '<button type="button" onclick="loadDmAdminRoom(\''+rm.room_id+'\')" style="display:block;width:100%;text-align:left;background:var(--bg);border:1px solid var(--border);border-radius:9px;padding:9px 11px;margin-bottom:7px;cursor:pointer;">'
             +'<div style="font-size:11px;color:#0d9488;font-weight:800;">'+(_DM_AD[rm.ad_type]||rm.ad_type)+' · 메시지 '+(rm.msg_count||0)+'건</div>'
             +'<div style="font-size:12.5px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(rm.ad_title||'(제목 없음)')+'</div>'
             +'<div style="font-size:11px;color:var(--txt-lo);">'+esc(rm.inquirer_nick||('#'+rm.inquirer_id))+' ↔ '+esc(rm.owner_nick||('#'+rm.owner_id))+'</div>'
             +'</button>';
-        }).join('');
+        });
       }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
     }
     async function loadDmAdminRoom(roomId){
@@ -6598,12 +6840,12 @@
         var d=await r.json();
         if(!d||!d.ok){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; return; }
         if(!d.messages||!d.messages.length){ el.innerHTML='<p class="empty-msg">메시지가 없습니다.</p>'; return; }
-        el.innerHTML=d.messages.map(function(m){
+        renderListChunk(el, d.messages, function(m){
           return '<div style="padding:6px 2px;border-bottom:1px solid var(--border);">'
             +'<span style="font-size:11px;color:#0d9488;font-weight:800;">'+esc(m.sender_nick||('#'+m.sender_id))+'</span> '
             +'<span style="font-size:10px;color:var(--txt-lo);">'+_dmAdminTime(m.created_at)+'</span>'
             +'<div style="font-size:12.5px;color:var(--txt-hi);white-space:pre-wrap;word-break:break-word;margin-top:2px;">'+esc(m.body)+'</div></div>';
-        }).join('');
+        }, { limit: 80, step: 80 });
       }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
     }
 
@@ -6952,19 +7194,18 @@
         if(box) box.innerHTML='<p class="empty-msg" style="margin:0;">SEO 클릭 데이터를 불러오지 못했습니다.</p>';
       }
     }
-    async function loadRefunds(){
+    async function loadRefunds(force = false){
       var tb=document.getElementById('refund-orders'); var sm=document.getElementById('refund-summary'); var lg=document.getElementById('refund-logs');
       loadSeoClicks();
       if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">불러오는 중…</td></tr>';
       try{
-        var r=await fetch('/api/admin/refunds',{headers:adminHeaders()});
-        var d=await r.json();
+        var d=await cachedAdminFetch('refunds:list', '/api/admin/refunds', {headers:adminHeaders(), force}, force ? 0 : 30000);
         if(!d||!d.ok){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; return; }
         _refundOrders=d.orders||[];
         if(sm) sm.innerHTML='총 주문 '+_refundOrders.length+'건 · 환불 '+(d.refund_count||0)+'건 · 환불액 '+Number(d.refund_amount||0).toLocaleString()+'원';
         if(!_refundOrders.length){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;color:var(--txt-lo);">아직 공고 주문이 없습니다.</td></tr>'; }
         else if(tb){
-          tb.innerHTML=_refundOrders.map(function(o){
+          renderTableChunk(tb, _refundOrders, function(o){
             var consent=(o.consent_refund?'✓':'✗')+(o.consent_points?'✓':'✗')+(o.consent_fail?'✓':'✗');
             var consentOk=o.consent_refund&&o.consent_points&&o.consent_fail;
             var ps=o.posting_status||'-';
@@ -6988,17 +7229,18 @@
               +'<td style="padding:8px;white-space:nowrap;">'+(_RF_ST[ps]||ps)
                 +(o.status==='pending_payment'?' · <span style="color:#dc2626;font-weight:700;">미결제</span>':'')+'</td>'
               +'<td style="padding:8px;white-space:nowrap;">'+act+'</td></tr>';
-          }).join('');
+          }, { colspan: 7 });
         }
         if(lg){
           var logs=d.logs||[];
-          lg.innerHTML=logs.length?logs.map(function(l){
+          if(!logs.length){ lg.innerHTML='<div style="color:var(--txt-lo);">환불 처리 내역이 없습니다.</div>'; }
+          else renderListChunk(lg, logs, function(l){
             return '<div style="display:flex;gap:8px;align-items:center;padding:5px 2px;border-bottom:1px solid var(--border);">'
               +'<span style="font-weight:700;color:'+(l.status==='approved'?'#16a34a':'#dc2626')+';white-space:nowrap;">'+(l.status==='approved'?(l.refund_type==='partial90'?'부분90%':'전액환불'):'환불거절')+'</span>'
               +'<span style="color:var(--txt-lo);white-space:nowrap;">주문#'+l.order_id+' · '+Number(l.amount||0).toLocaleString()+'원'+(l.coupon_restored?' · 할인권원복':'')+'</span>'
               +'<span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--txt-mid);">'+esc(l.reason||'')+'</span>'
               +'<span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">'+String(l.created_at||'').slice(5,16).replace('T',' ')+'</span></div>';
-          }).join(''):'<div style="color:var(--txt-lo);">환불 처리 내역이 없습니다.</div>';
+          });
         }
       }catch(e){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; }
     }
@@ -7011,7 +7253,7 @@
         var r=await fetch('/api/admin/refunds',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({order_id:orderId,action:'approve',refund_type:type,reason:reason||''})});
         var d=await r.json(); if(!r.ok||!d.ok) throw new Error((d&&d.error)||'실패');
         alert('✅ 환불 처리: '+Number(d.amount||0).toLocaleString()+'원'+(d.coupon_restored?' · 할인권 원복':'')+' · 입금 반환은 수기 처리');
-        loadRefunds();
+        refreshAdminSection('up-refunds');
       }catch(e){ alert('환불 실패: '+e.message); }
     }
     async function refundReject(orderId){
@@ -7020,7 +7262,7 @@
       try{
         var r=await fetch('/api/admin/refunds',{method:'POST',headers:adminHeaders({'Content-Type':'application/json'}),body:JSON.stringify({order_id:orderId,action:'reject',reason:reason||''})});
         var d=await r.json(); if(!r.ok||!d.ok) throw new Error((d&&d.error)||'실패');
-        loadRefunds();
+        refreshAdminSection('up-refunds');
       }catch(e){ alert('처리 실패: '+e.message); }
     }
     function exportOrders(){
@@ -7033,19 +7275,18 @@
     }
     function _exportFallback(tsv){ var ta=document.createElement('textarea'); ta.value=tsv; document.body.appendChild(ta); ta.select(); try{document.execCommand('copy'); alert('📋 복사되었습니다.');}catch(_){ alert('복사 실패'); console.log(tsv); } document.body.removeChild(ta); }
 
-    async function loadLectures() {
+    async function loadLectures(force = false) {
       const el = document.getElementById('lec-list');
       if (!el) return;
       try {
         // v2.0.3: 관리자는 status=all로 pending까지 조회
-        const res = await fetch('/api/lectures?status=all', { headers: adminHeaders() });
-        const items = await res.json();
+        const items = await cachedAdminFetch('lectures:list', '/api/lectures?status=all&limit=50', { headers: adminHeaders(), force }, force ? 0 : 30000);
         if (!Array.isArray(items) || !items.length) {
           el.innerHTML = '<p class="empty-msg">등록된 강의가 없습니다.</p>';
           return;
         }
         const fmt = (s) => { const d = new Date(s); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
-        el.innerHTML = items.map(it => `
+        renderListChunk(el, items, it => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
             <span style="font-size:18px;">🎓</span>
             <div style="flex:1;min-width:0;">
@@ -7054,7 +7295,7 @@
             </div>
             <button onclick="featureAdmin('lecture',${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(245,158,11,0.14);color:#b45309;border:none;border-radius:6px;cursor:pointer;font-weight:600;">🔝 노출</button>
             <button onclick="deleteLecture(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
+          </div>`);
       } catch (_) {
         el.innerHTML = '<p class="empty-msg">강의 로드 실패</p>';
       }
@@ -7064,23 +7305,22 @@
       if (!confirm('이 강의를 삭제하시겠습니까?')) return;
       try {
         await fetch(`/api/lectures/${id}`, { method: 'DELETE', headers: adminHeaders() });
-        loadLectures();
+        refreshAdminSection('up-lecture');
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
     /* v2.59.0: 모임공고 관리 (강의 패턴 클론) */
-    async function loadMeetings() {
+    async function loadMeetings(force = false) {
       const el = document.getElementById('meetup-list');
       if (!el) return;
       try {
-        const res = await fetch('/api/meetings?status=all', { headers: adminHeaders() });
-        const items = await res.json();
+        const items = await cachedAdminFetch('meetings:list', '/api/meetings?status=all&limit=50', { headers: adminHeaders(), force }, force ? 0 : 30000);
         if (!Array.isArray(items) || !items.length) {
           el.innerHTML = '<p class="empty-msg">등록된 모임이 없습니다.</p>';
           return;
         }
         const fmt = (s) => { const d = new Date(s); return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`; };
-        el.innerHTML = items.map(it => `
+        renderListChunk(el, items, it => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
             <span style="font-size:18px;">🤝</span>
             <div style="flex:1;min-width:0;">
@@ -7089,7 +7329,7 @@
             </div>
             <button onclick="featureAdmin('meetup',${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(245,158,11,0.14);color:#b45309;border:none;border-radius:6px;cursor:pointer;font-weight:600;">🔝 노출</button>
             <button onclick="deleteMeeting(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
+          </div>`);
       } catch (_) {
         el.innerHTML = '<p class="empty-msg">모임 로드 실패</p>';
       }
@@ -7099,7 +7339,7 @@
       if (!confirm('이 모임을 삭제하시겠습니까?')) return;
       try {
         await fetch(`/api/meetings/${id}`, { method: 'DELETE', headers: adminHeaders() });
-        loadMeetings();
+        refreshAdminSection('up-meetup');
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
@@ -7108,20 +7348,16 @@
     ══════════════════════════════ */
     const pendingState = { lastTotal: 0, dismissed: false, items: [], itemMap: {}, currentKey: null };
 
-    async function loadPending() {
+    async function loadPending(force = false) {
       try {
-        const [rcRes, lcRes, mtRes] = await Promise.all([
-          fetch('/api/recruitments?status=pending&order=created_at.desc&limit=100', { headers: adminHeaders() }),
-          fetch('/api/lectures?status=pending&limit=100', { headers: adminHeaders() }),
-          fetch('/api/meetings?status=pending&limit=100', { headers: adminHeaders() })   // v2.59.0 모임공고
+        const [rcs, lcs, mts] = await Promise.all([
+          cachedAdminFetch('pending:recruitments', '/api/recruitments?status=pending&order=created_at.desc&limit=50', { headers: adminHeaders(), force }, force ? 0 : 15000),
+          cachedAdminFetch('pending:lectures', '/api/lectures?status=pending&limit=50', { headers: adminHeaders(), force }, force ? 0 : 15000),
+          cachedAdminFetch('pending:meetings', '/api/meetings?status=pending&limit=50', { headers: adminHeaders(), force }, force ? 0 : 15000)   // v2.59.0 모임공고
         ]);
-        const rcs = rcRes.ok ? await rcRes.json() : [];
-        const lcs = lcRes.ok ? await lcRes.json() : [];
-        const mts = mtRes.ok ? await mtRes.json() : [];
         // v2.67.0: 환불정책 동의 기록 맵(공고타입_공고id → 동의 3종)
         try{
-          const _or=await fetch('/api/admin/refunds',{headers:adminHeaders()});
-          const _od=await _or.json();
+          const _od=await cachedAdminFetch('pending:refunds', '/api/admin/refunds', {headers:adminHeaders(), force}, force ? 0 : 30000);
           window._consentMap={};
           window._pendingOrderMap={};
           (_od.orders||[]).forEach(function(o){
@@ -7360,10 +7596,10 @@
         var f=done.fulfillment&&done.fulfillment.fulfilled?done.fulfillment.fulfilled:{};
         var fLines=Object.keys(f).map(function(k){ var st=f[k]; return '· '+(st.label||k)+': '+(st.status==='auto_done'?'자동완료':st.status==='auto_queued'?'발송대기열 등록(자동 발송 중)':st.status==='auto_failed'?'자동실패':'수동필요'); });
         alert('✅ 승인 완료. 사용자 페이지에 노출됩니다.\n신청자: ' + info + (fLines.length?'\n\n옵션 이행\n'+fLines.join('\n'):'') + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
-        loadPending();
-        if (table === 'recruitments') loadRecruitList();
-        else if (table === 'lectures') loadLectures();
-        else if (table === 'meetings') loadMeetings();
+        refreshAdminSection('up-requests');
+        if (table === 'recruitments') refreshLoadedAdminSection('up-recruit');
+        else if (table === 'lectures') refreshLoadedAdminSection('up-lecture');
+        else if (table === 'meetings') refreshLoadedAdminSection('up-meetup');
       } catch (e) {
         alert('승인 실패: ' + e.message);
       }
@@ -7382,10 +7618,10 @@
         });
         if (!res.ok) throw new Error(await res.text());
         alert('❌ 반려 처리됨.\n신청자: ' + info + '\n사유: ' + reason.trim() + '\n\n해당 사용자에게 직접 카카오톡으로 안내해 주세요.');
-        loadPending();
-        if (table === 'recruitments') loadRecruitList();
-        else if (table === 'lectures') loadLectures();
-        else if (table === 'meetings') loadMeetings();
+        refreshAdminSection('up-requests');
+        if (table === 'recruitments') refreshLoadedAdminSection('up-recruit');
+        else if (table === 'lectures') refreshLoadedAdminSection('up-lecture');
+        else if (table === 'meetings') refreshLoadedAdminSection('up-meetup');
       } catch (e) {
         alert('반려 실패: ' + e.message);
       }
@@ -7679,7 +7915,7 @@
         fileEl.value = '';
         document.getElementById('nl-file-name').textContent = '없음';
         document.getElementById('nl-title').value = '';
-        loadNewsletters();
+        refreshAdminSection('up-news');
 
       } catch (e) {
         status.textContent = '❌ 업로드 실패: ' + e.message;
@@ -7690,18 +7926,20 @@
     }
 
     /* ── 소식지 목록 로드 ── */
-    async function loadNewsletters() {
+    async function loadNewsletters(force = false) {
       const el = document.getElementById('nl-list');
       try {
-        const res = await fetch(`/api/newsletters?order=created_at.desc&limit=50`);
-        const items = await res.json();
+        const items = await cachedAdminFetch('newsletters:list', `/api/newsletters?order=created_at.desc&limit=50`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          force
+        }, force ? 0 : 30000);
 
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 소식지가 없습니다.</p>';
           return;
         }
 
-        el.innerHTML = items.map(it => {
+        renderListChunk(el, items, it => {
           const d = new Date(it.created_at);
           const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
           const icon = it.file_type === 'pdf' ? '📄' : '🖼️';
@@ -7716,7 +7954,7 @@
               <a href="${esc(it.file_url)}" target="_blank" style="font-size:12px;color:var(--blue-mid);text-decoration:none">보기</a>
               <button class="nl-del-btn" onclick="deleteNewsletter(${it.id},'${jsStr(it.file_url)}')">삭제</button>
             </div>`;
-        }).join('');
+        });
 
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">소식지 로드 실패</p>';
@@ -7778,7 +8016,7 @@
         fileEl.value = '';
         document.getElementById('cf-file-name').textContent = '없음';
         document.getElementById('cf-title').value = '';
-        loadClaimForms();
+        refreshAdminSection('up-claim');
 
       } catch (e) {
         status.textContent = '❌ 업로드 실패: ' + e.message;
@@ -7808,12 +8046,14 @@
         + (missing.length ? `<div style="margin-top:6px;font-size:11.5px;font-weight:600;color:var(--txt-mid);line-height:1.6;">미등록: ${missing.map(esc).join(', ')}</div>` : '');
     }
 
-    async function loadClaimForms() {
+    async function loadClaimForms(force = false) {
       const el = document.getElementById('cf-list');
       const summary = document.getElementById('cf-summary');
       try {
-        const res = await fetch(`/api/claim-forms?order=created_at.desc&limit=100`);
-        const items = await res.json();
+        const items = await cachedAdminFetch('claim-forms:list', `/api/claim-forms?order=created_at.desc&limit=100`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          force
+        }, force ? 0 : 30000);
         renderClaimFormsSummary(items || []);
 
         if (!items || items.length === 0) {
@@ -7821,7 +8061,7 @@
           return;
         }
 
-        el.innerHTML = items.map(it => {
+        renderListChunk(el, items, it => {
           const d = new Date(it.created_at);
           const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
           const icon = it.file_type === 'pdf' ? '📄' : '🖼️';
@@ -7836,7 +8076,7 @@
               <a href="${esc(it.file_url)}" target="_blank" style="font-size:12px;color:var(--blue-mid);text-decoration:none">보기</a>
               <button class="nl-del-btn" onclick="deleteClaimForm(${it.id},'${jsStr(it.file_url)}')">삭제</button>
             </div>`;
-        }).join('');
+        });
 
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">청구서류 로드 실패</p>';
@@ -7858,7 +8098,7 @@
           method: 'DELETE',
           headers: adminHeaders()
         });
-        loadClaimForms();
+        refreshAdminSection('up-claim');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -7925,7 +8165,7 @@
         document.getElementById('rc-title').value = '';
         document.getElementById('rc-company').value = '';
         document.getElementById('rc-description').value = '';
-        loadRecruitList();
+        refreshAdminSection('up-recruit');
 
       } catch (e) {
         status.textContent = '❌ 업로드 실패: ' + e.message;
@@ -8109,7 +8349,7 @@
       }catch(e){ alert('회수 실패: '+e.message); }
     }
 
-    async function loadRecruitList() {
+    async function loadRecruitList(force = false) {
       loadFeatureStats();   // 상단노출 효과 통계 동시 로드
       loadShopStats();      // 포인트 상점 현황 동시 로드
       loadCouponStats();    // v2.56.0 할인권·수익화 통계 동시 로드
@@ -8118,17 +8358,17 @@
       if (!el) return;
       try {
         // v2.0.3: 관리자는 status=all로 pending까지 조회
-        const res = await fetch(`/api/recruitments?order=created_at.desc&limit=100&status=all`, {
-          headers: adminHeaders()
-        });
-        const items = await res.json();
+        const items = await cachedAdminFetch('recruitments:list', `/api/recruitments?order=created_at.desc&limit=50&status=all`, {
+          headers: adminHeaders(),
+          force
+        }, force ? 0 : 30000);
 
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 채용공고가 없습니다.</p>';
           return;
         }
 
-        el.innerHTML = items.map(it => {
+        renderListChunk(el, items, it => {
           const d = new Date(it.created_at);
           const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
           const icon = it.file_type === 'pdf' ? '📄' : '🖼️';
@@ -8145,7 +8385,7 @@
               <button class="nl-del-btn" style="background:rgba(245,158,11,0.14);color:#b45309" onclick="featureAdmin('recruit',${it.id})">🔝 노출</button>
               <button class="nl-del-btn" onclick="deleteRecruit(${it.id},'${jsStr(it.file_url)}')">삭제</button>
             </div>`;
-        }).join('');
+        });
 
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">채용공고 로드 실패</p>';
@@ -8166,7 +8406,7 @@
           method: 'DELETE',
           headers: adminHeaders()
         });
-        loadRecruitList();
+        refreshAdminSection('up-recruit');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -8182,7 +8422,7 @@
       try {
         const r = await fetch(path, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify({ feature_days: days }) });
         if (!r.ok) throw new Error('HTTP ' + r.status);
-        if (type === 'lecture') loadLectures(); else if (type === 'meetup') loadMeetings(); else loadRecruitList();
+        if (type === 'lecture') refreshAdminSection('up-lecture'); else if (type === 'meetup') refreshAdminSection('up-meetup'); else refreshAdminSection('up-recruit');
       } catch (e) { alert('상단노출 변경 실패: ' + e.message); }
     }
 
@@ -8541,7 +8781,7 @@
         document.getElementById('kn-content-input').value = '';
         fileEl.value = '';
         document.getElementById('kn-image-name').textContent = '없음';
-        loadKnowledgeList();
+        refreshAdminSection('up-knowledge');
       } catch (e) {
         status.textContent = '❌ 등록 실패: ' + e.message;
       } finally {
@@ -8549,22 +8789,25 @@
       }
     }
 
-    async function loadKnowledgeList() {
+    async function loadKnowledgeList(force = false) {
       const el = document.getElementById('kn-list');
       if (!el) return;
       try {
-        const res = await fetch(`/api/knowledge-posts?order=created_at.desc&limit=100`);
-        const items = await res.json();
+        const items = await cachedAdminFetch('knowledge:list', `/api/knowledge-posts?order=created_at.desc&limit=100`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          force
+        }, force ? 0 : 30000);
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 포스트가 없습니다.</p>'; return;
         }
-        el.innerHTML = items.map(it => {
+        renderListChunk(el, items, it => {
           const d = new Date(it.created_at);
           const dateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
           const thumb = it.image_url
             ? `<img src="${esc(it.image_url)}" class="kn-post-thumb" alt="">`
             : `<div class="nl-thumb">📚</div>`;
-          const excerpt = esc(it.content || '').slice(0, 60) + (it.content.length > 60 ? '…' : '');
+          const content = String(it.content || '');
+          const excerpt = esc(content).slice(0, 60) + (content.length > 60 ? '…' : '');
           return `
             <div class="nl-item" style="align-items:flex-start;">
               ${thumb}
@@ -8576,7 +8819,7 @@
               <button class="nl-edit-btn" onclick="editKnowledgePost(${it.id}, ${it.image_url ? `'${jsStr(it.image_url)}'` : 'null'})">수정</button>
               <button class="nl-del-btn" onclick="deleteKnowledgePost(${it.id}, ${it.image_url ? `'${jsStr(it.image_url)}'` : 'null'})">삭제</button>
             </div>`;
-        }).join('');
+        });
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">포스트 로드 실패</p>';
       }
@@ -8595,7 +8838,7 @@
           method: 'DELETE', headers: adminHeaders()
         });
         if (!res.ok) throw new Error(`(${res.status})`);
-        loadKnowledgeList();
+        refreshAdminSection('up-knowledge');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -8681,7 +8924,7 @@
         });
         if (!res.ok) throw new Error(`(${res.status}) ${await res.text()}`);
         status.textContent = '✅ 수정 완료!';
-        loadKnowledgeList();
+        refreshAdminSection('up-knowledge');
         setTimeout(cancelKnowledgeEdit, 1500);
       } catch(e) {
         status.textContent = '❌ 수정 실패: ' + e.message;
@@ -8778,7 +9021,7 @@
         fileEl.value = '';
         document.getElementById('cn-file-name').textContent = '없음';
         document.getElementById('cn-title').value = '';
-        loadCardNews();
+        refreshAdminSection('up-card');
       } catch (e) {
         status.textContent = '❌ 업로드 실패: ' + e.message;
       } finally {
@@ -8786,11 +9029,13 @@
       }
     }
 
-    async function loadCardNews() {
+    async function loadCardNews(force = false) {
       const el = document.getElementById('cn-list');
       try {
-        const res = await fetch(`/api/card-news?order=created_at.desc&limit=300`);
-        const items = await res.json();
+        const items = await cachedAdminFetch('card-news:list', `/api/card-news?order=created_at.desc&limit=300`, {
+          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
+          force
+        }, force ? 0 : 30000);
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 카드뉴스가 없습니다.</p>';
           return;
@@ -8802,7 +9047,7 @@
           if (!sets[it.set_id]) { sets[it.set_id] = { title: it.title, created_at: it.created_at, items: [] }; setOrder.push(it.set_id); }
           sets[it.set_id].items.push(it);
         });
-        el.innerHTML = setOrder.map(sid => {
+        renderListChunk(el, setOrder, sid => {
           const s = sets[sid];
           s.items.sort((a,b) => a.sort_order - b.sort_order);
           const d = new Date(s.created_at);
@@ -8820,7 +9065,7 @@
               </div>
               <button class="nl-del-btn" onclick="deleteCardNewsSet('${sid}')">세트 삭제</button>
             </div>`;
-        }).join('');
+        });
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">카드뉴스 로드 실패</p>';
       }
@@ -8869,7 +9114,7 @@
         if (!delRes.ok) throw new Error('DB 삭제 실패: ' + delRes.status);
         const delJson = await delRes.json().catch(() => ({}));
         if (!delJson.ok) throw new Error('DB 삭제 응답 비정상');
-        loadCardNews();
+        refreshAdminSection('up-card');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -8892,7 +9137,7 @@
           method: 'DELETE',
           headers: adminHeaders()
         });
-        loadNewsletters();
+        refreshAdminSection('up-news');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -9009,18 +9254,18 @@
       status.textContent = `✅ ${ok}개 업로드 완료!` + (fail ? ` (${fail}개 실패)` : '');
       fileEl.value = '';
       tbClearRows();
-      loadTextbooks();
+      refreshAdminSection('up-textbook');
       btn.disabled = false;
     }
 
     /* ── 보험교재 목록 로드 ── */
-    async function loadTextbooks() {
+    async function loadTextbooks(force = false) {
       const el = document.getElementById('tb-list');
       try {
-        const res = await fetch(
-          `/api/textbooks?order=sort_order.asc,created_at.desc&limit=50`
-        );
-        const items = await res.json();
+        const items = await cachedAdminFetch('textbooks:list', `/api/textbooks?order=sort_order.asc,created_at.desc&limit=50`, {
+          headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` },
+          force
+        }, force ? 0 : 30000);
 
         if (!items || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 교재가 없습니다.</p>';
@@ -9033,7 +9278,7 @@
           return (b / 1048576).toFixed(1) + ' MB';
         }
 
-        el.innerHTML = items.map(it => `
+        renderListChunk(el, items, it => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;">
             <span style="font-size:20px;">${it.file_type === 'pdf' ? '📄' : '🖼'}</span>
             <div style="flex:1;min-width:0;">
@@ -9045,7 +9290,7 @@
                style="font-size:11px;padding:5px 10px;background:rgba(26,61,232,0.08);color:var(--blue-mid);border-radius:6px;text-decoration:none;font-weight:600;">미리보기</a>
             <button onclick="deleteTextbook(${it.id},'${encodeURIComponent(it.file_url)}')"
               style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.08);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
+          </div>`);
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">목록 로드 실패</p>';
       }
@@ -9065,7 +9310,7 @@
         await fetch(`/api/textbooks/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
-        loadTextbooks();
+        refreshAdminSection('up-textbook');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -9104,7 +9349,7 @@
         document.getElementById('al-insurer').value = '';
         document.getElementById('al-title').value = '';
         document.getElementById('al-message').value = '';
-        loadAlerts();
+        refreshAdminSection('up-alert');
       } catch (e) {
         status.textContent = '❌ ' + e.message;
       } finally {
@@ -9112,12 +9357,11 @@
       }
     }
 
-    async function loadAlerts() {
+    async function loadAlerts(force = false) {
       const el = document.getElementById('al-list');
       if (!el) return;
       try {
-        const res = await fetch('/api/service-alerts');
-        const items = await res.json();
+        const items = await cachedAdminFetch('alerts:list', '/api/service-alerts', { force }, force ? 0 : 30000);
         if (!Array.isArray(items) || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 알림이 없습니다.</p>';
           return;
@@ -9129,7 +9373,7 @@
         };
         const sevIcon = { info: '📢', warn: '⚠️', down: '🚨' };
         const sevColor = { info: '#1e3a8a', warn: '#92400e', down: '#991b1b' };
-        el.innerHTML = items.map(it => `
+        renderListChunk(el, items, it => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;opacity:${it.is_active ? '1' : '0.55'};">
             <span style="font-size:20px;">${sevIcon[it.severity] || '📢'}</span>
             <div style="flex:1;min-width:0;">
@@ -9141,7 +9385,7 @@
             </div>
             <button onclick="toggleAlert(${it.id}, ${!it.is_active})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
             <button onclick="deleteAlert(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
+          </div>`);
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">알림 로드 실패</p>';
       }
@@ -9154,7 +9398,7 @@
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ is_active: newState }),
         });
-        loadAlerts();
+        refreshAdminSection('up-alert');
       } catch (e) {
         alert('변경 실패: ' + e.message);
       }
@@ -9166,7 +9410,7 @@
         await fetch(`/api/service-alerts/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
-        loadAlerts();
+        refreshAdminSection('up-alert');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -9260,6 +9504,99 @@
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
+
+    /* ── 제휴 파트너 광고 카드 (v2.137.0) ── */
+    async function savePartner() {
+      const name = document.getElementById('pt-name').value.trim();
+      const tagline = document.getElementById('pt-tagline').value.trim();
+      const category = document.getElementById('pt-category').value.trim();
+      const href = document.getElementById('pt-href').value.trim();
+      const img = document.getElementById('pt-img').value.trim();
+      const sort = parseInt(document.getElementById('pt-sort').value, 10) || 0;
+      const status = document.getElementById('pt-status');
+      const btn = document.getElementById('pt-save-btn');
+      if (!name || !href) { status.textContent = '⚠ 파트너명·링크는 필수입니다.'; return; }
+      if (!/^https?:\/\//i.test(href) || (img && !/^https?:\/\//i.test(img))) {
+        status.textContent = '⚠ 링크·이미지는 http(s) URL이어야 합니다.'; return;
+      }
+      btn.disabled = true; status.textContent = '등록 중…';
+      try {
+        const res = await fetch('/api/partners', {
+          method: 'POST',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ name, tagline, category, href, img, sort_order: sort, is_active: true }),
+        });
+        if (!res.ok) throw new Error('등록 실패 (' + res.status + ')');
+        status.textContent = '✅ 등록 완료! (즉시 반영)';
+        ['pt-name','pt-tagline','pt-category','pt-href','pt-img'].forEach(id => document.getElementById(id).value = '');
+        document.getElementById('pt-sort').value = '0';
+        refreshAdminSection('up-partners');
+      } catch (e) {
+        status.textContent = '❌ ' + e.message;
+      } finally { btn.disabled = false; }
+    }
+
+    async function loadPartners(force = false) {
+      const el = document.getElementById('pt-list');
+      if (!el) return;
+      try {
+        const res = await fetch('/api/partners');
+        const items = await res.json();
+        if (!Array.isArray(items) || items.length === 0) {
+          el.innerHTML = '<p class="empty-msg">등록된 제휴 서비스가 없습니다.</p>';
+          return;
+        }
+        el.innerHTML = items.map(it => `
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;opacity:${it.is_active ? '1' : '0.5'};">
+            <div style="width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(124,58,237,0.10);color:#7c3aed;font-weight:900;font-size:17px;flex-shrink:0;overflow:hidden;">${it.img ? `<img src="${esc(it.img)}" alt="" style="width:100%;height:100%;object-fit:contain;background:#fff;" loading="lazy">` : esc(String(it.name || '?').trim().charAt(0) || '?')}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)} ${it.category ? `<span style="font-size:10.5px;color:#7c3aed;font-weight:700;">· ${esc(it.category)}</span>` : ''}</div>
+              ${it.tagline ? `<div style="font-size:11px;color:var(--txt-lo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.tagline)}</div>` : ''}
+              <a href="${esc(it.href)}" target="_blank" rel="noopener" style="font-size:10.5px;color:#1a3de8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">${esc(it.href)}</a>
+            </div>
+            <label style="display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--txt-lo);white-space:nowrap;">정렬 <input type="number" id="pt-sort-${it.id}" value="${Number.isFinite(it.sort_order) ? it.sort_order : 0}" style="width:54px;padding:4px 5px;font-size:11px;"></label>
+            <span style="font-size:10.5px;color:${it.is_active ? '#059669' : 'var(--txt-lo)'};white-space:nowrap;">${it.is_active ? '🟢 활성' : '⚫ 비활성'}</span>
+            <button onclick="savePartnerSort(${it.id})" style="font-size:11px;padding:5px 8px;background:rgba(26,61,232,0.08);color:#1a3de8;border:none;border-radius:6px;cursor:pointer;font-weight:600;">저장</button>
+            <button onclick="togglePartner(${it.id}, ${it.is_active ? 'false' : 'true'})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
+            <button onclick="deletePartner(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
+          </div>`).join('');
+      } catch (e) {
+        el.innerHTML = '<p class="empty-msg">제휴 서비스 로드 실패</p>';
+      }
+    }
+
+    async function savePartnerSort(id) {
+      const input = document.getElementById('pt-sort-' + id);
+      const sort_order = parseInt(input && input.value, 10) || 0;
+      try {
+        const res = await fetch(`/api/partners/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ sort_order }),
+        });
+        if (!res.ok) throw new Error('정렬 저장 실패 (' + res.status + ')');
+        refreshAdminSection('up-partners');
+      } catch (e) { alert(e.message); }
+    }
+
+    async function togglePartner(id, newState) {
+      try {
+        await fetch(`/api/partners/${id}`, {
+          method: 'PATCH',
+          headers: adminHeaders({ 'Content-Type': 'application/json' }),
+          body: JSON.stringify({ is_active: newState }),
+        });
+        refreshAdminSection('up-partners');
+      } catch (e) { alert('변경 실패: ' + e.message); }
+    }
+
+    async function deletePartner(id) {
+      if (!confirm('이 제휴 서비스를 삭제하시겠습니까?')) return;
+      try {
+        await fetch(`/api/partners/${id}`, { method: 'DELETE', headers: adminHeaders() });
+        refreshAdminSection('up-partners');
+      } catch (e) { alert('삭제 실패: ' + e.message); }
+    }
 
     /* ══════════════════ 카카오톡 대화 순위 ══════════════════ */
     let _kkParsed = null; // 파싱된 결과 임시 저장
@@ -9495,7 +9832,7 @@
         document.getElementById('kk-preview').style.display = 'none';
         document.getElementById('kk-file').value = '';
         _kkParsed = null;
-        loadKakaoStats();
+        refreshAdminSection('up-kakao');
       } catch (e) {
         alert('저장 실패: ' + e.message);
       } finally {
@@ -9504,15 +9841,11 @@
       }
     }
 
-    async function loadKakaoStats() {
+    async function loadKakaoStats(force = false) {
       const el = document.getElementById('kk-list');
       if (!el) return;
       try {
-        const res = await fetch(
-          `/api/kakao-stats`,
-          { headers: adminHeaders() }
-        );
-        const items = await res.json();
+        const items = await cachedAdminFetch('kakao:list', `/api/kakao-stats`, { headers: adminHeaders(), force }, force ? 0 : 30000);
         if (!Array.isArray(items) || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">저장된 통계가 없습니다.</p>';
           return;
@@ -9523,7 +9856,7 @@
           const d = new Date(s);
           return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
         };
-        el.innerHTML = items.map((it, idx) => `
+        renderListChunk(el, items, (it, idx) => `
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid ${idx===0?'rgba(254,229,0,0.5)':'var(--border)'};border-radius:10px;margin-bottom:8px;">
             ${idx===0 ? '<span style="font-size:10px;font-weight:800;padding:2px 7px;background:#fee500;color:#1a1a1a;border-radius:8px;flex-shrink:0;">최신</span>' : ''}
             <div style="flex:1;min-width:0;">
@@ -9531,7 +9864,7 @@
               <div style="font-size:11px;color:var(--txt-lo);">참여자 ${it.participant_count||0}명 · 총 ${(it.total_messages||0).toLocaleString()}건 · 명장면 ${(Array.isArray(it.messages)?it.messages.length:0)}개 · ${fmt(it.updated_at)}</div>
             </div>
             <button onclick="kkDelete(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
+          </div>`);
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">통계 로드 실패</p>';
       }
@@ -9543,7 +9876,7 @@
         await fetch(`/api/kakao-stats/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
-        loadKakaoStats();
+        refreshAdminSection('up-kakao');
       } catch (e) {
         alert('삭제 실패: ' + e.message);
       }
@@ -9652,7 +9985,7 @@
         document.getElementById('hp-file').value = '';
         document.getElementById('hp-file-name').textContent = '없음';
         document.getElementById('hp-active').checked = true;
-        loadHomePopups();
+        refreshAdminSection('up-popup');
       } catch (e) {
         status.textContent = '❌ ' + e.message;
         status.style.color = '#ef4444';
@@ -9661,12 +9994,11 @@
       }
     }
 
-    async function loadHomePopups() {
+    async function loadHomePopups(force = false) {
       const el = document.getElementById('hp-list');
       if (!el) return;
       try {
-        const res = await fetch('/api/home-popups');
-        const items = await res.json();
+        const items = await cachedAdminFetch('home-popups:list', '/api/home-popups', { force }, force ? 0 : 30000);
         if (!Array.isArray(items) || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 공지가 없습니다.</p>';
           return;
@@ -9676,7 +10008,7 @@
           const d = new Date(s);
           return `${d.getMonth()+1}/${d.getDate()} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
         };
-        el.innerHTML = items.map((it, idx) => {
+        renderListChunk(el, items, (it, idx) => {
           const fileBadge = it.file_url
             ? (it.file_type === 'pdf' ? '<span style="font-size:9.5px;padding:1px 6px;background:rgba(220,38,38,0.15);color:#dc2626;border-radius:5px;font-weight:700;">📄 PDF</span>' : '<span style="font-size:9.5px;padding:1px 6px;background:rgba(26,61,232,0.12);color:var(--blue-mid);border-radius:5px;font-weight:700;">🖼 IMG</span>')
             : '';
@@ -9695,7 +10027,7 @@
               <button onclick="toggleHomePopup(${it.id}, ${!it.is_active})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
               <button onclick="deleteHomePopup(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
             </div>`;
-        }).join('');
+        });
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">공지 로드 실패</p>';
       }
@@ -9708,7 +10040,7 @@
           headers: adminHeaders({ 'Content-Type': 'application/json' }),
           body: JSON.stringify({ is_active: newState, updated_at: new Date().toISOString() }),
         });
-        loadHomePopups();
+        refreshAdminSection('up-popup');
       } catch (e) { alert('변경 실패: ' + e.message); }
     }
 
@@ -9718,7 +10050,7 @@
         await fetch(`/api/home-popups/${id}`, {
           method: 'DELETE', headers: adminHeaders()
         });
-        loadHomePopups();
+        refreshAdminSection('up-popup');
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
@@ -9783,7 +10115,7 @@
         if (!res.ok) throw new Error(data.error || data.message || `HTTP ${res.status}`);
         alert(isEdit ? '수정 완료' : '등록 완료');
         resetSeoForm();
-        loadSeoPostsAdmin();
+        refreshAdminSection('up-seo');
       } catch (e) {
         alert('실패: ' + e.message);
       } finally {
@@ -9861,22 +10193,22 @@
     window.fillIndexNowFromSeoForm = fillIndexNowFromSeoForm;
     window.submitIndexNow = submitIndexNow;
 
-    async function loadSeoPostsAdmin() {
+    async function loadSeoPostsAdmin(force = false) {
       const el = document.getElementById('seo-list');
       if (!el) return;
       const filterCat = document.getElementById('seo-filter-cat')?.value || '';
       el.innerHTML = '<p class="empty-msg">불러오는 중…</p>';
       try {
-        const qs = new URLSearchParams({ status: 'all', limit: '200' });
+        const qs = new URLSearchParams({ status: 'all', limit: '50' });
         if (filterCat) qs.set('category', filterCat);
-        const res = await fetch(`/api/seo-posts?${qs}`, { headers: adminHeaders() });
-        const items = await res.json();
+        const cacheKey = 'seo-posts:list:' + (filterCat || 'all');
+        const items = await cachedAdminFetch(cacheKey, `/api/seo-posts?${qs}`, { headers: adminHeaders(), force }, force ? 0 : 30000);
         if (!Array.isArray(items) || !items.length) {
           el.innerHTML = '<p class="empty-msg">등록된 글이 없습니다.</p>';
           return;
         }
         const esc = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-        el.innerHTML = items.map(it => {
+        renderListChunk(el, items, it => {
           const catLabel = SEO_CAT_LABELS[it.category] || it.category;
           const statusBadge = it.status === 'published'
             ? '<span style="background:#10b981;color:#fff;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:700;">게시</span>'
@@ -9903,7 +10235,7 @@
                 <button class="nl-del-btn" onclick="deleteSeoPost(${it.id})">삭제</button>
               </div>
             </div>`;
-        }).join('');
+        });
       } catch (e) {
         el.innerHTML = `<p class="empty-msg">불러오기 실패: ${e.message}</p>`;
       }
@@ -9938,7 +10270,7 @@
       try {
         const res = await fetch(`/api/seo-posts/${id}`, { method: 'DELETE', headers: adminHeaders() });
         if (!res.ok) throw new Error('HTTP ' + res.status);
-        loadSeoPostsAdmin();
+        refreshAdminSection('up-seo');
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
     window.deleteSeoPost = deleteSeoPost;

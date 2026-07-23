@@ -4663,6 +4663,42 @@
       margin: 0 0 18px;
     }
     .ic-top-row > #home-news-monitor { min-width: 0; margin-bottom: 0 !important; }
+    /* v2.137.0: 관리자 운영형 제휴 파트너 광고 존 */
+    .ic-partner-zone { margin: 0 0 18px; }
+    .ic-partner-head { display:flex; align-items:center; gap:8px; margin:0 0 11px; }
+    .ic-partner-title { font-size:16px; font-weight:800; color:var(--txt-hi,#0f172a); }
+    .ic-partner-ad { font-size:10px; line-height:1; font-weight:900; letter-spacing:.06em; color:#fff; background:#64748b; padding:4px 6px; border-radius:4px; }
+    .ic-partner-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; }
+    .ic-partner-card { position:relative; display:flex; flex-direction:column; min-width:0; padding:14px; border:1px solid var(--border,#e6eaf2); border-radius:14px; background:var(--bg-card,#fff); color:inherit; text-decoration:none; box-shadow:var(--sh-sm,0 2px 10px rgba(15,23,42,.05)); transition:transform .15s,box-shadow .15s,border-color .15s; }
+    .ic-partner-card:hover { transform:translateY(-2px); border-color:rgba(26,61,232,.32); box-shadow:0 8px 24px rgba(15,23,42,.10); }
+    .ic-partner-card-ad { position:absolute; top:10px; right:10px; font-size:9px; line-height:1; font-weight:900; letter-spacing:.05em; color:#64748b; border:1px solid currentColor; border-radius:3px; padding:3px 4px; }
+    .ic-partner-logo { width:52px; height:52px; display:flex; align-items:center; justify-content:center; overflow:hidden; border-radius:12px; margin-bottom:11px; background:linear-gradient(135deg,rgba(26,61,232,.10),rgba(124,58,237,.14)); color:#1a3de8; font-size:19px; font-weight:900; }
+    .ic-partner-logo img { display:block; width:100%; height:100%; object-fit:contain; background:#fff; }
+    .ic-partner-name { padding-right:30px; font-size:14px; font-weight:800; line-height:1.35; color:var(--txt-hi,#0f172a); word-break:keep-all; }
+    .ic-partner-tagline { min-height:2.9em; margin:5px 0 10px; font-size:11.5px; line-height:1.45; color:var(--txt-mid,#475569); word-break:keep-all; }
+    .ic-partner-category { align-self:flex-start; margin-top:auto; padding:3px 7px; border-radius:999px; background:rgba(26,61,232,.08); color:#1a3de8; font-size:10px; font-weight:800; }
+    .ic-partner-disclaimer { margin:10px 2px 0; font-size:11.5px; line-height:1.5; color:var(--txt-lo,#94a3b8); }
+    [data-theme="dark"] .ic-partner-card { background:#131826; border-color:#30363d; box-shadow:none; }
+    [data-theme="dark"] .ic-partner-card:hover { border-color:rgba(138,180,255,.48); box-shadow:0 8px 24px rgba(0,0,0,.22); }
+    [data-theme="dark"] .ic-partner-title,
+    [data-theme="dark"] .ic-partner-name { color:#e6edf3; }
+    [data-theme="dark"] .ic-partner-tagline,
+    [data-theme="dark"] .ic-partner-disclaimer { color:#9aa7b4; }
+    [data-theme="dark"] .ic-partner-logo { background:rgba(99,102,241,.16); color:#8ab4ff; }
+    [data-theme="dark"] .ic-partner-category { background:rgba(138,180,255,.13); color:#8ab4ff; }
+    .ic-b2b-strip { display:flex; align-items:center; justify-content:space-between; gap:18px; margin:0 0 22px; padding:18px 20px; border:1px solid transparent; border-radius:16px; background:linear-gradient(var(--bg-card,#fff),var(--bg-card,#fff)) padding-box,linear-gradient(110deg,rgba(26,61,232,.38),rgba(124,58,237,.22),rgba(14,165,233,.35)) border-box; }
+    .ic-b2b-copy { min-width:0; }
+    .ic-b2b-title { margin:0; font-size:16px; font-weight:850; color:var(--txt-hi,#0f172a); }
+    .ic-b2b-sub { margin:5px 0 0; font-size:12px; line-height:1.5; color:var(--txt-mid,#475569); }
+    .ic-b2b-actions { display:flex; flex-shrink:0; align-items:center; gap:8px; }
+    .ic-b2b-btn { display:inline-flex; align-items:center; justify-content:center; min-height:34px; padding:0 13px; border-radius:9px; font-size:12px; font-weight:800; text-decoration:none; white-space:nowrap; }
+    .ic-b2b-btn-primary { background:#1a3de8; color:#fff; }
+    .ic-b2b-btn-secondary { background:rgba(254,229,0,.9); color:#191600; }
+    [data-theme="dark"] .ic-b2b-strip { background:linear-gradient(#131826,#131826) padding-box,linear-gradient(110deg,rgba(138,180,255,.45),rgba(167,139,250,.30),rgba(56,189,248,.38)) border-box; }
+    [data-theme="dark"] .ic-b2b-title { color:#e6edf3; }
+    [data-theme="dark"] .ic-b2b-sub { color:#9aa7b4; }
+    @media (max-width:768px) { .ic-partner-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .ic-b2b-strip { align-items:flex-start; flex-direction:column; } .ic-b2b-actions { width:100%; } .ic-b2b-btn { flex:1; } }
+    @media (max-width:480px) { .ic-partner-grid { grid-template-columns:1fr; } .ic-partner-card { padding:13px; } .ic-b2b-strip { padding:16px; } .ic-b2b-actions { flex-direction:column; } .ic-b2b-btn { width:100%; } }
     /* 인슈어커넥트 뉴스: 대화순위가 빠진 자리만큼 전체너비 5열로 확장 */
     #home-news-grid { grid-template-columns: repeat(5, 1fr); }
     @media (max-width: 1180px) { #home-news-grid { grid-template-columns: repeat(4, 1fr); } }
@@ -9289,10 +9325,10 @@
           <li>신뢰할 수 있는 정보와 인사이트</li>
           <li>함께 성장하는 보험업계 네트워크</li>
         </ul>
-        <!-- v2.99.0: 비로그인 공개 보험 콘텐츠 — 회원가입 없이 홈에서 바로 읽는 본문·내부링크 -->
+        <!-- v2.99.0: 비로그인 공개 보험 콘텐츠 — 핵심 정보를 홈에서 바로 읽는 본문·내부링크 -->
         <section class="lg2-pub" aria-label="무료 공개 보험 정보">
           <h2 class="lg2-pub-h">로그인 없이 보는 보험 정보</h2>
-          <p class="lg2-pub-lead">InsureConnect는 보험금 청구 방법, 실손·암·자동차·종신보험의 보장 구조, 약관·수술·질병코드 해설까지 <b>설계사와 소비자 모두에게 도움이 되는 보험 정보</b>를 직접 작성해 무료로 공개합니다. 아래 글은 회원가입 없이 바로 읽을 수 있어요.</p>
+          <p class="lg2-pub-lead">InsureConnect는 보험금 청구 방법, 실손·암·자동차·종신보험의 보장 구조, 약관·수술·질병코드 해설까지 <b>설계사와 소비자 모두에게 도움이 되는 보험 정보</b>를 직접 작성해 공개합니다. 핵심 정보는 로그인 없이 바로 읽을 수 있어요.</p>
           <ul class="lg2-posts">
             <li><a href="/insurance/claim/insurance-claim-process-steps">보험금 청구 절차 — 접수부터 지급까지 단계별 가이드</a></li>
             <li><a href="/insurance/claim/claim-deadline-3-years">보험금 청구 소멸시효 3년 — 놓치면 못 받는 기한</a></li>
@@ -9361,7 +9397,7 @@
         <a class="mlg-kakao" href="/api/auth/kakao/login" onclick="if(typeof trackClick==='function')trackClick('카카오 로그인','login-gate')">
           <span aria-hidden="true">💬</span> 카카오로 3초 만에 시작하기
         </a>
-        <p class="lg2-nosignup">카카오 로그인 시, 별도의 회원가입이 필요하지 않습니다.</p>
+        <p class="lg2-nosignup">카카오 로그인으로 설계사 전용 기능을 바로 시작할 수 있습니다.</p>
         <div class="mlg-social" id="mlg-social" style="display:none;margin-top:16px"><span class="dot"></span><span id="mlg-social-txt"></span></div>
         <div class="lg2-badges">
           <div class="lg2-badge"><span>🛡️</span><b>카카오로 안전하게</b><span class="d">검증된 카카오 로그인으로 안심하고 이용하세요</span></div>
@@ -9825,6 +9861,16 @@
       </section>
     </div>
 
+    <!-- v2.137.0: 제휴 파트너 광고 존 — 활성 카드가 있을 때만 JS로 표시 -->
+    <section class="ic-partner-zone" id="home-partner-zone" aria-label="제휴 서비스" style="display:none;">
+      <div class="ic-partner-head">
+        <span class="ic-partner-title">제휴 서비스</span>
+        <span class="ic-partner-ad">AD</span>
+      </div>
+      <div class="ic-partner-grid" id="home-partner-grid"></div>
+      <p class="ic-partner-disclaimer">위 서비스는 제휴 파트너의 광고이며, 신청·상담·계약은 각 파트너사에서 직접 진행됩니다.</p>
+    </section>
+
     <!-- v2.34.0: 홈 광고 팝업 (배너 클릭 → 확대 배너 + 「상담 받아보기」 → 네이버폼) -->
     <style>
       .had-overlay{position:fixed;inset:0;z-index:99991;display:none;align-items:center;justify-content:center;background:rgba(8,15,48,0.6);backdrop-filter:blur(3px);padding:18px}
@@ -10087,6 +10133,18 @@
     </div>
     </div><!-- /.ic-top-row -->
 
+
+    <!-- v2.137.0: B2B 광고·제휴 문의 스트립 -->
+    <section class="ic-b2b-strip" id="b2b-partner" aria-labelledby="b2b-partner-title">
+      <div class="ic-b2b-copy">
+        <h2 class="ic-b2b-title" id="b2b-partner-title">인슈어커넥트에 광고·제휴하기</h2>
+        <p class="ic-b2b-sub">보험설계사가 매일 모이는 웹사이트 커뮤니티 플랫폼에 서비스를 노출하세요.</p>
+      </div>
+      <div class="ic-b2b-actions">
+        <a class="ic-b2b-btn ic-b2b-btn-primary" href="mailto:insureconnect@naver.com?subject=%5B%EA%B4%91%EA%B3%A0%C2%B7%EC%A0%9C%ED%9C%B4%20%EB%AC%B8%EC%9D%98%5D%20" onclick="this.href='mailto:insureconnect@naver.com?subject='+encodeURIComponent('[광고·제휴 문의] '); trackCardClick('home','b2b-inquiry');">광고·제휴 문의</a>
+        <a class="ic-b2b-btn ic-b2b-btn-secondary" href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="trackCardClick('home','b2b-kakao');">카카오톡 문의</a>
+      </div>
+    </section>
 
     <!-- v2.1.25: 「진행중인 채용공고/강의」는 ic-top-left 안으로 이동 (위에 위치) -->
 
@@ -10856,9 +10914,10 @@
           <a href="/terms">이용약관</a>
           <a href="/privacy">개인정보처리방침</a>
           <a href="/disclaimer">면책조항</a>
+          <a href="#b2b-partner">광고·제휴</a>
           <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">운영자 문의</a>
         </nav>
-        <p class="foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다.</p>
+        <p class="foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다. 인슈어커넥트는 광고 게재 매체로서 일부 콘텐츠에 광고(AD)가 포함될 수 있습니다.</p>
         <div class="foot-info">
           <span>© 2026 InsureConnect</span>
           <span class="foot-sep">|</span>
@@ -11176,6 +11235,32 @@
           return '<a class="cnx-card" href="' + e(it.href) + '" target="_blank" rel="noopener noreferrer nofollow sponsored" referrerpolicy="unsafe-url" data-cp="' + e(it.label) + '">'
             + '<span class="cnx-imgw"><img src="' + e(it.img) + '" alt="' + e(it.label) + '" loading="lazy" decoding="async"></span>'
             + '<span class="cnx-lb">' + e(it.label) + '</span></a>';
+        }).join('');
+        box.style.display = '';
+      }).catch(function () { box.style.display = 'none'; });
+    }
+
+    /* v2.137.0: 홈 제휴 파트너 광고 존 — 홈 최초 렌더 시 1회 lazy 로드 */
+    function loadPartnerZone() {
+      var box = document.getElementById('home-partner-zone');
+      var grid = document.getElementById('home-partner-grid');
+      if (!box || !grid || window._partnerZoneLoaded) return;
+      window._partnerZoneLoaded = 1;
+      var e = function (s) { return String(s == null ? '' : s).replace(/[&<>\"]/g, function (c) { return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' }[c]); }); };
+      var initial = function (s) { var t = String(s || '').trim(); return e(t ? t.charAt(0).toUpperCase() : '?'); };
+      fetch('/api/partners?active=1').then(function (r) { return r.json(); }).then(function (items) {
+        if (!Array.isArray(items) || !items.length) { box.style.display = 'none'; return; }
+        grid.innerHTML = items.map(function (it) {
+          var logo = it.img
+            ? '<img src="' + e(it.img) + '" alt="' + e(it.name) + ' 로고" loading="lazy" decoding="async">'
+            : '<span class="ic-partner-initial">' + initial(it.name) + '</span>';
+          return '<a class="ic-partner-card" href="' + e(it.href) + '" target="_blank" rel="noopener noreferrer nofollow sponsored" data-partner-name="' + e(it.name) + '" onclick="trackClick(this.dataset.partnerName,\'partner\')">'
+            + '<span class="ic-partner-card-ad">AD</span>'
+            + '<span class="ic-partner-logo">' + logo + '</span>'
+            + '<span class="ic-partner-name">' + e(it.name) + '</span>'
+            + (it.tagline ? '<span class="ic-partner-tagline">' + e(it.tagline) + '</span>' : '<span class="ic-partner-tagline"></span>')
+            + '<span class="ic-partner-category">' + e(it.category || '제휴') + '</span>'
+            + '</a>';
         }).join('');
         box.style.display = '';
       }).catch(function () { box.style.display = 'none'; });
@@ -11672,6 +11757,7 @@
       if (page === 'home' && window._homePopupInitDone && typeof showHomePopupIfNeeded === 'function') {
         setTimeout(() => showHomePopupIfNeeded(), 300);
       }
+      if (page === 'home' && typeof loadPartnerZone === 'function') loadPartnerZone();
 
       markMenuSeen(page);
       window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -18006,13 +18092,14 @@
     }
 
     if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', () => { loadHomeFeatured(); loadHomePosts(); loadKakaoRank(); loadHomeNotice(); loadMobileHome(); });
+      document.addEventListener('DOMContentLoaded', () => { loadHomeFeatured(); loadHomePosts(); loadKakaoRank(); loadHomeNotice(); loadMobileHome(); loadPartnerZone(); });
     } else {
       loadHomeFeatured();
       loadHomePosts();
       loadKakaoRank();
       loadHomeNotice();
       loadMobileHome();
+      loadPartnerZone();
     }
   })();
   </script>
