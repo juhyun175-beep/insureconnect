@@ -57,7 +57,27 @@ export function seoCtaFooter(SITE) {
 .seo-foot{max-width:760px;margin:0 auto 32px;padding:0 16px;text-align:center;font-size:12px;color:#9ca3af}
 .seo-foot a{color:#6b7280;text-decoration:none}
 @media(max-width:640px){.seo-cta{padding:0}.seo-cta-inner{border-radius:0}}
+/* v2.138.0: SEO 랜딩 제휴 파트너 스트립 (라이트 고정) */
+.spx{max-width:760px;margin:0 auto 20px;padding:0 16px}
+.spx-head{display:flex;align-items:center;gap:8px;margin-bottom:10px}
+.spx-t{font-size:14px;font-weight:800;color:#0f172a}
+.spx-ad{font-size:9px;font-weight:800;letter-spacing:.04em;color:#fff;background:#94a3b8;padding:2px 7px;border-radius:5px;margin-left:auto}
+.spx-row{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.spx-card{position:relative;display:flex;flex-direction:column;gap:7px;text-decoration:none;color:inherit;background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:13px 12px;box-shadow:0 2px 8px rgba(0,0,0,0.04);transition:transform .12s,box-shadow .12s,border-color .12s}
+.spx-card:hover{transform:translateY(-2px);box-shadow:0 8px 18px rgba(12,31,184,0.10);border-color:#c7d2fe}
+.spx-card-ad{position:absolute;top:8px;right:8px;font-size:8.5px;font-weight:800;color:#fff;background:rgba(15,23,42,.6);padding:1px 5px;border-radius:4px}
+.spx-thumb{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:10px;overflow:hidden;background:#fff;border:1px solid #e5e7eb;font-size:18px;font-weight:800;color:#1a3de8;text-transform:uppercase;flex-shrink:0}
+.spx-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+.spx-thumb-fb{background:linear-gradient(135deg,rgba(26,61,232,0.10),rgba(0,200,238,0.08))}
+.spx-body{display:flex;flex-direction:column;gap:4px;min-width:0}
+.spx-name{font-size:13px;font-weight:800;color:#0f172a;line-height:1.3;word-break:break-word;overflow-wrap:anywhere}
+.spx-tag{font-size:11.5px;color:#475569;line-height:1.4;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.spx-chip{align-self:flex-start;font-size:10px;font-weight:700;color:#1a3de8;background:rgba(26,61,232,0.08);border:1px solid rgba(26,61,232,0.18);border-radius:999px;padding:1px 8px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.spx-note{margin:9px 2px 0;font-size:11px;color:#9ca3af;line-height:1.45}
+@media(max-width:640px){.spx-row{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:400px){.spx-row{grid-template-columns:1fr}}
 </style>
+<div id="seo-partner-strip" class="spx" style="display:none"></div>
 <footer class="seo-cta" aria-label="InsureConnect 바로가기">
   <div class="seo-cta-inner">
     <div class="seo-cta-title">무료 회원가입하고 전부 이용하세요</div>
@@ -213,5 +233,76 @@ ${KAKAO_JS_KEY ? `<script src="https://t1.kakaocdn.net/kakao_js_sdk/2.7.2/kakao.
     }
   }).catch(function(){});
 })();
+/* SEO_PARTNER_STRIP_START — v2.138.0: SEO 랜딩 제휴 파트너 스트립 + viewable 임프레션.
+   API 데이터 불신: name/tagline/category 는 textContent, href/img 는 https? 만 허용(서버 검증 이중화).
+   노출은 카드가 화면 50% 이상 진입한 뷰어블 기준만 인정(단순 페이지로드 카운트 금지).
+   IntersectionObserver 미지원 시 페이지로드 임프레션으로 폴백하지 않음(클릭 시 imp 보정만). */
+(function(){
+  if(window.__seoPartnerBound) return; window.__seoPartnerBound=1;
+  var PARTNER_BOT_RE=/bot|crawler|spider|scrap|preview|facebookexternalhit|twitterbot|slackbot|telegrambot|whatsapp|line\\/|kakaotalk-scrap|kakao-link|naverbot|yeti|googlebot|bingbot|duckduck|baidu|yandex|applebot|embedly|outbrain|pinterest|discordbot|skypeuripreview|chatgpt|gptbot|claudebot|perplexitybot|headless/i;
+  if(PARTNER_BOT_RE.test(navigator.userAgent||'')) return;
+  var box=document.getElementById('seo-partner-strip');
+  if(!box) return;
+  var HTTP_RE=/^https?:\\/\\//i;
+  var sentImp={};                          // partner_id -> 1 (Set 대용, 카드별 1회 dedupe)
+  function track(card){
+    try{ fetch('/api/track/card-click',{method:'POST',headers:{'Content-Type':'application/json'},keepalive:true,body:JSON.stringify({menu:'제휴파트너',card:card})}); }catch(_){}
+  }
+  function sendImp(pid){ if(sentImp[pid]) return; sentImp[pid]=1; track('imp:'+pid); }
+  function initial(name){ var s=String(name==null?'':name).trim(); return s?Array.from(s)[0]:'\\u00b7'; }
+  fetch('/api/partners?active=1').then(function(r){ return r.json(); }).then(function(list){
+    if(!Array.isArray(list)||!list.length) return;   // 활성 0개 → placeholder 숨김 유지
+    var cards=list.filter(function(p){ return p && p.id!=null && HTTP_RE.test(String(p.href||'')); }).slice(0,4);
+    if(!cards.length) return;
+    var head=document.createElement('div'); head.className='spx-head';
+    var t=document.createElement('span'); t.className='spx-t'; t.textContent='제휴 서비스'; head.appendChild(t);
+    var ad=document.createElement('span'); ad.className='spx-ad'; ad.textContent='AD'; head.appendChild(ad);
+    box.appendChild(head);
+    var row=document.createElement('div'); row.className='spx-row';
+    // 카드별 뷰어블 노출 관측(threshold 0.5) — 화면 50% 진입 카드만 imp 1회, 이후 unobserve
+    var io=('IntersectionObserver' in window) ? new IntersectionObserver(function(entries, obs){
+      for(var i=0;i<entries.length;i++){
+        var e=entries[i];
+        if(e.isIntersecting && e.intersectionRatio>=0.5){
+          sendImp(e.target.getAttribute('data-partner-id'));
+          obs.unobserve(e.target);
+        }
+      }
+    }, { threshold: 0.5 }) : null;
+    cards.forEach(function(p){
+      var pid=String(p.id);
+      var nm=String(p.name==null?'':p.name).trim();
+      var a=document.createElement('a'); a.className='spx-card';
+      a.href=p.href; a.target='_blank'; a.rel='noopener noreferrer nofollow sponsored';
+      a.setAttribute('data-partner-id', pid);
+      var adb=document.createElement('span'); adb.className='spx-card-ad'; adb.textContent='AD'; a.appendChild(adb);
+      var thumb=document.createElement('span'); thumb.className='spx-thumb';
+      if(p.img && HTTP_RE.test(String(p.img))){
+        var img=document.createElement('img'); img.src=p.img; img.alt=nm?(nm+' 로고'):'파트너 로고';
+        img.loading='lazy'; img.decoding='async'; img.referrerPolicy='no-referrer';
+        img.addEventListener('error', function(){ thumb.textContent=initial(nm); thumb.className='spx-thumb spx-thumb-fb'; });
+        thumb.appendChild(img);
+      } else { thumb.textContent=initial(nm); thumb.className='spx-thumb spx-thumb-fb'; }
+      a.appendChild(thumb);
+      var body=document.createElement('span'); body.className='spx-body';
+      var nb=document.createElement('b'); nb.className='spx-name'; nb.textContent=nm; body.appendChild(nb);
+      if(p.tagline){ var tg=document.createElement('span'); tg.className='spx-tag'; tg.textContent=String(p.tagline); body.appendChild(tg); }
+      if(p.category){ var ch=document.createElement('span'); ch.className='spx-chip'; ch.textContent=String(p.category); body.appendChild(ch); }
+      a.appendChild(body);
+      a.addEventListener('click', function(){
+        sendImp(pid);           // 관측 콜백 전 빠른 클릭 시 imp 먼저(클릭>노출 역전 방지)
+        track('click:'+pid);
+      });
+      row.appendChild(a);
+      if(io) io.observe(a);
+    });
+    box.appendChild(row);
+    var note=document.createElement('p'); note.className='spx-note';
+    note.textContent='제휴 파트너 광고 · 신청·상담·계약은 각 파트너사에서 직접 진행됩니다.';
+    box.appendChild(note);
+    box.style.display='';
+  }).catch(function(){});   // fetch/JSON 오류 → placeholder 숨김 유지
+})();
+/* SEO_PARTNER_STRIP_END */
 </script>`;
 }
