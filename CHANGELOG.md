@@ -1,5 +1,20 @@
 # Changelog
 
+## [2.137.0] - 2026-07-23
+### Added (홈 하단 수익구조 재편 — 제휴 파트너 존 · B2B 스트립 · 매체 고지)
+- `migrations/d1_v2_137_0_partners.sql`, `schema.sql`: 관리자 운영형 제휴 파트너 광고 카드 테이블 `ic_partner_cards` 추가(`is_active` CHECK·`deleted_at` 소프트 삭제·`idx_partner_cards_active_sort`). 특정 파트너 시드 없음. id는 클릭·노출 집계용 영구 식별자.
+- `functions/_lib/partners.js`, `functions/api/partners/index.js`, `functions/api/partners/[id].js`: 파트너 API. `GET /api/partners?active=1`만 공개(공개 컬럼·활성/미삭제·`sort_order ASC, id ASC`·최대 12), 그 외 GET·POST·PATCH·DELETE는 `verifyAdmin` 필수. 허용 필드 화이트리스트 추출, `new URL()` 프로토콜 검증(http/https만, `javascript:`/`data:`/`file:`/`ftp:`/`blob:` 거부), 길이·정수·`is_active` 검증. DELETE는 물리 삭제 대신 소프트 삭제, 수정·삭제 시 `updated_at` 갱신, 404/400/401/500 처리. 응답 `Cache-Control: no-store`.
+- `admin.html`: 「제휴 파트너 관리」 섹션(등록·전체 필드 인라인 수정·활성 토글·소프트 삭제·저장 피드백·삭제 확인·서버 오류 메시지). 쿠팡 관리와 동일 운영 패턴, 특정 파트너 예시 데이터 없음.
+- `index.html`: 홈 「제휴 서비스」 존(자유게시판·삼따AI 행 아래 / 뉴스 위). 최초 숨김, 활성 카드 1개 이상 정상 로드 시에만 노출. `IntersectionObserver`(rootMargin 300px, 미지원 시 폴백) 지연 로드로 초기 렌더당 1회 호출. 헤더·카드 `AD` 표기, 하단 광고 고지, 카드 링크 `rel="noopener noreferrer nofollow sponsored"`. name/tagline/category는 `textContent`로만 렌더(XSS 방지), 외부 이미지 `loading`/`decoding`/`referrerpolicy=no-referrer`·실패 시 이니셜 폴백(`addEventListener`), 추적키는 표시명이 아닌 `partner-{id}` 기반. 4/2/1열 반응형·다크테마.
+- `index.html`: B2B 광고·제휴 문의 스트립(`#b2b-partner`, 뉴스 아래·content 종료 직전). 정적 렌더, 인코딩된 정적 `mailto:`(`b2b-inquiry`)·푸터 운영자 오픈채팅 URL 재사용 카카오 CTA(`b2b-kakao`), 시점형 숫자 하드코딩 없음.
+- `index.html`: 공용 추적 함수 `trackClick`·`trackCardClick` 의 `fetch`에 `keepalive: true` 추가(새 탭 이동 시 요청 유실 방지).
+### Changed (광고매체 포지션 반영 · 문구 정비)
+- `index.html`: 푸터 `foot-note`에 광고 게재 매체 고지 추가(보험 판매·중개·자문 면책은 유지), `foot-links`에 `광고·제휴`(`#b2b-partner`) 링크 추가.
+- `contact.html`·`about.html`·`disclaimer.html`: 비홈 푸터에 `광고·제휴`(`/#b2b-partner`) 링크 추가. `about.html`·`contact.html` 서명을 `인슈어커넥트 (대표 최주현)`으로, `about.html` 운영 원칙(수익 구조·중립 정보의 AD 구분)으로 갱신. 사용자 노출 영역에서 `비영리`·`회원가입 없음`·사과형/사실 불일치 문구 제거.
+- `terms.html` 제8조: 직접 게재 제휴 광고(AD 표기)·광고 게재 매체(판매·계약 당사자 아님)·광고 거절·중단·삭제 권한 조항으로 개편.
+- `disclaimer.html` 7. 광고: 기존 AdSense 자동광고 설명 유지 + 직접 게재 광고 항목(AD 표기·파트너 직접 신청·상담·계약·책임 소재·매체 지위·거절·중단 권한) 추가.
+- `tests/home-partner-zone.test.js`: 파트너 존/API/B2B/푸터/문구 회귀 테스트 신규(mock D1 기반 공개·관리자 경계·검증·소프트 삭제 검증 포함).
+
 ## [2.136.0] - 2026-07-22
 ### Fixed (/company 보험사별 유니크 콘텐츠 복원)
 - `functions/company/[slug].js`, `functions/_lib/company-content.js`: 승인 담보·사례를 회사 상세에 표와 카드로 다시 노출하고, 메타 설명에서 원문 연락처 번호를 제거했습니다.

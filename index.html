@@ -10064,6 +10064,146 @@
 
     <!-- v2.14.2: 보험뉴스 섹션은 채용/강의 공고 아래로 이동(카드형) -->
 
+    <!-- ══ v2.137.0: 제휴 서비스 존 — 관리자 운영형 파트너 광고 카드(광고 게재 매체). ══
+         자유게시판·삼따AI 행 아래 / 인슈어커넥트 뉴스 위. 활성 카드가 1개 이상 정상 로드될 때만 노출.
+         지연 로드(IntersectionObserver, rootMargin 300px) · 홈 초기 렌더당 최대 1회 호출.
+         빈 배열·네트워크/JSON/렌더 오류 시 숨김 유지(빈 카드·안내문구 미표시). -->
+    <div id="pz-sentinel" aria-hidden="true" style="height:0"></div>
+    <section id="home-partner-zone" class="pz-wrap" aria-label="제휴 서비스" style="display:none">
+      <style>
+        #home-partner-zone{margin:10px 0 26px}
+        .pz-head{display:flex;align-items:center;gap:9px;margin-bottom:12px}
+        .pz-title{font-size:16px;font-weight:800;color:var(--txt-hi,#0f172a)}
+        [data-theme="dark"] .pz-title{color:#e6edf3}
+        .pz-ad{margin-left:auto;font-size:10px;font-weight:800;letter-spacing:.04em;color:#fff;background:#94a3b8;padding:2px 8px;border-radius:6px}
+        .pz-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+        .pz-card{position:relative;display:flex;flex-direction:column;gap:10px;text-decoration:none;color:inherit;background:var(--bg,#fff);border:1px solid var(--border,#eef2f7);border-radius:14px;padding:16px 15px;box-shadow:var(--sh-sm,0 2px 8px rgba(0,0,0,0.04));transition:transform .13s,box-shadow .13s,border-color .13s;min-width:0}
+        [data-theme="dark"] .pz-card{background:#0f1420;border-color:#30363d}
+        .pz-card:hover{transform:translateY(-2px);box-shadow:0 10px 24px rgba(12,31,184,0.12);border-color:#c7d2fe}
+        [data-theme="dark"] .pz-card:hover{border-color:rgba(99,102,241,0.45)}
+        .pz-card-ad{position:absolute;top:9px;right:9px;font-size:9px;font-weight:800;letter-spacing:.03em;color:#fff;background:rgba(15,23,42,.62);padding:1px 6px;border-radius:5px;z-index:1}
+        .pz-thumb{display:flex;align-items:center;justify-content:center;width:52px;height:52px;border-radius:12px;overflow:hidden;background:#fff;border:1px solid var(--border,#eef2f7);font-size:21px;font-weight:800;color:#1a3de8;text-transform:uppercase;flex-shrink:0}
+        [data-theme="dark"] .pz-thumb{background:#0b1020;border-color:#30363d;color:#8ab4ff}
+        .pz-thumb img{width:100%;height:100%;object-fit:contain;display:block}
+        .pz-thumb-fallback{background:linear-gradient(135deg,rgba(26,61,232,0.10),rgba(0,200,238,0.08))}
+        .pz-body{display:flex;flex-direction:column;gap:5px;min-width:0}
+        .pz-name{font-size:14px;font-weight:800;color:var(--txt-hi,#0f172a);line-height:1.35;word-break:break-word;overflow-wrap:anywhere}
+        [data-theme="dark"] .pz-name{color:#e6edf3}
+        .pz-tag{font-size:12px;color:var(--txt-mid,#475569);line-height:1.45;word-break:break-word;overflow-wrap:anywhere;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+        [data-theme="dark"] .pz-tag{color:#9aa7b4}
+        .pz-chip{align-self:flex-start;font-size:10.5px;font-weight:700;color:#1a3de8;background:rgba(26,61,232,0.08);border:1px solid rgba(26,61,232,0.18);border-radius:999px;padding:2px 9px;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        [data-theme="dark"] .pz-chip{color:#8ab4ff;background:rgba(99,102,241,0.14);border-color:rgba(99,102,241,0.3)}
+        .pz-note{margin:12px 2px 0;font-size:11.5px;line-height:1.5;color:var(--txt-lo,#94a3b8)}
+        [data-theme="dark"] .pz-note{color:#7d8590}
+        @media(max-width:768px){.pz-grid{grid-template-columns:repeat(2,1fr);gap:11px}}
+        @media(max-width:480px){.pz-grid{grid-template-columns:1fr}}
+      </style>
+      <div class="pz-head">
+        <span class="pz-title">제휴 서비스</span>
+        <span class="pz-ad" aria-label="광고">AD</span>
+      </div>
+      <div class="pz-grid" id="pz-grid"></div>
+      <p class="pz-note">위 서비스는 제휴 파트너의 광고이며, 신청·상담·계약은 각 파트너사에서 직접 진행됩니다.</p>
+    </section>
+    <script>
+    /* v2.137.0: 제휴 서비스 존 로더 — 지연 로드 + 안전 렌더(DOM API, textContent).
+       API 데이터는 신뢰된 HTML로 보지 않는다: name/tagline/category 는 textContent 로만 삽입,
+       href/img 는 서버 검증 통과 URL만 속성으로 지정, 인라인 onerror 대신 addEventListener 사용. */
+    (function(){
+      var section = document.getElementById('home-partner-zone');
+      var grid = document.getElementById('pz-grid');
+      var sentinel = document.getElementById('pz-sentinel');
+      if(!section || !grid) return;
+      var loaded = false;
+      function initial(name){
+        var s = String(name == null ? '' : name).trim();
+        return s ? Array.from(s)[0] : '·';
+      }
+      function buildCard(p){
+        var nm = String(p.name == null ? '' : p.name).trim();
+        var a = document.createElement('a');
+        a.className = 'pz-card';
+        a.href = p.href;                 // 서버 검증(http/https)을 통과한 URL만 저장됨
+        a.target = '_blank';
+        a.rel = 'noopener noreferrer nofollow sponsored';
+        a.setAttribute('data-pid', String(p.id));
+        var ad = document.createElement('span');
+        ad.className = 'pz-card-ad';
+        ad.textContent = 'AD';
+        a.appendChild(ad);
+        var thumb = document.createElement('span');
+        thumb.className = 'pz-thumb';
+        if(p.img){
+          var img = document.createElement('img');
+          img.src = p.img;               // 외부 이미지 — 내부 icImg 헬퍼 미적용(원본 URL 그대로)
+          img.alt = nm ? (nm + ' 로고') : '파트너 로고';
+          img.loading = 'lazy';
+          img.decoding = 'async';
+          img.referrerPolicy = 'no-referrer';
+          img.addEventListener('error', function(){
+            thumb.textContent = initial(nm);         // 로드 실패 → 이니셜 폴백
+            thumb.classList.add('pz-thumb-fallback');
+          });
+          thumb.appendChild(img);
+        } else {
+          thumb.textContent = initial(nm);           // 이미지 없음 → 이니셜 폴백
+          thumb.classList.add('pz-thumb-fallback');
+        }
+        a.appendChild(thumb);
+        var body = document.createElement('span');
+        body.className = 'pz-body';
+        var nameEl = document.createElement('b');
+        nameEl.className = 'pz-name';
+        nameEl.textContent = nm;
+        body.appendChild(nameEl);
+        if(p.tagline){
+          var tag = document.createElement('span');
+          tag.className = 'pz-tag';
+          tag.textContent = String(p.tagline);
+          body.appendChild(tag);
+        }
+        if(p.category){
+          var chip = document.createElement('span');
+          chip.className = 'pz-chip';
+          chip.textContent = String(p.category);
+          body.appendChild(chip);
+        }
+        a.appendChild(body);
+        a.addEventListener('click', function(){
+          // 파트너명은 변경될 수 있으므로 추적키는 안정된 id 기반(partner-{id})을 사용한다.
+          try{ trackClick('partner-' + p.id, 'partner'); }catch(_){}
+        });
+        return a;
+      }
+      function load(){
+        if(loaded) return; loaded = true;            // 홈 초기 렌더당 최대 1회
+        fetch('/api/partners?active=1').then(function(r){ return r.json(); }).then(function(list){
+          if(!Array.isArray(list) || !list.length) return;   // 빈 배열 → 숨김 유지
+          var frag = document.createDocumentFragment();
+          list.forEach(function(p){
+            if(!p || !p.id || !p.href) return;
+            frag.appendChild(buildCard(p));
+          });
+          if(!frag.childNodes.length) return;
+          grid.appendChild(frag);
+          section.style.display = '';                 // 정상 로드 시에만 노출
+        }).catch(function(){ /* 네트워크/JSON 오류 → 숨김 유지 */ });
+      }
+      if('IntersectionObserver' in window && sentinel){
+        var io = new IntersectionObserver(function(entries, obs){
+          for(var i=0;i<entries.length;i++){
+            if(entries[i].isIntersecting){ obs.disconnect(); load(); break; }
+          }
+        }, { rootMargin: '300px 0px' });
+        io.observe(sentinel);
+      } else {
+        // IntersectionObserver 미지원 → DOM 준비 후 1회 로드(폴백)
+        if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', load); }
+        else { load(); }
+      }
+    })();
+    </script>
+
     <!-- v2.98.0: 상단 행 = 인슈어커넥트 뉴스 단독(전체너비 5열). 모임방 대화순위는 삼따AI/자유게시판 행으로 이동 -->
     <div class="ic-top-row">
     <!-- v2.64.0: 실시간 인기 콘텐츠 → 인슈어커넥트 뉴스(최신순) -->
@@ -10087,6 +10227,51 @@
     </div>
     </div><!-- /.ic-top-row -->
 
+    <!-- ══ v2.137.0: B2B 광고·제휴 문의 스트립 — 인슈어커넥트 뉴스 아래 / 홈 메인 content 종료 직전.
+         정적 렌더(데이터 로드 없음). 회원수·방문자 등 시점 숫자는 하드코딩하지 않는다. ══ -->
+    <section id="b2b-partner" class="b2b-strip" aria-label="광고·제휴 문의">
+      <style>
+        .b2b-strip{margin:6px 0 26px}
+        .b2b-card{position:relative;display:flex;align-items:center;justify-content:space-between;gap:18px;flex-wrap:wrap;border-radius:16px;padding:20px 22px;border:1px solid transparent;background:linear-gradient(var(--bg,#fff),var(--bg,#fff)) padding-box,linear-gradient(120deg,#1a3de8,#00c8ee,#7c3aed) border-box;box-shadow:var(--sh-sm,0 2px 8px rgba(0,0,0,0.04))}
+        [data-theme="dark"] .b2b-card{background:linear-gradient(#0f1420,#0f1420) padding-box,linear-gradient(120deg,#1a3de8,#00c8ee,#7c3aed) border-box}
+        .b2b-txt{min-width:0;flex:1 1 320px}
+        .b2b-title{font-size:16.5px;font-weight:800;color:var(--txt-hi,#0f172a);letter-spacing:-0.01em}
+        [data-theme="dark"] .b2b-title{color:#e6edf3}
+        .b2b-sub{margin:5px 0 0;font-size:13px;color:var(--txt-mid,#475569);line-height:1.55}
+        [data-theme="dark"] .b2b-sub{color:#9aa7b4}
+        .b2b-cta{display:flex;gap:10px;flex-shrink:0;flex-wrap:wrap}
+        .b2b-btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none;font-size:13.5px;font-weight:700;padding:11px 18px;border-radius:11px;white-space:nowrap;transition:transform .13s,filter .13s}
+        .b2b-btn:hover{transform:translateY(-1px)}
+        .b2b-btn-mail{background:linear-gradient(135deg,#1a3de8,#4a70f5);color:#fff;box-shadow:0 4px 14px rgba(26,61,232,0.28)}
+        .b2b-btn-kakao{background:#FEE500;color:#191600}
+        .b2b-btn-kakao:hover{filter:brightness(0.97)}
+        @media(max-width:600px){.b2b-card{flex-direction:column;align-items:stretch}.b2b-cta{width:100%}.b2b-btn{flex:1}}
+      </style>
+      <div class="b2b-card">
+        <div class="b2b-txt">
+          <div class="b2b-title">인슈어커넥트에 광고·제휴하기</div>
+          <p class="b2b-sub">보험설계사가 매일 모이는 웹사이트 커뮤니티 플랫폼에 서비스를 노출하세요.</p>
+        </div>
+        <div class="b2b-cta">
+          <a class="b2b-btn b2b-btn-mail" href="mailto:insureconnect@naver.com?subject=%5B%EA%B4%91%EA%B3%A0%C2%B7%EC%A0%9C%ED%9C%B4%20%EB%AC%B8%EC%9D%98%5D%20" onclick="try{trackCardClick('home','b2b-inquiry')}catch(_){}">✉ 광고·제휴 문의</a>
+          <a class="b2b-btn b2b-btn-kakao" data-ic-operator-kakao href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer" onclick="try{trackCardClick('home','b2b-kakao')}catch(_){}">💬 카카오톡 문의</a>
+        </div>
+      </div>
+    </section>
+    <script>
+    /* v2.137.0: B2B 카카오톡 CTA는 푸터 운영자 오픈채팅 URL을 단일 출처로 재사용한다.
+       (정적 href는 현재 값과 동일 · 아래 스크립트가 푸터 DOM 값을 권위 출처로 동기화) */
+    (function(){
+      try{
+        var src = document.querySelector('footer .foot-links a[href*="open.kakao.com"]');
+        if(src && src.getAttribute('href')){
+          var u = src.getAttribute('href');
+          var t = document.querySelectorAll('[data-ic-operator-kakao]');
+          for(var i=0;i<t.length;i++){ t[i].setAttribute('href', u); }
+        }
+      }catch(_){}
+    })();
+    </script>
 
     <!-- v2.1.25: 「진행중인 채용공고/강의」는 ic-top-left 안으로 이동 (위에 위치) -->
 
@@ -10856,9 +11041,10 @@
           <a href="/terms">이용약관</a>
           <a href="/privacy">개인정보처리방침</a>
           <a href="/disclaimer">면책조항</a>
+          <a href="#b2b-partner">광고·제휴</a>
           <a href="https://open.kakao.com/o/sAZWQ7pi" target="_blank" rel="noopener noreferrer">운영자 문의</a>
         </nav>
-        <p class="foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다.</p>
+        <p class="foot-note">본 서비스는 보험 상품 판매·중개·자문을 하지 않으며, 정보 안내 도구입니다. 인슈어커넥트는 광고 게재 매체로서 일부 콘텐츠에 광고(AD)가 포함될 수 있습니다.</p>
         <div class="foot-info">
           <span>© 2026 InsureConnect</span>
           <span class="foot-sep">|</span>
@@ -11148,6 +11334,7 @@
         await fetch('/api/track/link-click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
           body: JSON.stringify({ company_type: type, company_name: name })
         });
       } catch (_) {}
@@ -11189,6 +11376,7 @@
         await fetch('/api/track/card-click', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          keepalive: true,
           body: JSON.stringify({ menu, card })
         });
       } catch (_) {}
