@@ -10115,6 +10115,12 @@
       var sentinel = document.getElementById('pz-sentinel');
       if(!section || !grid) return;
       var loaded = false;
+      // v2.138.0: 카드별 뷰어블 노출 dedupe — 성과 리포트는 카드 집계(menu='제휴파트너') 기준.
+      var sentImp = {};
+      function sendImpZone(pid){
+        if(!pid || sentImp[pid]) return; sentImp[pid] = 1;
+        try{ trackCardClick('제휴파트너', 'imp:' + pid); }catch(_){}
+      }
       function initial(name){
         var s = String(name == null ? '' : name).trim();
         return s ? Array.from(s)[0] : '·';
@@ -10171,7 +10177,10 @@
         a.appendChild(body);
         a.addEventListener('click', function(){
           // 파트너명은 변경될 수 있으므로 추적키는 안정된 id 기반(partner-{id})을 사용한다.
-          try{ trackClick('partner-' + p.id, 'partner'); }catch(_){}
+          var pid = String(p.id);
+          sendImpZone(pid);                                        // 관측 콜백 전 빠른 클릭 시 imp 먼저(역전 방지)
+          try{ trackClick('partner-' + p.id, 'partner'); }catch(_){}   // 기존 링크클릭 집계 유지
+          try{ trackCardClick('제휴파트너', 'click:' + pid); }catch(_){} // 카드 집계(성과 리포트 기준) 병행
         });
         return a;
       }
@@ -10180,13 +10189,30 @@
         fetch('/api/partners?active=1').then(function(r){ return r.json(); }).then(function(list){
           if(!Array.isArray(list) || !list.length) return;   // 빈 배열 → 숨김 유지
           var frag = document.createDocumentFragment();
+          var built = [];
           list.forEach(function(p){
             if(!p || !p.id || !p.href) return;
-            frag.appendChild(buildCard(p));
+            var card = buildCard(p);
+            built.push(card);
+            frag.appendChild(card);
           });
-          if(!frag.childNodes.length) return;
+          if(!built.length) return;
           grid.appendChild(frag);
           section.style.display = '';                 // 정상 로드 시에만 노출
+          // v2.138.0: 카드별 뷰어블 노출(threshold 0.5) 관측 — imp 1회, 이후 unobserve.
+          // IntersectionObserver 미지원 시 페이지로드 임프레션 폴백 없음(클릭 시 imp 보정만).
+          if('IntersectionObserver' in window){
+            var impIo = new IntersectionObserver(function(entries, obs){
+              for(var i=0;i<entries.length;i++){
+                var e = entries[i];
+                if(e.isIntersecting && e.intersectionRatio >= 0.5){
+                  sendImpZone(e.target.getAttribute('data-pid'));
+                  obs.unobserve(e.target);
+                }
+              }
+            }, { threshold: 0.5 });
+            built.forEach(function(c){ impIo.observe(c); });
+          }
         }).catch(function(){ /* 네트워크/JSON 오류 → 숨김 유지 */ });
       }
       if('IntersectionObserver' in window && sentinel){

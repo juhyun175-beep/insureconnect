@@ -1,5 +1,16 @@
 # Changelog
 
+## [2.138.0] - 2026-07-23
+### Added (SEO 랜딩 파트너 노출 + viewable 임프레션 집계 + 관리자 성과 리포트)
+- `functions/_lib/seo-cta.js`: 전 SSR 랜딩(보험사·GA·보험정보·사례) 공통 푸터에 제휴 파트너 스트립 추가. 본문 종료 직후·`.seo-cta` 위에 `#seo-partner-strip` placeholder(초기 숨김)를 두고, 기존 팝업 스크립트 블록 내에서 `GET /api/partners?active=1` 후 최대 4개 카드 렌더(헤더·카드 `AD`, 하단 고지, `rel="noopener noreferrer nofollow sponsored"`). SSR HTML에는 파트너 데이터를 서버 렌더하지 않음(색인 본문 순수성). name/tagline/category는 `textContent`, href/img는 `https?:`만 허용(서버 검증 이중화). 활성 0개·fetch 실패 시 placeholder 숨김 유지.
+- `functions/_lib/seo-cta.js`: 카드별 뷰어블 임프레션 — 각 카드에 `data-partner-id` 부여, `IntersectionObserver(threshold 0.5)`로 화면 50% 진입 카드만 `imp:{id}` 1회 전송 후 unobserve(`Set` dedupe). 클릭 시 미전송 imp 먼저 보정 후 `click:{id}`. IO 미지원 시 페이지로드 임프레션 폴백 없음(클릭 보정만). 로컬 봇 UA 상수 + 서버 `isBot` 이중 필터. 전송은 `/api/track/card-click`(`menu='제휴파트너'`).
+- `index.html`: 홈 파트너 존(v2.137.0)에 동일 뷰어블 임프레션 적용(`trackCardClick('제휴파트너','imp:{id}')` 1회, 클릭 시 `click:{id}` 병행 — 기존 `trackClick(name,'partner')` 링크클릭 집계 유지).
+- `functions/api/partners/index.js`: `GET /api/partners?stats=1`(관리자) 파트너 성과 통계. 현재(미삭제) 전체 파트너를 0으로 초기화 후 `ic_card_clicks_daily(menu='제휴파트너')`의 `imp:/click:` 병합 → 실적 0 파트너도 행 반환. 삭제 파트너 잔여 집계는 name을 partner_id로 대체해 보존. partner_id 전 구간 문자열 정규화, `days` 기본 30·범위 7~90, CTR 계산. 감사용 과금 데이터가 아님을 코드 주석·관리자 각주에 명시.
+- `admin.html`: 「제휴 파트너 관리」에 게재 성과 컬럼(기간 7/30/90일 셀렉트, 노출·클릭·CTR 천단위 콤마) + 데이터 성격 각주 추가.
+### Changed
+- `functions/api/partners/index.js`: 공개 `?active=1` 응답을 `Cache-Control: public, max-age=60, s-maxage=300`으로 캐시(SEO 랜딩 트래픽의 매 방문 D1 조회 절감, 관리자 CRUD 후 수분 반영 지연 허용). 관리자·stats 응답은 `no-store` 유지.
+- `tests/seo-partner-strip.test.js`: VM 샌드박스에서 스트립 스크립트를 실제 실행하고 `IntersectionObserver` mock으로 뷰어블 임프레션(0.49/0.5·dedupe·독립 집계·클릭 보정·봇 제외·IO 미지원·XSS/위험 URL)과 stats API를 검증.
+
 ## [2.137.0] - 2026-07-23
 ### Added (홈 하단 수익구조 재편 — 제휴 파트너 존 · B2B 스트립 · 매체 고지)
 - `migrations/d1_v2_137_0_partners.sql`, `schema.sql`: 관리자 운영형 제휴 파트너 광고 카드 테이블 `ic_partner_cards` 추가(`is_active` CHECK·`deleted_at` 소프트 삭제·`idx_partner_cards_active_sort`). 특정 파트너 시드 없음. id는 클릭·노출 집계용 영구 식별자.

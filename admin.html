@@ -4211,6 +4211,16 @@
           <p class="nl-status" id="pt-status"></p>
         </div>
 
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:16px 0 8px;">
+          <span style="font-size:12px;font-weight:700;color:var(--blue-mid);">📊 게재 성과 (노출·클릭·CTR)</span>
+          <select id="pt-stats-days" onchange="loadPartners()" style="font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:6px;background:var(--bg-card,#fff);color:var(--txt-hi);">
+            <option value="7">최근 7일</option>
+            <option value="30" selected>최근 30일</option>
+            <option value="90">최근 90일</option>
+          </select>
+          <span style="font-size:10.5px;color:var(--txt-lo);line-height:1.5;">브라우저 viewability 기준 운영 통계입니다. 공개 추적 API 기반이라 감사 가능한 과금·정산 데이터가 아니며, 정식 광고비 노출 기준은 검색 노출(네이버 서치어드바이저 등)입니다.</span>
+        </div>
+
         <div class="nl-list" id="pt-list">
           <p class="empty-msg">파트너 로딩 중…</p>
         </div>
@@ -9563,15 +9573,29 @@
     async function loadPartners() {
       const el = document.getElementById('pt-list');
       if (!el) return;
+      const daysSel = document.getElementById('pt-stats-days');
+      const days = daysSel ? (parseInt(daysSel.value, 10) || 30) : 30;
       try {
-        const res = await fetch('/api/partners', { headers: adminHeaders() });
+        // v2.138.0: 파트너 목록 + 성과 통계를 병렬 조회. 통계 실패는 목록 표시를 막지 않는다.
+        const [res, statsRes] = await Promise.all([
+          fetch('/api/partners', { headers: adminHeaders() }),
+          fetch('/api/partners?stats=1&days=' + days, { headers: adminHeaders() }).catch(() => null),
+        ]);
         if (!res.ok) throw new Error(await apiErrMsg(res, '로드 실패'));
         const items = await res.json();
+        const statById = {};
+        if (statsRes && statsRes.ok) {
+          const sj = await statsRes.json().catch(() => null);
+          if (sj && Array.isArray(sj.stats)) sj.stats.forEach(s => { statById[String(s.partner_id)] = s; });
+        }
+        const num = n => (Number(n) || 0).toLocaleString('en-US');
         if (!Array.isArray(items) || items.length === 0) {
           el.innerHTML = '<p class="empty-msg">등록된 파트너가 없습니다.</p>';
           return;
         }
-        el.innerHTML = items.map(it => `
+        el.innerHTML = items.map(it => {
+          const st = statById[String(it.id)] || { impressions: 0, clicks: 0, ctr: 0 };
+          return `
           <div class="pt-row" data-id="${it.id}" style="opacity:${it.is_active ? '1' : '0.55'};">
             <div class="pt-grid">
               <label>파트너명 *<input type="text" data-f="name" value="${esc(it.name)}" maxlength="60"></label>
@@ -9581,13 +9605,20 @@
               <label class="pt-wide">전용 링크 *<input type="text" data-f="href" value="${esc(it.href)}" maxlength="2048"></label>
               <label class="pt-wide">이미지 URL<input type="text" data-f="img" value="${esc(it.img || '')}" maxlength="2048"></label>
             </div>
+            <div class="pt-perf" style="display:flex;gap:14px;flex-wrap:wrap;margin-top:9px;padding:7px 10px;background:rgba(26,61,232,0.05);border-radius:7px;font-size:11.5px;color:var(--txt-mid);">
+              <span>최근 ${days}일</span>
+              <span>👁 노출 <b style="color:var(--txt-hi);">${num(st.impressions)}</b></span>
+              <span>🖱 클릭 <b style="color:var(--txt-hi);">${num(st.clicks)}</b></span>
+              <span>CTR <b style="color:var(--txt-hi);">${(Number(st.ctr) || 0)}%</b></span>
+            </div>
             <div class="pt-actions">
               <span class="pt-state" style="color:${it.is_active ? '#059669' : 'var(--txt-lo)'};">${it.is_active ? '🟢 활성 #' + it.id : '⚫ 비활성 #' + it.id}</span>
               <button class="pt-btn-save" onclick="savePartnerEdit(${it.id})">저장</button>
               <button onclick="togglePartner(${it.id}, ${it.is_active ? 0 : 1})" style="background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};">${it.is_active ? '비활성화' : '활성화'}</button>
               <button class="pt-btn-del" onclick="deletePartner(${it.id})">삭제</button>
             </div>
-          </div>`).join('');
+          </div>`;
+        }).join('');
       } catch (e) {
         el.innerHTML = '<p class="empty-msg">파트너 로드 실패: ' + esc(e.message) + '</p>';
       }
