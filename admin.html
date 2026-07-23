@@ -3684,7 +3684,6 @@
         <button class="upload-tab" data-panel="up-homead" style="border-color:#0ea5e9;color:#0ea5e9;">🖼 홈 광고배너</button>
         <button class="upload-tab" data-panel="up-notice" style="border-color:#7c3aed;color:#7c3aed;">📋 운영자 공지</button>
         <button class="upload-tab" data-panel="up-coupang" style="border-color:#ff5a5f;color:#ff5a5f;">🛍 쿠팡파트너스</button>
-        <button class="upload-tab" data-panel="up-partners" style="border-color:#7c3aed;color:#7c3aed;">🤝 제휴 서비스</button>
         <button class="upload-tab" data-panel="up-push">🔔 푸시 발송</button>
         <!-- v2.15.1: 유입 경로·회원/지표는 「통합 기록지표」 슬라이더로 이동 -->
 
@@ -4150,58 +4149,6 @@
           <p class="empty-msg">아이템 로딩 중…</p>
         </div>
       </div><!-- /#up-coupang -->
-
-      <!-- ══════════════════ 제휴 파트너 광고 카드 관리 ══════════════════ -->
-      <div class="upload-panel" id="up-partners">
-        <div style="margin:0 0 14px;padding:12px 14px;border:1px solid rgba(124,58,237,0.30);border-left:3px solid #7c3aed;border-radius:8px;background:linear-gradient(90deg,rgba(124,58,237,0.08),rgba(124,58,237,0.02));">
-          <div style="font-size:12px;font-weight:700;color:#7c3aed;margin-bottom:6px;letter-spacing:0.03em;">🤝 제휴 서비스 광고 카드 안내</div>
-          <ul style="margin:0;padding-left:18px;font-size:11.5px;color:var(--txt-mid);line-height:1.7;">
-            <li>등록한 카드가 홈 하단의 <strong>제휴 서비스</strong> 영역에 광고(AD)로 노출됩니다</li>
-            <li>파트너사가 부여한 링크와 로고·썸네일을 등록하세요 · 신청·상담·계약은 각 파트너사에서 직접 진행됩니다</li>
-            <li>활성/비활성, 정렬순서, 삭제를 관리할 수 있으며 활성 카드가 없으면 홈 영역은 숨겨집니다</li>
-          </ul>
-        </div>
-
-        <div class="nl-upload-box">
-          <h4 style="margin:0 0 14px;font-size:14px;color:#7c3aed;font-weight:700;letter-spacing:0.04em;">🤝 제휴 서비스 등록</h4>
-          <div class="nl-form" id="pt-form">
-            <div class="nl-field" style="flex:1;min-width:160px;">
-              <label>파트너명 *</label>
-              <input type="text" id="pt-name" placeholder="예: 파트너 서비스명" maxlength="80">
-            </div>
-            <div class="nl-field" style="flex:1;min-width:160px;">
-              <label>카테고리 (선택)</label>
-              <input type="text" id="pt-category" placeholder="예: 간병, 렌트·리스, 통신" maxlength="30">
-            </div>
-            <div class="nl-field" style="width:100%;">
-              <label>한 줄 소개 (선택)</label>
-              <input type="text" id="pt-tagline" placeholder="게재 톤으로 입력 · 알선 표현은 사용하지 않습니다" maxlength="100">
-            </div>
-            <div class="nl-field" style="width:100%;">
-              <label>파트너 링크 (href) *</label>
-              <input type="text" id="pt-href" placeholder="https://partner.example.com/?ref=insureconnect" maxlength="500">
-            </div>
-            <div class="nl-field" style="width:100%;">
-              <label>로고·썸네일 URL (선택)</label>
-              <input type="text" id="pt-img" placeholder="https://.../logo.png" maxlength="500">
-            </div>
-            <div class="nl-field" style="min-width:110px;">
-              <label>정렬순서</label>
-              <input type="number" id="pt-sort" value="0" style="width:90px;">
-            </div>
-            <button class="nl-upload-btn" id="pt-save-btn" onclick="savePartner()">등록 (즉시 반영)</button>
-          </div>
-          <p class="nl-status" id="pt-status"></p>
-        </div>
-
-        <div class="admin-list-head">
-          <p class="dash-section-title">📋 등록된 제휴 서비스</p>
-          <button type="button" class="reqs-refresh" onclick="refreshAdminSection('up-partners')">🔄 새로고침</button>
-        </div>
-        <div class="nl-list" id="pt-list">
-          <p class="empty-msg">제휴 서비스 로딩 중…</p>
-        </div>
-      </div><!-- /#up-partners -->
 
       <!-- ══════════════════ 카카오톡 대화 순위 관리 ══════════════════ -->
       <div class="upload-panel" id="up-kakao">
@@ -6469,7 +6416,6 @@
       'up-textbook': loadTextbooks,
       'up-alert': loadAlerts,
       'up-coupang': loadCoupang,
-      'up-partners': loadPartners,
       'up-kakao': loadKakaoStats,
       'up-popup': loadHomePopups,
       'up-reports': loadBoardReports,
@@ -9504,99 +9450,6 @@
       } catch (e) { alert('삭제 실패: ' + e.message); }
     }
 
-
-    /* ── 제휴 파트너 광고 카드 (v2.137.0) ── */
-    async function savePartner() {
-      const name = document.getElementById('pt-name').value.trim();
-      const tagline = document.getElementById('pt-tagline').value.trim();
-      const category = document.getElementById('pt-category').value.trim();
-      const href = document.getElementById('pt-href').value.trim();
-      const img = document.getElementById('pt-img').value.trim();
-      const sort = parseInt(document.getElementById('pt-sort').value, 10) || 0;
-      const status = document.getElementById('pt-status');
-      const btn = document.getElementById('pt-save-btn');
-      if (!name || !href) { status.textContent = '⚠ 파트너명·링크는 필수입니다.'; return; }
-      if (!/^https?:\/\//i.test(href) || (img && !/^https?:\/\//i.test(img))) {
-        status.textContent = '⚠ 링크·이미지는 http(s) URL이어야 합니다.'; return;
-      }
-      btn.disabled = true; status.textContent = '등록 중…';
-      try {
-        const res = await fetch('/api/partners', {
-          method: 'POST',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ name, tagline, category, href, img, sort_order: sort, is_active: true }),
-        });
-        if (!res.ok) throw new Error('등록 실패 (' + res.status + ')');
-        status.textContent = '✅ 등록 완료! (즉시 반영)';
-        ['pt-name','pt-tagline','pt-category','pt-href','pt-img'].forEach(id => document.getElementById(id).value = '');
-        document.getElementById('pt-sort').value = '0';
-        refreshAdminSection('up-partners');
-      } catch (e) {
-        status.textContent = '❌ ' + e.message;
-      } finally { btn.disabled = false; }
-    }
-
-    async function loadPartners(force = false) {
-      const el = document.getElementById('pt-list');
-      if (!el) return;
-      try {
-        const res = await fetch('/api/partners');
-        const items = await res.json();
-        if (!Array.isArray(items) || items.length === 0) {
-          el.innerHTML = '<p class="empty-msg">등록된 제휴 서비스가 없습니다.</p>';
-          return;
-        }
-        el.innerHTML = items.map(it => `
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg);border:1.5px solid var(--border);border-radius:10px;margin-bottom:8px;opacity:${it.is_active ? '1' : '0.5'};">
-            <div style="width:46px;height:46px;display:flex;align-items:center;justify-content:center;border-radius:8px;background:rgba(124,58,237,0.10);color:#7c3aed;font-weight:900;font-size:17px;flex-shrink:0;overflow:hidden;">${it.img ? `<img src="${esc(it.img)}" alt="" style="width:100%;height:100%;object-fit:contain;background:#fff;" loading="lazy">` : esc(String(it.name || '?').trim().charAt(0) || '?')}</div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:var(--txt-hi);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.name)} ${it.category ? `<span style="font-size:10.5px;color:#7c3aed;font-weight:700;">· ${esc(it.category)}</span>` : ''}</div>
-              ${it.tagline ? `<div style="font-size:11px;color:var(--txt-lo);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(it.tagline)}</div>` : ''}
-              <a href="${esc(it.href)}" target="_blank" rel="noopener" style="font-size:10.5px;color:#1a3de8;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block;">${esc(it.href)}</a>
-            </div>
-            <label style="display:flex;align-items:center;gap:4px;font-size:10.5px;color:var(--txt-lo);white-space:nowrap;">정렬 <input type="number" id="pt-sort-${it.id}" value="${Number.isFinite(it.sort_order) ? it.sort_order : 0}" style="width:54px;padding:4px 5px;font-size:11px;"></label>
-            <span style="font-size:10.5px;color:${it.is_active ? '#059669' : 'var(--txt-lo)'};white-space:nowrap;">${it.is_active ? '🟢 활성' : '⚫ 비활성'}</span>
-            <button onclick="savePartnerSort(${it.id})" style="font-size:11px;padding:5px 8px;background:rgba(26,61,232,0.08);color:#1a3de8;border:none;border-radius:6px;cursor:pointer;font-weight:600;">저장</button>
-            <button onclick="togglePartner(${it.id}, ${it.is_active ? 'false' : 'true'})" style="font-size:11px;padding:5px 10px;background:${it.is_active ? 'rgba(220,38,38,0.08)' : 'rgba(16,185,129,0.10)'};color:${it.is_active ? '#dc2626' : '#059669'};border:none;border-radius:6px;cursor:pointer;font-weight:600;">${it.is_active ? '비활성화' : '활성화'}</button>
-            <button onclick="deletePartner(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
-          </div>`).join('');
-      } catch (e) {
-        el.innerHTML = '<p class="empty-msg">제휴 서비스 로드 실패</p>';
-      }
-    }
-
-    async function savePartnerSort(id) {
-      const input = document.getElementById('pt-sort-' + id);
-      const sort_order = parseInt(input && input.value, 10) || 0;
-      try {
-        const res = await fetch(`/api/partners/${id}`, {
-          method: 'PATCH',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ sort_order }),
-        });
-        if (!res.ok) throw new Error('정렬 저장 실패 (' + res.status + ')');
-        refreshAdminSection('up-partners');
-      } catch (e) { alert(e.message); }
-    }
-
-    async function togglePartner(id, newState) {
-      try {
-        await fetch(`/api/partners/${id}`, {
-          method: 'PATCH',
-          headers: adminHeaders({ 'Content-Type': 'application/json' }),
-          body: JSON.stringify({ is_active: newState }),
-        });
-        refreshAdminSection('up-partners');
-      } catch (e) { alert('변경 실패: ' + e.message); }
-    }
-
-    async function deletePartner(id) {
-      if (!confirm('이 제휴 서비스를 삭제하시겠습니까?')) return;
-      try {
-        await fetch(`/api/partners/${id}`, { method: 'DELETE', headers: adminHeaders() });
-        refreshAdminSection('up-partners');
-      } catch (e) { alert('삭제 실패: ' + e.message); }
-    }
 
     /* ══════════════════ 카카오톡 대화 순위 ══════════════════ */
     let _kkParsed = null; // 파싱된 결과 임시 저장

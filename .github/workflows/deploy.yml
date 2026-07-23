@@ -41,13 +41,6 @@ jobs:
             --config-file scripts/htmlmin.json \
             admin.html -o admin.html || true
 
-      - name: Apply D1 migration (v2.137.0 partner cards)
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: d1 execute insureconnect-d1 --remote --file migrations/d1_v2_137_0_partners.sql
-
       - name: Deploy to Cloudflare Pages
         uses: cloudflare/wrangler-action@v3
         with:
