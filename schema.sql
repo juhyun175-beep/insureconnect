@@ -145,6 +145,24 @@ CREATE TABLE IF NOT EXISTS ic_service_alerts (
 );
 CREATE INDEX IF NOT EXISTS idx_sa_active ON ic_service_alerts(is_active, starts_at);
 
+-- 제휴 파트너 광고 카드 (v2.137.0) — 관리자 운영형, 홈 「제휴 서비스」 존 노출
+--   id는 클릭·노출 집계용 영구 식별자 → 운영 삭제는 소프트 삭제(is_active=0, deleted_at)로 처리.
+CREATE TABLE IF NOT EXISTS ic_partner_cards (
+  id          INTEGER PRIMARY KEY AUTOINCREMENT,
+  name        TEXT NOT NULL,
+  tagline     TEXT,
+  category    TEXT,
+  href        TEXT NOT NULL,
+  img         TEXT,
+  sort_order  INTEGER NOT NULL DEFAULT 0,
+  is_active   INTEGER NOT NULL DEFAULT 1 CHECK (is_active IN (0, 1)),
+  created_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  updated_at  TEXT NOT NULL DEFAULT (datetime('now')),
+  deleted_at  TEXT
+);
+CREATE INDEX IF NOT EXISTS idx_partner_cards_active_sort
+ON ic_partner_cards (is_active, deleted_at, sort_order, id);
+
 -- ─── 통계 테이블 (가벼운 카운터 방식으로 재설계) ──────────────────
 -- 기존: 매 클릭마다 row → 폭증
 -- 변경: 일자별 1 row, 카운터 증가 → 부하 90% 감소
