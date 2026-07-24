@@ -18,28 +18,50 @@ jobs:
       PROD_BASE: https://insureconnect.co.kr
     steps:
       - name: Preview admin HTML
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 "$PREVIEW_BASE/admin.html" -o /tmp/admin.html
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            "$PREVIEW_BASE/admin.html" -o /tmp/admin.html
 
       - name: Preview stats GET
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 -D /tmp/preview-stats.headers "$PREVIEW_BASE/api/stats" -o /tmp/preview-stats.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            -D /tmp/preview-stats.headers \
+            "$PREVIEW_BASE/api/stats" -o /tmp/preview-stats.json
 
       - name: Preview stats POST
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 -X POST -H 'Content-Type: application/json' -d '{}' "$PREVIEW_BASE/api/stats" -o /tmp/preview-stats-post.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            -X POST -H 'Content-Type: application/json' -d '{}' \
+            "$PREVIEW_BASE/api/stats" -o /tmp/preview-stats-post.json
 
       - name: Preview sessions GET
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 -D /tmp/preview-sessions.headers "$PREVIEW_BASE/api/stats/sessions" -o /tmp/preview-sessions.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            -D /tmp/preview-sessions.headers \
+            "$PREVIEW_BASE/api/stats/sessions" -o /tmp/preview-sessions.json
 
       - name: Preview top-items POST
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 -D /tmp/preview-top.headers -X POST -H 'Content-Type: application/json' -d '{}' "$PREVIEW_BASE/api/top-items" -o /tmp/preview-top.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            -D /tmp/preview-top.headers \
+            -X POST -H 'Content-Type: application/json' -d '{}' \
+            "$PREVIEW_BASE/api/top-items" -o /tmp/preview-top.json
 
       - name: Production stats GET
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 "$PROD_BASE/api/stats" -o /tmp/prod-stats.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            "$PROD_BASE/api/stats" -o /tmp/prod-stats.json
 
       - name: Production sessions GET
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 "$PROD_BASE/api/stats/sessions" -o /tmp/prod-sessions.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            "$PROD_BASE/api/stats/sessions" -o /tmp/prod-sessions.json
 
       - name: Production top-items POST
-        run: curl --fail-with-body --silent --show-error --location --max-time 30 -X POST -H 'Content-Type: application/json' -d '{}' "$PROD_BASE/api/top-items" -o /tmp/prod-top.json
+        run: |
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            -X POST -H 'Content-Type: application/json' -d '{}' \
+            "$PROD_BASE/api/top-items" -o /tmp/prod-top.json
 
       - name: Validate response compatibility
         shell: bash
