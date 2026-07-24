@@ -42,20 +42,46 @@ function rankPosting(rows, field) {
     .slice(0, 5);
 }
 
+async function postingEngagement(env, table, prefix, types, today) {
+  try {
+    const placeholders = types.map(() => '?').join(',');
+    const result = await env.DB.prepare(`
+      SELECT
+        t.id,
+        t.title AS name,
+        COALESCE(SUM(d.clicks), 0) AS total_clicks,
+        COALESCE(SUM(CASE WHEN d.date = ? THEN d.clicks ELSE 0 END), 0) AS today_clicks
+      FROM ic_link_clicks_daily d
+      JOIN ${table} t ON d.company_name = (? || t.id)
+      WHERE d.company_type IN (${placeholders})
+        AND t.status = 'approved'
+      GROUP BY t.id, t.title
+    `).bind(today, prefix, ...types).all();
+    return result.results || [];
+  } catch (_) {
+    // 기존 동작과 동일하게 선택 통계 테이블 오류가 전체 인기 콘텐츠를 막지 않게 한다.
+    return [];
+  }
+}
+
 async function latestApproved(env, table) {
-  const result = await env.DB.prepare(`
-    SELECT id, title AS name
-    FROM ${table}
-    WHERE status = 'approved'
-    ORDER BY created_at DESC
-    LIMIT 5
-  `).all();
-  return (result.results || []).map((row) => ({
-    id: row.id,
-    name: row.name,
-    clicks: 0,
-    isNew: true,
-  }));
+  try {
+    const result = await env.DB.prepare(`
+      SELECT id, title AS name
+      FROM ${table}
+      WHERE status = 'approved'
+      ORDER BY created_at DESC
+      LIMIT 5
+    `).all();
+    return (result.results || []).map((row) => ({
+      id: row.id,
+      name: row.name,
+      clicks: 0,
+      isNew: true,
+    }));
+  } catch (_) {
+    return [];
+  }
 }
 
 export const onRequestGet = async (ctx) => handle(async () => edgeCachedJson(
@@ -84,35 +110,25 @@ export const onRequestGet = async (ctx) => handle(async () => edgeCachedJson(
         WHERE company_type IN (${placeholders})
         GROUP BY company_type, company_name
       `).bind(today, ...contentTypes).all(),
-      env.DB.prepare(`
-        SELECT
-          t.id,
-          t.title AS name,
-          COALESCE(SUM(d.clicks), 0) AS total_clicks,
-          COALESCE(SUM(CASE WHEN d.date = ? THEN d.clicks ELSE 0 END), 0) AS today_clicks
-        FROM ic_link_clicks_daily d
-        JOIN ic_recruitments t ON d.company_name = ('recruit_' || t.id)
-        WHERE d.company_type IN ('recruit_view', 'recruit_copy', 'recruit_shared')
-          AND t.status = 'approved'
-        GROUP BY t.id, t.title
-      `).bind(today).all(),
-      env.DB.prepare(`
-        SELECT
-          t.id,
-          t.title AS name,
-          COALESCE(SUM(d.clicks), 0) AS total_clicks,
-          COALESCE(SUM(CASE WHEN d.date = ? THEN d.clicks ELSE 0 END), 0) AS today_clicks
-        FROM ic_link_clicks_daily d
-        JOIN ic_lectures t ON d.company_name = ('lecture_' || t.id)
-        WHERE d.company_type IN ('lecture_view', 'lecture_copy', 'lecture_shared')
-          AND t.status = 'approved'
-        GROUP BY t.id, t.title
-      `).bind(today).all(),
+      postingEngagement(
+        env,
+        'ic_recruitments',
+        'recruit_',
+        ['recruit_view', 'recruit_copy', 'recruit_shared'],
+        today,
+      ),
+      postingEngagement(
+        env,
+        'ic_lectures',
+        'lecture_',
+        ['lecture_view', 'lecture_copy', 'lecture_shared'],
+        today,
+      ),
     ]);
 
     const contentRows = contentResult.results || [];
-    const recruitRows = recruitResult.results || [];
-    const lectureRows = lectureResult.results || [];
+    const recruitRows = recruitResult || [];
+    const lectureRows = lectureResult || [];
     const jeonsanTypes = ['life', 'nonlife', 'payment', 'ga'];
     const latestTypes = ['knowledge', 'cardnews'];
 
