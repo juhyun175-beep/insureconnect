@@ -15,7 +15,7 @@ jobs:
     timeout-minutes: 4
     env:
       PREVIEW_BASE: https://6e0fd227.insureconnect-hub.pages.dev
-      PROD_BASE: https://insureconnect.co.kr
+      PROD_BASE: https://insureconnect-hub.pages.dev
     steps:
       - name: Preview admin HTML
         run: |
