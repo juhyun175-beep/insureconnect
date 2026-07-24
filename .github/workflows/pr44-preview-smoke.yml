@@ -15,7 +15,6 @@ jobs:
     timeout-minutes: 4
     env:
       PREVIEW_BASE: https://6e0fd227.insureconnect-hub.pages.dev
-      PROD_BASE: https://insureconnect-hub.pages.dev
     steps:
       - name: Preview admin HTML
         run: |
@@ -47,23 +46,7 @@ jobs:
             -X POST -H 'Content-Type: application/json' -d '{}' \
             "$PREVIEW_BASE/api/top-items" -o /tmp/preview-top.json
 
-      - name: Production stats GET
-        run: |
-          curl --fail-with-body --silent --show-error --location --max-time 30 \
-            "$PROD_BASE/api/stats" -o /tmp/prod-stats.json
-
-      - name: Production sessions GET
-        run: |
-          curl --fail-with-body --silent --show-error --location --max-time 30 \
-            "$PROD_BASE/api/stats/sessions" -o /tmp/prod-sessions.json
-
-      - name: Production top-items POST
-        run: |
-          curl --fail-with-body --silent --show-error --location --max-time 30 \
-            -X POST -H 'Content-Type: application/json' -d '{}' \
-            "$PROD_BASE/api/top-items" -o /tmp/prod-top.json
-
-      - name: Validate response compatibility
+      - name: Validate preview response compatibility
         shell: bash
         run: |
           set -euo pipefail
@@ -73,13 +56,22 @@ jobs:
           jq -e '
             has("today_visits") and has("week_visits") and has("total_visits") and
             has("today_clicks") and has("total_clicks") and
-            (.daily_visits_7d | length == 7) and (.daily_clicks_7d | length == 7)
+            has("week_start_date") and has("week_end_date") and has("today_date") and
+            (.daily_visits_7d | length == 7) and (.daily_clicks_7d | length == 7) and
+            all(.daily_visits_7d[]; (keys | sort) == ["date","visits"]) and
+            all(.daily_clicks_7d[]; (keys | sort) == ["clicks","date"])
           ' /tmp/preview-stats.json >/dev/null
 
           diff -u <(jq -S 'keys' /tmp/preview-stats.json) <(jq -S 'keys' /tmp/preview-stats-post.json)
-          diff -u <(jq -S 'keys' /tmp/preview-stats.json) <(jq -S 'keys' /tmp/prod-stats.json)
-          diff -u <(jq -S 'keys' /tmp/preview-sessions.json) <(jq -S 'keys' /tmp/prod-sessions.json)
-          diff -u <(jq -S 'keys' /tmp/preview-top.json) <(jq -S 'keys' /tmp/prod-top.json)
+
+          jq -e '
+            has("today_count") and has("today_avg") and has("total_avg") and
+            has("distribution") and has("recent") and
+            has("today_sessions") and has("today_avg_sec") and
+            has("total_sessions") and has("total_avg_sec") and
+            has("recent_sessions") and has("last_7_days") and
+            (.last_7_days | length <= 7)
+          ' /tmp/preview-sessions.json >/dev/null
 
           test "$(jq 'keys | length' /tmp/preview-top.json)" -eq 20
           jq -e 'all(.[]; type == "array" and length <= 5)' /tmp/preview-top.json >/dev/null
@@ -90,6 +82,10 @@ jobs:
 
           echo 'Preview KPI:'
           jq '{today_visits,week_visits,total_visits,today_clicks,total_clicks}' /tmp/preview-stats.json
-          echo 'Production KPI:'
-          jq '{today_visits,week_visits,total_visits,today_clicks,total_clicks}' /tmp/prod-stats.json
+          echo 'Preview sessions:'
+          jq '{today_count,today_avg,total_avg,total_sessions}' /tmp/preview-sessions.json
+          echo 'Cache-Control:'
+          grep -Ei '^cache-control:' /tmp/preview-stats.headers
+          grep -Ei '^cache-control:' /tmp/preview-sessions.headers
+          grep -Ei '^cache-control:' /tmp/preview-top.headers
           echo 'PR44 preview smoke validation passed'
