@@ -1,17 +1,20 @@
 name: Apply admin auto-refresh optimization
 
 on:
-  push:
+  pull_request:
     branches:
-      - perf/admin-auto-refresh
-    paths:
-      - .github/workflows/apply-admin-auto-refresh.yml
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened
 
 permissions:
   contents: write
 
 jobs:
   apply-and-validate:
+    if: github.head_ref == 'perf/admin-auto-refresh'
     runs-on: ubuntu-latest
     timeout-minutes: 8
     steps:
