@@ -1,0 +1,67 @@
+name: Diagnose PR46 patch mismatch
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'perf/admin-pending-counts'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/admin-pending-counts
+          fetch-depth: 0
+
+      - name: Save replacement match counts
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p diagnostics
+          python3 - <<'PY' > diagnostics/pending-patch-counts.txt
+          from pathlib import Path
+          text = Path('admin.html').read_text(encoding='utf-8')
+          targets = {
+            'initial_6_spaces': "      ensureAdminSectionLoaded('up-requests');",
+            'initial_4_spaces': "    ensureAdminSectionLoaded('up-requests');",
+            'initial_any': "ensureAdminSectionLoaded('up-requests');",
+            'periodic_block': """    async function refreshPendingOnly() {
+      await loadPending(true);
+    }""",
+            'helper_anchor': """    const pendingState = { lastTotal: 0, dismissed: false, items: [], itemMap: {}, currentKey: null };
+
+    async function loadPending(force = false) {""",
+            'detail_block': """        renderPendingList(rcs, lcs, mts);
+        const total = (rcs.length || 0) + (lcs.length || 0) + (mts.length || 0);
+        updatePendingBadge(total);
+        if (!pendingState.dismissed && total > 0 && total > pendingState.lastTotal) {
+          showPendingPopup(rcs.length, lcs.length, mts.length);
+        }
+        pendingState.lastTotal = total;""",
+          }
+          for name, target in targets.items():
+              print(name, text.count(target))
+          for needle in ["ensureAdminSectionLoaded('up-requests')", 'async function refreshPendingOnly', 'const pendingState =', 'renderPendingList(rcs, lcs, mts)']:
+              print('\nNEEDLE', needle)
+              pos = text.find(needle)
+              print('position', pos)
+              if pos >= 0:
+                  print(repr(text[max(0,pos-120):pos+500]))
+          PY
+
+      - name: Commit diagnosis and remove workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/pr44-preview-smoke.yml
+          git add diagnostics/pending-patch-counts.txt
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: diagnose PR46 patch mismatch'
+          git push origin HEAD:perf/admin-pending-counts
