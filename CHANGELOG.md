@@ -1,5 +1,42 @@
 # Changelog
 
+## [2.139.0] - 2026-07-23
+### Fixed (보험지식 상세 페이지 500)
+- `functions/knowledge/[id].js`: 폐기된 레거시 외부 DB를 호출해 `/knowledge/{id}`가
+  전 ID HTTP 500이던 문제 수정. 데이터 원본을 D1 `ic_knowledge_posts`로 교체(관리자 업로드·
+  OG 메타·목록과 동일 소스). 상단 하드코딩 JWT·프로젝트 URL 상수 3줄 제거.
+  옛 레거시 DB 시절 ID는 D1 미존재로 404 응답(콘텐츠 영구 삭제, 대체 URL 없음).
+### Changed (보험지식 진입점 정리)
+- `index.html`: 모바일 코어카드·전체메뉴에서 보험지식 항목 제거. D1 0편 상태에서
+  메뉴로 들어가면 빈 페이지만 보이던 문제. 페이지·모달·표 파서·홈 피드 분기는 유지
+  (`.kn-table` CSS와 `[table]` 파서를 홈 팝업·운영자 공지가 공유하므로 제거 대상 아님).
+  데이터센터 홈 프리뷰(`renderItems('dcp-knowledge', …)`)는 0편이면 자기 자신을 숨기고
+  향후 콘텐츠 추가 시 유일한 접근 경로로 남으므로 의도적으로 유지.
+- `scripts/security-scan.mjs`: '살아있는 의존'만 잡는 HIGH 룰 3개 추가(레포 전역 서버 파일까지) —
+  ① 폐기 프로젝트 도메인(`supabase.co`), ② JWT 형태 하드코딩 자격증명(`eyJ…`), ③ 벤더 환경변수
+  접두어. 이번 자격증명이 기존 스캔(클라이언트 파일 한정)을 통과했던 구멍 보완. 단어 매칭이
+  아니라 살아있는 호출만 대상이므로 이력 주석의 벤더명은 통과(정확한 마이그레이션 기록 보존).
+  이력 주석(`_middleware.js`·`sitemap.xml.js`·`api/sitemap.js`·`admin.html`)과 `privacy.html`은
+  손대지 않음(개인정보처리방침 현행화는 별도 티켓).
+- `tests/admin-legacy-supabase.test.js`: 단어 스캔을 위 3패턴 검사로 교체(레포 전역),
+  보험지식 D1 전환·진입점 정리 회귀 추가. 스캐너 자기참조를 피하려 패턴을 조각으로 조립·이스케이프.
+
+## [2.138.1] - 2026-07-23
+### Fixed (관리자 콘텐츠 목록 로드 실패)
+- `admin.html`: 소식지·청구서류·보험지식·카드뉴스·보험교재 5개 로더가 미선언 변수
+  `SB_ANON`(수파베이스 잔재)을 fetch 헤더에 참조해 `ReferenceError`로 즉시 실패하던
+  버그 수정. 해당 헤더 제거(5개 GET 모두 공개 엔드포인트라 인증 불필요).
+  서버·D1 데이터는 정상이었고 운영 홈페이지는 영향 없었음.
+- `admin.html`: 22개 로더의 catch가 예외를 조용히 삼켜 원인 추적이 불가능하던 문제 —
+  `adminLoadFail()` 공용 헬퍼로 콘솔 로깅 추가(UI 문구는 기존 유지).
+### Changed (관리자 페이지 경량화)
+- `.github/workflows/deploy.yml`·`scripts/release.mjs`: 인라인 JS/CSS 외부화를
+  `admin.html`까지 확대(기존 `index.html` 전용). `/admin.html`은 `no-store`라
+  매 접속 전량 재다운로드였음 → HTML 536KB→117KB, JS/CSS 419KB는 `/assets/`
+  1년 immutable 캐시로 이동(내용해시 파일명, 릴리즈마다 자동 캐시버스팅).
+- `tests/admin-legacy-supabase.test.js`: 수파베이스 잔재 재유입 및 외부화 파이프라인
+  누락 회귀 방지.
+
 ## [2.138.0] - 2026-07-23
 ### Added (SEO 랜딩 파트너 노출 + viewable 임프레션 집계 + 관리자 성과 리포트)
 - `functions/_lib/seo-cta.js`: 전 SSR 랜딩(보험사·GA·보험정보·사례) 공통 푸터에 제휴 파트너 스트립 추가. 본문 종료 직후·`.seo-cta` 위에 `#seo-partner-strip` placeholder(초기 숨김)를 두고, 기존 팝업 스크립트 블록 내에서 `GET /api/partners?active=1` 후 최대 4개 카드 렌더(헤더·카드 `AD`, 하단 고지, `rel="noopener noreferrer nofollow sponsored"`). SSR HTML에는 파트너 데이터를 서버 렌더하지 않음(색인 본문 순수성). name/tagline/category는 `textContent`, href/img는 `https?:`만 허용(서버 검증 이중화). 활성 0개·fetch 실패 시 placeholder 숨김 유지.
