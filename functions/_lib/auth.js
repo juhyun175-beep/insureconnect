@@ -2,12 +2,11 @@
  * v2.2.1: 회원 세션 — 카카오 로그인용 (opaque 토큰 + DB 저장, 토큰은 해시로 저장)
  *   쿠키: ic_sess (httpOnly, Secure, SameSite=Lax)
  */
-// v2.97.0: 커스텀 도메인(insureconnect.co.kr) 이전 후에도 SITE는 pages.dev 유지 —
-//   카카오 OAuth redirect_uri가 이 값으로 생성되며, 카카오 개발자콘솔에 등록된 redirect_uri
-//   (= https://insureconnect-hub.pages.dev/api/auth/kakao/callback)와 정확히 일치해야 하기 때문.
-//   _middleware.js가 pages.dev→co.kr 301로 콜백을 funnel하므로 세션 쿠키(host-only)는 co.kr에 안착(로그인 정상).
-//   콘솔에 co.kr 콜백을 추가 등록한 뒤 이 값을 co.kr로 바꾸면 pages.dev 의존을 제거할 수 있다.
-export const SITE = 'https://insureconnect-hub.pages.dev';
+// v2.98.0: 카카오 개발자콘솔에 co.kr 콜백(https://insureconnect.co.kr/api/auth/kakao/callback) 등록 완료 →
+//   SITE를 커스텀 도메인으로 전환. 카카오 OAuth redirect_uri가 이 값으로 생성되며, 콘솔 등록값과 정확히 일치한다.
+//   이로써 v2.97.0까지 남아있던 pages.dev 의존(_middleware.js의 pages.dev→co.kr 301 funnel)을 제거 —
+//   콜백이 직접 co.kr로 떨어진다.
+export const SITE = 'https://insureconnect.co.kr';
 const SESSION_DAYS = 30;
 
 // 회원 등급 (낮음 → 높음)

@@ -68,8 +68,8 @@ export async function onRequest(context) {
 
   // v2.97.0: 커스텀 도메인 통합 — 프로덕션 pages.dev 표준 호스트 → insureconnect.co.kr 301(영구).
   //   중복 도메인 색인/AdSense 혼선 방지. 배포 프리뷰(<hash>.insureconnect-hub.pages.dev)·co.kr·로컬은 통과.
-  //   카카오 OAuth 콜백(redirect_uri=pages.dev; _lib/auth.js)도 이 301로 co.kr에 funnel → 세션 쿠키(host-only)가
-  //   co.kr에 안착해 로그인 정상. (카카오 콘솔 변경 불필요)
+  //   v2.98.0: 카카오 OAuth 콜백은 콘솔에 co.kr redirect_uri 등록 + SITE(_lib/auth.js) co.kr 전환으로
+  //   더 이상 이 301에 의존하지 않고 직접 co.kr로 떨어진다. 이 리다이렉트는 SEO/직접 pages.dev 접근 통합용.
   if (reqUrl.hostname === 'insureconnect-hub.pages.dev') {
     return Response.redirect(`https://insureconnect.co.kr${reqUrl.pathname}${reqUrl.search}`, 301);
   }
