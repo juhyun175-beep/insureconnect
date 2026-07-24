@@ -14,8 +14,8 @@ def replace_once(label, old, new):
 
 replace_once(
     'initial pending detail load',
-    "      ensureAdminSectionLoaded('up-requests');",
-    "      loadPendingCounts();",
+    "ensureAdminSectionLoaded('up-requests');",
+    "loadPendingCounts();",
 )
 
 replace_once(
