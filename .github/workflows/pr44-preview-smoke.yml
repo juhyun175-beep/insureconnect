@@ -1,0 +1,77 @@
+name: PR45 Preview Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  preview-smoke:
+    if: github.head_ref == 'perf/admin-auto-refresh'
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    env:
+      PREVIEW_BASE: https://perf-admin-auto-refresh.insureconnect-hub.pages.dev
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/admin-auto-refresh
+          fetch-depth: 0
+
+      - name: Wait for preview and fetch admin
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in $(seq 1 18); do
+            code=$(curl --silent --show-error --location --max-time 30 \
+              --output /tmp/admin.html --write-out '%{http_code}' \
+              "$PREVIEW_BASE/admin.html" || true)
+            if [ "$code" = "200" ]; then exit 0; fi
+            echo "attempt $attempt returned ${code:-curl_error}"
+            sleep 10
+          done
+          exit 1
+
+      - name: Validate deployed scheduler markers
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'const ADMIN_STATS_REFRESH_MS = 60000;' /tmp/admin.html
+          grep -q 'const ADMIN_PENDING_REFRESH_MS = 30000;' /tmp/admin.html
+          grep -q 'const ADMIN_SECONDARY_REFRESH_MS = 300000;' /tmp/admin.html
+          grep -q 'const adminApiInflight = new Map();' /tmp/admin.html
+          grep -q 'loadDashboard(true, false)' /tmp/admin.html
+          grep -q 'async function loadDashboard(force = false, includeSecondary = true)' /tmp/admin.html
+          grep -q 'if (includeSecondary) refreshSecondaryDashboardStats(force);' /tmp/admin.html
+          if grep -q 'let _autoTimer = null;' /tmp/admin.html; then
+            echo 'legacy auto timer remains' >&2
+            exit 1
+          fi
+
+      - name: Validate unchanged dashboard APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            "$PREVIEW_BASE/api/stats" -o /tmp/stats.json
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            "$PREVIEW_BASE/api/stats/sessions" -o /tmp/sessions.json
+          curl --fail-with-body --silent --show-error --location --max-time 30 \
+            -X POST -H 'Content-Type: application/json' -d '{}' \
+            "$PREVIEW_BASE/api/top-items" -o /tmp/top.json
+          jq -e 'has("today_visits") and (.daily_visits_7d | length == 7)' /tmp/stats.json >/dev/null
+          jq -e 'has("today_count") and has("total_sessions")' /tmp/sessions.json >/dev/null
+          test "$(jq 'keys | length' /tmp/top.json)" -eq 20
+
+      - name: Remove one-off workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/pr44-preview-smoke.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'test: remove one-off PR45 preview smoke workflow'
+          git push origin HEAD:perf/admin-auto-refresh
