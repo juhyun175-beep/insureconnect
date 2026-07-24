@@ -17,6 +17,57 @@ jobs:
       PREVIEW_BASE: https://6e0fd227.insureconnect-hub.pages.dev
       PROD_BASE: https://insureconnect.co.kr
     steps:
-      - uses: actions/checkout@v4
-      - name: Validate Cloudflare preview admin stats APIs
-        run: node scripts/pr44-preview-smoke.mjs
+      - name: Preview admin HTML
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 "$PREVIEW_BASE/admin.html" -o /tmp/admin.html
+
+      - name: Preview stats GET
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 -D /tmp/preview-stats.headers "$PREVIEW_BASE/api/stats" -o /tmp/preview-stats.json
+
+      - name: Preview stats POST
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 -X POST -H 'Content-Type: application/json' -d '{}' "$PREVIEW_BASE/api/stats" -o /tmp/preview-stats-post.json
+
+      - name: Preview sessions GET
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 -D /tmp/preview-sessions.headers "$PREVIEW_BASE/api/stats/sessions" -o /tmp/preview-sessions.json
+
+      - name: Preview top-items POST
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 -D /tmp/preview-top.headers -X POST -H 'Content-Type: application/json' -d '{}' "$PREVIEW_BASE/api/top-items" -o /tmp/preview-top.json
+
+      - name: Production stats GET
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 "$PROD_BASE/api/stats" -o /tmp/prod-stats.json
+
+      - name: Production sessions GET
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 "$PROD_BASE/api/stats/sessions" -o /tmp/prod-sessions.json
+
+      - name: Production top-items POST
+        run: curl --fail-with-body --silent --show-error --location --max-time 30 -X POST -H 'Content-Type: application/json' -d '{}' "$PROD_BASE/api/top-items" -o /tmp/prod-top.json
+
+      - name: Validate response compatibility
+        shell: bash
+        run: |
+          set -euo pipefail
+          grep -q 'loadDashboard' /tmp/admin.html
+          grep -q 'startAutoRefresh' /tmp/admin.html
+
+          jq -e '
+            has("today_visits") and has("week_visits") and has("total_visits") and
+            has("today_clicks") and has("total_clicks") and
+            (.daily_visits_7d | length == 7) and (.daily_clicks_7d | length == 7)
+          ' /tmp/preview-stats.json >/dev/null
+
+          diff -u <(jq -S 'keys' /tmp/preview-stats.json) <(jq -S 'keys' /tmp/preview-stats-post.json)
+          diff -u <(jq -S 'keys' /tmp/preview-stats.json) <(jq -S 'keys' /tmp/prod-stats.json)
+          diff -u <(jq -S 'keys' /tmp/preview-sessions.json) <(jq -S 'keys' /tmp/prod-sessions.json)
+          diff -u <(jq -S 'keys' /tmp/preview-top.json) <(jq -S 'keys' /tmp/prod-top.json)
+
+          test "$(jq 'keys | length' /tmp/preview-top.json)" -eq 20
+          jq -e 'all(.[]; type == "array" and length <= 5)' /tmp/preview-top.json >/dev/null
+
+          grep -Eiq 'cache-control:.*s-maxage=35' /tmp/preview-stats.headers
+          grep -Eiq 'cache-control:.*s-maxage=60' /tmp/preview-sessions.headers
+          grep -Eiq 'cache-control:.*s-maxage=60' /tmp/preview-top.headers
+
+          echo 'Preview KPI:'
+          jq '{today_visits,week_visits,total_visits,today_clicks,total_clicks}' /tmp/preview-stats.json
+          echo 'Production KPI:'
+          jq '{today_visits,week_visits,total_visits,today_clicks,total_clicks}' /tmp/prod-stats.json
+          echo 'PR44 preview smoke validation passed'
