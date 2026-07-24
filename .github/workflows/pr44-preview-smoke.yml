@@ -1,0 +1,51 @@
+name: Diagnose pending admin load
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    if: github.head_ref == 'perf/admin-pending-counts'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/admin-pending-counts
+          fetch-depth: 0
+
+      - name: Print loadPending implementation and related routes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          lines = Path('admin.html').read_text(encoding='utf-8').splitlines()
+          hits = [i for i, line in enumerate(lines) if 'function loadPending' in line]
+          print('LOAD_PENDING_HITS', [i + 1 for i in hits])
+          for i in hits:
+              start = max(0, i - 20)
+              end = min(len(lines), i + 260)
+              print(f'--- admin.html lines {start+1}-{end} ---')
+              for n in range(start, end):
+                  print(f'{n+1}: {lines[n]}')
+          PY
+          echo '--- related fetch/status references ---'
+          rg -n -C 3 "loadPending|status=all|status=pending|pending-count|pending_count|pending" admin.html functions/api | head -n 500 || true
+          echo '--- likely route files ---'
+          find functions/api -type f | sort | grep -E 'recruit|lecture|meeting|pending|posting|order' || true
+
+      - name: Remove diagnostic workflow
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/pr44-preview-smoke.yml
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'chore: remove pending diagnosis workflow'
+          git push origin HEAD:perf/admin-pending-counts
