@@ -12,12 +12,12 @@ permissions:
 jobs:
   preview-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 8
+    timeout-minutes: 4
     env:
-      PREVIEW_BASE: https://perf-admin-dashboard-d1-load.insureconnect-hub.pages.dev
+      PREVIEW_BASE: https://6e0fd227.insureconnect-hub.pages.dev
       PROD_BASE: https://insureconnect.co.kr
     steps:
-      - name: Wait for Cloudflare preview and validate admin stats APIs
+      - name: Validate Cloudflare preview admin stats APIs
         shell: bash
         run: |
           set -euo pipefail
@@ -29,9 +29,10 @@ jobs:
             local headers="$4"
             local code=""
 
-            for attempt in $(seq 1 36); do
+            for attempt in $(seq 1 3); do
               if [ "$method" = "POST" ]; then
                 code=$(curl --silent --show-error --location \
+                  --connect-timeout 10 --max-time 30 \
                   --request POST \
                   --header 'Content-Type: application/json' \
                   --data '{}' \
@@ -41,6 +42,7 @@ jobs:
                   "$url" || true)
               else
                 code=$(curl --silent --show-error --location \
+                  --connect-timeout 10 --max-time 30 \
                   --dump-header "$headers" \
                   --output "$output" \
                   --write-out '%{http_code}' \
@@ -52,24 +54,25 @@ jobs:
                 return 0
               fi
 
-              echo "Attempt $attempt: $method $url returned ${code:-curl_error}; retrying"
-              sleep 10
+              echo "Attempt $attempt: $method $url returned ${code:-curl_error}"
+              [ -f "$output" ] && head -c 1000 "$output" || true
+              echo
+              sleep 5
             done
 
-            echo "Preview endpoint did not become healthy: $method $url" >&2
-            [ -f "$output" ] && cat "$output" >&2 || true
+            echo "Endpoint did not become healthy: $method $url" >&2
             return 1
           }
 
-          fetch_with_retry GET  "$PREVIEW_BASE/admin.html"          /tmp/admin.html           /tmp/admin.headers
-          fetch_with_retry GET  "$PREVIEW_BASE/api/stats"           /tmp/preview-stats.json    /tmp/preview-stats.headers
-          fetch_with_retry POST "$PREVIEW_BASE/api/stats"           /tmp/preview-stats-post.json /tmp/preview-stats-post.headers
-          fetch_with_retry GET  "$PREVIEW_BASE/api/stats/sessions"  /tmp/preview-sessions.json /tmp/preview-sessions.headers
-          fetch_with_retry POST "$PREVIEW_BASE/api/top-items"       /tmp/preview-top.json      /tmp/preview-top.headers
+          fetch_with_retry GET  "$PREVIEW_BASE/admin.html"           /tmp/admin.html             /tmp/admin.headers
+          fetch_with_retry GET  "$PREVIEW_BASE/api/stats"            /tmp/preview-stats.json      /tmp/preview-stats.headers
+          fetch_with_retry POST "$PREVIEW_BASE/api/stats"            /tmp/preview-stats-post.json /tmp/preview-stats-post.headers
+          fetch_with_retry GET  "$PREVIEW_BASE/api/stats/sessions"   /tmp/preview-sessions.json   /tmp/preview-sessions.headers
+          fetch_with_retry POST "$PREVIEW_BASE/api/top-items"        /tmp/preview-top.json        /tmp/preview-top.headers
 
-          fetch_with_retry GET  "$PROD_BASE/api/stats"              /tmp/prod-stats.json       /tmp/prod-stats.headers
-          fetch_with_retry GET  "$PROD_BASE/api/stats/sessions"     /tmp/prod-sessions.json    /tmp/prod-sessions.headers
-          fetch_with_retry POST "$PROD_BASE/api/top-items"          /tmp/prod-top.json         /tmp/prod-top.headers
+          fetch_with_retry GET  "$PROD_BASE/api/stats"               /tmp/prod-stats.json         /tmp/prod-stats.headers
+          fetch_with_retry GET  "$PROD_BASE/api/stats/sessions"      /tmp/prod-sessions.json      /tmp/prod-sessions.headers
+          fetch_with_retry POST "$PROD_BASE/api/top-items"           /tmp/prod-top.json           /tmp/prod-top.headers
 
           python3 - <<'PY'
           import json
