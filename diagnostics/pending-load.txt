@@ -1,0 +1,254 @@
+LOAD_PENDING_HITS [7459]
+--- admin.html lines 7449-7688 ---
+7449:         await fetch(`/api/meetings/${id}`, { method: 'DELETE', headers: adminHeaders() });
+7450:         refreshAdminSection('up-meetup');
+7451:       } catch (e) { alert('삭제 실패: ' + e.message); }
+7452:     }
+7453: 
+7454:     /* ══════════════════════════════
+7455:        v2.0.3: 승인대기 관리
+7456:     ══════════════════════════════ */
+7457:     const pendingState = { lastTotal: 0, dismissed: false, items: [], itemMap: {}, currentKey: null };
+7458: 
+7459:     async function loadPending(force = false) {
+7460:       try {
+7461:         const [rcs, lcs, mts] = await Promise.all([
+7462:           cachedAdminFetch('pending:recruitments', '/api/recruitments?status=pending&order=created_at.desc&limit=50', { headers: adminHeaders(), force }, force ? 0 : 15000),
+7463:           cachedAdminFetch('pending:lectures', '/api/lectures?status=pending&limit=50', { headers: adminHeaders(), force }, force ? 0 : 15000),
+7464:           cachedAdminFetch('pending:meetings', '/api/meetings?status=pending&limit=50', { headers: adminHeaders(), force }, force ? 0 : 15000)   // v2.59.0 모임공고
+7465:         ]);
+7466:         // v2.67.0: 환불정책 동의 기록 맵(공고타입_공고id → 동의 3종)
+7467:         try{
+7468:           const _od=await cachedAdminFetch('pending:refunds', '/api/admin/refunds', {headers:adminHeaders(), force}, force ? 0 : 30000);
+7469:           window._consentMap={};
+7470:           window._pendingOrderMap={};
+7471:           (_od.orders||[]).forEach(function(o){
+7472:             if(!o.ad_id) return;
+7473:             var k=o.ad_type+'_'+o.ad_id;
+7474:             if(!window._pendingOrderMap[k]) window._pendingOrderMap[k]=o;
+7475:             window._consentMap[k]={r:o.consent_refund,p:o.consent_points,f:o.consent_fail};
+7476:           });
+7477:         }catch(_){
+7478:           if(!window._consentMap) window._consentMap={};
+7479:           if(!window._pendingOrderMap) window._pendingOrderMap={};
+7480:         }
+7481:         renderPendingList(rcs, lcs, mts);
+7482:         const total = (rcs.length || 0) + (lcs.length || 0) + (mts.length || 0);
+7483:         updatePendingBadge(total);
+7484:         if (!pendingState.dismissed && total > 0 && total > pendingState.lastTotal) {
+7485:           showPendingPopup(rcs.length, lcs.length, mts.length);
+7486:         }
+7487:         pendingState.lastTotal = total;
+7488:       } catch (e) {
+7489:         adminLoadFail('pending', e);
+7490:         const wrap = document.getElementById('pending-list-container');
+7491:         if (wrap) wrap.innerHTML = '<p class="empty-msg">승인대기 로드 실패: ' + esc(e.message) + '</p>';
+7492:       }
+7493:     }
+7494: 
+7495:     function renderPendingList(rcs, lcs, mts) {
+7496:       const wrap = document.getElementById('pending-list-container');
+7497:       if (!wrap) return;
+7498:       if ((!rcs || rcs.length === 0) && (!lcs || lcs.length === 0) && (!mts || mts.length === 0)) {
+7499:         wrap.innerHTML = '<p class="empty-msg">현재 대기 중인 승인요청이 없습니다. ✨</p>';
+7500:         return;
+7501:       }
+7502:       const render = (it, type) => {
+7503:         const dateStr = pendingDateText(it.created_at);
+7504:         const fileBlock = it.file_url
+7505:           ? `<div class="pending-card-file">📎 <a href="${esc(it.file_url)}" target="_blank" rel="noopener">첨부파일 보기</a></div>` : '';
+7506:         const sub = (type === 'recruit' && it.company_name)
+7507:           ? `<span style="color:var(--neon-cyan)">[${esc(it.company_name)}]</span> `
+7508:           : (type === 'lecture' && it.instructor)
+7509:           ? `<span style="color:var(--neon-pink)">[강사: ${esc(it.instructor)}]</span> `
+7510:           : (type === 'meetup' && (it.host || it.location))
+7511:           ? `<span style="color:#0d9488">[${esc([it.host, it.location].filter(Boolean).join(' · '))}]</span> `
+7512:           : '';
+7513:         const tableName = type === 'recruit' ? 'recruitments' : (type === 'meetup' ? 'meetings' : 'lectures');
+7514:         const tag = type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
+7515:         const cm = (window._consentMap || {})[type + '_' + it.id];
+7516:         const consentLine = cm
+7517:           ? `<div style="font-size:11px;font-weight:700;margin-top:4px;color:${(cm.r&&cm.p&&cm.f)?'#16a34a':'#dc2626'}">📜 환불정책 동의: 게시후환불제한 ${cm.r?'✓':'✗'} · 포인트/할인권 ${cm.p?'✓':'✗'} · 모집실패 ${cm.f?'✓':'✗'}${(cm.r&&cm.p&&cm.f)?'':' ⚠ 미동의 항목'}</div>`
+7518:           : '';
+7519:         return `
+7520:           <div class="pending-card ${type}">
+7521:             <span class="pending-card-tag">${tag}</span>
+7522:             <h4>${sub}${esc(it.title)}</h4>
+7523:             <div class="pending-card-meta">
+7524:               🕒 ${dateStr} · 신청자: <strong>${esc(it.submitter_name || '-')}</strong>
+7525:               · 연락처: ${esc(it.submitter_contact || '-')}
+7526:             </div>
+7527:             ${consentLine}
+7528:             ${it.description ? `<div class="pending-card-desc">${esc(it.description)}</div>` : ''}
+7529:             ${fileBlock}
+7530:             <div class="pending-card-actions">
+7531:               <button class="pending-btn-approve" type="button" onclick="approveItem('${tableName}', ${it.id})">✅ 승인</button>
+7532:               <button class="pending-btn-reject" type="button" onclick="rejectItem('${tableName}', ${it.id})">❌ 반려</button>
+7533:             </div>
+7534:           </div>`;
+7535:       };
+7536:       let html = '<div class="pending-list">';
+7537:       (rcs || []).forEach(it => html += render(it, 'recruit'));
+7538:       (lcs || []).forEach(it => html += render(it, 'lecture'));
+7539:       (mts || []).forEach(it => html += render(it, 'meetup'));
+7540:       html += '</div>';
+7541:       wrap.innerHTML = html;
+7542:     }
+7543: 
+7544:     function pendingTypeLabel(type) {
+7545:       return type === 'recruit' ? '채용' : (type === 'meetup' ? '모임' : '강의');
+7546:     }
+7547:     // DB의 created_at 등은 datetime('now') = UTC(타임존 표식 없음)로 저장된다.
+7548:     // 관리자 화면은 실제 한국시간(KST, Asia/Seoul)으로 변환해 표기한다.
+7549:     function _toKstDate(s) {
+7550:       if (!s) return null;
+7551:       let str = String(s).trim().replace(' ', 'T');
+7552:       if (!/([zZ])|([+-]\d\d:?\d\d)$/.test(str)) str += 'Z'; // 표식 없으면 UTC로 간주
+7553:       const d = new Date(str);
+7554:       return Number.isNaN(d.getTime()) ? null : d;
+7555:     }
+7556:     function _kstParts(d) {
+7557:       return new Intl.DateTimeFormat('en-US', {
+7558:         timeZone: 'Asia/Seoul', year: 'numeric', month: '2-digit', day: '2-digit',
+7559:         hour: '2-digit', minute: '2-digit', hourCycle: 'h23'
+7560:       }).formatToParts(d).reduce(function (o, x) { o[x.type] = x.value; return o; }, {});
+7561:     }
+7562:     function kstDateTime(s) { // 상세: 2026-07-07 16:55 (KST)
+7563:       const d = _toKstDate(s);
+7564:       if (!d) return String(s || '-');
+7565:       const p = _kstParts(d);
+7566:       return `${p.year}-${p.month}-${p.day} ${p.hour}:${p.minute} (KST)`;
+7567:     }
+7568:     function pendingDateText(s) { // 목록: 7/7 16:55 (KST 기준)
+7569:       const d = _toKstDate(s);
+7570:       if (!d) return String(s || '-');
+7571:       const p = _kstParts(d);
+7572:       return `${Number(p.month)}/${Number(p.day)} ${p.hour}:${p.minute}`;
+7573:     }
+7574:     function pendingTableFor(type) {
+7575:       return type === 'recruit' ? 'recruitments' : (type === 'meetup' ? 'meetings' : 'lectures');
+7576:     }
+7577: 
+7578:     /* v2.108.4: 승인대기 목록 상세팝업/엑셀용 확장 렌더러 */
+7579:     function renderPendingList(rcs, lcs, mts) {
+7580:       const wrap = document.getElementById('pending-list-container');
+7581:       if (!wrap) return;
+7582:       const orders = window._pendingOrderMap || {};
+7583:       const make = (arr, type) => (arr || []).map(function(it) {
+7584:         const key = type + '_' + it.id;
+7585:         return Object.assign({}, it, {
+7586:           _pendingType: type,
+7587:           _pendingKey: key,
+7588:           _table: pendingTableFor(type),
+7589:           _order: orders[key] || null
+7590:         });
+7591:       });
+7592:       const items = []
+7593:         .concat(make(rcs, 'recruit'))
+7594:         .concat(make(lcs, 'lecture'))
+7595:         .concat(make(mts, 'meetup'))
+7596:         .sort(function(a, b) { return new Date(b.created_at || 0) - new Date(a.created_at || 0); });
+7597:       pendingState.items = items;
+7598:       pendingState.itemMap = {};
+7599:       items.forEach(function(it) { pendingState.itemMap[it._pendingKey] = it; });
+7600:       if (!items.length) {
+7601:         wrap.innerHTML = '<p class="empty-msg">현재 대기 중인 승인요청이 없습니다. ✨</p>';
+7602:         return;
+7603:       }
+7604:       const render = (it) => {
+7605:         const type = it._pendingType;
+7606:         const tag = pendingTypeLabel(type);
+7607:         const sub = (type === 'recruit' && it.company_name)
+7608:           ? `<span style="color:var(--neon-cyan)">[${esc(it.company_name)}]</span> `
+7609:           : (type === 'lecture' && it.instructor)
+7610:           ? `<span style="color:var(--neon-pink)">[강사: ${esc(it.instructor)}]</span> `
+7611:           : (type === 'meetup' && (it.host || it.location))
+7612:           ? `<span style="color:#0d9488">[${esc([it.host, it.location].filter(Boolean).join(' · '))}]</span> `
+7613:           : '';
+7614:         const cm = (window._consentMap || {})[type + '_' + it.id];
+7615:         const consentLine = cm
+7616:           ? `<div style="font-size:11px;font-weight:700;margin-top:4px;color:${(cm.r&&cm.p&&cm.f)?'#16a34a':'#dc2626'}">🧾 동의: 환불 ${cm.r?'✓':'✗'} · 포인트/할인권 ${cm.p?'✓':'✗'} · 성과미달 ${cm.f?'✓':'✗'}${(cm.r&&cm.p&&cm.f)?'':' ⚠ 미동의 항목'}</div>`
+7617:           : '';
+7618:         const fileBlock = it.file_url
+7619:           ? `<div class="pending-card-file">📎 <a href="${esc(it.file_url)}" target="_blank" rel="noopener" onclick="event.stopPropagation()">첨부파일 보기</a></div>`
+7620:           : '';
+7621:         return `
+7622:           <div class="pending-card ${type}" role="button" tabindex="0" onclick="openPendingDetail('${it._pendingKey}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openPendingDetail('${it._pendingKey}')}">
+7623:             <span class="pending-card-tag">${tag}</span>
+7624:             <h4>${sub}${esc(it.title)}</h4>
+7625:             <div class="pending-card-meta">
+7626:               🕒 ${pendingDateText(it.created_at)} · 신청자 <strong>${esc(it.submitter_name || '-')}</strong>
+7627:               · 연락처 ${esc(it.submitter_contact || '-')}
+7628:             </div>
+7629:             ${consentLine}
+7630:             ${it.description ? `<div class="pending-card-desc">${esc(it.description)}</div>` : ''}
+7631:             ${fileBlock}
+7632:             <div class="pending-card-hint">카드를 클릭하면 신청 상세를 확인할 수 있습니다.</div>
+7633:             <div class="pending-card-actions">
+7634:               <button class="pending-btn-approve" type="button" onclick="event.stopPropagation();approveItem('${it._table}', ${it.id})">✅ 승인</button>
+7635:               <button class="pending-btn-reject" type="button" onclick="event.stopPropagation();rejectItem('${it._table}', ${it.id})">❌ 반려</button>
+7636:               ${(it._order && it._order.status === 'pending_payment' && (it._order.final_price || 0) > 0)
+7637:                 ? `<button type="button" style="background:rgba(245,158,11,0.2);color:#b45309;border:none;border-radius:8px;padding:8px 12px;font-size:12.5px;font-weight:800;cursor:pointer;" title="입금 확인 후 눌러주세요 — 승인된 공고면 보류된 카톡 발송이 자동 진행됩니다" onclick="event.stopPropagation();markOrderPaid(${it._order.id})">💰 입금확인</button>`
+7638:                 : ''}
+7639:             </div>
+7640:           </div>`;
+7641:       };
+7642:       wrap.innerHTML = '<div class="pending-list">' + items.map(render).join('') + '</div>';
+7643:     }
+7644: 
+7645:     function updatePendingBadge(n) {
+7646:       const badge = document.getElementById('pending-badge');
+7647:       if (badge) {
+7648:         if (n > 0) {
+7649:           badge.textContent = n > 99 ? '99+' : String(n);
+7650:           badge.style.display = 'inline-flex';
+7651:         } else {
+7652:           badge.style.display = 'none';
+7653:         }
+7654:       }
+7655:       _updateRequestsBadge();
+7656:     }
+7657: 
+7658:     /* v2.1.11: 통합 「📥 사용자 신청」 탭 — 외부 합산 배지 + sub-tab 전환 */
+7659:     function _updateRequestsBadge() {
+7660:       const pBadge = document.getElementById('pending-badge');
+7661:       const total = (pBadge && pBadge.style.display !== 'none') ? (parseInt(pBadge.textContent, 10) || 0) : 0;
+7662:       const outer = document.getElementById('requests-badge');
+7663:       if (outer) {
+7664:         outer.textContent = total > 99 ? '99+' : String(total);
+7665:         outer.style.display = total > 0 ? 'inline-flex' : 'none';
+7666:       }
+7667:     }
+7668:     function reqsCurrentSub() {
+7669:       const active = document.querySelector('.reqs-subtab.active');
+7670:       return active ? active.dataset.sub : 'pending';
+7671:     }
+7672:     function reqsSwitchSub(sub) {
+7673:       document.querySelectorAll('.reqs-subtab').forEach(b => {
+7674:         b.classList.toggle('active', b.dataset.sub === sub);
+7675:       });
+7676:       document.querySelectorAll('.reqs-sub-pane').forEach(p => {
+7677:         p.style.display = p.dataset.subPane === sub ? '' : 'none';
+7678:       });
+7679:     }
+7680: 
+7681:     async function approveItem(table, id) {
+7682:       /* v2.122.0: 승인 = 유료옵션 자동이행 트리거 — 입금대기 주문이면 승인 전에 명확히 경고
+7683:          (카톡 전회원 알림은 발송 후 되돌릴 수 없음) */
+7684:       const _typeOf = { recruitments: 'recruit', lectures: 'lecture', meetings: 'meetup' };
+7685:       const _ord = (window._pendingOrderMap || {})[(_typeOf[table] || '') + '_' + id] || null;
+7686:       let extra = '';
+7687:       if (_ord) {
+7688:         const optTxt = pendingOptionText(_ord);
+--- RELATED REFERENCES ---
+--- LIKELY ROUTE FILES ---
+functions/api/lectures/[id].js
+functions/api/lectures/index.js
+functions/api/meeting-participants/index.js
+functions/api/meetings/[id].js
+functions/api/meetings/index.js
+functions/api/postings/feature-stats.js
+functions/api/postings/feature.js
+functions/api/postings/mine.js
+functions/api/recruitments/[id].js
+functions/api/recruitments/index.js
