@@ -1,0 +1,70 @@
+name: Apply PR45 admin refresh patch
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    if: github.head_ref == 'perf/admin-auto-refresh'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/admin-auto-refresh
+          fetch-depth: 0
+
+      - name: Apply exact admin patch
+        run: python3 scripts/apply-admin-auto-refresh.py
+
+      - name: Validate inline JavaScript and security scan
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path('admin.html').read_text(encoding='utf-8')
+          blocks = re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', html, flags=re.S | re.I)
+          if not blocks:
+              raise SystemExit('no inline scripts found')
+          out = Path('/tmp/admin-inline-scripts')
+          out.mkdir(exist_ok=True)
+          for idx, block in enumerate(blocks):
+              (out / f'{idx:02d}.js').write_text(block, encoding='utf-8')
+          required = [
+              'const adminApiInflight = new Map();',
+              'const ADMIN_STATS_REFRESH_MS = 60000;',
+              'const ADMIN_PENDING_REFRESH_MS = 30000;',
+              'const ADMIN_SECONDARY_REFRESH_MS = 300000;',
+              'loadDashboard(true, false)',
+              'async function loadDashboard(force = false, includeSecondary = true)',
+              'if (includeSecondary) refreshSecondaryDashboardStats(force);',
+          ]
+          for marker in required:
+              if marker not in html:
+                  raise SystemExit(f'missing marker: {marker}')
+          if 'let _autoTimer = null;' in html:
+              raise SystemExit('legacy auto timer remains')
+          PY
+          for file in /tmp/admin-inline-scripts/*.js; do node --check "$file"; done
+          node scripts/security-scan.mjs
+
+      - name: Commit admin optimization and remove temporary files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/pr44-preview-smoke.yml
+          git rm .github/workflows/apply-admin-auto-refresh.yml
+          git rm scripts/apply-admin-auto-refresh.py
+          git rm scripts/admin-auto-refresh-trigger.txt
+          git add admin.html
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'perf: split admin refresh schedules and dedupe requests'
+          git push origin HEAD:perf/admin-auto-refresh
