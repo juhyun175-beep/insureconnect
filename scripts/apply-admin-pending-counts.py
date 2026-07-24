@@ -12,6 +12,19 @@ def replace_once(label, old, new):
     text = text.replace(old, new, 1)
 
 
+def replace_span(label, start_marker, end_marker, replacement):
+    global text
+    start_count = text.count(start_marker)
+    if start_count != 1:
+        raise SystemExit(f'{label}: expected exactly 1 start marker, found {start_count}')
+    start = text.index(start_marker)
+    end = text.find(end_marker, start)
+    if end < 0:
+        raise SystemExit(f'{label}: end marker not found')
+    end += len(end_marker)
+    text = text[:start] + replacement + text[end:]
+
+
 replace_once(
     'initial pending detail load',
     "ensureAdminSectionLoaded('up-requests');",
@@ -19,23 +32,18 @@ replace_once(
 )
 
 replace_once(
-    'periodic pending refresh',
-    """    async function refreshPendingOnly() {
-      await loadPending(true);
-    }""",
-    """    async function refreshPendingOnly() {
-      await loadPendingCounts(true);
-    }""",
+    'periodic pending refresh call',
+    '      await loadPending(true);',
+    '      await loadPendingCounts(true);',
 )
 
-replace_once(
-    'pending count helpers',
-    """    const pendingState = { lastTotal: 0, dismissed: false, items: [], itemMap: {}, currentKey: null };
+load_pending_marker = '    async function loadPending(force = false) {'
+if text.count(load_pending_marker) != 1:
+    raise SystemExit(
+        f'pending helper insertion: expected exactly 1 loadPending marker, found {text.count(load_pending_marker)}'
+    )
 
-    async function loadPending(force = false) {""",
-    """    const pendingState = { lastTotal: 0, dismissed: false, items: [], itemMap: {}, currentKey: null };
-
-    function applyPendingCounts(counts) {
+helper_code = """    function applyPendingCounts(counts) {
       const recruitments = Number(counts && counts.recruitments || 0);
       const lectures = Number(counts && counts.lectures || 0);
       const meetings = Number(counts && counts.meetings || 0);
@@ -65,18 +73,13 @@ replace_once(
       }
     }
 
-    async function loadPending(force = false) {""",
-)
+"""
+text = text.replace(load_pending_marker, helper_code + load_pending_marker, 1)
 
-replace_once(
+replace_span(
     'pending detail count sync',
-    """        renderPendingList(rcs, lcs, mts);
-        const total = (rcs.length || 0) + (lcs.length || 0) + (mts.length || 0);
-        updatePendingBadge(total);
-        if (!pendingState.dismissed && total > 0 && total > pendingState.lastTotal) {
-          showPendingPopup(rcs.length, lcs.length, mts.length);
-        }
-        pendingState.lastTotal = total;""",
+    '        renderPendingList(rcs, lcs, mts);',
+    '        pendingState.lastTotal = total;',
     """        renderPendingList(rcs, lcs, mts);
         applyPendingCounts({
           recruitments: rcs.length || 0,
