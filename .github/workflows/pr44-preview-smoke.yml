@@ -1,0 +1,69 @@
+name: Apply PR46 pending count optimization
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: write
+
+jobs:
+  apply-and-validate:
+    if: github.head_ref == 'perf/admin-pending-counts'
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: perf/admin-pending-counts
+          fetch-depth: 0
+
+      - name: Apply exact admin patch
+        run: python3 scripts/apply-admin-pending-counts.py
+
+      - name: Validate endpoint and admin JavaScript
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check functions/api/admin/pending-counts.js
+          node --test tests/admin-pending-counts.test.mjs
+
+          python3 - <<'PY'
+          import re
+          from pathlib import Path
+          html = Path('admin.html').read_text(encoding='utf-8')
+          blocks = re.findall(r'<script(?:\s[^>]*)?>(.*?)</script>', html, flags=re.S | re.I)
+          out = Path('/tmp/admin-inline-scripts')
+          out.mkdir(exist_ok=True)
+          for idx, block in enumerate(blocks):
+              (out / f'{idx:02d}.js').write_text(block, encoding='utf-8')
+          required = [
+              "loadPendingCounts();",
+              "await loadPendingCounts(true);",
+              "'/api/admin/pending-counts'",
+              "adminApiCache.set('pending:counts'",
+              "applyPendingCounts({",
+          ]
+          for marker in required:
+              if marker not in html:
+                  raise SystemExit(f'missing marker: {marker}')
+          if "ensureAdminSectionLoaded('up-requests');" in html:
+              raise SystemExit('initial detailed pending load remains')
+          PY
+
+          for file in /tmp/admin-inline-scripts/*.js; do node --check "$file"; done
+          node scripts/security-scan.mjs
+
+      - name: Commit product changes and remove temporary files
+        shell: bash
+        run: |
+          set -euo pipefail
+          git rm .github/workflows/pr44-preview-smoke.yml
+          git rm scripts/apply-admin-pending-counts.py
+          git rm diagnostics/pending-load.txt
+          git add admin.html functions/api/admin/pending-counts.js tests/admin-pending-counts.test.mjs
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git commit -m 'perf: poll pending counts before loading details'
+          git push origin HEAD:perf/admin-pending-counts
