@@ -2,63 +2,86 @@
  * 메인 통계 — KPI + 7일 시계열
  *   loadDashboard()가 호출
  */
-import { json, handle, corsPreflight } from '../../_lib/http.js';
+import { handle, corsPreflight } from '../../_lib/http.js';
+import { edgeCachedJson } from '../../_lib/edge-cache.js';
+
 export const onRequestOptions = () => corsPreflight();
 export const onRequestPost = (ctx) => onRequestGet(ctx);
 
 function kstDateKey(d = new Date()) {
-  return new Date(d.getTime() + 9*3600*1000).toISOString().slice(0, 10);
+  return new Date(d.getTime() + 9 * 3600 * 1000).toISOString().slice(0, 10);
 }
 
-export const onRequestGet = async ({ env }) => handle(async () => {
-  const today = kstDateKey();
-  // v2.1.15: 이번 주를 「일요일 시작 ~ 토요일 끝」(국내 달력 관례) 으로 계산
-  //   → 일요일에 카운터가 0으로 리셋되어 그 날 방문만 잡힘 (이전: 월요일 시작이라 일요일에 6일치가 누적되어 "이번 주" 수치가 비정상적으로 커보였음)
-  const nowKst = new Date(Date.now() + 9*3600*1000);
-  const dow = nowKst.getUTCDay();   // 0=일, 1=월 … 6=토
-  const weekStart = new Date(nowKst);
-  weekStart.setUTCDate(nowKst.getUTCDate() - dow);
-  const weekStartStr = weekStart.toISOString().slice(0, 10);
-  // 토요일(이번 주 마지막) — 표시용
-  const weekEnd = new Date(weekStart);
-  weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
-  const weekEndStr = weekEnd.toISOString().slice(0, 10);
+export const onRequestGet = async (ctx) => handle(async () => edgeCachedJson(
+  ctx,
+  'stats-main-v2',
+  35,
+  async () => {
+    const { env } = ctx;
+    const today = kstDateKey();
+    // v2.1.15: 이번 주를 「일요일 시작 ~ 토요일 끝」(국내 달력 관례) 으로 계산
+    const nowKst = new Date(Date.now() + 9 * 3600 * 1000);
+    const dow = nowKst.getUTCDay();
+    const weekStart = new Date(nowKst);
+    weekStart.setUTCDate(nowKst.getUTCDate() - dow);
+    const weekStartStr = weekStart.toISOString().slice(0, 10);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+    const weekEndStr = weekEnd.toISOString().slice(0, 10);
 
-  // 7일 날짜 배열 (오늘부터 거꾸로 7일, 오래된 순) — 차트 X축
-  const last7 = [];
-  for (let i = 6; i >= 0; i--) {
-    const d = new Date(Date.now() + 9*3600*1000 - i*86400*1000);
-    last7.push(d.toISOString().slice(0, 10));
-  }
+    const last7 = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(Date.now() + 9 * 3600 * 1000 - i * 86400 * 1000);
+      last7.push(d.toISOString().slice(0, 10));
+    }
 
-  const [todayV, weekV, totalV, todayC, totalC, visitsRows, clicksRows] = await Promise.all([
-    // v2.32.0: 방문수 단일 소스 = ic_traffic_hits (유입경로 stats/traffic 와 동일 테이블 → 홈·관리자·유입경로 수치 일치). ic_visits_daily(og 과집계로 부풀려진 구버전 카운터) 사용 중단.
-    env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_traffic_hits WHERE date = ?`).bind(today).first(),
-    env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_traffic_hits WHERE date >= ? AND date <= ?`).bind(weekStartStr, today).first(),
-    env.DB.prepare(`SELECT COUNT(*) AS n FROM ic_traffic_hits`).first(),
-    env.DB.prepare(`SELECT COALESCE(SUM(clicks), 0) AS n FROM ic_card_clicks_daily WHERE date = ?`).bind(today).first(),
-    env.DB.prepare(`SELECT COALESCE(SUM(clicks), 0) AS n FROM ic_card_clicks_daily`).first(),
-    env.DB.prepare(`SELECT date, COUNT(*) AS visits FROM ic_traffic_hits WHERE date >= ? GROUP BY date ORDER BY date ASC`).bind(last7[0]).all(),
-    env.DB.prepare(`SELECT date, SUM(clicks) AS clicks FROM ic_card_clicks_daily WHERE date >= ? GROUP BY date ORDER BY date ASC`).bind(last7[0]).all(),
-  ]);
+    // 기존 7개 statement를 3개로 통합한다. 응답 필드는 그대로 유지한다.
+    const [traffic, clicks, series] = await Promise.all([
+      env.DB.prepare(`
+        SELECT
+          COUNT(*) AS total_visits,
+          COALESCE(SUM(CASE WHEN date = ? THEN 1 ELSE 0 END), 0) AS today_visits,
+          COALESCE(SUM(CASE WHEN date >= ? AND date <= ? THEN 1 ELSE 0 END), 0) AS week_visits
+        FROM ic_traffic_hits
+      `).bind(today, weekStartStr, today).first(),
+      env.DB.prepare(`
+        SELECT
+          COALESCE(SUM(clicks), 0) AS total_clicks,
+          COALESCE(SUM(CASE WHEN date = ? THEN clicks ELSE 0 END), 0) AS today_clicks
+        FROM ic_card_clicks_daily
+      `).bind(today).first(),
+      env.DB.prepare(`
+        SELECT date, COUNT(*) AS visits, 0 AS clicks
+        FROM ic_traffic_hits
+        WHERE date >= ?
+        GROUP BY date
+        UNION ALL
+        SELECT date, 0 AS visits, COALESCE(SUM(clicks), 0) AS clicks
+        FROM ic_card_clicks_daily
+        WHERE date >= ?
+        GROUP BY date
+      `).bind(last7[0], last7[0]).all(),
+    ]);
 
-  // 7일 채워주기 (없는 날짜는 0)
-  const fill = (rows, key) => {
-    const map = new Map();
-    (rows.results || []).forEach(r => map.set(r.date, r[key] || 0));
-    return last7.map(d => ({ date: d, [key]: map.get(d) || 0 }));
-  };
+    const seriesMap = new Map(last7.map((date) => [date, { visits: 0, clicks: 0 }]));
+    for (const row of series.results || []) {
+      const item = seriesMap.get(row.date);
+      if (!item) continue;
+      item.visits += Number(row.visits || 0);
+      item.clicks += Number(row.clicks || 0);
+    }
 
-  return json({
-    today_visits: todayV?.n || 0,
-    week_visits:  weekV?.n || 0,
-    total_visits: totalV?.n || 0,
-    today_clicks: todayC?.n || 0,
-    total_clicks: totalC?.n || 0,
-    week_start_date: weekStartStr,   // 일요일
-    week_end_date:   weekEndStr,     // 토요일 (UI 노출 — 데이터는 오늘까지만 집계)
-    today_date:      today,          // 오늘까지 누적이라는 의미를 admin UI 에서 표시할 수 있도록
-    daily_visits_7d: fill(visitsRows, 'visits'),
-    daily_clicks_7d: fill(clicksRows, 'clicks'),
-  });
-});
+    return {
+      today_visits: Number(traffic?.today_visits || 0),
+      week_visits: Number(traffic?.week_visits || 0),
+      total_visits: Number(traffic?.total_visits || 0),
+      today_clicks: Number(clicks?.today_clicks || 0),
+      total_clicks: Number(clicks?.total_clicks || 0),
+      week_start_date: weekStartStr,
+      week_end_date: weekEndStr,
+      today_date: today,
+      daily_visits_7d: last7.map((date) => ({ date, visits: seriesMap.get(date).visits })),
+      daily_clicks_7d: last7.map((date) => ({ date, clicks: seriesMap.get(date).clicks })),
+    };
+  },
+));
