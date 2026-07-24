@@ -1,0 +1,147 @@
+name: PR44 Preview Smoke
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preview-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PREVIEW_BASE: https://perf-admin-dashboard-d1-load.insureconnect-hub.pages.dev
+      PROD_BASE: https://insureconnect.co.kr
+    steps:
+      - name: Wait for Cloudflare preview and validate admin stats APIs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          fetch_with_retry() {
+            local method="$1"
+            local url="$2"
+            local output="$3"
+            local headers="$4"
+            local code=""
+
+            for attempt in $(seq 1 36); do
+              if [ "$method" = "POST" ]; then
+                code=$(curl --silent --show-error --location \
+                  --request POST \
+                  --header 'Content-Type: application/json' \
+                  --data '{}' \
+                  --dump-header "$headers" \
+                  --output "$output" \
+                  --write-out '%{http_code}' \
+                  "$url" || true)
+              else
+                code=$(curl --silent --show-error --location \
+                  --dump-header "$headers" \
+                  --output "$output" \
+                  --write-out '%{http_code}' \
+                  "$url" || true)
+              fi
+
+              if [ "$code" = "200" ]; then
+                echo "OK $method $url"
+                return 0
+              fi
+
+              echo "Attempt $attempt: $method $url returned ${code:-curl_error}; retrying"
+              sleep 10
+            done
+
+            echo "Preview endpoint did not become healthy: $method $url" >&2
+            [ -f "$output" ] && cat "$output" >&2 || true
+            return 1
+          }
+
+          fetch_with_retry GET  "$PREVIEW_BASE/admin.html"          /tmp/admin.html           /tmp/admin.headers
+          fetch_with_retry GET  "$PREVIEW_BASE/api/stats"           /tmp/preview-stats.json    /tmp/preview-stats.headers
+          fetch_with_retry POST "$PREVIEW_BASE/api/stats"           /tmp/preview-stats-post.json /tmp/preview-stats-post.headers
+          fetch_with_retry GET  "$PREVIEW_BASE/api/stats/sessions"  /tmp/preview-sessions.json /tmp/preview-sessions.headers
+          fetch_with_retry POST "$PREVIEW_BASE/api/top-items"       /tmp/preview-top.json      /tmp/preview-top.headers
+
+          fetch_with_retry GET  "$PROD_BASE/api/stats"              /tmp/prod-stats.json       /tmp/prod-stats.headers
+          fetch_with_retry GET  "$PROD_BASE/api/stats/sessions"     /tmp/prod-sessions.json    /tmp/prod-sessions.headers
+          fetch_with_retry POST "$PROD_BASE/api/top-items"          /tmp/prod-top.json         /tmp/prod-top.headers
+
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+
+          def load(path):
+              with open(path, encoding='utf-8') as f:
+                  return json.load(f)
+
+          preview_stats = load('/tmp/preview-stats.json')
+          preview_stats_post = load('/tmp/preview-stats-post.json')
+          prod_stats = load('/tmp/prod-stats.json')
+          preview_sessions = load('/tmp/preview-sessions.json')
+          prod_sessions = load('/tmp/prod-sessions.json')
+          preview_top = load('/tmp/preview-top.json')
+          prod_top = load('/tmp/prod-top.json')
+
+          stats_keys = {
+              'today_visits', 'week_visits', 'total_visits',
+              'today_clicks', 'total_clicks',
+              'week_start_date', 'week_end_date', 'today_date',
+              'daily_visits_7d', 'daily_clicks_7d',
+          }
+          assert stats_keys <= preview_stats.keys(), sorted(stats_keys - preview_stats.keys())
+          assert preview_stats.keys() == preview_stats_post.keys(), 'GET/POST schema mismatch'
+          assert preview_stats.keys() == prod_stats.keys(), 'production/preview stats schema mismatch'
+          assert len(preview_stats['daily_visits_7d']) == 7
+          assert len(preview_stats['daily_clicks_7d']) == 7
+          assert all(set(x) == {'date', 'visits'} for x in preview_stats['daily_visits_7d'])
+          assert all(set(x) == {'date', 'clicks'} for x in preview_stats['daily_clicks_7d'])
+
+          session_keys = {
+              'today_count', 'today_avg', 'total_avg', 'distribution', 'recent',
+              'today_sessions', 'today_avg_sec', 'total_sessions', 'total_avg_sec',
+              'recent_sessions', 'last_7_days',
+          }
+          assert session_keys <= preview_sessions.keys(), sorted(session_keys - preview_sessions.keys())
+          assert preview_sessions.keys() == prod_sessions.keys(), 'production/preview session schema mismatch'
+          assert len(preview_sessions['last_7_days']) <= 7
+
+          assert preview_top.keys() == prod_top.keys(), 'production/preview top-items schema mismatch'
+          assert len(preview_top) == 20, f'unexpected top-items key count: {len(preview_top)}'
+          for key, value in preview_top.items():
+              assert isinstance(value, list), f'{key} must be an array'
+              assert len(value) <= 5, f'{key} returned more than 5 rows'
+
+          admin = Path('/tmp/admin.html').read_text(encoding='utf-8')
+          assert 'loadDashboard' in admin
+          assert 'startAutoRefresh' in admin
+
+          print('Preview stats:', {
+              'today_visits': preview_stats['today_visits'],
+              'week_visits': preview_stats['week_visits'],
+              'total_visits': preview_stats['total_visits'],
+              'today_clicks': preview_stats['today_clicks'],
+              'total_clicks': preview_stats['total_clicks'],
+          })
+          print('Production stats:', {
+              'today_visits': prod_stats['today_visits'],
+              'week_visits': prod_stats['week_visits'],
+              'total_visits': prod_stats['total_visits'],
+              'today_clicks': prod_stats['today_clicks'],
+              'total_clicks': prod_stats['total_clicks'],
+          })
+          print('Preview smoke validation passed')
+          PY
+
+          grep -Eiq 'cache-control:.*s-maxage=35' /tmp/preview-stats.headers
+          grep -Eiq 'cache-control:.*s-maxage=60' /tmp/preview-sessions.headers
+          grep -Eiq 'cache-control:.*s-maxage=60' /tmp/preview-top.headers
+
+          echo 'Cache headers:'
+          grep -Ei '^(cache-control|cf-cache-status|age):' /tmp/preview-stats.headers || true
+          grep -Ei '^(cache-control|cf-cache-status|age):' /tmp/preview-sessions.headers || true
+          grep -Ei '^(cache-control|cf-cache-status|age):' /tmp/preview-top.headers || true
