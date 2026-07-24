@@ -1,6 +1,5 @@
-const SB_URL  = 'https://rzllpymhtygnooduevgf.supabase.co';
-const SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJ6bGxweW1odHlnbm9vZHVldmdmIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzIzMjg1NjYsImV4cCI6MjA4NzkwNDU2Nn0.Z2K720NiFo191fVBllr0_OiTxvJYjwTSv3ZSiNgc2bs';
-const SB_HDR  = { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` };
+/* v2.139.0: 옛 수파베이스 의존 제거 — 프로젝트 폐기로 전 ID HTTP 500이었다.
+   데이터 원본은 D1 ic_knowledge_posts(관리자 업로드·OG·목록과 동일 소스). */
 
 function esc(s) {
   return (s || '').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
@@ -304,14 +303,13 @@ export async function onRequestGet(context) {
   if (!id || isNaN(Number(id))) {
     return new Response('Not Found', { status: 404 });
   }
+  const pid = Number(id);
 
   try {
-    const res = await fetch(
-      `${SB_URL}/rest/v1/ic_knowledge_posts?id=eq.${encodeURIComponent(id)}&select=id,title,content,image_url,created_at&limit=1`,
-      { headers: SB_HDR }
-    );
-    const rows = await res.json();
-    const post = rows?.[0];
+    const post = await context.env.DB.prepare(
+      `SELECT id, title, content, image_url, created_at
+         FROM ic_knowledge_posts WHERE id = ? LIMIT 1`
+    ).bind(pid).first();
 
     if (!post) {
       return new Response('Not Found', { status: 404 });
@@ -321,11 +319,11 @@ export async function onRequestGet(context) {
     // v2.26.0: 다른 보험지식 6개(현재 글 제외) — 콘텐츠 상호 내부링크용
     let related = [];
     try {
-      const rr = await fetch(
-        `${SB_URL}/rest/v1/ic_knowledge_posts?id=neq.${encodeURIComponent(id)}&order=created_at.desc&limit=6&select=id,title,created_at`,
-        { headers: SB_HDR }
-      );
-      related = (await rr.json()) || [];
+      const rr = await context.env.DB.prepare(
+        `SELECT id, title, created_at
+           FROM ic_knowledge_posts WHERE id != ? ORDER BY created_at DESC LIMIT 6`
+      ).bind(pid).all();
+      related = rr.results || [];
     } catch (_) {}
     const html = renderPage(post, canonicalUrl, related);
 

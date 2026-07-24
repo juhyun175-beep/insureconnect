@@ -5018,6 +5018,14 @@
     }
     function jsStr(s) { return esc(s).replace(/\\/g,'\\\\'); }
 
+    /* v2.138.1: 로더 실패를 콘솔에 남긴다. 기존엔 catch가 전부 조용히 삼켜
+       ReferenceError 같은 단순 버그도 화면의 "로드 실패" 문구로만 드러났다.
+       UI 문구는 바꾸지 않는다(호출부는 기존 innerHTML을 그대로 유지). */
+    function adminLoadFail(scope, err) {
+      try { console.error('[admin] ' + scope + ' 로드 실패:', err); } catch (_) {}
+      return err && err.message ? err.message : String(err);
+    }
+
     function adminHeaders(extra) {
       return Object.assign({
         'x-admin-secret': ADMIN_SECRET
@@ -5147,7 +5155,7 @@
             const dis = (c.top_diseases || []).map(function (r) { return '<span class="rd">' + esc(r.disease) + ' <b>' + r.n + '</b></span>'; }).join('');
             topEl.innerHTML = (ins ? '<span style="font-size:11px;color:var(--txt-lo);align-self:center;">보험사</span> ' + ins : '') + (dis ? '<span style="font-size:11px;color:var(--txt-lo);align-self:center;margin-left:8px;">질병</span> ' + dis : '');
           }
-        } catch (e) { el.innerHTML = '<div class="mt-card"><div class="mt-lbl">통계 로드 실패</div></div>'; }
+        } catch (e) { adminLoadFail('cases', e); el.innerHTML = '<div class="mt-card"><div class="mt-lbl">통계 로드 실패</div></div>'; }
       }
       searchCases();
     }
@@ -5372,7 +5380,7 @@
               + '<button onclick="deleteCov(' + c.id + ')" style="font-size:10px;padding:3px 7px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:5px;cursor:pointer;">삭제</button>'
               + '</td></tr>';
           }).join('') + '</tbody></table></div>';
-      } catch (e) { el.innerHTML = '<p class="empty-msg">로드 실패: ' + esc(e.message) + '</p>'; }
+      } catch (e) { adminLoadFail('coverages', e); el.innerHTML = '<p class="empty-msg">로드 실패: ' + esc(e.message) + '</p>'; }
     }
     async function patchCov(id, b) { await fetch('/api/coverages/' + id, { method: 'PATCH', headers: adminHeaders({ 'Content-Type': 'application/json' }), body: JSON.stringify(b) }); loadCoverages(); }
     async function deleteCov(id) { if (!confirm('이 담보를 삭제할까요?')) return; await fetch('/api/coverages/' + id, { method: 'DELETE', headers: adminHeaders() }); loadCoverages(); }
@@ -5404,6 +5412,7 @@
             + '</div></div>';
         }).join('');
       } catch (e) {
+        adminLoadFail('board-reports', e);
         el.innerHTML = '<div style="color:#dc2626">신고 목록을 불러오지 못했습니다: ' + (e.message || '') + '</div>';
       }
     }
@@ -6853,7 +6862,7 @@
             +'<div style="font-size:11px;color:var(--txt-lo);">'+esc(rm.inquirer_nick||('#'+rm.inquirer_id))+' ↔ '+esc(rm.owner_nick||('#'+rm.owner_id))+'</div>'
             +'</button>';
         });
-      }catch(e){ el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
+      }catch(e){ adminLoadFail('dm', e); el.innerHTML='<p class="empty-msg">불러오지 못했습니다.</p>'; }
     }
     async function loadDmAdminRoom(roomId){
       var el=document.getElementById('dm-admin-msgs'); if(!el) return;
@@ -6971,7 +6980,7 @@
         var title=document.getElementById('notice-title'); if(title) title.value=_noticeCfg.title||'운영자 공지';
         noticeRender();
         if(st){ st.style.color='var(--txt-lo)'; st.textContent=_noticeCfg.updated_at ? ('마지막 저장: '+String(_noticeCfg.updated_at).slice(0,16).replace('T',' ')) : ''; }
-      }catch(e){ if(st){ st.style.color='#ef4444'; st.textContent='❌ '+e.message; } }
+      }catch(e){ adminLoadFail('notice', e); if(st){ st.style.color='#ef4444'; st.textContent='❌ '+e.message; } }
     }
     async function noticeSave(){
       var btn=document.getElementById('notice-save-btn'); var st=document.getElementById('notice-status');
@@ -7008,7 +7017,7 @@
         var pd=document.getElementById('ha-popup-delay'); if(pd) pd.value=(_haCfg.popup.delay_ms!=null?_haCfg.popup.delay_ms:900);
         haRenderCampaigns();
         haLoadStats();
-      }catch(e){}
+      }catch(e){ adminLoadFail('home-ad', e); }
     }
 
     function haRenderCampaigns(){
@@ -7265,7 +7274,7 @@
               +'<span style="color:var(--txt-lo);font-size:11px;white-space:nowrap;">'+String(l.created_at||'').slice(5,16).replace('T',' ')+'</span></div>';
           });
         }
-      }catch(e){ if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; }
+      }catch(e){ adminLoadFail('refunds', e); if(tb) tb.innerHTML='<tr><td colspan="7" style="padding:10px;">불러오지 못했습니다.</td></tr>'; }
     }
     async function refundDo(orderId, type){
       var label=type==='partial90'?'재량 부분환불(90%)':'전액 환불';
@@ -7320,6 +7329,7 @@
             <button onclick="deleteLecture(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`);
       } catch (_) {
+        adminLoadFail('lecture', _);
         el.innerHTML = '<p class="empty-msg">강의 로드 실패</p>';
       }
     }
@@ -7354,6 +7364,7 @@
             <button onclick="deleteMeeting(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`);
       } catch (_) {
+        adminLoadFail('meeting', _);
         el.innerHTML = '<p class="empty-msg">모임 로드 실패</p>';
       }
     }
@@ -7401,6 +7412,7 @@
         }
         pendingState.lastTotal = total;
       } catch (e) {
+        adminLoadFail('pending', e);
         const wrap = document.getElementById('pending-list-container');
         if (wrap) wrap.innerHTML = '<p class="empty-msg">승인대기 로드 실패: ' + esc(e.message) + '</p>';
       }
@@ -7953,7 +7965,6 @@
       const el = document.getElementById('nl-list');
       try {
         const items = await cachedAdminFetch('newsletters:list', `/api/newsletters?order=created_at.desc&limit=50`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           force
         }, force ? 0 : 30000);
 
@@ -7980,6 +7991,7 @@
         });
 
       } catch (e) {
+        adminLoadFail('newsletters', e);
         el.innerHTML = '<p class="empty-msg">소식지 로드 실패</p>';
       }
     }
@@ -8074,7 +8086,6 @@
       const summary = document.getElementById('cf-summary');
       try {
         const items = await cachedAdminFetch('claim-forms:list', `/api/claim-forms?order=created_at.desc&limit=100`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           force
         }, force ? 0 : 30000);
         renderClaimFormsSummary(items || []);
@@ -8102,6 +8113,7 @@
         });
 
       } catch (e) {
+        adminLoadFail('claim-forms', e);
         el.innerHTML = '<p class="empty-msg">청구서류 로드 실패</p>';
         if (summary) summary.textContent = '청구서류 커버리지 계산 실패';
       }
@@ -8411,6 +8423,7 @@
         });
 
       } catch (e) {
+        adminLoadFail('recruit', e);
         el.innerHTML = '<p class="empty-msg">채용공고 로드 실패</p>';
       }
     }
@@ -8817,7 +8830,6 @@
       if (!el) return;
       try {
         const items = await cachedAdminFetch('knowledge:list', `/api/knowledge-posts?order=created_at.desc&limit=100`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           force
         }, force ? 0 : 30000);
         if (!items || items.length === 0) {
@@ -8844,6 +8856,7 @@
             </div>`;
         });
       } catch (e) {
+        adminLoadFail('knowledge', e);
         el.innerHTML = '<p class="empty-msg">포스트 로드 실패</p>';
       }
     }
@@ -9056,7 +9069,6 @@
       const el = document.getElementById('cn-list');
       try {
         const items = await cachedAdminFetch('card-news:list', `/api/card-news?order=created_at.desc&limit=300`, {
-          headers: { 'apikey': SB_ANON, 'Authorization': `Bearer ${SB_ANON}` },
           force
         }, force ? 0 : 30000);
         if (!items || items.length === 0) {
@@ -9090,6 +9102,7 @@
             </div>`;
         });
       } catch (e) {
+        adminLoadFail('card-news', e);
         el.innerHTML = '<p class="empty-msg">카드뉴스 로드 실패</p>';
       }
     }
@@ -9286,7 +9299,6 @@
       const el = document.getElementById('tb-list');
       try {
         const items = await cachedAdminFetch('textbooks:list', `/api/textbooks?order=sort_order.asc,created_at.desc&limit=50`, {
-          headers: { apikey: SB_ANON, Authorization: `Bearer ${SB_ANON}` },
           force
         }, force ? 0 : 30000);
 
@@ -9315,6 +9327,7 @@
               style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.08);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`);
       } catch (e) {
+        adminLoadFail('textbooks', e);
         el.innerHTML = '<p class="empty-msg">목록 로드 실패</p>';
       }
     }
@@ -9410,6 +9423,7 @@
             <button onclick="deleteAlert(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`);
       } catch (e) {
+        adminLoadFail('alerts', e);
         el.innerHTML = '<p class="empty-msg">알림 로드 실패</p>';
       }
     }
@@ -9504,6 +9518,7 @@
             <button onclick="deleteCoupang(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`).join('');
       } catch (e) {
+        adminLoadFail('coupang', e);
         el.innerHTML = '<p class="empty-msg">아이템 로드 실패</p>';
       }
     }
@@ -9620,6 +9635,7 @@
           </div>`;
         }).join('');
       } catch (e) {
+        adminLoadFail('partners', e);
         el.innerHTML = '<p class="empty-msg">파트너 로드 실패: ' + esc(e.message) + '</p>';
       }
     }
@@ -9938,6 +9954,7 @@
             <button onclick="kkDelete(${it.id})" style="font-size:11px;padding:5px 10px;background:rgba(220,38,38,0.12);color:#dc2626;border:none;border-radius:6px;cursor:pointer;font-weight:600;">삭제</button>
           </div>`);
       } catch (e) {
+        adminLoadFail('kakao-stats', e);
         el.innerHTML = '<p class="empty-msg">통계 로드 실패</p>';
       }
     }
@@ -10101,6 +10118,7 @@
             </div>`;
         });
       } catch (e) {
+        adminLoadFail('home-popups', e);
         el.innerHTML = '<p class="empty-msg">공지 로드 실패</p>';
       }
     }
@@ -10309,6 +10327,7 @@
             </div>`;
         });
       } catch (e) {
+        adminLoadFail('seo-posts', e);
         el.innerHTML = `<p class="empty-msg">불러오기 실패: ${e.message}</p>`;
       }
     }

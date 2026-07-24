@@ -74,8 +74,8 @@ const trueOrig = {};
 for (const f of MIN_FILES) { try { trueOrig[f] = readFileSync(f, 'utf8'); } catch (_) {} }
 log('externalize inline JS/CSS (deploy artifact only)…');
 try {
-  run(`${NODE} scripts/externalize.mjs index.html`);
-  log('  index.html: externalized to assets/');
+  run(`${NODE} scripts/externalize.mjs ${MIN_FILES.join(' ')}`);
+  log(`  ${MIN_FILES.join(', ')}: externalized to assets/`);
 } catch (e) {
   log('externalize skip:', String((e && e.message) || e).slice(0, 120)); // 스크립트가 자체 롤백(인라인 폴백)
 }

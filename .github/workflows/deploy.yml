@@ -30,7 +30,7 @@ jobs:
       # v2.123.0: 인라인 JS/CSS를 해시 파일(assets/)로 외부화 — HTML ~130KB로 축소 + 자산 1년 캐시.
       # 실패 시 스크립트가 자체 롤백(인라인 폴백)하므로 배포는 계속된다.
       - name: Externalize inline JS/CSS (deploy artifact only)
-        run: node scripts/externalize.mjs index.html || true
+        run: node scripts/externalize.mjs index.html admin.html || true
 
       - name: Minify HTML (deploy artifact only)
         run: |
